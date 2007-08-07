@@ -1,0 +1,7 @@
+This page contains some papers (not necessarily freely available) relating to database implementation.
+
+  * "Query Evaluation Techniques for Large Databases", GOETZ GRAEFE
+  * "Optimizing Object Queries Using an Effective Calculus", LEONIDAS FEGARAS and DAVID MAIER
+
+
+

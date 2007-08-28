@@ -67,6 +67,18 @@ public class ComplexTypeConstructor implements HGAtomType
       USAddressComplexRecordType result = new USAddressComplexRecordType();
 
       Class clazz = ClassGenerator.generateComplexStore(hg, ComplexTypeBase.class, recordType);
+      try
+      {
+         Object o = clazz.newInstance();
+      } catch (InstantiationException e)
+      {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      } catch (IllegalAccessException e)
+      {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
 
       return result;
    }

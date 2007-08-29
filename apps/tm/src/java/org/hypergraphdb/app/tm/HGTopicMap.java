@@ -5,8 +5,10 @@ import java.util.Set;
 
 import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.annotation.AtomReference;
+import org.hypergraphdb.annotation.HGIgnore;
 import org.hypergraphdb.atom.HGRel;
 import org.hypergraphdb.util.HGUtils;
+import org.hypergraphdb.HGException;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGHandleFactory;
 import org.hypergraphdb.HGPersistentHandle;
@@ -146,11 +148,13 @@ public class HGTopicMap extends HGTopicMapObjectBase implements TopicMap
 		return o;
 	}
 
+	@HGIgnore
 	public Topic getReifier()
 	{
 		return (Topic)graph.get(U.getReifierOf(graph, graph.getHandle(this)));
 	}
-
+	
+	@HGIgnore
 	public void setReifier(Topic t)
 	{
 		U.setReifierOf(graph, graph.getHandle(this), graph.getHandle(t));
@@ -179,12 +183,20 @@ public class HGTopicMap extends HGTopicMapObjectBase implements TopicMap
 				U.removeRelations(graph, HGTM.hScopeOf, null, tHandle);
 				t.remove();
 			}
+			graph.remove(graph.getHandle(this));
 			graph.getTransactionManager().endTransaction(true);			
 		}
 		catch (Throwable t)
 		{
-			try { graph.getTransactionManager().endTransaction(false); }
-			catch (Exception ex) { throw new TMAPIRuntimeException(ex); }
+			try 
+			{ 
+				graph.getTransactionManager().endTransaction(false);
+				throw new TMAPIRuntimeException(t);
+			}
+			catch (Exception ex) 
+			{  
+				throw new HGException("Exception during transaction rollback caused by :" + t.toString(), ex);
+			}
 		}
 	}
 }

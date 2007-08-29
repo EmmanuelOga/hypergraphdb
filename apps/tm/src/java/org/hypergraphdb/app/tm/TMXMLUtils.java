@@ -7,23 +7,30 @@ import org.w3c.dom.ls.*;
 
 public class TMXMLUtils
 {
-	public static void load(String uri, HGTopicMapSystem tmSystem)
+	/**
+	 * <p>
+	 * Load a topic map.
+	 * </p>
+	 * 
+	 * @param tmSystem The topic map system (bound to a HyperGraphDB instance) where to load the map.
+	 * @param uri The URI of the XML file of the topic map.
+	 * @param locatorURI The URI of the base locator to the topic map.
+	 * @param merge Whether to merge or replace existing TM entities for this topic map.
+	 */
+	public static void load(HGTopicMapSystem tmSystem, String uri, String locatorURI, boolean merge)
 	{
 		try
 		{
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document doc = builder.parse(uri);
-			loadTopicMap(doc.getDocumentElement(), tmSystem);
+			TMXMLProcessor processor = new TMXMLProcessor(tmSystem, merge, locatorURI);
+			processor.loadTo(doc);
 		}
 		catch (Exception ex)
 		{
 			throw new RuntimeException(ex);
 		}
-	}
-	
-	public static void loadTopicMap(Element tmNode, HGTopicMapSystem tmSystem) throws Exception
-	{
 	}
 	
 	public static String canonicalizeContent(Element e)

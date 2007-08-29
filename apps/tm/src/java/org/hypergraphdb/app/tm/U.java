@@ -110,7 +110,7 @@ class U
 		if (rel != null)
 			graph.remove(rel);
 		if (type != null)
-			graph.add(new HGRel(HGTM.TypeOf, new HGHandle [] {type, object}));
+			graph.add(new HGRel(HGTM.TypeOf, new HGHandle [] {type, object}), HGTM.hTypeOf);
 	}	
 
 	static HGHandle getReifierOf(HyperGraph graph, HGHandle h)
@@ -132,7 +132,7 @@ class U
 		if (rel != null)
 			graph.remove(rel);
 		if (reifier != null)
-			graph.add(new HGRel(HGTM.ReifierOf, new HGHandle [] {reifier, object}));
+			graph.add(new HGRel(HGTM.ReifierOf, new HGHandle [] {reifier, object}), HGTM.hReifierOf);
 	}
 	
 	/**

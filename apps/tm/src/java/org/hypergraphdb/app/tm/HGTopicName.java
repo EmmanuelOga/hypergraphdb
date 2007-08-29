@@ -74,11 +74,13 @@ public class HGTopicName extends HGScopedObject implements TopicName
 		return v;		
 	}
 	
+	@HGIgnore
 	public Topic getReifier()
 	{
 		return (Topic)graph.get(U.getReifierOf(graph, graph.getHandle(this)));
 	}
 	
+	@HGIgnore
 	public void setReifier(Topic topic)
 	{
 		U.setReifierOf(graph, graph.getHandle(this), graph.getHandle(topic));

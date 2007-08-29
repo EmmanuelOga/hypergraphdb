@@ -8,6 +8,7 @@ import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.util.HGUtils;
 import org.tmapi.core.AssociationRole;
+import org.tmapi.core.TMAPIRuntimeException;
 
 /**
  * 
@@ -22,18 +23,18 @@ import org.tmapi.core.AssociationRole;
 class AssociationRoleSet implements Set<HGAssociationRole>
 {
 	HyperGraph graph;
-	HGHandle [] targetSet;
+	HGAssociation ass;
 
-	AssociationRoleSet(HyperGraph graph, HGHandle targetSet[])
+	AssociationRoleSet(HyperGraph graph, HGAssociation ass)
 	{	
 		this.graph  = graph;
-		this.targetSet = targetSet;
+		this.ass = ass;
 	
 	}
 
 	HGAssociationRole get(int i)
 	{
-		HGAssociationRole r = (HGAssociationRole)graph.get(targetSet[i]);
+		HGAssociationRole r = (HGAssociationRole)graph.get(ass.targetSet[i]);
 		r.graph = graph;
 		return r;
 	}
@@ -55,7 +56,7 @@ class AssociationRoleSet implements Set<HGAssociationRole>
 
 	public boolean contains(Object o)
 	{
-		for (HGHandle h : targetSet)
+		for (HGHandle h : ass.targetSet)
 			if (HGUtils.eq(o, graph.get(h)))
 				return true;
 		return false;
@@ -71,7 +72,7 @@ class AssociationRoleSet implements Set<HGAssociationRole>
 
 	public boolean isEmpty()
 	{
-		return targetSet.length == 0;
+		return ass.targetSet.length == 0;
 	}
 
 	public Iterator<HGAssociationRole> iterator()
@@ -80,7 +81,7 @@ class AssociationRoleSet implements Set<HGAssociationRole>
 		{
 			int i = 0;
 			public void remove() { throw new UnsupportedOperationException(); }
-			public boolean hasNext() { return i < targetSet.length; }
+			public boolean hasNext() { return i < ass.targetSet.length; }
 			public HGAssociationRole next()  { return get(i++); } 		
 		};
 	}
@@ -92,7 +93,12 @@ class AssociationRoleSet implements Set<HGAssociationRole>
 
 	public boolean removeAll(Collection<?> c)
 	{
-		throw new UnsupportedOperationException();	
+		HGAssociationRole [] roles = new HGAssociationRole[ass.targetSet.length];
+		for (int i = 0; i < roles.length; i++)
+			roles[i] = (HGAssociationRole)graph.get(ass.targetSet[i]);
+		for (HGAssociationRole r:roles)
+			try { r.remove(); } catch (Exception ex) { throw new TMAPIRuntimeException(ex); }
+		return true;
 	}
 
 	public boolean retainAll(Collection<?> c)
@@ -101,23 +107,23 @@ class AssociationRoleSet implements Set<HGAssociationRole>
 
 	public int size()
 	{
-		return targetSet.length;
+		return ass.targetSet.length;
 	}
 
 	public Object[] toArray()
 	{
-		Object [] result = new Object[targetSet.length];
-		for (int i = 0; i < targetSet.length; i++)
+		Object [] result = new Object[ass.targetSet.length];
+		for (int i = 0; i < ass.targetSet.length; i++)
 			result[i] = get(i);
 		return result;
 	}
 
 	public <T> T[] toArray(T[] a)
 	{
-        if (a.length < targetSet.length)
+        if (a.length < ass.targetSet.length)
             a = (T[])java.lang.reflect.Array.
-            		newInstance(a.getClass().getComponentType(), targetSet.length);        
-		for (int i = 0; i < targetSet.length; i++)
+            		newInstance(a.getClass().getComponentType(), ass.targetSet.length);        
+		for (int i = 0; i < ass.targetSet.length; i++)
 			a[i] = (T)get(i);
 		return a;
 	}	

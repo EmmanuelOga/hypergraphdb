@@ -18,6 +18,10 @@ public class ComplexTypeBase implements HGAtomType
 {
    private HyperGraph hg;
 
+   public ComplexTypeBase()
+   {  
+   }
+      
    public Object make(
       HGPersistentHandle handle, LazyRef<HGHandle[]> targetSet,
       LazyRef<HGHandle[]> incidenceSet)

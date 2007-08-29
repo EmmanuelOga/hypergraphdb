@@ -70,6 +70,7 @@ public class ComplexTypeConstructor implements HGAtomType
       try
       {
          Object o = clazz.newInstance();
+         System.out.println(o);
       } catch (InstantiationException e)
       {
          // TODO Auto-generated catch block

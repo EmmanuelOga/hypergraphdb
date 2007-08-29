@@ -298,6 +298,7 @@ public class ClassGenerator
       mw.visitVarInsn(Opcodes.ALOAD, 0);
       // invokes the super class constructor
       mw.visitMethodInsn(Opcodes.INVOKESPECIAL, clazzName, "<init>", "()V");
+      mw.visitInsn(Opcodes.RETURN);
       // this code uses a maximum of one stack element and one local variable
       mw.visitMaxs(1, 1);
       mw.visitEnd();
@@ -377,17 +378,19 @@ public class ClassGenerator
       
       mw.visitVarInsn(Opcodes.ALOAD, 0);
       mw.visitFieldInsn(Opcodes.GETFIELD, "ComplexClass", "hg", "Lorg/hypergraphdb/HyperGraph;");
+      mw.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "org/hypergraphdb/HyperGraph", "getStore", "()Lorg/hypergraphdb/HGStore;");
       mw.visitVarInsn(Opcodes.ALOAD, 7);
       mw.visitVarInsn(Opcodes.ALOAD, 5);
       mw.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "org/hypergraphdb/HGStore", "store",
          "(Lorg/hypergraphdb/HGPersistentHandle;[Lorg/hypergraphdb/HGPersistentHandle;)Lorg/hypergraphdb/HGPersistentHandle;");
+
       mw.visitInsn(Opcodes.POP);
 
       //return.
       mw.visitVarInsn(Opcodes.ALOAD, 7);
       mw.visitInsn(Opcodes.ARETURN);
       
-      mw.visitMaxs(7, 10);
+      mw.visitMaxs(6, 8);
       mw.visitEnd();
 
       byte[] byteCode = cw.toByteArray();

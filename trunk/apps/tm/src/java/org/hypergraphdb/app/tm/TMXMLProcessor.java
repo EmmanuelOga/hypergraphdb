@@ -4,6 +4,7 @@ import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.atom.HGRel;
 import org.tmapi.core.Locator;
+import org.tmapi.core.TMAPIRuntimeException;
 import org.tmapi.core.Topic;
 import org.w3c.dom.*;
 import java.util.*;
@@ -22,7 +23,7 @@ public class TMXMLProcessor
 		for (int i = 0; i < kids.getLength(); i++)
 		{
 			Node n = kids.item(i);
-			if (n instanceof Element)
+			if (! (n instanceof Element))
 				continue;
 			else if (n.getNodeName().equals("itemIdentity"))
 				result.add(U.handleIRI(((Element)n).getAttribute("href")));
@@ -91,7 +92,7 @@ public class TMXMLProcessor
 			else if (type.isAssignableFrom(x.getClass()))
 			{
 				if (result == null)
-					result = (HGTopicMap)x;
+					result = (HGTopicMapObjectBase)x;
 				else if (result != x)
 					throw new RuntimeException("Attempt a add a topic map object '" + type.getName() + 
 							"' with a locator '" +
@@ -130,7 +131,7 @@ public class TMXMLProcessor
 		for (int i = 0; i < kids.getLength(); i++)
 		{
 			Node n = kids.item(i);
-			if (n instanceof Element)
+			if (! (n instanceof Element))
 				continue;
 			else if (n.getNodeName().equals("topicRef"))
 				result.add(getTopicRef((Element)n, map));
@@ -160,7 +161,9 @@ public class TMXMLProcessor
 	{		
 		Set<HGHandle> locators = getStoredLocators(getItemIdentities(top, false));
 		HashSet<HGHandle> toAdd = new HashSet<HGHandle>();
-		HGTopicMap tm = (HGTopicMap)locate(locators, HGTopicMap.class, toAdd);
+		HGTopicMap tm = (HGTopicMap)system.getTopicMap(iri);
+		if (tm == null)
+			tm = (HGTopicMap)locate(locators, HGTopicMap.class, toAdd);		
 		if (tm == null)
 			tm = (HGTopicMap)system.createTopicMap(iri);
 		else
@@ -173,7 +176,7 @@ public class TMXMLProcessor
 		for (int i = 0; i < kids.getLength(); i++)
 		{
 			Node n = kids.item(i);
-			if (n instanceof Element)
+			if (! (n instanceof Element))
 				continue;
 			else if (n.getNodeName().equals("topic"))
 				loadTopic2((Element)n, tm);
@@ -196,7 +199,7 @@ public class TMXMLProcessor
 		for (idx = 0; idx < kids.getLength(); idx++)
 		{
 			Node n = kids.item(idx);
-			if (n instanceof Element)
+			if (! (n instanceof Element))
 				continue;
 			else if (n.getNodeName().equals("scope"))
 			{
@@ -253,7 +256,7 @@ public class TMXMLProcessor
 		for (idx = 0; idx < kids.getLength(); idx++)
 		{
 			Node n = kids.item(idx);
-			if (n instanceof Element)
+			if (! (n instanceof Element))
 				continue;
 			else if (n.getNodeName().equals("type"))
 			{
@@ -293,7 +296,7 @@ public class TMXMLProcessor
 		for (; idx < kids.getLength(); idx++)
 		{
 			Node n = kids.item(idx);
-			if (n instanceof Element)
+			if (! (n instanceof Element))
 				continue;
 			else if (n.getNodeName().equals("variant"))
 			{
@@ -326,7 +329,7 @@ public class TMXMLProcessor
 		for (idx = 0; idx < kids.getLength(); idx++)
 		{
 			Node n = kids.item(idx);
-			if (n instanceof Element)
+			if (! (n instanceof Element))
 				continue;
 			else if (n.getNodeName().equals("type"))
 			{
@@ -386,7 +389,7 @@ public class TMXMLProcessor
 		for (int i = 0; i < kids.getLength(); i++)
 		{
 			Node n = kids.item(i);
-			if (n instanceof Element)
+			if (! (n instanceof Element))
 				continue;
 			else if (n.getNodeName().equals("type"))
 			{
@@ -402,11 +405,33 @@ public class TMXMLProcessor
 		if (type == null)
 			throw new RuntimeException("Role without a type " + role);
 		if (player == null)
-			throw new RuntimeException("Role without a player " + role);
-		if (role == null)
-			role = (HGAssociationRole)ass.createAssociationRole(player, type);	
-		else if (role.getAssociation() != ass)
-			throw new RuntimeException("Attempting to reassign a role " + role + " to a different association.");
+			throw new RuntimeException("Role without a player " + role);		
+		if (role != null)
+		{
+			if (role.getAssociation() != ass)
+				throw new RuntimeException("Attempting to reassign a role " + 
+										   role + " to a different association.");
+			boolean update = false;
+			if (role.getPlayer() != player) { role.setPlayer(player); update = true; }
+			if (role.getType() != type) { role.setType(type); update = true; }
+			if (update) system.getGraph().update(role);
+		}
+		else
+		{
+			HGHandle [] roleTargets = new HGHandle[] { system.getGraph().getHandle(player), 
+													   system.getGraph().getHandle(type), 
+													   system.getGraph().getHandle(ass)};
+			HGHandle hRole = hg.findOne(system.getGraph(), hg.and(hg.type(HGAssociationRole.class),
+																  hg.orderedLink(roleTargets)));
+			if (hRole != null)
+				role = (HGAssociationRole)system.getGraph().get(hRole);
+			else
+			{
+				role = new HGAssociationRole(roleTargets);
+				role.graph = system.getGraph();
+				system.getGraph().add(role);
+			}
+		}
 		handleReifier(el.getAttribute("reifier"), map, system.getGraph().getHandle(role));		
 		return role;
 	}
@@ -427,7 +452,7 @@ public class TMXMLProcessor
 		for (int i = 0; i < kids.getLength(); i++)
 		{
 			Node n = kids.item(i);
-			if (n instanceof Element)
+			if (! (n instanceof Element))
 				continue;
 			else if (n.getNodeName().equals("subjectLocator"))
 			{
@@ -461,7 +486,7 @@ public class TMXMLProcessor
 			{
 				loadName2((Element)n, map, topic);
 			}
-			else if (n.getNodeName().equals("occurence"))
+			else if (n.getNodeName().equals("occurrence"))
 			{
 				loadOccurrence2((Element)n, map, topic);
 			}
@@ -489,7 +514,7 @@ public class TMXMLProcessor
 		for (int i = 0; i < kids.getLength(); i++)
 		{
 			Node n = kids.item(i);
-			if (n instanceof Element)
+			if (! (n instanceof Element))
 				continue;
 			else if (n.getNodeName().equals("type"))
 			{
@@ -503,7 +528,7 @@ public class TMXMLProcessor
 			}
 			else if (n.getNodeName().equals("role"))
 			{
-				roles.add(loadRole2((Element)el, ass, map));
+				roles.add(loadRole2((Element)n, ass, map));
 			}
 			else
 				throw new RuntimeException("Unexpected element '" + 
@@ -511,7 +536,8 @@ public class TMXMLProcessor
 		}
 		if (!roles.isEmpty())
 		{
-			Set<HGAssociationRole> existingRoles = ass.getAssociationRoles();
+			Set<HGAssociationRole> existingRoles = new HashSet<HGAssociationRole>();
+			existingRoles.addAll(ass.getAssociationRoles());
 			Set<HGAssociationRole> removed = new HashSet<HGAssociationRole>();
 			boolean setChanged = false;
 			if (merge)
@@ -528,11 +554,13 @@ public class TMXMLProcessor
 				for (HGAssociationRole r : existingRoles)
 					if (!roles.contains(r))
 					{
-						removed.add(r);
 						setChanged = true;
-					}				
+						removed.add(r);
+					}			
+				setChanged = setChanged || existingRoles.size() != roles.size();
+				if (setChanged)
+					existingRoles = roles;
 			}
-			existingRoles.removeAll(removed);
 			if (setChanged)
 			{
 				HGHandle [] newTargetSet = new HGHandle[existingRoles.size()];
@@ -540,15 +568,9 @@ public class TMXMLProcessor
 				for (HGAssociationRole r : existingRoles)
 					newTargetSet[i++] = system.getGraph().getHandle(r);
 				ass.setTargetSet(newTargetSet);
-				system.getGraph().replace(system.getGraph().getHandle(ass), ass);
-			}
-			for (HGAssociationRole r : removed)
-			{
-				// If no other association has this role as a member, then remove the role.
-				HGHandle h = system.getGraph().getHandle(r);				
-				if (hg.findOne(system.getGraph(), hg.and(hg.type(HGAssociation.class), 
-														 hg.incident(h))) == null)
-					system.getGraph().remove(h);
+				system.getGraph().update(ass);
+				for (HGAssociationRole r : removed)
+					try { r.remove(); } catch (Exception ex) { throw new TMAPIRuntimeException(ex); }
 			}
 		}
 		else if (isnew)

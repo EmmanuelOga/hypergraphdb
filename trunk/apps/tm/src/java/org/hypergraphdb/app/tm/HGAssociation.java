@@ -15,7 +15,7 @@ import org.tmapi.core.TopicInUseException;
 
 public class HGAssociation extends HGScopedObject implements Association, HGLink
 {
-	private HGHandle [] targetSet = HyperGraph.EMTPY_HANDLE_SET;
+	HGHandle [] targetSet = HyperGraph.EMTPY_HANDLE_SET;
 
 	public HGAssociation()
 	{
@@ -29,21 +29,29 @@ public class HGAssociation extends HGScopedObject implements Association, HGLink
 	public AssociationRole createAssociationRole(Topic player, Topic type)
 	{
 		HGAssociationRole result = new HGAssociationRole(
-				new HGHandle[] {graph.getHandle(player), graph.getHandle(type)});
+				new HGHandle[] {graph.getHandle(player), 
+								graph.getHandle(type),
+								graph.getHandle(this)});
 		result.graph = graph;
+		HGHandle [] newTS = new HGHandle[targetSet.length + 1];
+		System.arraycopy(targetSet, 0, newTS, 0, targetSet.length);
+		newTS[targetSet.length] = graph.add(result);
+		graph.update(this);
 		return result;
 	}
 
 	public Set<HGAssociationRole> getAssociationRoles()
 	{
-		return new AssociationRoleSet(graph, targetSet);
+		return new AssociationRoleSet(graph, this);
 	}
-
+	
+	@HGIgnore
 	public Topic getReifier()
 	{
 		return (Topic)graph.get(U.getReifierOf(graph, graph.getHandle(this)));
 	}
 	
+	@HGIgnore
 	public void setReifier(Topic topic)
 	{
 		U.setReifierOf(graph, graph.getHandle(this), graph.getHandle(topic));

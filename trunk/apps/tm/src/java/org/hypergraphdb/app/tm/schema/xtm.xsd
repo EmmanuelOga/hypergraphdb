@@ -42,7 +42,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="itemIdentity" minOccurs="0" maxOccurs="unbounded"/>
-	<xs:element ref="mergeMap" minOccurs="0" maxOccurs="unbounded"/>
+	    <xs:element ref="mergeMap" minOccurs="0" maxOccurs="unbounded"/>
         <xs:choice minOccurs="0" maxOccurs="unbounded">
           <xs:element ref="topic"/>
           <xs:element ref="association"/>

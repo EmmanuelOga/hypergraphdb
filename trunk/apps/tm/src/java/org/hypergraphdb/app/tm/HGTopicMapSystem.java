@@ -112,6 +112,6 @@ public final class HGTopicMapSystem implements TopicMapSystem
 	
 	public void load(String uri)
 	{
-		TMXMLUtils.load(uri, this);
+//		TMXMLUtils.load(uri, this);
 	}
 }

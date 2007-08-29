@@ -57,7 +57,8 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 			HGHandle resultHandle = graph.add(result);
 			result.topic = graph.getHandle(this);
 			if (type != null)
-				graph.add(new HGRel(HGTM.TypeOf, new HGHandle[] {resultHandle, graph.getHandle(type)}));
+				graph.add(new HGRel(HGTM.TypeOf, new HGHandle[] {resultHandle, graph.getHandle(type)}), 
+						  HGTM.hTypeOf);
 			if (scope != null)
 			{
 				for (Iterator i = scope.iterator(); i.hasNext(); )

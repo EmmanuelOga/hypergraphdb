@@ -10,7 +10,7 @@ which is to be read "the structural pattern on the left yields the result on the
 
 `result | structure_pattern`
 
-could be read "we are looking for _result_ such as _structure_pattern_. Or imitating Prolog:
+could be read `we are looking for _result_ such as _structure_pattern_`. Or imitating Prolog:
 
 `result :- structure_pattern`
 
@@ -22,7 +22,7 @@ Each query is evaluated in an environment containing variable bindings. When a v
 
 The lexical/syntactic elements for constructing structural patterns are the following:
 
-  # Variables which are C/Java-like identifiers. The Prolog underscore denotation of anonymous variables (_) is adopted - those are always unbound variables whose value is to be ignored.
+  # Variables which are C/Java-like identifiers. The Prolog underscore denotation of anonymous variables (`_`) is adopted - those are always unbound variables whose value is to be ignored.
   # Literal strings, numbers and booleans.
   # An "is of type" operator denoted by semicolon ':'
   # A subsumes operator denoted by '<:' (read "left-hand side is subsumed by right-hand side")

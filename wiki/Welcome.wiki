@@ -1,6 +1,4 @@
-#HyperGraphDB Welcome Page
 = What is HyperGraphDB? =
 
 
 = Applications =
-

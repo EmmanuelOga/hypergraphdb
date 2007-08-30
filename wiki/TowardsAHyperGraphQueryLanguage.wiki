@@ -8,6 +8,16 @@ The idea is to define a syntax that expresses some graph structure with constrai
 
 `structure_pattern => result`
 
-which is to be read "the structural pattern on the left yields the result on the right". The pattern on the left hand side may contain variables and the result expression on the right may used those variable to express the desired form of the result.
+which is to be read "the structural pattern on the left yields the result on the right". The pattern on the left hand side may contain variables and the result expression on the right may use those variable to express the desired form of the result. An alternative syntax might be one where the result expression appears on the left. For example:
 
-Each query is evaluated in an environment containing variable bindings. When a variable inside the query pattern has no binding in the evaluation environment, it is used as a *generator* (like in the Icon programming language) and it will take on all possible values satisfying the pattern. All variables, environment-bound or free, can be used in the result expression.
+`result | structure_pattern`
+
+could be read "we are looking for _result_ such as _structure_pattern_. Or imitating Prolog:
+
+`result :- structure_pattern`
+
+or:
+
+`result where structure_pattern`
+
+Each query is evaluated in an environment containing variable bindings. When a variable inside the query pattern has no binding in the evaluation environment, it is used as a *generator* (like in the Icon programming language) and it will take on all possible values satisfying the pattern. All variables, environment-bound or free, can be used in the result expression. Initially the latter will only define a result set to be returned. In the future, it might be extended to support operator that modify the graph, similar to the insert/delete/update in SQL.

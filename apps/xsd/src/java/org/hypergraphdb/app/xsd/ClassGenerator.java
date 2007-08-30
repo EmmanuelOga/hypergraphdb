@@ -303,10 +303,42 @@ public class ClassGenerator
       mw.visitMaxs(1, 1);
       mw.visitEnd();
 
+      generateComplexStore(hg, recordType, pTypeHandle, cw);
+      generateComplexMake(hg, recordType, pTypeHandle, cw);
+
+      byte[] byteCode = cw.toByteArray();
+      
+      File f = new File("bytecode.class");
+      try
+      {
+         FileOutputStream o = new FileOutputStream(f);
+         o.write(byteCode);
+         o.close();
+      } catch (Exception e)
+      {
+         e.printStackTrace();
+      }
+      
+      CGPrivateClassLoader cl = new CGPrivateClassLoader();
+      result = cl.defineClass("ComplexClass", byteCode);
+
+      return result;
+   }
+
+   /**
+    * 
+    * @param hg
+    * @param recordType
+    * @param pTypeHandle
+    * @param cw
+    */
+   private static void generateComplexStore(
+      final HyperGraph hg, RecordType recordType, HGPersistentHandle pTypeHandle,
+      ClassWriter cw)
+   {
       // creates a MethodWriter for the 'main' method
-      mw = cw.visitMethod(Opcodes.ACC_PUBLIC, "store",
+      MethodVisitor mw = cw.visitMethod(Opcodes.ACC_PUBLIC, "store",
             "(Ljava/lang/Object;)Lorg/hypergraphdb/HGPersistentHandle;", null, null);
-      Label l0 = new Label();
       
       //cast to Map.
       mw.visitVarInsn(Opcodes.ALOAD, 1);
@@ -333,7 +365,6 @@ public class ClassGenerator
       mw.visitTypeInsn(Opcodes.ANEWARRAY, "org/hypergraphdb/HGPersistentHandle");
       mw.visitVarInsn(Opcodes.ASTORE, 5);
 
-      /**@todo can't instantiate an object - verification error on store.*/
       for(int i = 0; i < recordType.getSlots().size(); i++)
       {
          Slot slot = (Slot)hg.get(recordType.getSlots().get(i));
@@ -392,24 +423,81 @@ public class ClassGenerator
       
       mw.visitMaxs(6, 8);
       mw.visitEnd();
-
-      byte[] byteCode = cw.toByteArray();
-      
-      File f = new File("bytecode.class");
-      try
-      {
-         FileOutputStream o = new FileOutputStream(f);
-         o.write(byteCode);
-         o.close();
-      } catch (Exception e)
-      {
-         e.printStackTrace();
-      }
-      
-      CGPrivateClassLoader cl = new CGPrivateClassLoader();
-      result = cl.defineClass("ComplexClass", byteCode);
-
-      return result;
    }
    
+
+   /**
+    * 
+    * @param hg
+    * @param recordType
+    * @param pTypeHandle
+    * @param cw
+    */
+   private static void generateComplexMake(
+      final HyperGraph hg, RecordType recordType, HGPersistentHandle pTypeHandle,
+      ClassWriter cw)
+   {      
+      MethodVisitor mw = cw.visitMethod(Opcodes.ACC_PUBLIC, "make",
+            "(Lorg/hypergraphdb/HGPersistentHandle;Lorg/hypergraphdb/LazyRef;Lorg/hypergraphdb/LazyRef;)Ljava/lang/Object;", "(Lorg/hypergraphdb/HGPersistentHandle;Lorg/hypergraphdb/LazyRef<[Lorg/hypergraphdb/HGHandle;>;Lorg/hypergraphdb/LazyRef<[Lorg/hypergraphdb/HGHandle;>;)Ljava/lang/Object;",
+            null);
+
+      mw.visitCode();
+
+      //result map.
+      mw.visitTypeInsn(Opcodes.NEW, "java/util/HashMap");
+      mw.visitInsn(Opcodes.DUP);
+      mw.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/util/HashMap", "<init>", "()V");
+      mw.visitVarInsn(Opcodes.ASTORE, 4);
+
+      mw.visitVarInsn(Opcodes.ALOAD, 0);
+      mw.visitFieldInsn(Opcodes.GETFIELD, "ComplexClass", "hg", "Lorg/hypergraphdb/HyperGraph;");
+      mw.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "org/hypergraphdb/HyperGraph", "getStore",
+            "()Lorg/hypergraphdb/HGStore;");
+      mw.visitVarInsn(Opcodes.ALOAD, 1);
+      mw.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "org/hypergraphdb/HGStore", "getLink",
+            "(Lorg/hypergraphdb/HGPersistentHandle;)[Lorg/hypergraphdb/HGPersistentHandle;");
+      mw.visitVarInsn(Opcodes.ASTORE, 5);
+      
+      for(int i = 0; i < recordType.getSlots().size(); i++)
+      {
+         Slot slot = (Slot)hg.get(recordType.getSlots().get(i));
+      
+         //get 1.
+         mw.visitVarInsn(Opcodes.ALOAD, 0);
+         mw.visitFieldInsn(Opcodes.GETFIELD, "ComplexClass", "hg", "Lorg/hypergraphdb/HyperGraph;");
+         mw.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "org/hypergraphdb/HyperGraph", "getTypeSystem",
+               "()Lorg/hypergraphdb/HGTypeSystem;");
+         mw.visitVarInsn(Opcodes.ALOAD, 5);
+         mw.visitIntInsn(Opcodes.BIPUSH, i*2);
+         mw.visitInsn(Opcodes.AALOAD);
+         mw.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "org/hypergraphdb/HGTypeSystem", "getType",
+               "(Lorg/hypergraphdb/HGHandle;)Lorg/hypergraphdb/type/HGAtomType;");
+         mw.visitVarInsn(Opcodes.ASTORE, 6);
+         
+         mw.visitVarInsn(Opcodes.ALOAD, 0);
+         mw.visitFieldInsn(Opcodes.GETFIELD, "ComplexClass", "hg", "Lorg/hypergraphdb/HyperGraph;");
+         mw.visitVarInsn(Opcodes.ALOAD, 5);
+         mw.visitIntInsn(Opcodes.BIPUSH, 1 + i*2);
+         mw.visitInsn(Opcodes.AALOAD);
+         mw.visitVarInsn(Opcodes.ALOAD, 6);
+         mw.visitMethodInsn(Opcodes.INVOKESTATIC, "org/hypergraphdb/type/TypeUtils", "makeValue",
+               "(Lorg/hypergraphdb/HyperGraph;Lorg/hypergraphdb/HGPersistentHandle;Lorg/hypergraphdb/type/HGAtomType;)Ljava/lang/Object;");
+         mw.visitVarInsn(Opcodes.ASTORE, 7);
+   
+         mw.visitVarInsn(Opcodes.ALOAD, 4);
+         mw.visitLdcInsn(slot.getLabel());
+         mw.visitVarInsn(Opcodes.ALOAD, 7);
+         mw.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/Map", "put",
+               "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+         mw.visitInsn(Opcodes.POP);
+         //done//
+      }
+      
+      mw.visitVarInsn(Opcodes.ALOAD, 4);
+      mw.visitInsn(Opcodes.ARETURN);
+
+      mw.visitMaxs(3, 8);
+      mw.visitEnd();
+   }
+
 } // ClassGenerator.

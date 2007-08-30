@@ -16,7 +16,7 @@ import org.hypergraphdb.type.HGAtomType;
 
 public class ComplexTypeBase implements HGAtomType
 {
-   private HyperGraph hg;
+   protected HyperGraph hg;
 
    public ComplexTypeBase()
    {  

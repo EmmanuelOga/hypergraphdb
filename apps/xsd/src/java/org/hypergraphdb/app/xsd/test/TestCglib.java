@@ -43,7 +43,6 @@ public class TestCglib
 
     public static void main(String[] args)
     {
-//        TestCglib.testAsm();
         try
         {
             TestCglib.testTotalDigits();
@@ -86,106 +85,6 @@ public class TestCglib
         System.out.println("EOT - "+passes+'.');
         passes = result.evaluateRestrictions(new BigDecimal("1111.1"));
         System.out.println("EOT - "+passes+'.');
-    }
-
-    /**
-     *
-     */
-    private static void testAsm()
-    {
-//        Class clazz = XSDDecimalPrimitive.class;
-//        String clazzName = clazz.getName();
-//        clazzName = clazzName.replace('.', '/');
-//        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-//
-//        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-//        cw.visit(Constants.V1_5, Constants.ACC_PUBLIC, "GeneratedClass", null,
-//                 clazzName, null);
-//
-//        // creates a MethodWriter for the (implicit) constructor
-//        MethodVisitor mw = cw.visitMethod(Constants.ACC_PUBLIC,
-//                                          "<init>",
-//                                          "()V",
-//                                          null,
-//                                          null);
-//        // pushes the 'this' variable
-//        mw.visitVarInsn(Constants.ALOAD, 0);
-//        // invokes the super class constructor
-//        mw.visitMethodInsn(Constants.INVOKESPECIAL,
-//                           clazzName,
-//                           "<init>", "()V");
-//        mw.visitInsn(Constants.RETURN);
-//        // this code uses a maximum of one stack element and one local variable
-//        mw.visitMaxs(1, 1);
-//        mw.visitEnd();
-//
-//        // creates a MethodWriter for the 'main' method
-//        mw = cw.visitMethod(Constants.ACC_PUBLIC,
-//                            "evaluateRestrictions",
-//                            "(Ljava/math/BigDecimal;)Z",
-//                            null,
-//                            null);
-//
-//        /**todo go through the facets*/
-//
-//        //make a big decimal instance.
-//        mw.visitVarInsn(Constants.ALOAD, 0);
-//        mw.visitTypeInsn(Opcodes.NEW, "java/math/BigDecimal");
-//        mw.visitInsn(Opcodes.DUP);
-//        mw.visitLdcInsn("1000");
-//        mw.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/math/BigDecimal",
-//                           "<init>", "(Ljava/lang/String;)V");
-//
-//        mw.visitVarInsn(Opcodes.ASTORE, 2);
-//
-//        mw.visitInsn(Opcodes.ICONST_0);
-//        mw.visitVarInsn(Opcodes.ALOAD, 1);
-//        mw.visitVarInsn(Opcodes.ALOAD, 2);
-//        mw.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/math/BigDecimal",
-//                           "compareTo", "(Ljava/math/BigDecimal;)I");
-//
-//        Label l0 = new Label();
-//
-//        mw.visitJumpInsn(Opcodes.IF_ICMPGE, l0);
-//        mw.visitInsn(Opcodes.ICONST_0);
-//        mw.visitInsn(Opcodes.IRETURN);
-//
-//        mw.visitLabel(l0);
-//        mw.visitInsn(Opcodes.ICONST_1);
-//        mw.visitInsn(Opcodes.IRETURN);
-//        mw.visitMaxs(1, 1);
-//        mw.visitEnd();
-//
-//        // gets the bytecode of the Example class, and loads it dynamically
-//        byte[] code = cw.toByteArray();
-//
-////        TestClassLoader loader = new TestClassLoader();
-////        Class<XSDDecimalPrimitive> exampleClass = loader.defineClass("GeneratedClass", code);
-////
-////        try
-////        {
-////            XSDDecimalPrimitive o = exampleClass.newInstance();
-////            int i = o.evaluateRestrictions(new BigDecimal("1000"));
-////            System.out.println("i:"+i);
-////        } catch (Exception ex)
-////        {
-////            ex.printStackTrace();
-////        }
-//
-//
-//        TestClassLoader loader = new TestClassLoader();
-//        Class<XSDDecimalPrimitive> exampleClass = loader.defineClass("GeneratedClass", code);
-//
-//        try
-//        {
-//            XSDDecimalPrimitive o = exampleClass.newInstance();
-//            boolean b = o.evaluateRestrictions(new BigDecimal("1000"));
-//        } catch (Exception ex)
-//        {
-//            ex.printStackTrace();
-//        }
-//
-//        //cw.visitEnd();
     }
 
 }

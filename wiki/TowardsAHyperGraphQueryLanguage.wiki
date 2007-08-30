@@ -20,7 +20,7 @@ or:
 
 Each query is evaluated in an environment containing variable bindings. When a variable inside the query pattern has no binding in the evaluation environment, it is used as a *generator* (like in the Icon programming language) and it will take on all possible values satisfying the pattern. All variables, environment-bound or free, can be used in the result expression. Initially the latter will only define a result set to be returned. In the future, it might be extended to support operators that modify the graph, similar to the insert/delete/update in SQL.
 
-The lexical/syntactic elements for constructing structural patterns are the following:
+The lexical elements for constructing structural patterns are the following:
 
   # Variables which are C/Java-like identifiers. The Prolog underscore denotation of anonymous variables (`_`) is adopted - those are always unbound variables whose value is to be ignored.
   # Literal strings, numbers and booleans.
@@ -32,4 +32,19 @@ The lexical/syntactic elements for constructing structural patterns are the foll
   # Dot as the usual property dereferencing operator for complex values.
   # Relational operators =, >, <, >=, <=
 
-We may add other operators as we go. While I'd like the ability to extend querying by user-defined operators, I'd rather avoid any mechanisms for overloading or extending the grammar by defining new infix operators with their precedence etc. It's probably much simpler and just as user-friendly to offer the possibility of defining functions (e.g. a function 'bor' for bitwise-or instead of a new arithmetic operator). A function-like syntax would also cover the need for expressing type constructors.
+We may add other operators as we go. While I'd like the ability to extend querying by user-defined operators, I'd rather avoid any mechanisms for overloading or extending the grammar by defining new infix operators with their precedence etc. It's probably much simpler and just as user-friendly to offer the possibility of defining functions (e.g. arithmetic functions such add, sub, mul, bitwiseor etc). A function-like syntax would also cover the need for expressing type constructors. For example, a result expression of `pair(x,y)` would produce a set of pairs for all possible values of the variables x and y.
+
+So far, so good. The simplest query is one asking for all atoms in a HyperGraphDB. It is expressed as:
+
+`x => x`
+
+provided x is unbound in the evaluation environment. Environment bindings are crucial for the interpretation of a query. Thus a  query that looks like this:
+
+`x:T => T`
+
+can mean one of several things:
+
+  # All atom types in the graph if both T and x are unbound
+  # The type of x if x is bound, but T unbound or if both x and T are bound and x is indeed of type T
+  # An empty set if both x and T are bound, but x is not of type T
+  # T if T is bound, but x unbound.

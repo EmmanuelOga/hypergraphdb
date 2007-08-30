@@ -32,6 +32,36 @@ public class USAddressComplexRecordType implements HGAtomType
 {
    private HyperGraph hg;
 
+//   Map map = (Map)obj;
+//   HGPersistentHandle hgpersistenthandle = HGHandleFactory.makeHandle("da78f883-55d8-11dc-8f20-001617d7885d");
+//   org.hypergraphdb.type.HGAtomType hgatomtype = hg.getTypeSystem().getType(hgpersistenthandle);
+//   HGPersistentHandle ahgpersistenthandle[] = new HGPersistentHandle[14];
+//   ahgpersistenthandle[0] = hg.getPersistentHandle(hgpersistenthandle);
+//   Object obj1 = map.get("USAddress");
+//   ahgpersistenthandle[1] = TypeUtils.storeValue(hg, obj1, hgatomtype);
+//   ahgpersistenthandle[2] = hg.getPersistentHandle(hgpersistenthandle);
+//   obj1 = map.get("name");
+//   ahgpersistenthandle[3] = TypeUtils.storeValue(hg, obj1, hgatomtype);
+//   ahgpersistenthandle[4] = hg.getPersistentHandle(hgpersistenthandle);
+//   obj1 = map.get("street");
+//   ahgpersistenthandle[5] = TypeUtils.storeValue(hg, obj1, hgatomtype);
+//   ahgpersistenthandle[6] = hg.getPersistentHandle(hgpersistenthandle);
+//   obj1 = map.get("city");
+//   ahgpersistenthandle[7] = TypeUtils.storeValue(hg, obj1, hgatomtype);
+//   ahgpersistenthandle[8] = hg.getPersistentHandle(hgpersistenthandle);
+//   obj1 = map.get("state");
+//   ahgpersistenthandle[9] = TypeUtils.storeValue(hg, obj1, hgatomtype);
+//   ahgpersistenthandle[10] = hg.getPersistentHandle(hgpersistenthandle);
+//   obj1 = map.get("zip");
+//   ahgpersistenthandle[11] = TypeUtils.storeValue(hg, obj1, hgatomtype);
+//   ahgpersistenthandle[12] = hg.getPersistentHandle(hgpersistenthandle);
+//   obj1 = map.get("country");
+//   ahgpersistenthandle[13] = TypeUtils.storeValue(hg, obj1, hgatomtype);
+//   HGPersistentHandle hgpersistenthandle1 = TypeUtils.getNewHandleFor(hg, map);
+//   hg.getStore().store(hgpersistenthandle1, ahgpersistenthandle);
+//   return hgpersistenthandle1;
+   
+   
    /**
     * 
     */
@@ -39,19 +69,37 @@ public class USAddressComplexRecordType implements HGAtomType
       HGPersistentHandle handle, LazyRef<HGHandle[]> targetSet,
       LazyRef<HGHandle[]> incidenceSet)
    {
-      Map result = new HashMap<String,Object>();
+      Map<String,Object> result = new HashMap<String,Object>();
 
       HGPersistentHandle[] layout = hg.getStore().getLink(handle);
 
-      for (int i = 0; i < layout.length/3; i++)
-      {
-         HGAtomType type=hg.getTypeSystem().getType(layout[3 * i]);
-
-         Object key = TypeUtils.makeValue(hg, layout[3 * i + 1], type);
-         Object value = TypeUtils.makeValue(hg, layout[3 * i + 2], type);
+      HGAtomType type=hg.getTypeSystem().getType(layout[0]);
+      Object value = TypeUtils.makeValue(hg, layout[1], type);
+      result.put("USAddress", value);
          
-         result.put(key, value);
-      }
+      type=hg.getTypeSystem().getType(layout[0]);
+      value = TypeUtils.makeValue(hg, layout[1], type);
+      result.put("name", value);
+
+      type=hg.getTypeSystem().getType(layout[0]);
+      value = TypeUtils.makeValue(hg, layout[1], type);
+      result.put("street", value);
+
+      type=hg.getTypeSystem().getType(layout[0]);
+      value = TypeUtils.makeValue(hg, layout[1], type);
+      result.put("city", value);
+
+      type=hg.getTypeSystem().getType(layout[0]);
+      value = TypeUtils.makeValue(hg, layout[1], type);
+      result.put("state", value);
+
+      type=hg.getTypeSystem().getType(layout[0]);
+      value = TypeUtils.makeValue(hg, layout[1], type);
+      result.put("zip", value);
+
+      type=hg.getTypeSystem().getType(layout[0]);
+      value = TypeUtils.makeValue(hg, layout[1], type);
+      result.put("country", value);
 
       return result;
    }

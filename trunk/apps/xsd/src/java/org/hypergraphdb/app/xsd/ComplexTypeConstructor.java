@@ -63,21 +63,14 @@ public class ComplexTypeConstructor implements HGAtomType
       HGValueLink valueLink = (HGValueLink) hg.get(handles[0]);
       RecordType recordType = (RecordType) valueLink.getValue();
 
-      /** @todo just for prototyping work first with hcoded type. */
-      USAddressComplexRecordType result = new USAddressComplexRecordType();
+      Object result = null;
 
       Class clazz = ClassGenerator.generateComplexStore(hg, ComplexTypeBase.class, recordType);
       try
       {
-         Object o = clazz.newInstance();
-         System.out.println(o);
-      } catch (InstantiationException e)
+         result = clazz.newInstance();
+      } catch (Exception e)
       {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
-      } catch (IllegalAccessException e)
-      {
-         // TODO Auto-generated catch block
          e.printStackTrace();
       }
 

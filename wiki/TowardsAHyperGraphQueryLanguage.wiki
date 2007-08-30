@@ -1,5 +1,3 @@
-=Querying=
-
 When thinking about querying a database, the natural starting point is the SQL paradigm: given some data set, restrict it with some set of criteria to obtain a result. But there are more general views on querying, more close to the everyday meaning of "soliciting the answer to some question", given that we can express the question in a way meaningful to the system. Prolog is an example of this sort of generalized querying capabilities where rule-based inference of new facts are part of the process. Given the generality of HGDB, we are tempted to define similar mechanism where fairly complex queries can be expressed and where the query processing itself is highly customizable. 
 
 This would be a fairly long research project and a language would have to evolve based on experience with real-world applications and the development of auxiliary algorithms. So we restrict the scope for now to the already difficult problem of expressing and looking for structural/data patterns within a HyperGraph database. 
@@ -20,4 +18,18 @@ or:
 
 `result where structure_pattern`
 
-Each query is evaluated in an environment containing variable bindings. When a variable inside the query pattern has no binding in the evaluation environment, it is used as a *generator* (like in the Icon programming language) and it will take on all possible values satisfying the pattern. All variables, environment-bound or free, can be used in the result expression. Initially the latter will only define a result set to be returned. In the future, it might be extended to support operator that modify the graph, similar to the insert/delete/update in SQL.
+Each query is evaluated in an environment containing variable bindings. When a variable inside the query pattern has no binding in the evaluation environment, it is used as a *generator* (like in the Icon programming language) and it will take on all possible values satisfying the pattern. All variables, environment-bound or free, can be used in the result expression. Initially the latter will only define a result set to be returned. In the future, it might be extended to support operators that modify the graph, similar to the insert/delete/update in SQL.
+
+The lexical/syntactic elements for constructing structural patterns are the following:
+
+  # Variables which are C/Java-like identifiers. The Prolog underscore denotation of anonymous variables (_) is adopted - those are always unbound variables whose value is to be ignored.
+  # Literal strings, numbers and booleans.
+  # An "is of type" operator denoted by semicolon ':'
+  # A subsumes operator denoted by '<:' (read "left-hand side is subsumed by right-hand side")
+  # A link operator denoted by square brackets []
+  # Logical operators & (and), | (or) and ~ (not).
+  # Commas as the usual "enumeration" operator of a sequence of things.
+  # Dot as the usual property dereferencing operator for complex values.
+  # Relational operators =, >, <, >=, <=
+
+We may add other operators as we go. While I'd like the ability to extend querying by user-defined operators, I'd rather avoid any mechanisms for overloading or extending the grammar by defining new infix operators with their precedence etc. It's probably much simpler and just as user-friendly to offer the possibility of defining functions (e.g. a function 'bor' for bitwise-or instead of a new arithmetic operator). A function-like syntax would also cover the need for expressing type constructors.

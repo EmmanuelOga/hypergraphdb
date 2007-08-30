@@ -2,4 +2,12 @@
 
 When thinking about querying a database, the natural starting point is the SQL paradigm: given some data set, restrict it with some set of criteria to obtain a result. But there are more general views on querying, more close to the everyday meaning of "soliciting the answer to some question", given that we can express the question in a way meaningful to the system. Prolog is an example of this sort of generalized querying capabilities where rule-based inference of new facts are part of the process. Given the generality of HGDB, we are tempted to define similar mechanism where fairly complex queries can be expressed and where the query processing itself is highly customizable. 
 
-This would be a fairly long research project and a language would have to evolve based on experience with real-world applications and the development of auxiliary algorithms. So we restrict the scope for now to an already difficult problem of expressing and looking for structural/data patterns within a HyperGraph database. 
+This would be a fairly long research project and a language would have to evolve based on experience with real-world applications and the development of auxiliary algorithms. So we restrict the scope for now to the already difficult problem of expressing and looking for structural/data patterns within a HyperGraph database. 
+
+The idea is to define a syntax that expresses some graph structure with constraints on atoms. The constraints specify how atoms are linked and/or typed and/or valued. The general form of a query looks like this:
+
+`structure_pattern => result`
+
+which is to be read "the structural pattern on the left yields the result on the right". The pattern on the left hand side may contain variables and the result expression on the right may used those variable to express the desired form of the result.
+
+Each query is evaluated in an environment containing variable bindings. When a variable inside the query pattern has no binding in the evaluation environment, it is used as a *generator* (like in the Icon programming language) and it will take on all possible values satisfying the pattern. All variables, environment-bound or free, can be used in the result expression.

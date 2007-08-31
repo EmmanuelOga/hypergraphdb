@@ -275,7 +275,7 @@ public class ClassGenerator
    /**
     * 
     */
-   public static Class generateComplexStore(
+   public static Class<ComplexTypeBase> generateComplexType(
       final HyperGraph hg, final Class clazz, RecordType recordType)
    {
       Class result = clazz;
@@ -289,6 +289,7 @@ public class ClassGenerator
       String clazzName = clazz.getName();
       clazzName = clazzName.replace('.', '/');
 
+      /**@todo need to randomize the class name.*/
       ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
       cw.visit(Opcodes.V1_2, Opcodes.ACC_PUBLIC, "ComplexClass", null, clazzName, null);
 

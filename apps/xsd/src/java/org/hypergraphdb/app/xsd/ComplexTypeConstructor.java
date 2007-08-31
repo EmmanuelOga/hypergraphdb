@@ -65,7 +65,7 @@ public class ComplexTypeConstructor implements HGAtomType
 
       Object result = null;
 
-      Class clazz = ClassGenerator.generateComplexStore(hg, ComplexTypeBase.class, recordType);
+      Class clazz = ClassGenerator.generateComplexType(hg, ComplexTypeBase.class, recordType);
       try
       {
          result = clazz.newInstance();
@@ -101,14 +101,6 @@ public class ComplexTypeConstructor implements HGAtomType
       {
          return HGHandleFactory.makeHandle();
       }
-
-      /*
-       * RecordType recordType = (RecordType)instance; HGPersistentHandle []
-       * layout = new HGPersistentHandle[recordType.slotCount()]; for (int i =
-       * 0; i < layout.length; i++) { layout[i] =
-       * hg.getPersistentHandle(recordType.getAt(i)); } return
-       * hg.getStore().store(layout);
-       */
    }
 
    /**

@@ -22,168 +22,176 @@ import org.hypergraphdb.query.AtomTypeCondition;
 import org.hypergraphdb.type.HGAtomType;
 
 /**
- *
+ * 
  */
 public class SimpleTypeConstructor implements HGAtomType
 {
-    public static final HGPersistentHandle HANDLE = HGHandleFactory.makeHandle(
-        "bd99ff0c-5b32-11db-82a1-a78cc7527afb");
-    public static final SimpleTypeConstructor INSTANCE = new
-        SimpleTypeConstructor();
+   public static final HGPersistentHandle HANDLE = HGHandleFactory
+         .makeHandle("bd99ff0c-5b32-11db-82a1-a78cc7527afb");
+   public static final SimpleTypeConstructor INSTANCE = new SimpleTypeConstructor();
 
-    private HyperGraph hg;
+   private HyperGraph hg;
 
-    /**
-     *
-     */
-    private SimpleTypeConstructor()
-    {
-    }
+   /**
+    * 
+    */
+   private SimpleTypeConstructor()
+   {
+   }
 
-    /**
-     *
-     * @param handle HGPersistentHandle
-     * @param targetSet LazyRef
-     * @param incidenceSet LazyRef
-     * @return Object
-     */
-    public Object make(HGPersistentHandle handle,
-                       LazyRef < HGHandle[] > targetSet,
-                       LazyRef < HGHandle[] > incidenceSet)
-    {
-        HGHandle[] handles = incidenceSet.deref();
+   /**
+    * 
+    * @param handle
+    *           HGPersistentHandle
+    * @param targetSet
+    *           LazyRef
+    * @param incidenceSet
+    *           LazyRef
+    * @return Object
+    */
+   public Object make(
+      HGPersistentHandle handle, LazyRef<HGHandle[]> targetSet,
+      LazyRef<HGHandle[]> incidenceSet)
+   {
+      HGHandle[] handles = incidenceSet.deref();
 
-        XSDTypeImplementation nameType = null;
-        HGSubsumes subsumes = null;
-        HGValueLink valueLink = null;
-        FacetsDescriptorBase facets = null;
+      XSDTypeImplementation nameType = null;
+      HGSubsumes subsumes = null;
+      HGValueLink valueLink = null;
+      FacetsDescriptorBase facets = null;
 
-        /**@todo explore the order of fetching of the links.*/
-        /*for(int i=0; i<3; i++)
-        {   
-	        Object o = hg.get(handles[i]);
-	        
-	        if(o instanceof HGValueLink)
-	        {
-	        	valueLink = (HGValueLink)o;
-	        } else if(o instanceof XSDTypeImplementation)
-	        {
-	        	nameType = (XSDTypeImplementation)o;
-	        } else if(o instanceof XSDTypeImplementation)
-	        {
-	        	subsumes = (HGSubsumes)o;
-	        }
-        }*/
-        
-        nameType = (XSDTypeImplementation) hg.get(handles[0]);
-        subsumes = (HGSubsumes) hg.get(handles[1]);
-        valueLink = (HGValueLink) hg.get(handles[2]);
+      /** @todo explore the order of fetching of the links. */
+      /*
+       * for(int i=0; i<3; i++) { Object o = hg.get(handles[i]);
+       * 
+       * if(o instanceof HGValueLink) { valueLink = (HGValueLink)o; } else if(o
+       * instanceof XSDTypeImplementation) { nameType =
+       * (XSDTypeImplementation)o; } else if(o instanceof XSDTypeImplementation) {
+       * subsumes = (HGSubsumes)o; } }
+       */
 
-        facets = (FacetsDescriptorBase) valueLink.getValue();
-        HGHandle typeNameHandle = nameType.getXSDTypeName();
-        XSDTypeName typeName = (XSDTypeName) hg.get(typeNameHandle);
+      nameType = (XSDTypeImplementation) hg.get(handles[0]);
+      subsumes = (HGSubsumes) hg.get(handles[1]);
+      valueLink = (HGValueLink) hg.get(handles[2]);
 
-        Class newClass = null;
+      facets = (FacetsDescriptorBase) valueLink.getValue();
+      HGHandle typeNameHandle = nameType.getXSDTypeName();
+      XSDTypeName typeName = (XSDTypeName) hg.get(typeNameHandle);
 
-        /**@todo tries to find the most general XSD type but it might well be not the most efficient
-         * way to do it; review at some point.*/
-        HGHandle hGeneral = subsumes.getGeneral();
-        boolean done = false;
+      /**
+       * @todo tries to find the most general XSD type but it might well be not
+       *       the most efficient way to do it; review at some point.
+       */
+      HGHandle hGeneral = subsumes.getGeneral();
+      boolean done = false;
 
-        while (false == done)
-        {
-            And subsumesCondition = new And(HGQuery.hg.type(HGSubsumes.class),
-                                            HGQuery.hg.link(hGeneral));
+      while (false == done)
+      {
+         And subsumesCondition = new And(HGQuery.hg.type(HGSubsumes.class), HGQuery.hg
+               .link(hGeneral));
 
-            HGSearchResult<HGHandle> rs = null;
-            boolean matches = false;
+         HGSearchResult<HGHandle> rs = null;
+         boolean matches = false;
 
-            try
+         try
+         {
+            rs = hg.find(subsumesCondition);
+            matches = rs.hasNext();
+
+            done = true;
+            while (rs.hasNext())
             {
-                rs = hg.find(subsumesCondition);
-            	matches = rs.hasNext();
+               HGHandle aHandle = rs.next();
 
-            	done = true;
-                while (rs.hasNext())
-                {
-                    HGHandle aHandle = rs.next();
+               HGSubsumes subsumesLink = (HGSubsumes) hg.get(aHandle);
+               HGHandle specific = subsumesLink.getSpecific();
 
-                    HGSubsumes subsumesLink = (HGSubsumes) hg.get(aHandle);
-                    HGHandle specific = subsumesLink.getSpecific();
-                    
-                    if(specific.equals(hGeneral))
-                    {
-                    	hGeneral = subsumesLink.getGeneral();
-                    	done = false;
-                    	break;
-                    }
-                }
-            } finally
-            {
-                rs.close();
+               if (specific.equals(hGeneral))
+               {
+                  hGeneral = subsumesLink.getGeneral();
+                  done = false;
+                  break;
+               }
             }
-        }
+         } finally
+         {
+            rs.close();
+         }
+      }
 
-        /**@todo newClass needs to be better dealt with.*/
-        String className = (String)hg.get(hGeneral);
-        try {
-			newClass = Class.forName(className);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
+      Class newClass = null;
 
-        ClassGenerator cg = new ClassGenerator();
-        newClass = cg.implementEvaluate(newClass, facets.getFacets());
+      /** @todo newClass needs to be better dealt with. */
+      String className = (String) hg.get(hGeneral);
+      try
+      {
+         newClass = Class.forName(className);
+      } catch (ClassNotFoundException e)
+      {
+         e.printStackTrace();
+      }
 
-        Object result = null;
-        try
-        {
-            result = newClass.newInstance();
-        } catch (Exception ex)
-        {
-            ex.printStackTrace();
-        }
+      ClassGenerator cg = new ClassGenerator();
+      newClass = cg.implementEvaluate(newClass, facets.getFacets());
 
-        return result;
-    } //make.
+      Object result = null;
+      try
+      {
+         result = newClass.newInstance();
+      } catch (Exception ex)
+      {
+         ex.printStackTrace();
+      }
 
-    /**
-     *
-     * @param hg HyperGraph
-     */
-    public void setHyperGraph(HyperGraph hg)
-    {
-        this.hg = hg;
-    }
+      return result;
+   } // make.
 
-    /**
-     *
-     * @param instance Object
-     * @return HGPersistentHandle
-     */
-    public HGPersistentHandle store(Object instance)
-    {
-        return HGHandleFactory.nullHandle();
-    }
+   /**
+    * 
+    * @param hg
+    *           HyperGraph
+    */
+   public void setHyperGraph(
+      HyperGraph hg)
+   {
+      this.hg = hg;
+   }
 
-    /**
-     *
-     * @param handle HGPersistentHandle
-     */
-    public void release(HGPersistentHandle handle)
-    {
-        /**@todo*/
-    }
+   /**
+    * 
+    * @param instance
+    *           Object
+    * @return HGPersistentHandle
+    */
+   public HGPersistentHandle store(
+      Object instance)
+   {
+      return HGHandleFactory.nullHandle();
+   }
 
-    /**
-     *
-     * @param general Object
-     * @param specific Object
-     * @return boolean
-     */
-    public boolean subsumes(Object general, Object specific)
-    {
-        return false;
-    }
+   /**
+    * 
+    * @param handle
+    *           HGPersistentHandle
+    */
+   public void release(
+      HGPersistentHandle handle)
+   {
+      /** @todo */
+   }
 
-} //SimpleTypeConstructor.
+   /**
+    * 
+    * @param general
+    *           Object
+    * @param specific
+    *           Object
+    * @return boolean
+    */
+   public boolean subsumes(
+      Object general, Object specific)
+   {
+      return false;
+   }
+
+} // SimpleTypeConstructor.

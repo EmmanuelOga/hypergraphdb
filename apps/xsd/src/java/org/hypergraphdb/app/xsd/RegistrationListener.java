@@ -1,9 +1,7 @@
 package org.hypergraphdb.app.xsd;
 
 import org.hypergraphdb.HyperGraph;
-import org.hypergraphdb.event.HGEvent;
 import org.hypergraphdb.event.HGListener;
-import org.hypergraphdb.event.HGListener.Result;
 import org.hypergraphdb.event.HGOpenedEvent;
 
 

@@ -46,6 +46,7 @@ public class TestImport1
 //        TestImport1.exercizeDecimalTotalDigits();
 //        TestImport1.exercizeDecimalFractionDigits();
         TestImport1.testComplexImport1();
+        TestImport1.testComplexImport2();
     }
 
     /**
@@ -576,7 +577,6 @@ public class TestImport1
 
     } //exercizeDecimalFractionDigits.
 
-
     /**
      *
      */
@@ -626,8 +626,55 @@ public class TestImport1
 
     } //testComplexImport1.
 
-    
-    ////////////////////////////
+   /**
+    *
+    */
+   private static void testComplexImport2()
+   {
+       HGPersistentHandle pHandle = null;
+       HyperGraph hg = new HyperGraph();
+
+       //phase1
+       try
+       {
+           hg.open(TestImport1.DATABASELOCATION);
+
+           XSDPrimitiveTypeSystem.getInstance().bootstrap(hg);
+
+           SchemaImporter importer = new SchemaImporter(hg);
+           importer.importSchema("/org/hypergraphdb/app/xsd/test/testcomplex1.xsd");
+
+           //use of the imported types.
+           HGHandle typeHandle = hg.getTypeSystem().getTypeHandle("length3");
+           
+           Map usAddress = new HashMap();
+           usAddress.put("size", "1024");
+           usAddress.put("unit", "miles");
+                       
+           HGHandle handle = hg.add(usAddress, typeHandle);
+
+           pHandle = hg.getPersistentHandle(handle);
+       } finally
+       {
+           hg.close();
+       }
+
+       //phase2
+       try
+       {
+           hg.open(TestImport1.DATABASELOCATION);
+
+           XSDPrimitiveTypeSystem.getInstance().bootstrap(hg);
+           Object o = hg.get(pHandle);
+           System.out.println("Object: "+o);
+       } finally
+       {
+           hg.close();
+       }
+
+   } //testComplexImport2.
+
+   ////////////////////////////
     // Private Helper Methods //
     ////////////////////////////
 

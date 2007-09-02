@@ -55,8 +55,20 @@ x:String & x = "HyperGraphDB"
 
 will return are atoms of type string with value "HyperGraphDB". The and operator '&', and the or operator '|' can be used in combination with the usual convention that & preceeds |, and parenthesis can be used to group condition while enforcing a different precedence. For example:
 
-x.weight > 4.25 & (x.value = 10 | x.value = 100)
+x.weight > 4.25 & (x.value = 10 | x.value = 100) => x
 
 yields all x's whose value is either 10 or 100, and whose weight is 4.25.
 
 Not sure whether, the C-like and/or operators && and || should be adopted instead. Or maybe use the keyword *and* and *or*. It is unlikely that & could be a source of ambiguity when used for something else, but | is well-established as a comprehension operator (meaning "such that") which may very well find application in the query language. 
+
+Link pattern are defined using square brackets. The items in the target set of a link pattern are separated by commas for ordered links and by the & operator for unordered links. For example:
+
+x:R[a, b] & a.weight > 1 => a
+
+will find all atoms with weight > 1 and that are targets at position 0 of links of type R with arity 2, while the following:
+
+x:R[a & b] & a.weight > 1 => a
+
+will find all a's with weight > 1 and that are targets (regardless of position) of links of type R with arity 2. If the R links in the above can have arbitrary arity, one can use the star `*` operator applied to a don't care anonymous variable:
+
+x:R[a & `_*`] & a.weight > 1 => a

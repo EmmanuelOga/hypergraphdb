@@ -75,7 +75,7 @@ will find all a's with weight > 1 and that are targets (regardless of position) 
 
 The star operator means zero or more as in regular expressions. Naturally, it also works in ordered links:
 
-{{{x:R[a, _, _*]}}
+{{{x:R[a, _, _*]}}}
 
 means "an ordered link of type R whose first target is a and which 1 or more subsequent targets".
 
@@ -83,6 +83,14 @@ In the above example, we've used the construct {{{x:R[...]}}} in which we constr
 
 {{{_:R[a, _, _*]}}}
 
-It would be ambiguous to write directly {{{R[...]}}} because the interpreter wouldn't know whether R is the name of the link or the name of the type of the link. Typing constraints are always to be qualified with the : operator.
+Note that it would be ambiguous to write directly {{{R[...]}}} because the interpreter wouldn't know whether R is the name of the link or the name of the type of the link. Typing constraints are always to be qualified with the : operator.
 
-Link patterns can be nested at arbitrary levels. For instance, the following
+Link patterns can be nested at arbitrary levels and circular reference are admitted. For instance, the following pattern
+
+{{{x:R[a,b,y:T[x&y]]}}}
+
+expresses a the structure of an ordered R link with arity 3 whose third element is an unordered link of type T having the R link as a target. As you can see, the variables inside the linking patterns can be type-qualified as well. However, constraints on the values of those variables must be stated outside the pattern, in a conjunction:
+
+{{{x:R[a,b,y:T[x&y]] & a.weight < b.weight & T <: S & ...etc...}}}
+
+to be continued...please comment on the ideas exposed so far. The language outlined above is already challenging enough to implement and quite expressive. A major feature missing is a nice syntax for specifying path patterns. It doesn't seem obvious how to do that in an elegant manner. 

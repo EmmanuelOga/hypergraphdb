@@ -45,7 +45,7 @@ public class TestImport1
 //        TestImport1.exercizeDecimalMaxExclusive();
 //        TestImport1.exercizeDecimalTotalDigits();
 //        TestImport1.exercizeDecimalFractionDigits();
-        TestImport1.testComplexImport1();
+//        TestImport1.testComplexImport1();
         TestImport1.testComplexImport2();
     }
 

@@ -65,27 +65,6 @@ public class ComplexTypeImporter
       { theHandle });
       importer.hg.add(link);
 
-      //HGAtomType theType = importer.hg.getTypeSystem().getType(theHandle);
-
-      // HGHandle theHandle = importer.hg.add(recordType,
-      // ComplexTypeConstructor.HANDLE);
-      // HGAtomType theType = importer.hg.getTypeSystem().getType(theHandle);
-
-      // HGHandle[] elementsHandle = new HGHandle[elements.size()];
-      //
-      // for(int i = 0; i<elementsHandle.length; i++)
-      // {
-      // elementsHandle[i] = importer.hg.add(elements[i]);
-      // }
-
-      // HGPlainLink elementsLink = new HGValueLink(elements, new HGHandle[]
-      // {aHandle} );
-      // importer.hg.add(elementsLink);
-      //
-      // HGPlainLink attsLink = new HGValueLink(atts, new HGHandle[] {aHandle}
-      // );
-      // importer.hg.add(attsLink);
-
       importer.hg.getTypeSystem().addAlias(theHandle, name);
    }
 
@@ -108,10 +87,10 @@ public class ComplexTypeImporter
       Attributes attributes)
    {
       String name = attributes.getValue("name");
-      // String type = attributes.getValue("type");
+      String type = attributes.getValue("type");
 
-      /** @todo hcoded to String temporarily. */
-      Slot slot = new Slot(name, importer.hg.getTypeSystem().getTypeHandle(String.class));
+      /**@todo resolve the type name to full. */
+      Slot slot = new Slot(name, importer.hg.getTypeSystem().getTypeHandle(type));
       HGHandle slotHandle = importer.hg.add(slot);
       recordType.addSlot(slotHandle);
    }

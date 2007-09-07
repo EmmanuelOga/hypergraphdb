@@ -467,14 +467,20 @@ public class ClassGenerator
       {
          Slot slot = (Slot)hg.get(recordType.getSlots().get(i));
       
+         mw.visitLdcInsn(hg.getPersistentHandle(slot.getValueType()).toString());
+         mw.visitMethodInsn(Opcodes.INVOKESTATIC, "org/hypergraphdb/HGHandleFactory",
+            "makeHandle", "(Ljava/lang/String;)Lorg/hypergraphdb/HGPersistentHandle;");
+         mw.visitVarInsn(Opcodes.ASTORE, 8);
+
          //get 1.
          mw.visitVarInsn(Opcodes.ALOAD, 0);
          mw.visitFieldInsn(Opcodes.GETFIELD, "ComplexClass", "hg", "Lorg/hypergraphdb/HyperGraph;");
          mw.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "org/hypergraphdb/HyperGraph", "getTypeSystem",
                "()Lorg/hypergraphdb/HGTypeSystem;");
-         mw.visitVarInsn(Opcodes.ALOAD, 5);
+         /*mw.visitVarInsn(Opcodes.ALOAD, 5);
          mw.visitIntInsn(Opcodes.BIPUSH, i*2);
-         mw.visitInsn(Opcodes.AALOAD);
+         mw.visitInsn(Opcodes.AALOAD);*/
+         mw.visitVarInsn(Opcodes.ALOAD, 8);
          mw.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "org/hypergraphdb/HGTypeSystem", "getType",
                "(Lorg/hypergraphdb/HGHandle;)Lorg/hypergraphdb/type/HGAtomType;");
          mw.visitVarInsn(Opcodes.ASTORE, 6);

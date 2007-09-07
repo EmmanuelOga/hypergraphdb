@@ -234,7 +234,7 @@ public class SchemaImporter extends DefaultHandler
      * @param qName String
      * @return String
      */
-    /*package*/ String resolveToUri2(String qName)
+    public String resolveUri(String qName)
     {
         int colon = qName.indexOf(':');
         String localName = qName.substring(1 + colon);

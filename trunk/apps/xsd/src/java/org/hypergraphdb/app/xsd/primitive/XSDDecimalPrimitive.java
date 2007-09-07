@@ -10,6 +10,7 @@ package org.hypergraphdb.app.xsd.primitive;
 
 import java.math.BigDecimal;
 
+import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGHandleFactory;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
@@ -37,8 +38,8 @@ public class XSDDecimalPrimitive implements HGAtomType
      *
      */
     public Object make(HGPersistentHandle handle,
-                       LazyRef targetSet,
-                       LazyRef incidenceSet)
+                       LazyRef<HGHandle[]> targetSet,
+                       LazyRef<HGHandle[]> incidenceSet)
     {
         if (HGHandleFactory.nullHandle().equals(handle))
         {

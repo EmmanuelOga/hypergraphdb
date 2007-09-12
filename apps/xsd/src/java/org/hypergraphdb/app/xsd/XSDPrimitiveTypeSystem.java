@@ -229,6 +229,11 @@ public class XSDPrimitiveTypeSystem extends DefaultHandler
             hg.getTypeSystem().addAlias(theHandle,
                   namespace.getUri() + '#' + primitiveName);
 
+            /**@todo there is similar code in the SchemaImporter (above) that does not
+             * do anything..*/
+            System.out.println("Registered: "+hg.getPersistentHandle(theHandle)
+                  + " as " + namespace.getUri() + '#' + primitiveName);
+
             registering = true;
          }
 

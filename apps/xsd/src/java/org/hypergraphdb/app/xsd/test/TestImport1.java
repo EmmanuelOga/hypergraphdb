@@ -647,8 +647,8 @@ public class TestImport1
            //use of the imported types.
            HGHandle typeHandle = hg.getTypeSystem().getTypeHandle("length3");
            
-           Map usAddress = new HashMap();
-           usAddress.put("size", "1024");
+           Map<String,Object> usAddress = new HashMap<String,Object>();
+           usAddress.put("size", new BigDecimal("1024"));
            usAddress.put("unit", "miles");
                        
            HGHandle handle = hg.add(usAddress, typeHandle);

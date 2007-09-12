@@ -127,6 +127,9 @@ public class SimpleTypeImporter
 
             importer.hg.add(restrictionLink);
 
+            System.out.println("Registered: "+importer.hg.getPersistentHandle(aHandle)
+               + " as " + importer.resolveToUri(qualifiedName));
+            
             importer.hg.getTypeSystem().addAlias(aHandle, importer.resolveToUri(qualifiedName));
         }
     } //endDefinition.

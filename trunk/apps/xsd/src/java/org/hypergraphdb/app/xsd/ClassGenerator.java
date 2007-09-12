@@ -398,7 +398,13 @@ public class ClassGenerator
          mw.visitVarInsn(Opcodes.ALOAD, 0);
          mw.visitFieldInsn(Opcodes.GETFIELD, "ComplexClass", "hg", "Lorg/hypergraphdb/HyperGraph;");
          mw.visitVarInsn(Opcodes.ALOAD, 6);
-         mw.visitVarInsn(Opcodes.ALOAD, 4);
+
+         mw.visitVarInsn(Opcodes.ALOAD, 0);
+         mw.visitFieldInsn(Opcodes.GETFIELD, "ComplexClass", "hg", "Lorg/hypergraphdb/HyperGraph;");
+         mw.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "org/hypergraphdb/HyperGraph", "getTypeSystem", "()Lorg/hypergraphdb/HGTypeSystem;");
+         mw.visitVarInsn(Opcodes.ALOAD, 3);
+         mw.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "org/hypergraphdb/HGTypeSystem", "getType", "(Lorg/hypergraphdb/HGHandle;)Lorg/hypergraphdb/type/HGAtomType;");
+
          mw.visitMethodInsn(Opcodes.INVOKESTATIC, "org/hypergraphdb/type/TypeUtils", "storeValue",
             "(Lorg/hypergraphdb/HyperGraph;Ljava/lang/Object;Lorg/hypergraphdb/type/HGAtomType;)Lorg/hypergraphdb/HGPersistentHandle;");
          mw.visitInsn(Opcodes.AASTORE);

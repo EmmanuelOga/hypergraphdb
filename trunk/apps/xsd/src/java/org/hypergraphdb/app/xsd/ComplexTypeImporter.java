@@ -65,6 +65,9 @@ public class ComplexTypeImporter
       { theHandle });
       importer.hg.add(link);
 
+      System.out.println("Registered: " + importer.hg.getPersistentHandle(theHandle)
+         + " as " + name);
+      
       importer.hg.getTypeSystem().addAlias(theHandle, name);
    }
 

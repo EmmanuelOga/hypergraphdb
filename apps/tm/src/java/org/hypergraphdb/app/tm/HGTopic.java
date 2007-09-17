@@ -189,6 +189,11 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 		return U.getRelatedObjects(graph, HGTM.hTypeOf, null, graph.getHandle(this));
 	}
 
+	public Set<Topic> getInstances()
+	{
+		return U.getRelatedObjects(graph, HGTM.hTypeOf, graph.getHandle(this), null);
+	}
+	
 	public void mergeIn(Topic other) throws MergeException
 	{
 	}

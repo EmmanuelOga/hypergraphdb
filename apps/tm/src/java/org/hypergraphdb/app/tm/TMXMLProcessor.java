@@ -3,11 +3,16 @@ package org.hypergraphdb.app.tm;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.atom.HGRel;
+import org.tmapi.core.Association;
 import org.tmapi.core.Locator;
 import org.tmapi.core.TMAPIRuntimeException;
 import org.tmapi.core.Topic;
+import org.tmapi.core.TopicName;
 import org.w3c.dom.*;
 import java.util.*;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 public class TMXMLProcessor
 {
@@ -606,4 +611,73 @@ public class TMXMLProcessor
 			throw new RuntimeException(ex);
 		}
 	}
+	
+	/**
+	 * <p>
+	 * Export a topic map into an XML DOM element. 
+	 * </p>
+	 * 
+	 * @param system The topic map system.
+	 * @param iri The IRI of the topic map (i.e. its base locator).
+	 * @param version The desired XTM version - either 1.0 or 2.0. If <code>null</code>,
+	 * version 2.0 is assumed.
+	 * @return A DOM <code>Element</code> of the topic map. 
+	 */
+	public Element exportMap(HGTopicMapSystem system, String iri, String version)
+	{
+		try
+		{
+			HGTopicMap map = (HGTopicMap)system.getTopicMap(iri);
+			if (map == null)
+				return null;
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			Document doc = builder.newDocument();
+			if (version == null || "2.0".equals(version))
+			{
+				Element el = doc.createElement("topicMap");
+				el.setAttribute("version", "2.0");
+				el.setAttribute("xmlns", "http://www.topicmaps.org/xtm/");
+				for (Topic t : map.getTopics())
+					exportTopic2(el, t);							
+				for (Association a : map.getAssociations())
+					exportAssociation2(el, a);
+				for (Locator l : map.getSourceLocators())
+					exportLocator2(el, l);
+				return el;
+			}
+			else
+			{
+				throw new IllegalArgumentException("Unsupport XTM version " + version);
+			}
+		}		
+		catch (Exception ex)
+		{
+			throw new RuntimeException(ex);
+		}
+	}
+	
+	private void exportTopic2(Element parentEl, Topic t)
+	{
+		Element el = parentEl.getOwnerDocument().createElement("topic");
+		for (Object n : t.getTopicNames())
+			exportName2(el, (TopicName)n);
+		parentEl.appendChild(el);
+	}
+	
+	private void exportName2(Element parentEl, TopicName name)
+	{
+		Element el = parentEl.getOwnerDocument().createElement("name");	
+	}
+	
+	private void exportAssociation2(Element parentEl, Association a)
+	{
+		Element el = parentEl.getOwnerDocument().createElement("association");		
+	}
+	
+	private void exportLocator2(Element parentEl, Locator l)
+	{
+		Element el = parentEl.getOwnerDocument().createElement("association");		
+	}
+	
 }

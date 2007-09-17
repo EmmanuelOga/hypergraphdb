@@ -1,6 +1,5 @@
 package org.hypergraphdb.app.tm;
 
-import org.hypergraphdb.HGException;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.annotation.AtomReference;
@@ -8,7 +7,6 @@ import org.hypergraphdb.annotation.HGIgnore;
 import org.hypergraphdb.atom.HGRel;
 import org.tmapi.core.Locator;
 import org.tmapi.core.Occurrence;
-import org.tmapi.core.TMAPIException;
 import org.tmapi.core.Topic;
 import org.tmapi.core.TopicInUseException;
 

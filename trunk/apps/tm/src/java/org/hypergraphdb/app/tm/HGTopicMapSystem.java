@@ -9,6 +9,7 @@ import org.tmapi.core.Locator;
 import org.tmapi.core.TMAPIRuntimeException;
 import org.tmapi.core.TopicMap;
 import org.tmapi.core.TopicMapExistsException;
+import org.tmapi.core.TopicMapObject;
 import org.tmapi.core.TopicMapSystem;
 import org.hypergraphdb.*;
 import org.hypergraphdb.HGQuery.hg;
@@ -35,6 +36,15 @@ public final class HGTopicMapSystem implements TopicMapSystem
 			graph.close();
 	}
 
+	public TopicMapObject locate(Locator itemIdentifier)
+	{
+		return (TopicMapObject)
+				U.getOneRelated(graph, 
+							    HGTM.hSourceLocator, 
+							    U.ensureLocator(graph, itemIdentifier), 
+							    null);
+	}
+	
 	public List<TopicMap> getTopicMaps()
 	{
 		return hg.<TopicMap>findAll(graph, hg.apply(hg.deref(graph), hg.type(HGTopicMap.class)));

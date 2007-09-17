@@ -9,7 +9,6 @@ import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.atom.HGRel;
 import org.tmapi.core.DuplicateSourceLocatorException;
 import org.tmapi.core.Locator;
-import org.tmapi.core.TMAPIException;
 import org.tmapi.core.TopicMap;
 import org.tmapi.core.TopicMapObject;
 
@@ -45,7 +44,7 @@ public abstract class HGTopicMapObjectBase implements TopicMapObject, HGGraphHol
 		return handle == null ? null : graph.getPersistentHandle(handle).toString();
 	}
 
-	public Set getSourceLocators()
+	public Set<Locator> getSourceLocators()
 	{
 		return U.getRelatedObjects(graph, HGTM.hSourceLocator, null, graph.getHandle(this));
 	}

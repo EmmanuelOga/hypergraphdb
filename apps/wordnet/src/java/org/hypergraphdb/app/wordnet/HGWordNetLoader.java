@@ -36,7 +36,6 @@ import org.hypergraphdb.app.wordnet.data.AdverbSynsetLink;
 import org.hypergraphdb.app.wordnet.data.ExcLink;
 import org.hypergraphdb.app.wordnet.data.NounExcLink;
 import org.hypergraphdb.app.wordnet.data.NounSynsetLink;
-import org.hypergraphdb.app.wordnet.data.PtType;
 import org.hypergraphdb.app.wordnet.data.SynsetLink;
 import org.hypergraphdb.app.wordnet.data.VerbExcLink;
 import org.hypergraphdb.app.wordnet.data.VerbFrameLink;
@@ -63,7 +62,7 @@ import org.hypergraphdb.indexing.ByPartIndexer;
 public class HGWordNetLoader
 {
 	final static String PROPS_RESOURCE = "org/hypergraphdb/app/wordnet/configuration/file_properties.xml";
-	final POS[] pos = new POS[] { POS.NOUN, POS.VERB, POS.ADVERB, POS.ADJECTIVE };
+	final POS[] pos = new POS[] { POS.ADJECTIVE, POS.NOUN, POS.ADVERB, POS.VERB};
 	final Comparator posComparator = new Comparator()
 	{
 		public int compare(Object left, Object right)
@@ -75,17 +74,17 @@ public class HGWordNetLoader
 	};
 	final Class[] synset_link_classes = new Class[] 
 	{
-		NounSynsetLink.class, 
-		VerbSynsetLink.class, 
+		AdjSynsetLink.class,
+		NounSynsetLink.class,
 		AdverbSynsetLink.class,
-		AdjSynsetLink.class 
+		VerbSynsetLink.class				 
 	};
 	final String[] synset_alias = new String[] 
     { 
+		"AdjSynset",
 		"NounSynset",
-		"VerbSynset", 
-		"AdverbSynset", 
-		"AdjSynset" 
+		"AdverbSynset",
+		"VerbSynset"	 		 
 	};
 	
 	int n_exc = 0;
@@ -95,16 +94,13 @@ public class HGWordNetLoader
 	long n_vlinks = 0;
 	
 	private String typeAliasPrefix;
-	private String dictionaryLocation;
-	private Level trace_level = Level.OFF; 
+	private String dictionaryLocation; 
 	private Logger logger = Logger.global;
-//	private HashMap<String, HGPersistentHandle> wordHandles = new HashMap<String, HGPersistentHandle>();
 	private HashMap<Integer, HGPersistentHandle> verbFrames = new HashMap<Integer, HGPersistentHandle>();
 
 	
 	public HGWordNetLoader()
-	{
-		Arrays.sort(pos, posComparator);
+	{		
 	}
 	
 	
@@ -166,14 +162,13 @@ public class HGWordNetLoader
 				logger.info("Adding synsets of kind " + pos[i]);
 				addSynsets(graph, d.getSynsetIterator(pos[i]), i);
 			}
-			logger.info("Adding points");
+			logger.info("Adding pointers");
 			for (int i = 0; i < pos.length; i++)
 			{
-				logger.info("Adding pointers for synsets of kind " + pos[i]);				
-				addPointers(graph, d.getSynsetIterator(pos[i]));
+				logger.info("Adding pointers for synsets of kind " + pos[i]);
+				String typeAlias = getTypeAliasPrefix() + synset_alias[i];
+				addPointers(graph, d.getSynsetIterator(pos[i]), typeAlias);
 			}
-//			for (Iterator it = d.getSynsetIterator(POS.VERB); it.hasNext();)
-//				connectSynsetVerbFrames(graph, (Synset) it.next());
 			logger.info("Adding exceptions ");
 			for (int i = 0; i < pos.length; i++)
 				addExceptions(graph, d.getExceptionIterator(pos[i]), i);
@@ -183,13 +178,12 @@ public class HGWordNetLoader
 	}
 	
 	private HGPersistentHandle lookup(HyperGraph graph, 
-									 String typeAlias,
-									 String keyProperty, 
-									 String keyValue)
+									  String typeAlias,
+									  String keyProperty, 
+									  Object keyValue)
 	{
 		HGHandle typeHandle = graph.getTypeSystem().getTypeHandle(typeAlias);
-		ByPartIndexer byProperty = new ByPartIndexer(typeHandle, new String[] { keyProperty });
-//		graph.getIndexManager().register(byProperty);		
+		ByPartIndexer byProperty = new ByPartIndexer(typeHandle, new String[] { keyProperty });	
 		HGIndex index = graph.getIndexManager().getIndex(byProperty);
 		return (HGPersistentHandle) index.findFirst(keyValue);
 	}
@@ -213,7 +207,7 @@ public class HGWordNetLoader
 				ts.addAlias(typeH, typeAliasPrefix + synset_alias[i]);
 			else if (!check.equals(typeH))
 				throw new RuntimeException("Alias already in use: " + typeAliasPrefix + synset_alias[i] + ", please change WordNet prefix.");
-			graph.getIndexManager().register(new ByPartIndexer(typeH, new String[] { "gloss" }));
+			graph.getIndexManager().register(new ByPartIndexer(typeH, new String[] { "id" }));
 		}
 		typeH = graph.getPersistentHandle(ts.getTypeHandle(org.hypergraphdb.app.wordnet.data.VerbFrame.class));
 		check = ts.getTypeHandle(typeAliasPrefix + "frame");
@@ -287,29 +281,36 @@ public class HGWordNetLoader
 		else if (syn.getPOS().equals(POS.VERB)) 
 			link = new VerbSynsetLink();
 		link.setGloss(syn.getGloss());
+		link.setId(syn.getOffset());
 		return link;
 	}
 
-	private void addPointers(HyperGraph graph, Iterator it) throws JWNLException
+	private void addPointers(HyperGraph graph, Iterator it, String synTypeAlias) throws JWNLException
 	{
-//		PtType.initialize();
+		PtType.initialize();
 		while (it.hasNext())
 		{
 			Synset syn = (Synset) it.next();
+			HGHandle synHandle = lookup(graph, synTypeAlias, "id", syn.getOffset());
+			if (synHandle == null)
+			{
+				logger.warning("Could find synset " + syn + " in HGDB while trying to add a pointers to it.");
+				continue;
+			}
 			Pointer[] ps = syn.getPointers();
 			for (int i = 0; i < ps.length; i++)
 			{
 				n_point++;
-				org.hypergraphdb.app.wordnet.data.Pointer hg_p = makePointer(graph, ps[i]);
+				org.hypergraphdb.app.wordnet.data.Pointer hg_p = makePointer(graph, synHandle, ps[i]);
 				if (hg_p != null)
 				{
 					graph.add(hg_p);
 				} 
-/*				else
+				else
 				{
 					throw new NullPointerException("!!!!!!!NULL Pointer: "
 							+ ps[i]);
-				} */
+				}
 			}
 		}
 	}
@@ -346,16 +347,15 @@ public class HGWordNetLoader
 		return link;
 	}
 
-	private org.hypergraphdb.app.wordnet.data.Pointer makePointer(HyperGraph graph, Pointer p) throws JWNLException
+
+	private org.hypergraphdb.app.wordnet.data.Pointer makePointer(HyperGraph graph, HGHandle sourceHandle, Pointer p) throws JWNLException
 	{
-		// System.out.println("makePointer: " + p + " : " +
-		// p.getType().getKey());
-/*		if (PtType.getPointerTypeForKey(p.getType().getKey()) == null)
+		PtType ptType = PtType.getPointerTypeForKey(p.getType().getKey()); 
+		if (ptType == null)
 		{
 			return null;
-		} */
-		Class clazz = PtType.getPointerTypeForKey(p.getType().getKey())
-				.getClazz();
+		}
+		Class clazz = ptType.getClazz();
 		org.hypergraphdb.app.wordnet.data.Pointer hg_p = null;
 		try
 		{
@@ -368,40 +368,14 @@ public class HGWordNetLoader
 			throw new RuntimeException(
 					"Could not instantiate pointer with class: " + clazz);
 		}
-		int src_index = 0;
-		if (p.isLexical()) src_index = ((Word) p.getSource()).getIndex();
-		// System.out.println("Indexes: " + src_index + " target: " +
-		// p.getTargetIndex());
-		hg_p.setSourceIndex(src_index);
-		hg_p.setTargetIndex(p.getTargetIndex());
 		HGHandle[] ptrTargets = new HGHandle[2];
-		/*
-		 * 
-		 * System.out.println("Pointer: " + p.getType().getLabel() + ":" +
-		 * p.getSource().getClass().getName() + " source: " + p.getSource());
-		 * 
-		 * System.out.println("Pointer: " + p.getTarget().getClass().getName() + "
-		 * target: " + p.getTarget()); //
-		 */
-		Synset s = getSynsetForPointerTarget(p.getSource());
-		ptrTargets[0] = lookup(graph, 
-							   this.getTypeAliasPrefix() + 
-							   synset_alias[Arrays.binarySearch(pos, s.getPOS(), posComparator)], 
-							   "gloss", 
-							   s.getGloss()); 
-			// makeSynsetLinkHandle(graph, s, Arrays.binarySearch(pos, s.getPOS(), posComparator));
+		ptrTargets[0] = sourceHandle;
 		Synset s1 = getSynsetForPointerTarget(p.getTarget());
 		ptrTargets[1] = lookup(graph, 
 				   			   this.getTypeAliasPrefix() + 
 				   			   synset_alias[Arrays.binarySearch(pos, s1.getPOS(), posComparator)], 
-				   			   "gloss", 
-				   			   s1.getGloss()); 
-			// makeSynsetLinkHandle(graph, s1, Arrays.binarySearch(pos, s1.getPOS(), posComparator));
-		if (ptrTargets[0] == null)
-		{
-			logger.warning("Could not create pointer " + p + " because source synset " + s + " is not in HGDB.");
-			return null;
-		}
+				   			   "id", 
+				   			   s1.getOffset()); 
 		if (ptrTargets[1] == null)
 		{
 			logger.warning("Could not create pointer " + p + " because target synset " + s1 + " is not in HGDB.");
@@ -438,18 +412,6 @@ public class HGWordNetLoader
 		}
 	}
 
-/*	private HGHandle makeVerbFrameHandle(HyperGraph graph, int i)
-	{
-		org.hypergraphdb.app.wordnet.data.VerbFrame frame = 
-			new org.hypergraphdb.app.wordnet.data.VerbFrame(VerbFrame.getFrame(i), i);
-		HGHandle h = graph.getHandle(frame);
-		if (h != null) return h;
-		h = lookup(graph, this.getTypeAliasPrefix() + "frame", "text", frame.getText());
-		if (h != null) return h;
-		h = graph.add(frame);
-		return h;
-	} */
-
 	private void connectSynsetVerbFrames(HyperGraph graph, HGHandle synHandle, Synset syn)
 	{
 		BitSet bs = syn.getVerbFrameFlags();
@@ -458,7 +420,7 @@ public class HGWordNetLoader
 		{
 			HGHandle[] targets = new HGHandle[2];
 			targets[1] = synHandle;			
-			targets[0] = verbFrames.get(fr_inds[i]);//makeVerbFrameHandle(graph, fr_inds[i]);
+			targets[0] = verbFrames.get(fr_inds[i]);
 			VerbFrameLink link = new VerbFrameLink(targets);
 			graph.add(link);
 			n_vlinks++;

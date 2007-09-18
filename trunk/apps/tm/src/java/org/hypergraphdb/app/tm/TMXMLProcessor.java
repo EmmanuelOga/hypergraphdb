@@ -4,10 +4,13 @@ import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.atom.HGRel;
 import org.tmapi.core.Association;
+import org.tmapi.core.AssociationRole;
 import org.tmapi.core.Locator;
+import org.tmapi.core.Occurrence;
 import org.tmapi.core.TMAPIRuntimeException;
 import org.tmapi.core.Topic;
 import org.tmapi.core.TopicName;
+import org.tmapi.core.Variant;
 import org.w3c.dom.*;
 import java.util.*;
 
@@ -638,12 +641,12 @@ public class TMXMLProcessor
 				Element el = doc.createElement("topicMap");
 				el.setAttribute("version", "2.0");
 				el.setAttribute("xmlns", "http://www.topicmaps.org/xtm/");
+				for (Locator l : map.getSourceLocators())
+					exportHref2(el, "itemIdentity", l.toExternalForm());
 				for (Topic t : map.getTopics())
 					exportTopic2(el, t);							
 				for (Association a : map.getAssociations())
 					exportAssociation2(el, a);
-				for (Locator l : map.getSourceLocators())
-					exportLocator2(el, l);
 				return el;
 			}
 			else
@@ -657,27 +660,158 @@ public class TMXMLProcessor
 		}
 	}
 	
+	private String getTopicHref(Topic t)
+	{
+		return ((Locator)t.getSourceLocators().iterator().next()).toExternalForm();
+	}
+	
 	private void exportTopic2(Element parentEl, Topic t)
 	{
 		Element el = parentEl.getOwnerDocument().createElement("topic");
+		for (Object x : t.getSourceLocators())
+			exportHref2(el, "itemIdentity", ((Locator)x).toExternalForm());
+		for (Object x : t.getSubjectLocators())
+			exportHref2(el, "subjectLocator", ((Locator)x).toExternalForm());
+		for (Object x : t.getSubjectIdentifiers())
+			exportHref2(el, "subjectIdentifier", ((Locator)x).toExternalForm());
+		if (t.getTypes() != null && t.getTypes().size() > 0)
+		{
+			Element typesEl = el.getOwnerDocument().createElement("instanceOf");
+			el.appendChild(typesEl);
+			for (Object x : t.getTypes())
+			{
+				Topic type = (Topic)x;
+				if (type.getSourceLocators().isEmpty())
+					continue;
+				exportHref2(typesEl, "topicRef", getTopicHref(type));
+			}
+		}
 		for (Object n : t.getTopicNames())
 			exportName2(el, (TopicName)n);
+		for (Object o : t.getOccurrences())
+			exportOccurrence2(el, (Occurrence)o);
+		//
+		// TODO: what about the topic ID?
+		//
 		parentEl.appendChild(el);
 	}
 	
 	private void exportName2(Element parentEl, TopicName name)
 	{
-		Element el = parentEl.getOwnerDocument().createElement("name");	
+		Element el = parentEl.getOwnerDocument().createElement("name");
+		if (name.getType() != null)
+			exportType2(el, name.getType());
+		if (name.getScope() != null && !name.getScope().isEmpty())
+			exportScope2(el, name.getScope());
+		exportValue2(el, name.getValue());
+		if (name.getVariants() != null && !name.getVariants().isEmpty())
+			exportVariants2(el, name.getVariants());
+		if (name.getReifier() != null)
+			el.setAttribute("reifier", getTopicHref(name.getReifier())); 
+		parentEl.appendChild(el);		
+	}
+	
+	private void exportType2(Element parentEl, Topic type)
+	{
+		Element el = parentEl.getOwnerDocument().createElement("type");
+		exportHref2(el, "topicRef", getTopicHref(type));
+		parentEl.appendChild(el);
+	}
+	
+	private void exportScope2(Element parentEl, Collection scope)
+	{
+		Element el = parentEl.getOwnerDocument().createElement("scope");
+		for (Object x : scope)
+		{
+			exportHref2(el, "topicRef", getTopicHref((Topic)x));
+		}
+		parentEl.appendChild(el);
+	}
+	
+	private void exportValue2(Element parentEl, String value)
+	{
+		Element el = parentEl.getOwnerDocument().createElement("value");
+		el.appendChild(parentEl.getOwnerDocument().createTextNode(value));
+		parentEl.appendChild(el);
+	}
+	
+	private void exportVariants2(Element parentEl, Collection variants)
+	{
+		for (Object x : variants)
+		{
+			Variant v = (Variant)x;
+			Element el = parentEl.getOwnerDocument().createElement("variant");
+			for (Object id : v.getSourceLocators())
+				exportHref2(el, "itemIdentity", ((Locator)id).toExternalForm());
+			if (v.getResource() != null  &&  v.getResource().toExternalForm().equals(HGTM.schemaAnyURI))
+				exportHref2(el, "resourceRef", v.getValue());
+			else
+				exportResourceData2(el, v.getResource(), v.getValue());
+			if (v.getReifier() != null)
+				el.setAttribute("reifier", getTopicHref(v.getReifier()));
+			parentEl.appendChild(el);
+		}		
+	}
+	
+	private void exportResourceData2(Element parentEl, Locator dataType, String value)
+	{
+		Element el = parentEl.getOwnerDocument().createElement("resourceData");
+	    // tricky, we aren't really supporting "any markup"!
+		el.appendChild(el.getOwnerDocument().createTextNode(value));
+		parentEl.appendChild(el);		
+	}
+	
+	private void exportOccurrence2(Element parentEl, Occurrence o)
+	{
+		Element el = parentEl.getOwnerDocument().createElement("occurrence");
+		for (Object id : o.getSourceLocators())
+			exportHref2(el, "itemIdentity", ((Locator)id).toExternalForm());
+		if (o.getType() != null)
+			exportType2(el, o.getType());
+		if (o.getScope() != null && !o.getScope().isEmpty())
+			exportScope2(el, o.getScope());		
+		if (o.getResource() != null  &&  o.getResource().toExternalForm().equals(HGTM.schemaAnyURI))
+			exportHref2(el, "resourceRef", o.getValue());
+		else
+			exportResourceData2(el, o.getResource(), o.getValue());
+		if (o.getReifier() != null)
+			el.setAttribute("reifier", getTopicHref(o.getReifier()));	
+		parentEl.appendChild(el);
 	}
 	
 	private void exportAssociation2(Element parentEl, Association a)
 	{
-		Element el = parentEl.getOwnerDocument().createElement("association");		
+		Element el = parentEl.getOwnerDocument().createElement("association");
+		for (Object id : a.getSourceLocators())
+			exportHref2(el, "itemIdentity", ((Locator)id).toExternalForm());
+		if (a.getType() != null)
+			exportType2(el, a.getType());
+		if (a.getScope() != null && !a.getScope().isEmpty())
+			exportScope2(el, a.getScope());
+		for (Object r : a.getAssociationRoles())
+			exportRole2(el, (AssociationRole)r);
+		if (a.getReifier() != null)
+			el.setAttribute("reifier", getTopicHref(a.getReifier()));			
+		parentEl.appendChild(el);
 	}
 	
-	private void exportLocator2(Element parentEl, Locator l)
+	private void exportRole2(Element parentEl, AssociationRole r)
 	{
-		Element el = parentEl.getOwnerDocument().createElement("association");		
+		Element el = parentEl.getOwnerDocument().createElement("role");
+		for (Object id : r.getSourceLocators())
+			exportHref2(el, "itemIdentity", ((Locator)id).toExternalForm());
+		if (r.getType() != null)
+			exportType2(el, r.getType());
+		exportHref2(el, "topicRef", getTopicHref(r.getPlayer()));
+		if (r.getReifier() != null)
+			el.setAttribute("reifier", getTopicHref(r.getReifier()));			
+		parentEl.appendChild(el);		
 	}
 	
+	private void exportHref2(Element parentEl, String tagName, String href)
+	{
+		Element el = parentEl.getOwnerDocument().createElement(tagName);
+		el.setAttribute("href", href);
+		parentEl.appendChild(el);
+	}	
 }

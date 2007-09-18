@@ -45,6 +45,11 @@ public final class HGTopicMapSystem implements TopicMapSystem
 							    null);
 	}
 	
+	public TopicMapObject locate(String itemIdentifier)
+	{
+		return locate(U.ensureLocator(graph, null, itemIdentifier));
+	}
+	
 	public List<TopicMap> getTopicMaps()
 	{
 		return hg.<TopicMap>findAll(graph, hg.apply(hg.deref(graph), hg.type(HGTopicMap.class)));

@@ -392,6 +392,11 @@ public class ClassGenerator
             "(Ljava/lang/Object;)Ljava/lang/Object;");
          mw.visitVarInsn(Opcodes.ASTORE, 6);
 
+         //check whether there is something in the map.
+         mw.visitVarInsn(Opcodes.ALOAD, 6);
+         Label label = new Label();
+         mw.visitJumpInsn(Opcodes.IFNULL, label);
+
          //value.
          mw.visitVarInsn(Opcodes.ALOAD, 5);
          mw.visitIntInsn(Opcodes.BIPUSH, i*2 + 1);
@@ -408,6 +413,8 @@ public class ClassGenerator
          mw.visitMethodInsn(Opcodes.INVOKESTATIC, "org/hypergraphdb/type/TypeUtils", "storeValue",
             "(Lorg/hypergraphdb/HyperGraph;Ljava/lang/Object;Lorg/hypergraphdb/type/HGAtomType;)Lorg/hypergraphdb/HGPersistentHandle;");
          mw.visitInsn(Opcodes.AASTORE);
+         
+         mw.visitLabel(label);
       }
 
       //store the handles array.
@@ -471,6 +478,12 @@ public class ClassGenerator
       
       for(int i = 0; i < recordType.getSlots().size(); i++)
       {
+         mw.visitVarInsn(Opcodes.ALOAD, 5);
+         mw.visitIntInsn(Opcodes.BIPUSH, 1 + i*2);
+         mw.visitInsn(Opcodes.AALOAD);
+         Label label = new Label();
+         mw.visitJumpInsn(Opcodes.IFNULL, label);
+
          Slot slot = (Slot)hg.get(recordType.getSlots().get(i));
       
          mw.visitLdcInsn(hg.getPersistentHandle(slot.getValueType()).toString());
@@ -483,9 +496,7 @@ public class ClassGenerator
          mw.visitFieldInsn(Opcodes.GETFIELD, "ComplexClass", "hg", "Lorg/hypergraphdb/HyperGraph;");
          mw.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "org/hypergraphdb/HyperGraph", "getTypeSystem",
                "()Lorg/hypergraphdb/HGTypeSystem;");
-         /*mw.visitVarInsn(Opcodes.ALOAD, 5);
-         mw.visitIntInsn(Opcodes.BIPUSH, i*2);
-         mw.visitInsn(Opcodes.AALOAD);*/
+
          mw.visitVarInsn(Opcodes.ALOAD, 8);
          mw.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "org/hypergraphdb/HGTypeSystem", "getType",
                "(Lorg/hypergraphdb/HGHandle;)Lorg/hypergraphdb/type/HGAtomType;");
@@ -507,6 +518,8 @@ public class ClassGenerator
          mw.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/Map", "put",
                "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
          mw.visitInsn(Opcodes.POP);
+         
+         mw.visitLabel(label);
          //done//
       }
       

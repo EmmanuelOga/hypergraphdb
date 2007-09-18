@@ -50,7 +50,6 @@ public class Driver1
         Driver1.exercizePrimitiveGMonth();
         Driver1.exercizePrimitiveGYearMonth();
         Driver1.exercizePrimitiveHexBinary();
-//        Driver1.exercizeRecordSlot();
     }
 
     /**
@@ -1060,39 +1059,5 @@ public class Driver1
         }
 
     }
-
-    /**
-     *
-     */
-    private static void exercizeRecordSlot()
-    {
-        HyperGraph hg = new HyperGraph();
-        HGPersistentHandle pHandle = null;
-
-        //phase1
-        try
-        {
-            hg.open(Driver1.DATABASELOCATION);
-            XSDPrimitiveTypeSystem.getInstance().bootstrap(hg);
-
-            B b=new B();
-            b.setField1("AA");
-
-            A a=new A();
-            a.setField1("00");
-            a.setField3(b);
-
-            hg.add(a);
-
-        } catch (Throwable t)
-        {
-            t.printStackTrace();
-        } finally
-        {
-            hg.close();
-        }
-
-    } //exercizeRecordSlot.
-
 
 } //Driver1.

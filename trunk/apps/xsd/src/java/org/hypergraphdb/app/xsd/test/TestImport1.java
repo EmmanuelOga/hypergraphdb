@@ -13,15 +13,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.hypergraphdb.HGHandle;
+import org.hypergraphdb.HGHandleFactory;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.app.xsd.RestrictionViolationException;
 import org.hypergraphdb.app.xsd.SchemaImporter;
 import org.hypergraphdb.app.xsd.XSDPrimitiveTypeSystem;
-import org.hypergraphdb.type.HGCompositeType;
-import org.hypergraphdb.type.HGProjection;
-import org.hypergraphdb.type.Record;
-import org.hypergraphdb.type.Slot;
+import org.hypergraphdb.type.TypeUtils;
 
 /**
  *
@@ -36,7 +34,10 @@ public class TestImport1
      */
     public static void main(String[] args)
     {
-        System.out.println("Executing simple import unit tests...\n------\n\n");
+        System.out.println("Executing complex type tests...\n------\n\n");
+
+        TestImport1.testComplexLength3();
+        TestImport1.testComplexUsAddress();
 //        TestImport1.exercizeImportSchema();
 //        TestImport1.exercizeImportSchema2();
 //        TestImport1.exercizeDecimalMinInclusive();
@@ -45,8 +46,6 @@ public class TestImport1
 //        TestImport1.exercizeDecimalMaxExclusive();
 //        TestImport1.exercizeDecimalTotalDigits();
 //        TestImport1.exercizeDecimalFractionDigits();
-//        TestImport1.testComplexImport1();
-        TestImport1.testComplexImport2();
     }
 
     /**
@@ -580,10 +579,15 @@ public class TestImport1
     /**
      *
      */
-    private static void testComplexImport1()
+    @SuppressWarnings("unchecked")
+    private static void testComplexUsAddress()
     {
         HGPersistentHandle pHandle = null;
         HyperGraph hg = new HyperGraph();
+        
+        String name = "tx";
+        String street = "royal";
+        String city = "irving";
 
         //phase1
         try
@@ -598,12 +602,13 @@ public class TestImport1
             //use of the imported types.
             HGHandle typeHandle = hg.getTypeSystem().getTypeHandle("USAddress");
             
-            Map usAddress = new HashMap();
-            usAddress.put("name", "tx");
-            usAddress.put("street", "royal");
-            usAddress.put("city", "irving");
-                        
-            HGHandle handle = hg.add(usAddress, typeHandle);
+            Map<String,Object> address = new HashMap<String,Object>();
+            address.put("name", name);
+            address.put("street", street);
+            address.put("city", city);
+            
+            /**@todo need to use NULLTYPE_PERSISTENT_HANDLE instead for missing entries.*/
+            HGHandle handle = hg.add(address, typeHandle);
 
             pHandle = hg.getPersistentHandle(handle);
         } finally
@@ -615,24 +620,47 @@ public class TestImport1
         try
         {
             hg.open(TestImport1.DATABASELOCATION);
-
             XSDPrimitiveTypeSystem.getInstance().bootstrap(hg);
-            Object o = hg.get(pHandle);
-            System.out.println("Object: "+o);
+
+            Map<String,Object> address = (Map<String,Object>)hg.get(pHandle);
+
+            String s = (String)address.get("name");
+            if(false==s.equals(name))
+            {
+               throw new RuntimeException("Initial and stored names do not match!");
+            }
+
+            s = (String)address.get("street");
+            if(false==s.equals(street))
+            {
+               throw new RuntimeException("Initial and stored streets do not match!");
+            }
+
+            s = (String)address.get("city");
+            if(false==s.equals(city))
+            {
+               throw new RuntimeException("Initial and stored cities do not match!");
+            }
+
+            System.out.println("PASSED: testComplexUsAddress.");
         } finally
         {
             hg.close();
         }
 
-    } //testComplexImport1.
+    } //testComplexUsAddress.
 
    /**
     *
     */
-   private static void testComplexImport2()
+   @SuppressWarnings("unchecked")
+   private static void testComplexLength3()
    {
        HGPersistentHandle pHandle = null;
        HyperGraph hg = new HyperGraph();
+       
+       BigDecimal size = new BigDecimal("1024");
+       String unit = "miles";
 
        //phase1
        try
@@ -647,11 +675,11 @@ public class TestImport1
            //use of the imported types.
            HGHandle typeHandle = hg.getTypeSystem().getTypeHandle("length3");
            
-           Map<String,Object> usAddress = new HashMap<String,Object>();
-           usAddress.put("size", new BigDecimal("1024"));
-           usAddress.put("unit", "miles");
+           Map<String,Object> someLength = new HashMap<String,Object>();
+           someLength.put("size", size);
+           someLength.put("unit", unit);
                        
-           HGHandle handle = hg.add(usAddress, typeHandle);
+           HGHandle handle = hg.add(someLength, typeHandle);
 
            pHandle = hg.getPersistentHandle(handle);
        } finally
@@ -663,16 +691,29 @@ public class TestImport1
        try
        {
            hg.open(TestImport1.DATABASELOCATION);
-
            XSDPrimitiveTypeSystem.getInstance().bootstrap(hg);
-           Object o = hg.get(pHandle);
-           System.out.println("Object: "+o);
+
+           Map<String,Object> someLength = (Map<String,Object>)hg.get(pHandle);
+
+           BigDecimal bd = (BigDecimal)someLength.get("size");
+           if(0 != size.compareTo(bd))
+           {
+              throw new RuntimeException("Initial and stored sizes do not match!");
+           }
+
+           String s = (String)someLength.get("unit");
+           if(false==s.equals(unit))
+           {
+              throw new RuntimeException("Initial and stored units do not match!");
+           }
+
+           System.out.println("PASSED: testComplexLength3.");
        } finally
        {
            hg.close();
        }
 
-   } //testComplexImport2.
+   } //testComplexLength3.
 
    ////////////////////////////
     // Private Helper Methods //

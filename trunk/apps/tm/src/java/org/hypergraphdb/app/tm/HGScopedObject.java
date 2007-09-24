@@ -19,7 +19,7 @@ public abstract class HGScopedObject extends HGTopicMapObjectBase implements Sco
 			graph.add(new HGRel(HGTM.ScopeOf, new HGHandle [] {graph.getHandle(this), graph.getHandle(t)}));
 	}
 
-	public Set getScope()
+	public Set<HGTopic> getScope()
 	{
 		return U.getRelatedObjects(graph, HGTM.hScopeOf, graph.getHandle(this), null);
 	}

@@ -183,6 +183,8 @@ public class HGTopicMap extends HGTopicMapObjectBase implements TopicMap
 				U.removeRelations(graph, HGTM.hScopeOf, null, tHandle);
 				t.remove();
 			}
+			for (Locator l : getSourceLocators())
+				removeSourceLocator(l);			
 			graph.remove(graph.getHandle(this));
 			graph.getTransactionManager().endTransaction(true);			
 		}

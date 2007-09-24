@@ -43,6 +43,8 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 
 	public void addType(Topic type)
 	{
+		if (getTypes().contains(type))
+			return;
 		HGHandle tHandle = graph.getHandle(type);
 		graph.add(new HGRel(HGTM.TypeOf, new HGHandle[] { tHandle, graph.getHandle(this)} ),
 				  HGTM.hTypeOf);		
@@ -57,7 +59,7 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 			HGHandle resultHandle = graph.add(result);
 			result.topic = graph.getHandle(this);
 			if (type != null)
-				graph.add(new HGRel(HGTM.TypeOf, new HGHandle[] {resultHandle, graph.getHandle(type)}), 
+				graph.add(new HGRel(HGTM.TypeOf, new HGHandle[] {graph.getHandle(type), resultHandle}), 
 						  HGTM.hTypeOf);
 			if (scope != null)
 			{
@@ -237,6 +239,7 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 					"' is either a type of something, or a scope defining topic, or a role player in a role.");
 		try
 		{
+			U.dettachFromMap(graph, thisH);
 			for (TopicName n : getTopicNames())
 				n.remove();
 			for (Occurrence o : getOccurrences())
@@ -244,6 +247,8 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 			Set reified = U.getRelatedObjects(graph, HGTM.hReifierOf, graph.getHandle(this), null);
 			for (Object x : reified)
 				U.setReifierOf(graph, graph.getHandle(x), null);
+			for (Locator l : getSourceLocators())
+				removeSourceLocator(l);
 			for (Locator l : getSubjectIdentifiers())
 				removeSubjectIdentifier(l);
 			for (Locator l : getSubjectLocators())

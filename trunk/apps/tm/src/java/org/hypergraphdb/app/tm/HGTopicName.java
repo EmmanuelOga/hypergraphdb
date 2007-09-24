@@ -77,7 +77,8 @@ public class HGTopicName extends HGScopedObject implements TopicName
 	@HGIgnore
 	public Topic getReifier()
 	{
-		return (Topic)graph.get(U.getReifierOf(graph, graph.getHandle(this)));
+		HGHandle h = U.getReifierOf(graph, graph.getHandle(this)); 
+		return h != null ? (Topic)graph.get(h) : null;
 	}
 	
 	@HGIgnore
@@ -94,7 +95,8 @@ public class HGTopicName extends HGScopedObject implements TopicName
 	@HGIgnore
 	public Topic getType()
 	{
-		return (Topic)graph.get(U.getTypeOf(graph, graph.getHandle(this)));
+		HGHandle h = U.getTypeOf(graph, graph.getHandle(this));		
+		return h != null ? (Topic)graph.get(h) : null;
 	}
 
 	public String getValue()
@@ -130,6 +132,8 @@ public class HGTopicName extends HGScopedObject implements TopicName
 		}	
 		for (Variant v : getVariants())
 			v.remove();
+		for (Locator l : getSourceLocators())
+			removeSourceLocator(l);					
 		graph.remove(thisH, false);
 	}
 }

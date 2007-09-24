@@ -67,6 +67,8 @@ public class HGVariant extends HGScopedObject implements Variant
 	
 	public void remove() throws TMAPIException
 	{
+		for (Locator l : getSourceLocators())
+			removeSourceLocator(l);					
 		graph.remove(graph.getHandle(this), false);
 	}		
 }

@@ -1,6 +1,9 @@
 package org.hypergraphdb.app.tm;
 
+import java.util.List;
+
 import org.hypergraphdb.HGHandle;
+import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.HGTypeSystem;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.app.management.HGApplication;
@@ -75,18 +78,25 @@ public class HGTMApplication extends HGApplication
 	{
 		graph.remove(HGTM.hTypeInstanceLocator);
 		graph.remove(HGTM.hTypeInstanceTopic);
+		
 		graph.remove(HGTM.hTypeRoleLocator);
 		graph.remove(HGTM.hTypeRoleTopic);
+		
 		graph.remove(HGTM.hInstanceRoleLocator);
 		graph.remove(HGTM.hInstanceRoleTopic);
+		
 		graph.remove(HGTM.hSubtypingLocator);
 		graph.remove(HGTM.hSubtypingTopic);
+		
 		graph.remove(HGTM.hSubTypeLocator);
 		graph.remove(HGTM.hSubTypeTopic);
+		
 		graph.remove(HGTM.hSuperTypeLocator);
 		graph.remove(HGTM.hSuperTypeTopic);
+		
 		graph.remove(HGTM.hTopicNameLocator);
 		graph.remove(HGTM.hTopicNameTopic);
+		
 		graph.remove(HGTM.hSchemaAnyType);
 		graph.remove(HGTM.hSchemaAnyURI);
 		graph.remove(HGTM.hSchemaStringType);
@@ -153,6 +163,9 @@ public class HGTMApplication extends HGApplication
 			graph.remove(HGTM.hNameOf);
 			graph.remove(HGTM.hVariantOf);
 			graph.remove(HGTM.hMapMember);
+			graph.remove(HGTM.hSchemaAnyType);
+			graph.remove(HGTM.hSchemaAnyURI);
+			graph.remove(HGTM.hSchemaStringType);		
 			
 			unloadPredefinedTopics(graph);
 			
@@ -166,6 +179,14 @@ public class HGTMApplication extends HGApplication
 			else
 				throw new RuntimeException(t);
 		}
+	}
+
+	private void deleteLocators(HyperGraph graph)
+	{
+		graph.remove(graph.getTypeSystem().getTypeHandle(URILocator.class));
+/*		List<HGHandle> all = hg.findAll(graph, hg.type(URILocator.class));
+		for (HGHandle x : all)
+			graph.remove(x); */
 	}
 	
 	public HGTMApplication()
@@ -187,6 +208,7 @@ public class HGTMApplication extends HGApplication
 	public void uninstall(HyperGraph graph) 
 	{
 		undefineTypes(graph);
+		deleteLocators(graph);
 	}
 
 	public void update(HyperGraph graph) 

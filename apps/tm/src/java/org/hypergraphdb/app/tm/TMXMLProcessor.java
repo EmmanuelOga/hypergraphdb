@@ -243,7 +243,7 @@ public class TMXMLProcessor
 		{
 			var.setValue(value);
 			var.setDataType(dataType);
-			syncScopes(var, scope);
+			syncScopes(var, (Set<HGTopic>)scope);
 			system.getGraph().update(var);
 		}		
 		syncLocators(locators, toAdd, var);
@@ -587,6 +587,11 @@ public class TMXMLProcessor
 		handleReifier(el.getAttribute("reifier"), map, system.getGraph().getHandle(ass));		
 	}
 	
+	public TMXMLProcessor(HGTopicMapSystem system, String iri)
+	{
+		this(system, false, iri);
+	}
+	
 	public TMXMLProcessor(HGTopicMapSystem system, boolean merge, String iri)
 	{
 		if (system == null)
@@ -626,11 +631,11 @@ public class TMXMLProcessor
 	 * version 2.0 is assumed.
 	 * @return A DOM <code>Element</code> of the topic map. 
 	 */
-	public Element exportMap(HGTopicMapSystem system, String iri, String version)
+	public Document getXmlDocument(String version)
 	{
 		try
 		{
-			HGTopicMap map = (HGTopicMap)system.getTopicMap(iri);
+			HGTopicMap map = (HGTopicMap)system.locate(iri);
 			if (map == null)
 				return null;
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -647,12 +652,13 @@ public class TMXMLProcessor
 					exportTopic2(el, t);							
 				for (Association a : map.getAssociations())
 					exportAssociation2(el, a);
-				return el;
+				doc.appendChild(el);
+				return doc;
 			}
 			else
 			{
 				throw new IllegalArgumentException("Unsupport XTM version " + version);
-			}
+			}			
 		}		
 		catch (Exception ex)
 		{
@@ -662,14 +668,24 @@ public class TMXMLProcessor
 	
 	private String getTopicHref(Topic t)
 	{
-		return ((Locator)t.getSourceLocators().iterator().next()).toExternalForm();
+		String href = ((Locator)t.getSourceLocators().iterator().next()).toExternalForm();
+/*		if (href.startsWith(iri + "#"))
+			return href.substring(iri.length() + 1);
+		else */
+			return href; 
 	}
 	
 	private void exportTopic2(Element parentEl, Topic t)
 	{
 		Element el = parentEl.getOwnerDocument().createElement("topic");
 		for (Object x : t.getSourceLocators())
-			exportHref2(el, "itemIdentity", ((Locator)x).toExternalForm());
+		{
+			String href = ((Locator)x).toExternalForm();			
+			if (href.startsWith(iri + "#") && (el.getAttribute("id") == null || el.getAttribute("id").length() == 0))
+				el.setAttribute("id", href.substring(iri.length() + 1));
+			else
+				exportHref2(el, "itemIdentity", href);
+		}
 		for (Object x : t.getSubjectLocators())
 			exportHref2(el, "subjectLocator", ((Locator)x).toExternalForm());
 		for (Object x : t.getSubjectIdentifiers())
@@ -699,6 +715,8 @@ public class TMXMLProcessor
 	private void exportName2(Element parentEl, TopicName name)
 	{
 		Element el = parentEl.getOwnerDocument().createElement("name");
+		for (Object x : name.getSourceLocators())
+			exportHref2(el, "itemIdentity", ((Locator)x).toExternalForm());
 		if (name.getType() != null)
 			exportType2(el, name.getType());
 		if (name.getScope() != null && !name.getScope().isEmpty())

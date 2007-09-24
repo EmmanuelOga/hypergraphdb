@@ -1,4 +1,4 @@
-package org.hypergraphdb.app.tm;
+	package org.hypergraphdb.app.tm;
 
 import java.net.URI;
 
@@ -53,9 +53,22 @@ public class URILocator implements Locator
 			throw new RuntimeException(ex);
 		}
 	}
-
+	
+	public Locator resolveLocal(String localName)
+	{
+		String s = uri.toString();
+		if (s.endsWith("/"))
+			s = s.substring(0, s.length() - 1);
+		return new URILocator(s + "#" + localName);
+	}
+	
 	public String toExternalForm()
 	{
 		return uri.toString();
+	}
+	
+	public String toString()
+	{
+		return toExternalForm();
 	}
 }

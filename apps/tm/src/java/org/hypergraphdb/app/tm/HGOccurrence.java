@@ -24,7 +24,8 @@ public class HGOccurrence extends HGScopedObject implements Occurrence
 	@HGIgnore
 	public Topic getReifier()
 	{
-		return (Topic)graph.get(U.getReifierOf(graph, graph.getHandle(this)));
+		HGHandle h = U.getReifierOf(graph, graph.getHandle(this)); 
+		return h != null ? (Topic)graph.get(h) : null;
 	}
 	
 	@HGIgnore
@@ -97,6 +98,13 @@ public class HGOccurrence extends HGScopedObject implements Occurrence
 			((Topic)graph.get(reifier)).remove();
 		}				
 		setType(null);
+		for (Locator l : getSourceLocators())
+			removeSourceLocator(l);					
 		graph.remove(thisH, false);
 	}	
+	
+	public String toString()
+	{
+		return "occurrence[" + dataType + "," + value + "]";
+	}
 }

@@ -5,6 +5,7 @@ import org.hypergraphdb.HGLink;
 import org.hypergraphdb.annotation.HGIgnore;
 import org.tmapi.core.Association;
 import org.tmapi.core.AssociationRole;
+import org.tmapi.core.Locator;
 import org.tmapi.core.TMAPIException;
 import org.tmapi.core.Topic;
 
@@ -89,6 +90,8 @@ public class HGAssociationRole extends HGTopicMapObjectBase implements Associati
 			U.setReifierOf(graph, thisH, null);
 			((Topic)graph.get(reifier)).remove();
 		}		
+		for (Locator l : getSourceLocators())
+			removeSourceLocator(l);					
 		graph.remove(thisH);
 	}
 	

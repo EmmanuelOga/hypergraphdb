@@ -21,21 +21,26 @@ public abstract class HGTopicMapObjectBase implements TopicMapObject, HGGraphHol
 		this.graph = graph;
 	}
 	
+	public void addSourceLocator(HGHandle locator) throws DuplicateSourceLocatorException
+	{
+		// check if this locator is locating something else
+		Object x = U.getOneRelated(graph,HGTM.hSourceLocator, locator, null); 
+		if (x != null && x != this)
+			throw new DuplicateSourceLocatorException(this, 
+													  this, 
+													  (Locator)graph.get(locator), 
+													  "Attempt to add an existing source locator.");
+		else
+			graph.add(new HGRel(HGTM.SourceLocator, new HGHandle[] { locator, graph.getHandle(this)} ),
+					HGTM.hSourceLocator);		
+	}
+	
 	public void addSourceLocator(Locator l) throws DuplicateSourceLocatorException
 	{
 		HGHandle lh = U.findLocatorHandle(graph, l);
 		if (lh == null)
 			lh = graph.add(l);
-		// check if this locator is locating something else
-		Object x = U.getOneRelated(graph,HGTM.hSourceLocator, lh, null); 
-		if (x != null && x != this)
-			throw new DuplicateSourceLocatorException(this, 
-													  this, 
-													  l, 
-													  "Attempt to add an existing source locator.");
-		else
-			graph.add(new HGRel(HGTM.SourceLocator, new HGHandle[] { lh, graph.getHandle(this)} ),
-					HGTM.hSourceLocator);
+		addSourceLocator(lh);
 	}
 
 	public String getObjectId()
@@ -54,11 +59,8 @@ public abstract class HGTopicMapObjectBase implements TopicMapObject, HGGraphHol
 		return U.getTopicMapOf(this);
 	}
 
-	public void removeSourceLocator(Locator l)
+	public void removeSourceLocator(HGHandle lh)
 	{
-		HGHandle lh = U.findLocatorHandle(graph, l);
-		if (lh == null)
-			return;
 		HGHandle rel = hg.findOne(graph, 
 		          hg.and(hg.type(HGTM.hSourceLocator), 
 		        		 hg.orderedLink(lh, graph.getHandle(this))));
@@ -66,6 +68,15 @@ public abstract class HGTopicMapObjectBase implements TopicMapObject, HGGraphHol
 			graph.remove(rel);
 		// If this locator is not used in anything else, we may remove it.
 		if (graph.getIncidenceSet(lh).length == 0)
-			graph.remove(lh);
+			graph.remove(lh);		
+	}
+	
+	public void removeSourceLocator(Locator l)
+	{
+		HGHandle lh = U.findLocatorHandle(graph, l);
+		if (lh == null)
+			return;
+		else
+			removeSourceLocator(lh);
 	}
 }

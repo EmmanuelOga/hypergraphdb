@@ -2,6 +2,7 @@ package org.hypergraphdb.app.tm;
 
 import java.net.URI;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.hypergraphdb.*;
@@ -206,4 +207,15 @@ class U
 		else
 			return null;
 	}	
+	
+	static void dettachFromMap(HyperGraph graph, HGHandle todettach)
+	{
+		List<HGHandle> all = hg.findAll(graph, hg.and(hg.type(HGTM.hMapMember), 
+				   hg.orderedLink(new HGHandle[] { 
+					todettach,
+					HGHandleFactory.anyHandle
+				   })));
+		for (HGHandle h : all)
+			graph.remove(h);
+	}
 }

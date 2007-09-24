@@ -9,6 +9,7 @@ import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.annotation.HGIgnore;
 import org.tmapi.core.Association;
 import org.tmapi.core.AssociationRole;
+import org.tmapi.core.Locator;
 import org.tmapi.core.TMAPIException;
 import org.tmapi.core.Topic;
 import org.tmapi.core.TopicInUseException;
@@ -48,7 +49,8 @@ public class HGAssociation extends HGScopedObject implements Association, HGLink
 	@HGIgnore
 	public Topic getReifier()
 	{
-		return (Topic)graph.get(U.getReifierOf(graph, graph.getHandle(this)));
+		HGHandle h = U.getReifierOf(graph, graph.getHandle(this)); 
+		return h != null ? (Topic)graph.get(h) : null;
 	}
 	
 	@HGIgnore
@@ -60,7 +62,8 @@ public class HGAssociation extends HGScopedObject implements Association, HGLink
 	@HGIgnore
 	public Topic getType()
 	{
-		return (Topic)graph.get(U.getTypeOf(graph, graph.getHandle(this)));
+		HGHandle h = U.getTypeOf(graph, graph.getHandle(this));		
+		return h != null ? (Topic)graph.get(h) : null;
 	}
 
 	@HGIgnore
@@ -100,6 +103,9 @@ public class HGAssociation extends HGScopedObject implements Association, HGLink
 	public void remove() throws TopicInUseException
 	{
 		HGHandle thisH = graph.getHandle(this);
+		U.dettachFromMap(graph, thisH);
+		for (Locator l : getSourceLocators())
+			removeSourceLocator(l);		
 		setType(null);
 		for (HGAssociationRole role : getAssociationRoles())
 			try { role.remove(); } catch (TMAPIException ex) {throw new HGException(ex); }
@@ -108,7 +114,7 @@ public class HGAssociation extends HGScopedObject implements Association, HGLink
 		{
 			U.setReifierOf(graph, thisH, null);
 			((Topic)graph.get(reifier)).remove();
-		}
+		}		
 		graph.remove(thisH);
 	}	
 }

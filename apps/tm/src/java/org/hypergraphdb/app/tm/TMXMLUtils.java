@@ -1,9 +1,14 @@
 package org.hypergraphdb.app.tm;
 
+import java.io.File;
+import java.io.FileWriter;
+
 import javax.xml.parsers.*;
 import org.w3c.dom.*;
 import org.w3c.dom.bootstrap.*;
 import org.w3c.dom.ls.*;
+
+import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 public class TMXMLUtils
 {
@@ -30,6 +35,24 @@ public class TMXMLUtils
 		catch (Exception ex)
 		{
 			throw new RuntimeException(ex);
+		}
+	}
+	
+	public static void writeToFile(File outputFile, HGTopicMapSystem system, String iri, String version)
+	{
+		TMXMLProcessor processor = new TMXMLProcessor(system, iri);
+		Document doc = processor.getXmlDocument(version);
+		try
+		{
+			XMLSerializer serializer = new XMLSerializer();
+			FileWriter out = new FileWriter(outputFile);
+			serializer.setOutputCharStream(out);
+			serializer.serialize(doc);
+			out.close();
+		}
+		catch (Throwable t)
+		{
+			throw new RuntimeException(t);
 		}
 	}
 	

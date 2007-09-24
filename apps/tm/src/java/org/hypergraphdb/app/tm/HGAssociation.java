@@ -37,6 +37,7 @@ public class HGAssociation extends HGScopedObject implements Association, HGLink
 		HGHandle [] newTS = new HGHandle[targetSet.length + 1];
 		System.arraycopy(targetSet, 0, newTS, 0, targetSet.length);
 		newTS[targetSet.length] = graph.add(result);
+		targetSet = newTS;
 		graph.update(this);
 		return result;
 	}

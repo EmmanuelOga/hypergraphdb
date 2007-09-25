@@ -47,7 +47,7 @@ public class ClassGenerator
       {
       }
 
-      public Class defineClass(
+      public Class<?> defineClass(
          final String name, final byte[] b)
       {
          return defineClass(name, b, 0, b.length);
@@ -96,19 +96,19 @@ public class ClassGenerator
             /** @todo some other more tabular way ? */
             if (facet instanceof MinInclusiveFacet)
             {
-               ClusiveFacet clusive = (ClusiveFacet) facet;
+               ClusiveFacet<?> clusive = (ClusiveFacet<?>) facet;
                ClassGenerator.processClusive(mw, clusive, Opcodes.IF_ICMPGE);
             } else if (facet instanceof MaxInclusiveFacet)
             {
-               ClusiveFacet clusive = (ClusiveFacet) facet;
+               ClusiveFacet<?> clusive = (ClusiveFacet<?>) facet;
                ClassGenerator.processClusive(mw, clusive, Opcodes.IF_ICMPLE);
             } else if (facet instanceof MaxExclusiveFacet)
             {
-               ClusiveFacet clusive = (ClusiveFacet) facet;
+               ClusiveFacet<?> clusive = (ClusiveFacet<?>) facet;
                ClassGenerator.processClusive(mw, clusive, Opcodes.IF_ICMPLT);
             } else if (facet instanceof MinInclusiveFacet)
             {
-               ClusiveFacet clusive = (ClusiveFacet) facet;
+               ClusiveFacet<?> clusive = (ClusiveFacet<?>) facet;
                ClassGenerator.processClusive(mw, clusive, Opcodes.IF_ICMPGT);
             } else if (facet instanceof TotalDigitsFacet)
             {
@@ -276,14 +276,13 @@ public class ClassGenerator
    /**
     * 
     */
+   @SuppressWarnings("unchecked")
    public static Class<ComplexTypeBase> generateComplexType(
-      final HyperGraph hg, final Class clazz, RecordType recordType)
+      final HyperGraph hg, final Class<ComplexTypeBase> clazz, RecordType recordType)
    {
-      Class result = clazz;
+      Class<ComplexTypeBase> result = clazz;
 
       HGHandle typeHandle = hg.getTypeSystem().getTypeHandle(
-            "http://www.w3.org/2001/XMLSchema#string");
-      HGAtomType type = hg.getTypeSystem().getType(
             "http://www.w3.org/2001/XMLSchema#string");
       HGPersistentHandle pTypeHandle = hg.getPersistentHandle(typeHandle);
 
@@ -322,7 +321,7 @@ public class ClassGenerator
       }
 
       CGPrivateClassLoader cl = new CGPrivateClassLoader();
-      result = cl.defineClass("ComplexClass", byteCode);
+      result = (Class<ComplexTypeBase>)cl.defineClass("ComplexClass", byteCode);
 
       return result;
    }

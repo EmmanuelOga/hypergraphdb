@@ -37,39 +37,48 @@ public class USAddressComplexRecordType implements HGAtomType
    {
        HashMap hashmap = new HashMap();
        HGPersistentHandle ahgpersistenthandle[] = hg.getStore().getLink(hgpersistenthandle);
-       
-       HGPersistentHandle hgpersistenthandle1;
-       org.hypergraphdb.type.HGAtomType hgatomtype;
-       Object obj;
-       
-       if(null!=ahgpersistenthandle[1])
+       if(!ahgpersistenthandle[1].equals(HGHandleFactory.nullHandle()))
        {
-       hgpersistenthandle1 = HGHandleFactory.makeHandle("8b46b788-6587-11dc-84c8-001617d7885d");
-       hgatomtype = hg.getTypeSystem().getType(hgpersistenthandle1);
-       obj = TypeUtils.makeValue(hg, ahgpersistenthandle[1], hgatomtype);
-       hashmap.put("name", obj);
+           HGPersistentHandle hgpersistenthandle1 = HGHandleFactory.makeHandle("d9d43ee3-6b0b-11dc-b956-001617d7885d");
+           org.hypergraphdb.type.HGAtomType hgatomtype = hg.getTypeSystem().getType(hgpersistenthandle1);
+           Object obj = TypeUtils.makeValue(hg, ahgpersistenthandle[1], hgatomtype);
+           hashmap.put("name", obj);
        }
-       
-       hgpersistenthandle1 = HGHandleFactory.makeHandle("8b46b788-6587-11dc-84c8-001617d7885d");
-       hgatomtype = hg.getTypeSystem().getType(hgpersistenthandle1);
-       obj = TypeUtils.makeValue(hg, ahgpersistenthandle[3], hgatomtype);
-       hashmap.put("street", obj);
-       hgpersistenthandle1 = HGHandleFactory.makeHandle("8b46b788-6587-11dc-84c8-001617d7885d");
-       hgatomtype = hg.getTypeSystem().getType(hgpersistenthandle1);
-       obj = TypeUtils.makeValue(hg, ahgpersistenthandle[5], hgatomtype);
-       hashmap.put("city", obj);
-       hgpersistenthandle1 = HGHandleFactory.makeHandle("8b46b788-6587-11dc-84c8-001617d7885d");
-       hgatomtype = hg.getTypeSystem().getType(hgpersistenthandle1);
-       obj = TypeUtils.makeValue(hg, ahgpersistenthandle[7], hgatomtype);
-       hashmap.put("state", obj);
-       hgpersistenthandle1 = HGHandleFactory.makeHandle("8b529e10-6587-11dc-84c8-001617d7885d");
-       hgatomtype = hg.getTypeSystem().getType(hgpersistenthandle1);
-       obj = TypeUtils.makeValue(hg, ahgpersistenthandle[9], hgatomtype);
-       hashmap.put("zip", obj);
-       hgpersistenthandle1 = HGHandleFactory.makeHandle("eeee128b-c5c1-11d9-bfe0-4b9280693a83");
-       hgatomtype = hg.getTypeSystem().getType(hgpersistenthandle1);
-       obj = TypeUtils.makeValue(hg, ahgpersistenthandle[11], hgatomtype);
-       hashmap.put("country", obj);
+       if(ahgpersistenthandle[3] != null)
+       {
+           HGPersistentHandle hgpersistenthandle2 = HGHandleFactory.makeHandle("d9d43ee3-6b0b-11dc-b956-001617d7885d");
+           org.hypergraphdb.type.HGAtomType hgatomtype1 = hg.getTypeSystem().getType(hgpersistenthandle2);
+           Object obj1 = TypeUtils.makeValue(hg, ahgpersistenthandle[3], hgatomtype1);
+           hashmap.put("street", obj1);
+       }
+       if(ahgpersistenthandle[5] != null)
+       {
+           HGPersistentHandle hgpersistenthandle3 = HGHandleFactory.makeHandle("d9d43ee3-6b0b-11dc-b956-001617d7885d");
+           org.hypergraphdb.type.HGAtomType hgatomtype2 = hg.getTypeSystem().getType(hgpersistenthandle3);
+           Object obj2 = TypeUtils.makeValue(hg, ahgpersistenthandle[5], hgatomtype2);
+           hashmap.put("city", obj2);
+       }
+       if(ahgpersistenthandle[7] != null)
+       {
+           HGPersistentHandle hgpersistenthandle4 = HGHandleFactory.makeHandle("d9d43ee3-6b0b-11dc-b956-001617d7885d");
+           org.hypergraphdb.type.HGAtomType hgatomtype3 = hg.getTypeSystem().getType(hgpersistenthandle4);
+           Object obj3 = TypeUtils.makeValue(hg, ahgpersistenthandle[7], hgatomtype3);
+           hashmap.put("state", obj3);
+       }
+       if(ahgpersistenthandle[9] != null)
+       {
+           HGPersistentHandle hgpersistenthandle5 = HGHandleFactory.makeHandle("d9dddb7b-6b0b-11dc-b956-001617d7885d");
+           org.hypergraphdb.type.HGAtomType hgatomtype4 = hg.getTypeSystem().getType(hgpersistenthandle5);
+           Object obj4 = TypeUtils.makeValue(hg, ahgpersistenthandle[9], hgatomtype4);
+           hashmap.put("zip", obj4);
+       }
+       if(ahgpersistenthandle[11] != null)
+       {
+           HGPersistentHandle hgpersistenthandle6 = HGHandleFactory.makeHandle("eeee128b-c5c1-11d9-bfe0-4b9280693a83");
+           org.hypergraphdb.type.HGAtomType hgatomtype5 = hg.getTypeSystem().getType(hgpersistenthandle6);
+           Object obj5 = TypeUtils.makeValue(hg, ahgpersistenthandle[11], hgatomtype5);
+           hashmap.put("country", obj5);
+       }
        return hashmap;
    }
 
@@ -92,41 +101,46 @@ public class USAddressComplexRecordType implements HGAtomType
    public HGPersistentHandle store(Object obj)
    {
        Map map = (Map)obj;
-       HGPersistentHandle hgpersistenthandle = HGHandleFactory.makeHandle("cea7c419-6581-11dc-920c-001617d7885d");
+       HGPersistentHandle hgpersistenthandle = HGHandleFactory.makeHandle("9e21270f-6b0a-11dc-99d5-001617d7885d");
        org.hypergraphdb.type.HGAtomType hgatomtype = hg.getTypeSystem().getType(hgpersistenthandle);
        HGPersistentHandle ahgpersistenthandle[] = new HGPersistentHandle[12];
-       hgpersistenthandle = HGHandleFactory.makeHandle("cea7c419-6581-11dc-920c-001617d7885d");
+       hgpersistenthandle = HGHandleFactory.makeHandle("9e21270f-6b0a-11dc-99d5-001617d7885d");
        ahgpersistenthandle[0] = hg.getPersistentHandle(hgpersistenthandle);
-       
        Object obj1 = map.get("name");
-       if(null!=obj1)
-          ahgpersistenthandle[1] = TypeUtils.storeValue(hg, obj1, hg.getTypeSystem().getType(hgpersistenthandle));
-       
-       hgpersistenthandle = HGHandleFactory.makeHandle("cea7c419-6581-11dc-920c-001617d7885d");
+       if(obj1 != null)
+           ahgpersistenthandle[1] = TypeUtils.storeValue(hg, obj1, hg.getTypeSystem().getType(hgpersistenthandle));
+       else
+          ahgpersistenthandle[1] = HGHandleFactory.nullHandle();
+       hgpersistenthandle = HGHandleFactory.makeHandle("9e21270f-6b0a-11dc-99d5-001617d7885d");
        ahgpersistenthandle[2] = hg.getPersistentHandle(hgpersistenthandle);
        obj1 = map.get("street");
-       ahgpersistenthandle[3] = TypeUtils.storeValue(hg, obj1, hg.getTypeSystem().getType(hgpersistenthandle));
-       hgpersistenthandle = HGHandleFactory.makeHandle("cea7c419-6581-11dc-920c-001617d7885d");
+       if(obj1 != null)
+           ahgpersistenthandle[3] = TypeUtils.storeValue(hg, obj1, hg.getTypeSystem().getType(hgpersistenthandle));
+       hgpersistenthandle = HGHandleFactory.makeHandle("9e21270f-6b0a-11dc-99d5-001617d7885d");
        ahgpersistenthandle[4] = hg.getPersistentHandle(hgpersistenthandle);
        obj1 = map.get("city");
-       ahgpersistenthandle[5] = TypeUtils.storeValue(hg, obj1, hg.getTypeSystem().getType(hgpersistenthandle));
-       hgpersistenthandle = HGHandleFactory.makeHandle("cea7c419-6581-11dc-920c-001617d7885d");
+       if(obj1 != null)
+           ahgpersistenthandle[5] = TypeUtils.storeValue(hg, obj1, hg.getTypeSystem().getType(hgpersistenthandle));
+       hgpersistenthandle = HGHandleFactory.makeHandle("9e21270f-6b0a-11dc-99d5-001617d7885d");
        ahgpersistenthandle[6] = hg.getPersistentHandle(hgpersistenthandle);
        obj1 = map.get("state");
-       ahgpersistenthandle[7] = TypeUtils.storeValue(hg, obj1, hg.getTypeSystem().getType(hgpersistenthandle));
-       hgpersistenthandle = HGHandleFactory.makeHandle("cebf9281-6581-11dc-920c-001617d7885d");
+       if(obj1 != null)
+           ahgpersistenthandle[7] = TypeUtils.storeValue(hg, obj1, hg.getTypeSystem().getType(hgpersistenthandle));
+       hgpersistenthandle = HGHandleFactory.makeHandle("9e38f577-6b0a-11dc-99d5-001617d7885d");
        ahgpersistenthandle[8] = hg.getPersistentHandle(hgpersistenthandle);
        obj1 = map.get("zip");
-       ahgpersistenthandle[9] = TypeUtils.storeValue(hg, obj1, hg.getTypeSystem().getType(hgpersistenthandle));
+       if(obj1 != null)
+           ahgpersistenthandle[9] = TypeUtils.storeValue(hg, obj1, hg.getTypeSystem().getType(hgpersistenthandle));
        hgpersistenthandle = HGHandleFactory.makeHandle("eeee128b-c5c1-11d9-bfe0-4b9280693a83");
        ahgpersistenthandle[10] = hg.getPersistentHandle(hgpersistenthandle);
        obj1 = map.get("country");
-       ahgpersistenthandle[11] = TypeUtils.storeValue(hg, obj1, hg.getTypeSystem().getType(hgpersistenthandle));
+       if(obj1 != null)
+           ahgpersistenthandle[11] = TypeUtils.storeValue(hg, obj1, hg.getTypeSystem().getType(hgpersistenthandle));
        HGPersistentHandle hgpersistenthandle1 = TypeUtils.getNewHandleFor(hg, map);
        hg.getStore().store(hgpersistenthandle1, ahgpersistenthandle);
        return hgpersistenthandle1;
    }
-
+   
    /**
     * 
     */

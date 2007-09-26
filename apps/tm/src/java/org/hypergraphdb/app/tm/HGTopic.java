@@ -275,4 +275,23 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 			   U.getRelatedObjects(graph, HGTM.hScopeOf, null, thisH).isEmpty() &&			   
 			   getRolesPlayed().isEmpty();
 	}
+	
+	public String toString()
+	{
+		Set names = this.getTopicNames();
+		if (names.size() > 0)
+			return ((TopicName)names.iterator().next()).getValue();
+		Set locators = this.getSourceLocators();
+		if (locators.size() > 0)
+		{ 
+			String first = locators.iterator().next().toString();
+			int idx = first.indexOf('#');
+			if (idx > -1)
+				return first.substring(idx + 1);
+			else
+				return first;
+		}
+		else
+			return "topic";
+	}
 }

@@ -38,6 +38,7 @@ public class TestImport1
 
         TestImport1.testComplexLength3();
         TestImport1.testComplexUsAddress();
+        TestImport1.testPurchaseOrder();
 //        TestImport1.exercizeImportSchema();
 //        TestImport1.exercizeImportSchema2();
 //        TestImport1.exercizeDecimalMinInclusive();
@@ -607,7 +608,6 @@ public class TestImport1
             address.put("street", street);
             address.put("city", city);
             
-            /**@todo need to use NULLTYPE_PERSISTENT_HANDLE instead for missing entries.*/
             HGHandle handle = hg.add(address, typeHandle);
 
             pHandle = hg.getPersistentHandle(handle);
@@ -649,6 +649,73 @@ public class TestImport1
         }
 
     } //testComplexUsAddress.
+
+    /**
+    *
+    */
+   private static void testPurchaseOrder()
+   {
+       HGPersistentHandle pHandle = null;
+       HyperGraph hg = new HyperGraph();
+       
+       String name1 = "tx";
+       String street1 = "royal";
+       String city1 = "irving";
+
+       String name2 = "name2";
+       String street2 = "street2";
+       String city2 = "city2";
+
+       //phase1
+       try
+       {
+           hg.open(TestImport1.DATABASELOCATION);
+
+           XSDPrimitiveTypeSystem.getInstance().bootstrap(hg);
+
+           SchemaImporter importer = new SchemaImporter(hg);
+           importer.importSchema("/org/hypergraphdb/app/xsd/test/testcomplex1.xsd");
+
+           //use of the imported types.
+           HGHandle typeHandle = hg.getTypeSystem().getTypeHandle("PurchaseOrderType");
+           
+           Map<String,Object> shipToAddress = new HashMap<String,Object>();
+           shipToAddress.put("name", name1);
+           shipToAddress.put("street", street1);
+           shipToAddress.put("city", city1);
+           
+           Map<String,Object> billToAddress = new HashMap<String,Object>();
+           billToAddress.put("name", name2);
+           billToAddress.put("street", street2);
+           billToAddress.put("city", city2);
+
+           Map<String,Object> purchaseOrder = new HashMap<String,Object>();
+           purchaseOrder.put("shipTo", shipToAddress);
+           purchaseOrder.put("billTo", billToAddress);
+           purchaseOrder.put("product", "cheese");
+           
+           HGHandle handle = hg.add(purchaseOrder, typeHandle);
+
+           pHandle = hg.getPersistentHandle(handle);
+       } finally
+       {
+           hg.close();
+       }
+
+       //phase2
+       try
+       {
+           hg.open(TestImport1.DATABASELOCATION);
+           XSDPrimitiveTypeSystem.getInstance().bootstrap(hg);
+
+           Map<String,Object> purchaseOrder = (Map<String,Object>)hg.get(pHandle);
+           System.out.println(purchaseOrder);
+       } finally
+       {
+           hg.close();
+       }
+
+   } //testPurchaseOrder.
 
    /**
     *

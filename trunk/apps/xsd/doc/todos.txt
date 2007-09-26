@@ -1,3 +1,2 @@
-- need to first resolve the null value probs.
 - start off the composite complex type support : generally follow the same Map pattern but keep looking for a way to simplify and streamline the usage.
 - extend the complex type tests to use all of the available primitive types.

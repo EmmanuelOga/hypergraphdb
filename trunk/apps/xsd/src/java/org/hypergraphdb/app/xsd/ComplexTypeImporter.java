@@ -110,7 +110,7 @@ public class ComplexTypeImporter
       String name = attributes.getValue("name");
       //String type = attributes.getValue("type");
 
-      /** @todo hcoded to String temporarily. */
+      /**@todo hcoded to String temporarily. */
       Slot slot = new Slot(name, importer.hg.getTypeSystem().getTypeHandle(String.class));
       HGHandle slotHandle = importer.hg.add(slot);
       recordType.addSlot(slotHandle);

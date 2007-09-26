@@ -149,7 +149,7 @@ public class TMXMLProcessor
 	
 	private void handleReifier(String reifier, HGTopicMap map, HGHandle object)
 	{		
-		if (reifier == null)
+		if (reifier == null || reifier.length() == 0)
 			return;
 		reifier = U.handleIRI(reifier);
 		Locator l = U.makeLocator(reifier);

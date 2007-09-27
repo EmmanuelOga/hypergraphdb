@@ -717,8 +717,19 @@ public class TMXMLProcessor
 		Element el = parentEl.getOwnerDocument().createElement("name");
 		for (Object x : name.getSourceLocators())
 			exportHref2(el, "itemIdentity", ((Locator)x).toExternalForm());
+		Topic type = name.getType();
 		if (name.getType() != null)
-			exportType2(el, name.getType());
+		{
+			Set<Locator> typeIds = type.getSourceLocators();
+			for (Locator l : typeIds)
+				if (l.toExternalForm().equals(HGTM.topicNameIdentifier))
+				{
+					type = null;
+					break;
+				}
+			if (type != null)
+				exportType2(el, name.getType());
+		}			
 		if (name.getScope() != null && !name.getScope().isEmpty())
 			exportScope2(el, name.getScope());
 		exportValue2(el, name.getValue());

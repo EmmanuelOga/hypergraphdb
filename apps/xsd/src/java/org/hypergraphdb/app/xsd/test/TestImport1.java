@@ -650,9 +650,10 @@ public class TestImport1
 
     } //testComplexUsAddress.
 
-    /**
+   /**
     *
     */
+   @SuppressWarnings("unchecked")
    private static void testPurchaseOrder()
    {
        HGPersistentHandle pHandle = null;

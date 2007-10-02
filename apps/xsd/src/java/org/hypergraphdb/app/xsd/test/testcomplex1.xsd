@@ -19,13 +19,13 @@
  </xs:sequence>
 </xs:complexType>
 
-<xsd:complexType name="PurchaseOrderType">
-  <xsd:sequence>
-    <xsd:element name="shipTo" type="USAddress"/>
-    <xsd:element name="billTo" type="USAddress"/>
-    <xsd:element name="product"  type="xs:string"/>
-  </xsd:sequence>
-  <xsd:attribute name="orderDate" type="xsd:date"/>
-</xsd:complexType>
+<xs:complexType name="PurchaseOrderType">
+  <xs:sequence>
+    <xs:element name="shipTo" type="USAddress"/>
+    <xs:element name="billTo" type="USAddress"/>
+    <xs:element name="product"  type="xs:string"/>
+  </xs:sequence>
+  <xs:attribute name="orderDate" type="xsd:date"/>
+</xs:complexType>
 
 </xs:schema>

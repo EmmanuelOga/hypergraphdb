@@ -31,224 +31,243 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class SchemaImporter extends DefaultHandler
 {
-    /*package*/ HyperGraph hg;
-    private String targetNamespace;
-    private Map<String, String> importedNamespaces;
-    private String schemaFile;
+   /* package */HyperGraph hg;
+   private String targetNamespace;
+   private Map<String, String> importedNamespaces;
+   private String schemaFile;
 
-    private ComplexTypeImporter complexType;
-    private SimpleTypeImporter simpleType;
+   private ComplexTypeImporter complexType;
+   private SimpleTypeImporter simpleType;
 
-    /**
-     *
-     * @param uri String
-     */
-    public void importSchema(String schemaFile)
-    {
-        HGQueryCondition q = HGQuery.hg.value(schemaFile,ComparisonOperator.EQ);
-        HGSearchResult<HGHandle> rs = hg.find(q);
+   /**
+    * 
+    * @param uri
+    *           String
+    */
+   public void importSchema(
+      String schemaFile)
+   {
+      HGQueryCondition q = HGQuery.hg.value(schemaFile, ComparisonOperator.EQ);
+      HGSearchResult<HGHandle> rs = hg.find(q);
 
-        if(!rs.hasNext())
-        {
-            this.schemaFile = schemaFile;
+      if (!rs.hasNext())
+      {
+         this.schemaFile = schemaFile;
 
-            try
+         try
+         {
+            SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+            parserFactory.setValidating(false);
+            parserFactory.setNamespaceAware(false);
+
+            SAXParser parser = parserFactory.newSAXParser();
+            InputStream is = getClass().getResourceAsStream(schemaFile);
+            parser.parse(is, this);
+         } catch (Exception exception)
+         {
+            exception.printStackTrace();
+         }
+      }
+
+      rs.close();
+   }
+
+   /**
+    * 
+    */
+   public SchemaImporter(HyperGraph hg)
+   {
+      this.hg = hg;
+   }
+
+   /**
+    * 
+    */
+   public void startElement(
+      String uri, String localName, String qName, Attributes attributes)
+   {
+      /** @todo make it namespace-aware. */
+
+      if ("xs:schema".equals(qName))
+      {
+         targetNamespace = attributes.getValue("targetNamespace");
+
+         importedNamespaces = new HashMap<String, String>();
+
+         for (int i = 0; i < attributes.getLength(); i++)
+         {
+            String name = attributes.getQName(i);
+
+            final String prefix = "xmlns";
+            if (name.startsWith(prefix))
             {
-                SAXParserFactory parserFactory = SAXParserFactory.newInstance();
-                parserFactory.setValidating(false);
-                parserFactory.setNamespaceAware(false);
+               name = name.substring(prefix.length());
 
-                SAXParser parser = parserFactory.newSAXParser();
-                InputStream is = getClass().getResourceAsStream(schemaFile);
-                parser.parse(is, this);
-            } catch (Exception exception)
-            {
-                exception.printStackTrace();
+               if (0 == name.length())
+               {
+                  // the default namespace.
+                  name = "";
+               } else if (':' == name.charAt(0))
+               {
+                  name = name.substring(1);
+               } else
+               {
+                  throw new RuntimeException("Unrecognized namespace definition: "
+                        + attributes.getQName(i) + '.');
+               }
+
+               importedNamespaces.put(name, attributes.getValue(i));
             }
-        }
+         }
+      } else if ("xs:simpleType".equals(qName))
+      {
+         simpleType = new SimpleTypeImporter(this);
+         simpleType.startDefinition(attributes);
+      } else if ("xs:complexType".equals(qName))
+      {
+         complexType = new ComplexTypeImporter(this);
+         complexType.startDefinition(attributes);
+      } else if ("xs:sequence".equals(qName))
+      {
+         complexType.startSequence(attributes);
+      } else if ("xs:element".equals(qName))
+      {
+         complexType.startElement(attributes);
+      } else if ("xs:attribute".equals(qName))
+      {
+         complexType.doAttribute(attributes);
+      } else if ("xs:restriction".equals(qName))
+      {
+         simpleType.startRestriction(attributes);
+      } else if ("xs:minInclusive".equals(qName))
+      {
+         simpleType.doMinInclusive(attributes);
+      } else if ("xs:minExclusive".equals(qName))
+      {
+         simpleType.doMinExclusive(attributes);
+      } else if ("xs:maxInclusive".equals(qName))
+      {
+         simpleType.doMaxInclusive(attributes);
+      } else if ("xs:maxExclusive".equals(qName))
+      {
+         simpleType.doMaxExclusive(attributes);
+      } else if ("xs:pattern".equals(qName))
+      {
+         simpleType.doPattern(attributes);
+      } else if ("xs:totalDigits".equals(qName))
+      {
+         simpleType.doTotalDigits(attributes);
+      } else if ("xs:fractionDigits".equals(qName))
+      {
+         simpleType.doFractionDigits(attributes);
+      }
 
-        rs.close();
-    }
+   } // startElement.
 
-    /**
-     *
-     */
-    public SchemaImporter(HyperGraph hg)
-    {
-        this.hg = hg;
-    }
+   /**
+    * 
+    */
+   public void endElement(
+      String url, String localName, String qName) throws SAXException
+   {
+      if ("xs:schema".equals(qName))
+      {
+         /** @todo write the timestamp also to do updates? */
+         /** @todo what about an "unimport" operation? */
+         hg.add(schemaFile);
 
-    /**
-     *
-     */
-    public void startElement(String uri, String localName, String qName,
-                             Attributes attributes)
-    {
-        /**@todo make it namespace-aware.*/
+      } else if ("xs:simpleType".equals(qName))
+      {
+         simpleType.endDefinition();
+         simpleType = null;
+      } else if ("xs:complexType".equals(qName))
+      {
+         complexType.endDefinition();
+         complexType = null;
+      }
 
-        if ("xs:schema".equals(qName))
-        {
-            targetNamespace = attributes.getValue("targetNamespace");
+   } // endElement.
 
-            importedNamespaces = new HashMap<String, String>();
+   /**
+    * 
+    * @param e
+    *           SAXParseException
+    */
+   public void error(
+      SAXParseException e)
+   {
+      e.printStackTrace();
+   }
 
-            for (int i = 0; i < attributes.getLength(); i++)
-            {
-                String name = attributes.getQName(i);
+   /**
+    * 
+    * @param e
+    *           SAXParseException
+    */
+   public void warning(
+      SAXParseException e)
+   {
+      e.printStackTrace();
+   }
 
-                final String prefix = "xmlns";
-                if (name.startsWith(prefix))
-                {
-                    name = name.substring(prefix.length());
+   /**
+    * 
+    * @param e
+    *           SAXParseException
+    */
+   public void fatalError(
+      SAXParseException e)
+   {
+      e.printStackTrace();
+   }
 
-                    if (0 == name.length())
-                    {
-                        //the default namespace.
-                        name = "";
-                    } else if (':' == name.charAt(0))
-                    {
-                        name = name.substring(1);
-                    } else
-                    {
-                        throw new RuntimeException(
-                            "Unrecognized namespace definition: " +
-                            attributes.getQName(i) + '.');
-                    }
+   /**
+    * 
+    * @param qName
+    *           String
+    * @return String
+    */
+   /* package */String resolveToUri(
+      String qName)
+   {
+      /** @todo supply the implementation */
 
-                    importedNamespaces.put(name, attributes.getValue(i));
-                }
-            }
-        } else if ("xs:simpleType".equals(qName))
-        {
-            simpleType = new SimpleTypeImporter(this);
-            simpleType.startDefinition(attributes);
-        } else if ("xs:complexType".equals(qName))
-        {
-            complexType = new ComplexTypeImporter(this);
-            complexType.startDefinition(attributes);
-        } else if ("xs:sequence".equals(qName))
-        {
-            complexType.startSequence(attributes);
-        } else if ("xs:element".equals(qName))
-        {
-            complexType.startElement(attributes);
-        } else if ("xs:attribute".equals(qName))
-        {
-            complexType.doAttribute(attributes);
-        } else if ("xs:restriction".equals(qName))
-        {
-            simpleType.startRestriction(attributes);
-        } else if ("xs:minInclusive".equals(qName))
-        {
-            simpleType.doMinInclusive(attributes);
-        } else if ("xs:minExclusive".equals(qName))
-        {
-            simpleType.doMinExclusive(attributes);
-        } else if ("xs:maxInclusive".equals(qName))
-        {
-            simpleType.doMaxInclusive(attributes);
-        } else if ("xs:maxExclusive".equals(qName))
-        {
-            simpleType.doMaxExclusive(attributes);
-        } else if ("xs:pattern".equals(qName))
-        {
-            simpleType.doPattern(attributes);
-        } else if ("xs:totalDigits".equals(qName))
-        {
-            simpleType.doTotalDigits(attributes);
-        } else if ("xs:fractionDigits".equals(qName))
-        {
-            simpleType.doFractionDigits(attributes);
-        }
+      int colon = qName.indexOf(':');
+      String localName = qName.substring(1 + colon);
 
-    } //startElement.
+      return targetNamespace + '#' + localName;
+   }
 
-    /**
-     *
-     */
-    public void endElement(String url, String localName, String qName) throws
-        SAXException
-    {
-        if("xs:schema".equals(qName))
-        {
-            /**@todo write the timestamp also to do updates?*/
-            /**@todo what about an "unimport" operation?*/
-            hg.add(schemaFile);
+   /**
+    * 
+    * @param qName
+    *           String
+    * @return String
+    */
+   public String resolveUri(
+      String qName)
+   {
+      String result = null;
+      int colon = qName.indexOf(':');
 
-        } else if ("xs:simpleType".equals(qName))
-        {
-            simpleType.endDefinition();
-            simpleType = null;
-        } else if ("xs:complexType".equals(qName))
-        {
-            complexType.endDefinition();
-            complexType = null;
-        }
+      if (-1 != colon)
+      {
+         String localName = qName.substring(1 + colon);
+         String ns = qName.substring(0, colon);
 
-    } //endElement.
+         String uri = importedNamespaces.get(ns);
 
-    /**
-     *
-     * @param e SAXParseException
-     */
-    public void error(SAXParseException e)
-    {
-        e.printStackTrace();
-    }
+         if (null == uri)
+         {
+            throw new RuntimeException("No namespace URI registered for " + qName + '.');
+         }
 
-    /**
-     *
-     * @param e SAXParseException
-     */
-    public void warning(SAXParseException e)
-    {
-        e.printStackTrace();
-    }
+         result = uri + '#' + localName;
+      } else
+      {
+         result = qName;
+      }
 
-    /**
-     *
-     * @param e SAXParseException
-     */
-    public void fatalError(SAXParseException e)
-    {
-        e.printStackTrace();
-    }
-
-    /**
-     *
-     * @param qName String
-     * @return String
-     */
-    /*package*/ String resolveToUri(String qName)
-    {
-        /**@todo supply the implementation*/
-
-        int colon = qName.indexOf(':');
-        String localName = qName.substring(1 + colon);
-
-        return targetNamespace + '#' + localName;
-    }
-
-    /**
-     *
-     * @param qName String
-     * @return String
-     */
-    public String resolveUri(String qName)
-    {
-        int colon = qName.indexOf(':');
-        String localName = qName.substring(1 + colon);
-        String ns = qName.substring(0, colon);
-
-        String uri = importedNamespaces.get(ns);
-
-        if (null == uri)
-        {
-            throw new RuntimeException("No namespace URI registered for " +
-                                       qName + '.');
-        }
-
-        return uri + '#' + localName;
-    }
-
-} //SchemaImporter.
+      return result;
+   }
+} // SchemaImporter.

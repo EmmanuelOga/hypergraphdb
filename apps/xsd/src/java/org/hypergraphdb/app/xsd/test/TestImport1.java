@@ -36,10 +36,11 @@ public class TestImport1
     {
         System.out.println("Executing complex type tests...\n------\n\n");
 
+        TestImport1.exercizeImportSchema();
+
         TestImport1.testComplexLength3();
         TestImport1.testComplexUsAddress();
         TestImport1.testPurchaseOrder();
-//        TestImport1.exercizeImportSchema();
 //        TestImport1.exercizeImportSchema2();
 //        TestImport1.exercizeDecimalMinInclusive();
 //        TestImport1.exercizeDecimalMaxInclusive();
@@ -50,7 +51,7 @@ public class TestImport1
     }
 
     /**
-     *
+     * Importing a simple derivation of xs:string.
      */
     private static void exercizeImportSchema()
     {
@@ -577,8 +578,9 @@ public class TestImport1
 
     } //exercizeDecimalFractionDigits.
 
+    
     /**
-     *
+     * A complex type similar to length3 but with more xs:string elements.
      */
     @SuppressWarnings("unchecked")
     private static void testComplexUsAddress()
@@ -650,8 +652,9 @@ public class TestImport1
 
     } //testComplexUsAddress.
 
+    
    /**
-    *
+    * Importing a composite complex type that has couple of members with type of USAddress.
     */
    @SuppressWarnings("unchecked")
    private static void testPurchaseOrder()
@@ -710,16 +713,57 @@ public class TestImport1
            XSDPrimitiveTypeSystem.getInstance().bootstrap(hg);
 
            Map<String,Object> purchaseOrder = (Map<String,Object>)hg.get(pHandle);
-           System.out.println(purchaseOrder);
+           
+           Map<String,Object> shipTo = (Map<String,Object>)purchaseOrder.get("shipTo");
+           String s = (String)shipTo.get("name");
+           if(false==s.equals(name1))
+           {
+              throw new RuntimeException("Initial and stored names for shipTo do not match!");
+           }
+           s = (String)shipTo.get("street");
+           if(false==s.equals(street1))
+           {
+              throw new RuntimeException("Initial and stored streets for shipTo do not match!");
+           }
+           s = (String)shipTo.get("city");
+           if(false==s.equals(city1))
+           {
+              throw new RuntimeException("Initial and stored cities for shipTo do not match!");
+           }
+           
+           Map<String,Object> billTo = (Map<String,Object>)purchaseOrder.get("billTo");
+           s = (String)billTo.get("name");
+           if(false==s.equals(name2))
+           {
+              throw new RuntimeException("Initial and stored names for billTo do not match!");
+           }
+           s = (String)billTo.get("street");
+           if(false==s.equals(street2))
+           {
+              throw new RuntimeException("Initial and stored streets for billTo do not match!");
+           }
+           s = (String)billTo.get("city");
+           if(false==s.equals(city2))
+           {
+              throw new RuntimeException("Initial and stored cities for billTo do not match!");
+           }
+           
+           s = (String)purchaseOrder.get("product");
+           if(false=="cheese".equals(s))
+           {
+              throw new RuntimeException("Initial and stored products do not match!");
+           }
+           
+           System.out.println("PASSED: testPurchaseOrder.");
        } finally
        {
            hg.close();
        }
-
    } //testPurchaseOrder.
+   
 
    /**
-    *
+    * Importing a complexType that has a sequence of one xs:decimal and one xs:string members.
     */
    @SuppressWarnings("unchecked")
    private static void testComplexLength3()

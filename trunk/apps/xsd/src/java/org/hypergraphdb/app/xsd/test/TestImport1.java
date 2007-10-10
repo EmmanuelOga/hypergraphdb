@@ -41,13 +41,13 @@ public class TestImport1
         TestImport1.testComplexLength3();
         TestImport1.testComplexUsAddress();
         TestImport1.testPurchaseOrder();
-//        TestImport1.exercizeImportSchema2();
-//        TestImport1.exercizeDecimalMinInclusive();
-//        TestImport1.exercizeDecimalMaxInclusive();
-//        TestImport1.exercizeDecimalMinExclusive();
-//        TestImport1.exercizeDecimalMaxExclusive();
-//        TestImport1.exercizeDecimalTotalDigits();
-//        TestImport1.exercizeDecimalFractionDigits();
+        TestImport1.exercizeImportSchema2();
+        TestImport1.exercizeDecimalMinInclusive();
+        TestImport1.exercizeDecimalMaxInclusive();
+        TestImport1.exercizeDecimalMinExclusive();
+        TestImport1.exercizeDecimalMaxExclusive();
+        TestImport1.exercizeDecimalTotalDigits();
+        TestImport1.exercizeDecimalFractionDigits();
     }
 
     /**
@@ -84,6 +84,7 @@ public class TestImport1
         //phase2
         try
         {
+            hg = new HyperGraph();
             hg.open(TestImport1.DATABASELOCATION);
             XSDPrimitiveTypeSystem.getInstance().bootstrap(hg);
 
@@ -98,6 +99,8 @@ public class TestImport1
                 throw new RuntimeException(
                     "Initial and stored SKUs do not match!");
             }
+            
+            retrieved=null;
 
             System.out.println("PASSED: exercizeImportSchema.");
         } catch (Throwable t)

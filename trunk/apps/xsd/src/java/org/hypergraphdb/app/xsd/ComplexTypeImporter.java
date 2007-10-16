@@ -69,6 +69,8 @@ public class ComplexTypeImporter
          + " as " + name);
       
       importer.hg.getTypeSystem().addAlias(theHandle, name);
+      
+      recordType=null;
    }
 
    /**
@@ -93,10 +95,32 @@ public class ComplexTypeImporter
       String type = attributes.getValue("type");
 
       /**@todo resolve the type name to full. */
-      type = importer.resolveUri(type);
-      Slot slot = new Slot(name, importer.hg.getTypeSystem().getTypeHandle(type));
-      HGHandle slotHandle = importer.hg.add(slot);
-      recordType.addSlot(slotHandle);
+      if(null!=recordType)
+      {
+         type = importer.resolveUri(type);
+         Slot slot = new Slot(name, importer.hg.getTypeSystem().getTypeHandle(type));
+         HGHandle slotHandle = importer.hg.add(slot);
+         recordType.addSlot(slotHandle);
+      }
+      else
+      {
+         final String ref =attributes.getValue("ref"); 
+         //global element.
+         if(null!=ref)
+         {
+            throw new RuntimeException(
+                  "Global declarations cannot contain references. Element "+name+" refers to "+ref+".");
+         }
+         else
+         {
+            HGHandle theHandle = importer.hg.add(null, ReferenceTypeCtor.HANDLE);
+
+            System.out.println("Reference type : " + importer.hg.getPersistentHandle(theHandle)
+               + " : " + name);
+            
+            importer.hg.getTypeSystem().addAlias(theHandle, name);
+         }
+      }
    }
 
    /**

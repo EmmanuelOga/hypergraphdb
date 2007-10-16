@@ -13,13 +13,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.hypergraphdb.HGHandle;
-import org.hypergraphdb.HGHandleFactory;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.app.xsd.RestrictionViolationException;
 import org.hypergraphdb.app.xsd.SchemaImporter;
 import org.hypergraphdb.app.xsd.XSDPrimitiveTypeSystem;
-import org.hypergraphdb.type.TypeUtils;
 
 /**
  *

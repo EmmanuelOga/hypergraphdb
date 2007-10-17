@@ -20,13 +20,14 @@ public class ReferenceTypeCtor extends HGAtomTypeBase
 {
    public static final HGPersistentHandle HANDLE = HGHandleFactory
          .makeHandle("ba19fe3c-5b32-11db-82a1-a78cc7527afc");
+   public static final ReferenceTypeCtor INSTANCE = new ReferenceTypeCtor();
 
    public Object make(
       HGPersistentHandle handle, LazyRef<HGHandle[]> targetSet,
       LazyRef<HGHandle[]> incidenceSet)
    {
       ReferenceType result = null;
-      
+
       byte[] bytes = graph.getStore().getData(handle);
       try
       {
@@ -48,18 +49,22 @@ public class ReferenceTypeCtor extends HGAtomTypeBase
    public HGPersistentHandle store(
       Object instance)
    {
-      HGPersistentHandle result = null;
-      ReferenceType referenceType = (ReferenceType) instance;
+      HGPersistentHandle result = HGHandleFactory.nullHandle();
 
-      try
+      if (null != instance)
       {
-         byte[] bytes = referenceType.getActualType().getBytes("UTF-8");
-         result = graph.getStore().store(bytes);
-      } catch (UnsupportedEncodingException e)
-      {
-         e.printStackTrace();
+         ReferenceType referenceType = (ReferenceType) instance;
+
+         try
+         {
+            byte[] bytes = referenceType.getActualType().getBytes("UTF-8");
+            result = graph.getStore().store(bytes);
+         } catch (UnsupportedEncodingException e)
+         {
+            e.printStackTrace();
+         }
       }
-
+      
       return result;
    }
 

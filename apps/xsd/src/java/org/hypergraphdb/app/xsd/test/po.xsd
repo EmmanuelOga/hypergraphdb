@@ -1,4 +1,7 @@
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<xsd:schema
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns="file:///c:/kobrix/testcomplex1.xsd"
+	targetNamespace="file:///c:/kobrix/testcomplex1.xsd">
 
   <xsd:annotation>
     <xsd:documentation xml:lang="en">

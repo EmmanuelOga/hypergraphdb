@@ -33,7 +33,7 @@ public class SchemaImporter extends DefaultHandler
 {
    /* package */HyperGraph hg;
    private String targetNamespace;
-   private Map<String, String> importedNamespaces;
+   private final Map<String, String> importedNamespaces = new HashMap<String, String>();
    private String schemaFile;
 
    private ComplexTypeImporter complexType;
@@ -76,7 +76,7 @@ public class SchemaImporter extends DefaultHandler
     * 
     */
    public SchemaImporter(HyperGraph hg)
-   {
+   {  
       this.hg = hg;
    }
 
@@ -86,13 +86,11 @@ public class SchemaImporter extends DefaultHandler
    public void startElement(
       String uri, String localName, String qName, Attributes attributes)
    {
-      /** @todo make it namespace-aware. */
+      String resolvedName = resolveUri(qName);
 
-      if ("xs:schema".equals(qName))
+      if (resolvedName.contains(":schema"))
       {
          targetNamespace = attributes.getValue("targetNamespace");
-
-         importedNamespaces = new HashMap<String, String>();
 
          for (int i = 0; i < attributes.getLength(); i++)
          {
@@ -119,45 +117,50 @@ public class SchemaImporter extends DefaultHandler
                importedNamespaces.put(name, attributes.getValue(i));
             }
          }
-      } else if ("xs:simpleType".equals(qName))
+      } else if ("http://www.w3.org/2001/XMLSchema#simpleType".equals(resolvedName))
       {
          simpleType = new SimpleTypeImporter(this);
          simpleType.startDefinition(attributes);
-      } else if ("xs:complexType".equals(qName))
+      } else if ("http://www.w3.org/2001/XMLSchema#complexType".equals(resolvedName))
       {
          complexType = new ComplexTypeImporter(this);
          complexType.startDefinition(attributes);
-      } else if ("xs:sequence".equals(qName))
+      } else if ("http://www.w3.org/2001/XMLSchema#sequence".equals(resolvedName))
       {
          complexType.startSequence(attributes);
-      } else if ("xs:element".equals(qName))
+      } else if ("http://www.w3.org/2001/XMLSchema#element".equals(resolvedName))
       {
+         if(null==complexType)
+         {
+            complexType = new ComplexTypeImporter(this);
+         }
+         /**@todo global elements are special case.*/
          complexType.startElement(attributes);
-      } else if ("xs:attribute".equals(qName))
+      } else if ("http://www.w3.org/2001/XMLSchema#attribute".equals(resolvedName))
       {
          complexType.doAttribute(attributes);
-      } else if ("xs:restriction".equals(qName))
+      } else if ("http://www.w3.org/2001/XMLSchema#restriction".equals(resolvedName))
       {
          simpleType.startRestriction(attributes);
-      } else if ("xs:minInclusive".equals(qName))
+      } else if ("http://www.w3.org/2001/XMLSchema#minInclusive".equals(resolvedName))
       {
          simpleType.doMinInclusive(attributes);
-      } else if ("xs:minExclusive".equals(qName))
+      } else if ("http://www.w3.org/2001/XMLSchema#minExclusive".equals(resolvedName))
       {
          simpleType.doMinExclusive(attributes);
-      } else if ("xs:maxInclusive".equals(qName))
+      } else if ("http://www.w3.org/2001/XMLSchema#maxInclusive".equals(resolvedName))
       {
          simpleType.doMaxInclusive(attributes);
-      } else if ("xs:maxExclusive".equals(qName))
+      } else if ("http://www.w3.org/2001/XMLSchema#maxExclusive".equals(resolvedName))
       {
          simpleType.doMaxExclusive(attributes);
-      } else if ("xs:pattern".equals(qName))
+      } else if ("http://www.w3.org/2001/XMLSchema#pattern".equals(resolvedName))
       {
          simpleType.doPattern(attributes);
-      } else if ("xs:totalDigits".equals(qName))
+      } else if ("http://www.w3.org/2001/XMLSchema#totalDigits".equals(resolvedName))
       {
          simpleType.doTotalDigits(attributes);
-      } else if ("xs:fractionDigits".equals(qName))
+      } else if ("http://www.w3.org/2001/XMLSchema#fractionDigits".equals(resolvedName))
       {
          simpleType.doFractionDigits(attributes);
       }
@@ -170,17 +173,19 @@ public class SchemaImporter extends DefaultHandler
    public void endElement(
       String url, String localName, String qName) throws SAXException
    {
-      if ("xs:schema".equals(qName))
+      String resolvedName = resolveUri(qName);
+
+      if (resolvedName.contains(":schema"))
       {
          /** @todo write the timestamp also to do updates? */
          /** @todo what about an "unimport" operation? */
          hg.add(schemaFile);
 
-      } else if ("xs:simpleType".equals(qName))
+      } else if ("http://www.w3.org/2001/XMLSchema#simpleType".equals(resolvedName))
       {
          simpleType.endDefinition();
          simpleType = null;
-      } else if ("xs:complexType".equals(qName))
+      } else if ("http://www.w3.org/2001/XMLSchema#complexType".equals(resolvedName))
       {
          complexType.endDefinition();
          complexType = null;
@@ -247,7 +252,7 @@ public class SchemaImporter extends DefaultHandler
    public String resolveUri(
       String qName)
    {
-      String result = null;
+      String result = qName;
       int colon = qName.indexOf(':');
 
       if (-1 != colon)
@@ -259,13 +264,12 @@ public class SchemaImporter extends DefaultHandler
 
          if (null == uri)
          {
-            throw new RuntimeException("No namespace URI registered for " + qName + '.');
+            System.out.println("No namespace URI registered for " + qName + '.');
          }
-
-         result = uri + '#' + localName;
-      } else
-      {
-         result = qName;
+         else
+         {
+            result = uri + '#' + localName;
+         }
       }
 
       return result;

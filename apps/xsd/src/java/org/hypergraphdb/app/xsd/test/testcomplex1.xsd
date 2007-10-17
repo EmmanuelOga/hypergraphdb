@@ -1,4 +1,4 @@
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="file:///c:/kobrix/testcomplex1.xs" targetNamespace="file:///c:/kobrix/testcomplex1.xs" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="file:///c:/kobrix/testcomplex1.xsd" targetNamespace="file:///c:/kobrix/testcomplex1.xsd" elementFormDefault="qualified" attributeFormDefault="unqualified">
 
    
 <xs:complexType name="USAddress">

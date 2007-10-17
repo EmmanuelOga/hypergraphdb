@@ -34,18 +34,20 @@ public class TestImport1
     {
         System.out.println("Executing complex type tests...\n------\n\n");
 
-        TestImport1.exercizeImportSchema();
-
-        TestImport1.testComplexLength3();
-        TestImport1.testComplexUsAddress();
-        TestImport1.testPurchaseOrder();
-        TestImport1.exercizeImportSchema2();
-        TestImport1.exercizeDecimalMinInclusive();
-        TestImport1.exercizeDecimalMaxInclusive();
-        TestImport1.exercizeDecimalMinExclusive();
-        TestImport1.exercizeDecimalMaxExclusive();
-        TestImport1.exercizeDecimalTotalDigits();
-        TestImport1.exercizeDecimalFractionDigits();
+        TestImport1.exercizeImportSchema3();
+        
+//        TestImport1.exercizeImportSchema();
+//
+//        TestImport1.testComplexLength3();
+//        TestImport1.testComplexUsAddress();
+//        TestImport1.testPurchaseOrder();
+//        TestImport1.exercizeImportSchema2();
+//        TestImport1.exercizeDecimalMinInclusive();
+//        TestImport1.exercizeDecimalMaxInclusive();
+//        TestImport1.exercizeDecimalMinExclusive();
+//        TestImport1.exercizeDecimalMaxExclusive();
+//        TestImport1.exercizeDecimalTotalDigits();
+//        TestImport1.exercizeDecimalFractionDigits();
     }
 
     /**
@@ -111,6 +113,7 @@ public class TestImport1
 
     } //exercizeImportSchema.
 
+
     /**
      * Store and retrieve a file:///c:/kobrix/test1.xsd#myInteger.
      */
@@ -168,6 +171,61 @@ public class TestImport1
         }
 
     } //exercizeImportSchema2.
+
+    
+    /**
+     * Importing a more complex schema - purchase order (po.xsd). Includes global element definition.
+     */
+    private static void exercizeImportSchema3()
+    {
+        HGPersistentHandle pHandle = null;
+        HyperGraph hg = new HyperGraph();
+
+        //phase1
+        try
+        {
+            hg.open(TestImport1.DATABASELOCATION);
+            XSDPrimitiveTypeSystem.getInstance().bootstrap(hg);
+
+            SchemaImporter importer = new SchemaImporter(hg);
+            importer.importSchema("/org/hypergraphdb/app/xsd/test/po.xsd");
+
+            //use of the imported types.
+            HGHandle typeHandle = hg.getTypeSystem().getTypeHandle(
+                "file:///c:/kobrix/test1.xsd#purchaseOrder");
+            
+            HGHandle handle = hg.add(new Object(), typeHandle);
+            pHandle = hg.getPersistentHandle(handle);
+        } catch (Throwable t)
+        {
+            t.printStackTrace();
+        } finally
+        {
+            hg.close();
+        }
+
+        //phase2
+        try
+        {
+            hg = new HyperGraph();
+            hg.open(TestImport1.DATABASELOCATION);
+            XSDPrimitiveTypeSystem.getInstance().bootstrap(hg);
+
+            SchemaImporter importer = new SchemaImporter(hg);
+            importer.importSchema("/org/hypergraphdb/app/xsd/test/po.xsd");
+
+            String retrieved = (String) hg.get(pHandle);
+            hg.remove(pHandle);
+        } catch (Throwable t)
+        {
+            t.printStackTrace();
+        } finally
+        {
+            hg.close();
+        }
+
+    } //exercizeImportSchema3.
+
 
     /**
      * Work with a file:///c:/kobrix/test1.xsd#myInteger's that are at the ends of the range of

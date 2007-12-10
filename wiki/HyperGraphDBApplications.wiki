@@ -1,0 +1,10 @@
+= HyperGraphDB Applications =
+
+This page describes a simple infrastructure for creating HGDB-based applications and lists some such existing applications.
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages

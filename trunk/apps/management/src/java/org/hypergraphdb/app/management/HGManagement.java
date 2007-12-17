@@ -70,4 +70,9 @@ public class HGManagement
 			if (in != null) try { in.close(); } catch (Throwable t) { }
 		}
 	}
+	
+	public static void loadPrimitiveTypes(HyperGraph graph, String resource)
+	{
+		graph.getTypeSystem().storePrimitiveTypes(resource);
+	}
 }

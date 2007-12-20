@@ -11,6 +11,7 @@ package org.hypergraphdb.app.xsd.primitive;
 import org.hypergraphdb.type.HGAtomType;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.HGPersistentHandle;
+import org.hypergraphdb.IncidenceSetRef;
 import org.hypergraphdb.LazyRef;
 import org.hypergraphdb.HGHandle;
 
@@ -35,7 +36,7 @@ public class XSDGDayPrimitive implements HGAtomType
      */
     public Object make(HGPersistentHandle handle,
                        LazyRef targetSet,
-                       LazyRef incidenceSet)
+                       IncidenceSetRef incidenceSet)
     {
         byte[] bytes = hg.getStore().getData(handle);
 

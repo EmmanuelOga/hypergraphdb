@@ -12,6 +12,7 @@ import java.util.Date;
 
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
+import org.hypergraphdb.IncidenceSetRef;
 import org.hypergraphdb.LazyRef;
 import org.hypergraphdb.type.HGAtomType;
 
@@ -42,7 +43,7 @@ public class XSDDatePrimitive implements HGAtomType
      */
     public Object make(HGPersistentHandle handle,
                        LazyRef targetSet,
-                       LazyRef incidenceSet)
+                       IncidenceSetRef  incidenceSet)
     {
         final Long dateTime = (Long)hgdbType.make(handle, targetSet, incidenceSet);
         final java.sql.Date result = new java.sql.Date(dateTime);

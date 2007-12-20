@@ -10,6 +10,7 @@ package org.hypergraphdb.app.xsd.primitive;
 
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
+import org.hypergraphdb.IncidenceSetRef;
 import org.hypergraphdb.LazyRef;
 import org.hypergraphdb.type.HGAtomType;
 
@@ -40,7 +41,7 @@ public class XSDGYearPrimitive implements HGAtomType
      */
     public Object make(HGPersistentHandle handle,
                        LazyRef targetSet,
-                       LazyRef incidenceSet)
+                       IncidenceSetRef incidenceSet)
     {
         final Integer result = (Integer)hgdbType.make(handle, targetSet, incidenceSet);
 

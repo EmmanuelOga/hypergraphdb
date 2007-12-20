@@ -11,6 +11,7 @@ package org.hypergraphdb.app.xsd;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
+import org.hypergraphdb.IncidenceSetRef;
 import org.hypergraphdb.LazyRef;
 import org.hypergraphdb.type.HGAtomType;
 
@@ -24,7 +25,7 @@ public class ComplexTypeBase implements HGAtomType
       
    public Object make(
       HGPersistentHandle handle, LazyRef<HGHandle[]> targetSet,
-      LazyRef<HGHandle[]> incidenceSet)
+      IncidenceSetRef incidenceSet)
    {
       // TODO Auto-generated method stub
       return null;

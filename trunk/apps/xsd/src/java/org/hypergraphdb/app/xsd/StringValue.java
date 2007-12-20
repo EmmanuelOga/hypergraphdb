@@ -3,6 +3,7 @@ package org.hypergraphdb.app.xsd;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
+import org.hypergraphdb.IncidenceSetRef;
 import org.hypergraphdb.LazyRef;
 import org.hypergraphdb.type.HGAtomType;
 import org.hypergraphdb.type.javaprimitive.StringType;
@@ -42,7 +43,7 @@ public abstract class StringValue implements HGAtomType
 
     public Object make(HGPersistentHandle handle,
                        LazyRef < HGHandle[]>targetSet,
-                       LazyRef < HGHandle[]>incidenceSet)
+                       IncidenceSetRef incidenceSet)
     {
         HGHandle h = hg.getTypeSystem().getTypeHandle(String.class);
         StringType st = (StringType) hg.get(h);

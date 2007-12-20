@@ -13,6 +13,7 @@ import java.io.UnsupportedEncodingException;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGHandleFactory;
 import org.hypergraphdb.HGPersistentHandle;
+import org.hypergraphdb.IncidenceSetRef;
 import org.hypergraphdb.LazyRef;
 import org.hypergraphdb.type.HGAtomTypeBase;
 
@@ -24,7 +25,7 @@ public class ReferenceTypeCtor extends HGAtomTypeBase
 
    public Object make(
       HGPersistentHandle handle, LazyRef<HGHandle[]> targetSet,
-      LazyRef<HGHandle[]> incidenceSet)
+      IncidenceSetRef incidenceSet)
    {
       ReferenceType result = null;
 

@@ -7,11 +7,11 @@ package org.hypergraphdb.app.xsd.facet;
 public class LengthFacet implements ConstrainingFacet
 {
     /*Per specification should be infinite. See:
-     [Definition:]   nonNegativeInteger is ·derived· from integer by setting
-     thevalue of ·minInclusive· to be 0. This results in the standard
-     mathematical concept of the non-negative integers. The ·value space· of
+     [Definition:]   nonNegativeInteger is derived from integer by setting
+     thevalue of minInclusive to be 0. This results in the standard
+     mathematical concept of the non-negative integers. The value space of
      nonNegativeInteger is the infinite set {0,1,2,...}.
-     The ·base type· of nonNegativeInteger is integer.*/
+     The base type of nonNegativeInteger is integer.*/
     private int value;
     /*If {fixed} is true, then types for which the current type is the {base
      type definition} cannot specify a value for length other than {value}.

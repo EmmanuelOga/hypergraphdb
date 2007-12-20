@@ -11,6 +11,7 @@ package org.hypergraphdb.app.xsd;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGHandleFactory;
 import org.hypergraphdb.HGPersistentHandle;
+import org.hypergraphdb.IncidenceSetRef;
 import org.hypergraphdb.LazyRef;
 import org.hypergraphdb.type.HGAtomType;
 import org.hypergraphdb.type.HGAtomTypeBase;
@@ -45,7 +46,7 @@ public class ReferenceType extends HGAtomTypeBase
    
    public Object make(
       HGPersistentHandle handle, LazyRef<HGHandle[]> targetSet,
-      LazyRef<HGHandle[]> incidenceSet)
+      IncidenceSetRef incidenceSet)
    {
       if (null == type)
       {

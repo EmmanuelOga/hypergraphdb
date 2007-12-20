@@ -14,6 +14,7 @@ import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGHandleFactory;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
+import org.hypergraphdb.IncidenceSetRef;
 import org.hypergraphdb.LazyRef;
 import org.hypergraphdb.type.HGAtomType;
 import org.hypergraphdb.app.xsd.RestrictionViolationException;
@@ -39,7 +40,7 @@ public class XSDDecimalPrimitive implements HGAtomType
      */
     public Object make(HGPersistentHandle handle,
                        LazyRef<HGHandle[]> targetSet,
-                       LazyRef<HGHandle[]> incidenceSet)
+                       IncidenceSetRef incidenceSet)
     {
         if (HGHandleFactory.nullHandle().equals(handle))
         {

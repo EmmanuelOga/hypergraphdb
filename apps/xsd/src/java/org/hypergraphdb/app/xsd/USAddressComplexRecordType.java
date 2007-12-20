@@ -16,6 +16,7 @@ import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGHandleFactory;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
+import org.hypergraphdb.IncidenceSetRef;
 import org.hypergraphdb.LazyRef;
 import org.hypergraphdb.atom.HGAtomRef;
 import org.hypergraphdb.type.AtomRefType;
@@ -33,7 +34,7 @@ public class USAddressComplexRecordType implements HGAtomType
    private HyperGraph hg;
  
    
-   public Object make(HGPersistentHandle hgpersistenthandle, LazyRef lazyref, LazyRef lazyref1)
+   public Object make(HGPersistentHandle hgpersistenthandle, LazyRef lazyref, IncidenceSetRef lazyref1)
    {
        HashMap hashmap = new HashMap();
        HGPersistentHandle ahgpersistenthandle[] = hg.getStore().getLink(hgpersistenthandle);

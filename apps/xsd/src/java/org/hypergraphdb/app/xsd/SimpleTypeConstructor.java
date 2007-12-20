@@ -15,6 +15,7 @@ import org.hypergraphdb.HGQuery;
 import org.hypergraphdb.HGSearchResult;
 import org.hypergraphdb.HGValueLink;
 import org.hypergraphdb.HyperGraph;
+import org.hypergraphdb.IncidenceSetRef;
 import org.hypergraphdb.LazyRef;
 import org.hypergraphdb.atom.HGSubsumes;
 import org.hypergraphdb.query.And;
@@ -51,7 +52,7 @@ public class SimpleTypeConstructor implements HGAtomType
     */
    public Object make(
       HGPersistentHandle handle, LazyRef<HGHandle[]> targetSet,
-      LazyRef<HGHandle[]> incidenceSet)
+      IncidenceSetRef incidenceSet)
    {
       HGHandle[] handles = incidenceSet.deref();
 

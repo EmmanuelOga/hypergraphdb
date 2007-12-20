@@ -10,6 +10,7 @@ package org.hypergraphdb.app.xsd.primitive;
 
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
+import org.hypergraphdb.IncidenceSetRef;
 import org.hypergraphdb.LazyRef;
 import org.hypergraphdb.type.HGAtomType;
 
@@ -21,7 +22,7 @@ import org.hypergraphdb.type.HGAtomType;
 public class XSDDurationPrimitive implements HGAtomType
 {
     private HGAtomType hgdbType = null;
-
+    
     /**
      *
      * @param hg HyperGraph
@@ -42,7 +43,7 @@ public class XSDDurationPrimitive implements HGAtomType
      */
     public Object make(HGPersistentHandle handle,
                        LazyRef targetSet,
-                       LazyRef incidenceSet)
+                       IncidenceSetRef incidenceSet)
     {
         final Long result = (Long)hgdbType.make(handle, targetSet, incidenceSet);
 

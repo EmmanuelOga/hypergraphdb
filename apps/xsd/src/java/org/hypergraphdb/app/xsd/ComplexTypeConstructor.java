@@ -14,6 +14,7 @@ import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGHandleFactory;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
+import org.hypergraphdb.IncidenceSetRef;
 import org.hypergraphdb.LazyRef;
 import org.hypergraphdb.type.HGCompositeType;
 import org.hypergraphdb.type.HGProjection;
@@ -57,7 +58,7 @@ public class ComplexTypeConstructor implements HGAtomType
     */
    public Object make(
       HGPersistentHandle handle, LazyRef<HGHandle[]> targetSet,
-      LazyRef<HGHandle[]> incidenceSet)
+      IncidenceSetRef incidenceSet)
    {
       HGHandle[] handles = incidenceSet.deref();
       HGValueLink valueLink = (HGValueLink) hg.get(handles[0]);

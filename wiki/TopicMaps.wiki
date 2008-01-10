@@ -1,0 +1,14 @@
+#Topic Maps Implementation based on HyperGraphDB
+
+= TopicMaps Standard Resources =
+
+There's the older topic maps standard of 1.0 and the newer evolution 2.0 which is only
+conceptually sort of compatible with the old one.
+ 
+  * [http://www.isotopicmaps.org/ The Main Site of the ISO standard]
+  * [http://www.topicmaps.org/xtm/index.html XTM 1.0 - XML represetation for 1.0]
+
+
+= Representation in HGDB =
+
+All topic maps constructs are represented as HGDB atoms. The Java classes implementing those atoms are in the package org.hypergraphdb.apps.tm. The API is based on the 

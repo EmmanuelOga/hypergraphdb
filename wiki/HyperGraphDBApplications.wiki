@@ -1,5 +1,3 @@
-This page describes a simple infrastructure for creating HGDB-based applications and lists some such existing applications.
-
 = What Are HGDB Applications? =
 
 Those are simply collections of classes that rely on a HyperGraphDB instance to work and that are usually organized around a set of core atom types and cover some area or domain of interest. A few simple abstractions are defined in the org.hypergraphdb.app.management package  to support this. 

@@ -104,7 +104,7 @@ public class HGTopicName extends HGScopedObject implements TopicName
 		return value;
 	}
 
-	public Set<Variant> getVariants()
+	public Set<HGVariant> getVariants()
 	{
 		return U.getRelatedObjects(graph, HGTM.hVariantOf, null, graph.getHandle(this));
 	}
@@ -122,6 +122,9 @@ public class HGTopicName extends HGScopedObject implements TopicName
 	
 	public void remove() throws TMAPIException
 	{
+		Set<HGTopicName> peers = ((HGTopic)getTopic()).names;
+		if (peers != null)
+			peers.remove(this);		
 		HGHandle thisH = graph.getHandle(this);
 		HGHandle reifier = U.getReifierOf(graph, thisH);
 		if (reifier != null)

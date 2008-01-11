@@ -7,6 +7,7 @@ import java.util.Set;
 import org.tmapi.core.FeatureNotRecognizedException;
 import org.tmapi.core.Locator;
 import org.tmapi.core.TMAPIRuntimeException;
+import org.tmapi.core.Topic;
 import org.tmapi.core.TopicMap;
 import org.tmapi.core.TopicMapExistsException;
 import org.tmapi.core.TopicMapObject;
@@ -14,6 +15,10 @@ import org.tmapi.core.TopicMapSystem;
 import org.hypergraphdb.*;
 import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.query.AtomProjectionCondition;
+import org.hypergraphdb.query.OrderedLinkCondition;
+import org.hypergraphdb.query.impl.DefaultKeyBasedQuery;
+import org.hypergraphdb.query.impl.PipeQuery;
+import org.hypergraphdb.util.ValueSetter;
 
 public final class HGTopicMapSystem implements TopicMapSystem
 {
@@ -36,18 +41,52 @@ public final class HGTopicMapSystem implements TopicMapSystem
 			graph.close();
 	}
 
-	public TopicMapObject locate(Locator itemIdentifier)
+	@SuppressWarnings("unchecked")
+	public <T extends TopicMapObject> T locate(Locator itemIdentifier)
 	{
-		return (TopicMapObject)
+		return (T)
 				U.getOneRelated(graph, 
 							    HGTM.hSourceLocator, 
 							    U.ensureLocator(graph, itemIdentifier), 
 							    null);
 	}
 	
-	public TopicMapObject locate(String itemIdentifier)
+	@SuppressWarnings("unchecked")
+	public <T extends TopicMapObject> T locate(String itemIdentifier)
 	{
-		return locate(U.ensureLocator(graph, null, itemIdentifier));
+		return (T)locate(U.ensureLocator(graph, null, itemIdentifier));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T extends TopicMapObject> T locateByIndicator(Locator subjectIdentifier)
+	{
+		return (T)
+				U.getOneRelated(graph, 
+							    HGTM.hSubjectIdentifier, 
+							    U.ensureLocator(graph, subjectIdentifier), 
+							    null);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T extends TopicMapObject> T locateByIndicator(String subjectIdentifier)
+	{
+		return (T)locate(U.ensureLocator(graph, null, subjectIdentifier));
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends TopicMapObject> T locateBySubject(Locator subjectLocator)
+	{
+		return (T)
+				U.getOneRelated(graph, 
+							    HGTM.hSubjectLocator, 
+							    U.ensureLocator(graph, subjectLocator), 
+							    null);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T extends TopicMapObject> T locateBySubject(String subjectLocator)
+	{
+		return (T)locate(U.ensureLocator(graph, null, subjectLocator));
 	}
 	
 	public List<TopicMap> getTopicMaps()
@@ -128,5 +167,54 @@ public final class HGTopicMapSystem implements TopicMapSystem
 	public void load(String uri)
 	{
 //		TMXMLUtils.load(uri, this);
+	}
+	
+	// Search utilities
+	
+	/**
+	 * <p>
+	 * Find all topics associated to a given type according to prescribed role types. There are
+	 * two versions of this method, one taking <code>HGHandle</code> identifying the topics
+	 * and the other taking <code>Topic</code> instances.
+	 * </p>
+	 * 
+	 * @param t The topic whose associated topics are being sought.
+	 * @param roleType The type of the role of <code>t</code> in the associations.
+	 * @param targetRoleType The type of the role of associated topics to be returned.
+	 * @return A list of topics associated to <code>t</code> with role type <code>targetRoleType</code>.
+	 */
+	public List<Topic> findAssociated(HGHandle ht, HGHandle hRoleType, HGHandle hTargetRoleType)
+	{
+        // q1 will produce all associations in which 'item' is part
+        HGQuery q1 = HGQuery.make(graph, 
+        			   hg.apply(HGQuery.hg.targetAt(graph, 2), 
+        						hg.and(hg.type(HGAssociationRole.class), 
+        							   hg.orderedLink(ht, hRoleType, HGHandleFactory.anyHandle()))));
+        // A link condition constraining roles such that the role type is 'h' and the association is set as a key
+        // to a piped query 
+        final OrderedLinkCondition linkCondition = HGQuery.hg.orderedLink(HGHandleFactory.anyHandle(),
+        															  hTargetRoleType,
+        															  HGHandleFactory.anyHandle());
+        DefaultKeyBasedQuery pipe = new DefaultKeyBasedQuery(
+        	graph,
+            HGQuery.hg.apply(HGQuery.hg.targetAt(graph, 0),
+                             hg.and(HGQuery.hg.type(HGAssociationRole.class), linkCondition)),
+            new ValueSetter() { public void set(Object value) { linkCondition.setTarget(2, (HGHandle)value); } });
+        return hg.findAll(new PipeQuery(q1, pipe));		
+	}
+	
+	/**
+	 * <p>
+	 * Find all topics associated to a given type according to prescribed role types.
+	 * </p>
+	 * 
+	 * @param t The topic whose associated topics are being sought.
+	 * @param roleType The type of the role of <code>t</code> in the associations.
+	 * @param targetRoleType The type of the role of associated topics to be returned.
+	 * @return A list of topics associated to <code>t</code> with role type <code>targetRoleType</code>.
+	 */
+	public List<Topic> findAssociated(Topic t, Topic roleType, Topic targetRoleType)	
+	{
+		return findAssociated(graph.getHandle(t), graph.getHandle(roleType), graph.getHandle(targetRoleType));
 	}
 }

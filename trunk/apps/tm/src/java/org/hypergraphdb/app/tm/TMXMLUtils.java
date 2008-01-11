@@ -86,4 +86,18 @@ public class TMXMLUtils
 			return result.toString();			
 		}
 	}
+	
+	static Element findChild(Element el, String childName)
+	{
+		NodeList kids = el.getChildNodes();
+		for (int i = 0; i < kids.getLength(); i++)
+		{
+			Node n = kids.item(i);
+			if (! (n instanceof Element))
+				continue;
+			else if (n.getNodeName().equals(childName))
+				return (Element)n;
+		}
+		return null;
+	}
 }

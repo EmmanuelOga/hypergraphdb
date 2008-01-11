@@ -8,6 +8,7 @@ import java.util.Set;
 import org.hypergraphdb.*;
 import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.atom.HGRel;
+import org.hypergraphdb.query.HGQueryCondition;
 import org.hypergraphdb.util.HGUtils;
 import org.tmapi.core.Locator;
 import org.tmapi.core.TopicMap;
@@ -28,7 +29,7 @@ class U
 	static Locator makeLocator(String reference)
 	{
 		Locator result = null;
-		try { result =  new URILocator(new URI(reference)); } 
+		try { result =  new URILocator(reference); } 
 		catch (Exception ex) { throw new RuntimeException(ex); }
 		return result;
 	}
@@ -37,11 +38,25 @@ class U
 	{
 		try
 		{
+			relative = URILocator.escape(relative);
+			base = URILocator.escape(base);
 			URI rel = new URI(relative);
 			if (rel.isAbsolute())
 				return new URILocator(rel);
 			else
 				return new URILocator(new URI(base).resolve(rel));
+		}
+		catch (Exception ex) { throw new RuntimeException(ex); }
+	}
+
+	static Locator makeLocalLocator(String base, String localName)
+	{
+		try
+		{
+			URILocator result = new URILocator(base);
+			if (localName != null && localName.length() > 0)
+				result = result.resolveLocal(localName);
+			return result;
 		}
 		catch (Exception ex) { throw new RuntimeException(ex); }
 	}
@@ -96,6 +111,7 @@ class U
 	{
 		HGHandle rel = hg.findOne(graph, 
 				  hg.and(hg.type(HGTM.hTypeOf), 
+						 hg.incident(h),
 						 hg.orderedLink(HGHandleFactory.anyHandle, h)));
 		if (rel == null)
 			return null;
@@ -106,7 +122,8 @@ class U
 	static void setTypeOf(HyperGraph graph, HGHandle object, HGHandle type)
 	{
 		HGHandle rel = hg.findOne(graph, 
-								  hg.and(hg.type(HGTM.hTypeOf), 
+								  hg.and(hg.type(HGTM.hTypeOf),
+										 hg.incident(object),
 										 hg.orderedLink(HGHandleFactory.anyHandle, object)));
 		if (rel != null)
 			graph.remove(rel);
@@ -118,6 +135,7 @@ class U
 	{
 		HGHandle rel = hg.findOne(graph, 
 				  hg.and(hg.type(HGTM.hReifierOf), 
+						 hg.incident(h),
 						 hg.orderedLink(HGHandleFactory.anyHandle, h)));
 		if (rel == null)
 			return null;
@@ -129,6 +147,7 @@ class U
 	{
 		HGHandle rel = hg.findOne(graph, 
 								  hg.and(hg.type(HGTM.hReifierOf), 
+										 hg.incident(object),
 										 hg.orderedLink(HGHandleFactory.anyHandle, object)));
 		if (rel != null)
 			graph.remove(rel);
@@ -141,28 +160,21 @@ class U
 	 * all 'second' related to a given 'first' in an ordered link. Whether first or
 	 * second is required is indicated by putting null in the corresponding parameter. 
 	 */
-	static Set getRelatedObjects(HyperGraph graph, HGHandle relType, HGHandle first, HGHandle second)
+	static <T> Set<T> getRelatedObjects(HyperGraph graph, HGHandle relType, HGHandle first, HGHandle second)
 	{
-		HashSet<Object> result = new HashSet<Object>();
-		HGSearchResult<HGHandle> rs = null;
-		try
-		{
-			rs = graph.find(hg.and(hg.type(relType), 
-								   hg.orderedLink(new HGHandle[] { 
-									first == null ? HGHandleFactory.anyHandle : first,
-									second == null ? HGHandleFactory.anyHandle : second
-								   })));
-			int idx = (first == null ? 0 : 1); 
-			while (rs.hasNext())
-			{
-				HGRel rel = (HGRel)graph.get(rs.next());
-				result.add(graph.get(rel.getTargetAt(idx)));
-			}
-		}
-		finally
-		{
-			HGUtils.closeNoException(rs);
-		}
+		HashSet<T> result = new HashSet<T>();
+		HGQueryCondition relQuery = hg.and(hg.type(relType),
+							   hg.incident(first == null ? second : first),	
+							   hg.orderedLink(new HGHandle[] { 
+								first == null ? HGHandleFactory.anyHandle : first,
+								second == null ? HGHandleFactory.anyHandle : second
+							   }));
+		int idx = (first == null ? 0 : 1);
+		List<T> L = hg.findAll(graph, 
+				hg.apply(hg.deref(graph),
+						 hg.apply(hg.linkProjection(idx), 
+								  hg.apply(hg.deref(graph), relQuery))));
+		result.addAll(L);					
 		return result;
 	}
 	
@@ -173,6 +185,7 @@ class U
 		try
 		{
 			rs = graph.find(hg.and(hg.type(relType), 
+					   			   hg.incident(first == null ? second : first),					
 								   hg.orderedLink(new HGHandle[] { 
 									first == null ? HGHandleFactory.anyHandle : first,
 									second == null ? HGHandleFactory.anyHandle : second
@@ -197,7 +210,8 @@ class U
 	static Object getOneRelated(HyperGraph graph, HGHandle relType, HGHandle first, HGHandle second)
 	{
 		HGHandle h = hg.findOne(graph, hg.and(hg.type(relType), 
-							   hg.orderedLink(new HGHandle[] { 
+				   				hg.incident(first == null ? second : first),				
+							    hg.orderedLink(new HGHandle[] { 
 								first == null ? HGHandleFactory.anyHandle : first,
 								second == null ? HGHandleFactory.anyHandle : second
 							   })));
@@ -211,6 +225,7 @@ class U
 	static void dettachFromMap(HyperGraph graph, HGHandle todettach)
 	{
 		List<HGHandle> all = hg.findAll(graph, hg.and(hg.type(HGTM.hMapMember), 
+				   hg.incident(todettach),
 				   hg.orderedLink(new HGHandle[] { 
 					todettach,
 					HGHandleFactory.anyHandle

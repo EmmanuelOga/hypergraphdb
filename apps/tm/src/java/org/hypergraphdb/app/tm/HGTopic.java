@@ -1,5 +1,6 @@
 package org.hypergraphdb.app.tm;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -11,7 +12,6 @@ import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGSearchResult;
 import org.hypergraphdb.atom.HGRel;
 import org.hypergraphdb.util.HGUtils;
-import org.tmapi.core.AssociationRole;
 import org.tmapi.core.Locator;
 import org.tmapi.core.MergeException;
 import org.tmapi.core.ModelConstraintException;
@@ -23,6 +23,11 @@ import org.tmapi.core.TopicName;
 
 public class HGTopic extends HGTopicMapObjectBase implements Topic
 {	
+	Set<HGTopic> types = null;
+	Set<HGOccurrence> occurrences = null;
+	Set<HGTopicName> names = null;
+	Set<HGAssociationRole> roles = null;
+	
 	public HGTopic()
 	{
 	}
@@ -45,6 +50,7 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 	{
 		if (getTypes().contains(type))
 			return;
+		types.add((HGTopic)type);
 		HGHandle tHandle = graph.getHandle(type);
 		graph.add(new HGRel(HGTM.TypeOf, new HGHandle[] { tHandle, graph.getHandle(this)} ),
 				  HGTM.hTypeOf);		
@@ -73,6 +79,7 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 			}
 			graph.add(new HGRel(HGTM.Occurence, new HGHandle[] {resultHandle, graph.getHandle(this)}), 
 					  HGTM.hOccurrence);
+			getOccurrences().add(result);
 			graph.getTransactionManager().commit();
 		}
 		catch (RuntimeException ex)
@@ -82,7 +89,7 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 		}
 	}
 	
-	public Occurrence createOccurrence(String value, Topic type, Collection scope)
+	public HGOccurrence createOccurrence(String value, Topic type, Collection scope)
 	{
 		HGOccurrence result = new HGOccurrence();
 		result.setValue(value);
@@ -90,7 +97,7 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 		return result;
 	}
 
-	public Occurrence createOccurrence(Locator resource, Topic type, Collection scope)
+	public HGOccurrence createOccurrence(Locator resource, Topic type, Collection scope)
 	{
 		HGOccurrence result = new HGOccurrence();
 		result.setResource(resource);
@@ -98,12 +105,20 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 		return result;
 	}
 
-	public TopicName createTopicName(String value, Collection scope) throws MergeException
+	public HGTopicName createTopicName(String value, Collection scope) throws MergeException
 	{
 		return createTopicName(value, null, scope);
 	}
 
-	public TopicName createTopicName(String value, Topic type, Collection scope) 
+	public HGTopicName createTopicName(String value, Topic...scope)
+	{
+		ArrayList<Topic> A = new ArrayList<Topic>();
+		if (scope != null)
+			for (Topic t : scope) if (t != null) A.add(t);
+		return createTopicName(value, null, A);
+	}
+	
+	public HGTopicName createTopicName(String value, Topic type, Collection scope) 
 		throws UnsupportedOperationException, MergeException
 	{
 		graph.getTransactionManager().beginTransaction();
@@ -127,6 +142,7 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 			}
 			graph.add(new HGRel(HGTM.NameOf, new HGHandle[] {resultHandle, graph.getHandle(this)}), 
 					  HGTM.hNameOf);
+			getTopicNames().add(result);
 			graph.getTransactionManager().commit();
 			return result;
 		}
@@ -137,19 +153,23 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 		}
 	}
 
-	public Set<Occurrence> getOccurrences()
+	public Set<HGOccurrence> getOccurrences()
 	{
-		return U.getRelatedObjects(graph, HGTM.hOccurrence, null, graph.getHandle(this));
+		if (occurrences == null)
+			occurrences = U.getRelatedObjects(graph, HGTM.hOccurrence, null, graph.getHandle(this));
+		return occurrences;
 	}
 
-	public Set getReified()
+	public Set<HGTopic> getReified()
 	{
 		return U.getRelatedObjects(graph, HGTM.hReifierOf, graph.getHandle(this), null);
 	}
 
-	public Set<AssociationRole> getRolesPlayed()
+	public Set<HGAssociationRole> getRolesPlayed()
 	{
-		Set<AssociationRole> result = new HashSet<AssociationRole>(); 
+		if (roles != null)
+			return roles;
+		Set<HGAssociationRole> result = new HashSet<HGAssociationRole>(); 
 		HGSearchResult<HGAssociationRole> rs = null;
 		try
 		{
@@ -163,7 +183,7 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 				if (thisH.equals(role.getTargetAt(0)))
 					result.add(role);					
 			}
-			return result;
+			return roles = result;
 		}
 		finally
 		{
@@ -181,17 +201,30 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 		return U.getRelatedObjects(graph, HGTM.hSubjectLocator, null, graph.getHandle(this));
 	}
 
-	public Set<TopicName> getTopicNames()
+	public Set<HGTopicName> getTopicNames()
 	{
-		return U.getRelatedObjects(graph, HGTM.hNameOf, null, graph.getHandle(this));
+		if (names == null)
+			names = U.getRelatedObjects(graph, HGTM.hNameOf, null, graph.getHandle(this)); 
+		return names;
 	}
 
-	public Set<Topic> getTypes()
+	public Topic getType()
 	{
-		return U.getRelatedObjects(graph, HGTM.hTypeOf, null, graph.getHandle(this));
+		getTypes();
+		if (types.size() == 0)
+			return null;
+		else
+			return types.iterator().next();
+	}
+	
+	public Set<HGTopic> getTypes()
+	{
+		if (types == null)
+			types = U.getRelatedObjects(graph, HGTM.hTypeOf, null, graph.getHandle(this));
+		return types;
 	}
 
-	public Set<Topic> getInstances()
+	public Set<HGTopic> getInstances()
 	{
 		return U.getRelatedObjects(graph, HGTM.hTypeOf, graph.getHandle(this), null);
 	}
@@ -221,13 +254,17 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 	}
 
 	public void removeType(Topic type)
-	{
+	{		
 		HGHandle typeHandle = graph.getHandle(type);
 		HGHandle rel = hg.findOne(graph, 
 						          hg.and(hg.type(HGTM.hTypeOf), 
 						        		 hg.orderedLink(typeHandle, graph.getHandle(this))));
 		if (rel != null)
-			graph.remove(rel);		
+		{
+			graph.remove(rel);
+			if (types != null)
+				types.remove(type);
+		}
 	}
 
 	public void remove() throws TopicInUseException
@@ -240,14 +277,21 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 		try
 		{
 			U.dettachFromMap(graph, thisH);
-			for (TopicName n : getTopicNames())
-				n.remove();
-			for (Occurrence o : getOccurrences())
+			Set toRemove = new HashSet();
+			
+			toRemove.addAll(getTopicNames());
+			for (TopicName n : (Collection<TopicName>)toRemove)
+				n.remove();			
+			toRemove.clear();
+			toRemove.addAll(getOccurrences());
+			for (Occurrence o : (Collection<Occurrence>)toRemove)
 				o.remove();
 			Set reified = U.getRelatedObjects(graph, HGTM.hReifierOf, graph.getHandle(this), null);
 			for (Object x : reified)
-				U.setReifierOf(graph, graph.getHandle(x), null);
-			for (Locator l : getSourceLocators())
+				U.setReifierOf(graph, graph.getHandle(x), null);			
+			toRemove.clear();
+			toRemove.addAll(getSourceLocators());			
+			for (Locator l : (Collection<Locator>)toRemove)
 				removeSourceLocator(l);
 			for (Locator l : getSubjectIdentifiers())
 				removeSubjectIdentifier(l);

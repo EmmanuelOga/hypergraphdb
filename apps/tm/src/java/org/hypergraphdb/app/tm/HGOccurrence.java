@@ -1,5 +1,7 @@
 package org.hypergraphdb.app.tm;
 
+import java.util.Set;
+
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.annotation.AtomReference;
@@ -24,7 +26,7 @@ public class HGOccurrence extends HGScopedObject implements Occurrence
 	@HGIgnore
 	public Topic getReifier()
 	{
-		HGHandle h = U.getReifierOf(graph, graph.getHandle(this)); 
+		HGHandle h = U.getReifierOf(graph, graph.getHandle(this));
 		return h != null ? (Topic)graph.get(h) : null;
 	}
 	
@@ -90,6 +92,9 @@ public class HGOccurrence extends HGScopedObject implements Occurrence
 	
 	public void remove() throws TopicInUseException
 	{
+		Set<HGOccurrence> peers = ((HGTopic)getTopic()).occurrences;
+		if (peers != null)
+			peers.remove(this);
 		HGHandle thisH = graph.getHandle(this);
 		HGHandle reifier = U.getReifierOf(graph, thisH);
 		if (reifier != null)

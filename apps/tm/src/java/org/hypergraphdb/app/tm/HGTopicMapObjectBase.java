@@ -15,6 +15,7 @@ import org.tmapi.core.TopicMapObject;
 public abstract class HGTopicMapObjectBase implements TopicMapObject, HGGraphHolder
 {
 	HyperGraph graph;
+	Set<Locator> sourceLocators = null;
 	
 	public void setHyperGraph(HyperGraph graph)
 	{
@@ -29,10 +30,14 @@ public abstract class HGTopicMapObjectBase implements TopicMapObject, HGGraphHol
 			throw new DuplicateSourceLocatorException(this, 
 													  this, 
 													  (Locator)graph.get(locator), 
-													  "Attempt to add an existing source locator.");
+													  "Attempt to add an existing source locator: " + graph.get(locator));
 		else
+		{
+			if (sourceLocators != null)
+				sourceLocators.add((Locator)graph.get(locator));
 			graph.add(new HGRel(HGTM.SourceLocator, new HGHandle[] { locator, graph.getHandle(this)} ),
-					HGTM.hSourceLocator);		
+					HGTM.hSourceLocator);
+		}
 	}
 	
 	public void addSourceLocator(Locator l) throws DuplicateSourceLocatorException
@@ -51,7 +56,9 @@ public abstract class HGTopicMapObjectBase implements TopicMapObject, HGGraphHol
 
 	public Set<Locator> getSourceLocators()
 	{
-		return U.getRelatedObjects(graph, HGTM.hSourceLocator, null, graph.getHandle(this));
+		if (sourceLocators == null)
+			sourceLocators = U.getRelatedObjects(graph, HGTM.hSourceLocator, null, graph.getHandle(this));
+		return sourceLocators;
 	}
 
 	public TopicMap getTopicMap()
@@ -61,6 +68,8 @@ public abstract class HGTopicMapObjectBase implements TopicMapObject, HGGraphHol
 
 	public void removeSourceLocator(HGHandle lh)
 	{
+		if (sourceLocators != null)
+			sourceLocators.remove((Locator)graph.get(lh));
 		HGHandle rel = hg.findOne(graph, 
 		          hg.and(hg.type(HGTM.hSourceLocator), 
 		        		 hg.orderedLink(lh, graph.getHandle(this))));
@@ -73,6 +82,8 @@ public abstract class HGTopicMapObjectBase implements TopicMapObject, HGGraphHol
 	
 	public void removeSourceLocator(Locator l)
 	{
+		if (sourceLocators != null)
+			sourceLocators.remove(l);
 		HGHandle lh = U.findLocatorHandle(graph, l);
 		if (lh == null)
 			return;

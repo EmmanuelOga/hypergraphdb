@@ -1,5 +1,6 @@
 package org.hypergraphdb.app.tm;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import org.hypergraphdb.HGException;
@@ -17,7 +18,8 @@ import org.tmapi.core.TopicInUseException;
 public class HGAssociation extends HGScopedObject implements Association, HGLink
 {
 	HGHandle [] targetSet = HyperGraph.EMTPY_HANDLE_SET;
-
+	Topic type = null;
+	
 	public HGAssociation()
 	{
 	}
@@ -63,13 +65,18 @@ public class HGAssociation extends HGScopedObject implements Association, HGLink
 	@HGIgnore
 	public Topic getType()
 	{
-		HGHandle h = U.getTypeOf(graph, graph.getHandle(this));		
-		return h != null ? (Topic)graph.get(h) : null;
+		if (type == null)
+		{
+			HGHandle h = U.getTypeOf(graph, graph.getHandle(this));		
+			type = h != null ? (Topic)graph.get(h) : null;
+		}
+		return type;
 	}
 
 	@HGIgnore
 	public void setType(Topic type)
 	{
+		this.type = type;
 		U.setTypeOf(graph, graph.getHandle(this), graph.getHandle(type));
 	}
 
@@ -118,4 +125,18 @@ public class HGAssociation extends HGScopedObject implements Association, HGLink
 		}		
 		graph.remove(thisH);
 	}	
+	
+	public String toString()
+	{
+		StringBuffer result = new StringBuffer("Association[");
+		for (Iterator<HGAssociationRole> i = getAssociationRoles().iterator(); i.hasNext(); )
+		{
+			HGAssociationRole role = i.next();
+			result.append(role.getPlayer() + ":" + role.getType());
+			if (i.hasNext())
+				result.append(",");
+		}
+		result.append("]");
+		return result.toString();
+	}
 }

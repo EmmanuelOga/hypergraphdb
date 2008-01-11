@@ -9,6 +9,7 @@ import org.tmapi.core.Locator;
 import org.tmapi.core.Occurrence;
 import org.tmapi.core.TMAPIRuntimeException;
 import org.tmapi.core.Topic;
+import org.tmapi.core.TopicMapObject;
 import org.tmapi.core.TopicName;
 import org.tmapi.core.Variant;
 import org.w3c.dom.*;
@@ -479,7 +480,7 @@ public class TMXMLProcessor
 			else if (n.getNodeName().equals("instanceOf"))
 			{
 				Set<HGTopic> types = getTopicRefs((Element)n, map);
-				Set<Topic> existingTypes = topic.getTypes();
+				Set<HGTopic> existingTypes = topic.getTypes();
 				for (HGTopic t : types)
 				{
 					if (!existingTypes.contains(t))
@@ -613,6 +614,8 @@ public class TMXMLProcessor
 				version = vattr;
 			if ("2.0".equals(version))
 				load2(top);
+			else 
+				load1(top);
 		}
 		catch (Exception ex)
 		{
@@ -646,8 +649,8 @@ public class TMXMLProcessor
 				Element el = doc.createElement("topicMap");
 				el.setAttribute("version", "2.0");
 				el.setAttribute("xmlns", "http://www.topicmaps.org/xtm/");
-				for (Locator l : map.getSourceLocators())
-					exportHref2(el, "itemIdentity", l.toExternalForm());
+//				for (Locator l : map.getSourceLocators())
+//					exportHref2(el, "itemIdentity", l.toExternalForm());
 				for (Topic t : map.getTopics())
 					exportTopic2(el, t);							
 				for (Association a : map.getAssociations())
@@ -842,5 +845,528 @@ public class TMXMLProcessor
 		Element el = parentEl.getOwnerDocument().createElement(tagName);
 		el.setAttribute("href", href);
 		parentEl.appendChild(el);
+	}	
+	
+	//-------------------------------------------------------------------------
+	// XTM 1.0
+	//-------------------------------------------------------------------------
+	private void load1(Element top) throws Exception
+	{
+		if (!top.getNodeName().equals("topicMap"))
+			throw new RuntimeException("Unrecognized document element: " + top.getNodeName());
+		HashSet<HGHandle> toAdd = new HashSet<HGHandle>();
+		HGTopicMap tm = (HGTopicMap)system.getTopicMap(iri);
+		if (tm == null)
+			tm = (HGTopicMap)system.createTopicMap(iri);
+		else
+		{
+			tm.setBaseLocator(U.ensureLocator(system.getGraph(), null, iri));
+			system.getGraph().update(tm);
+		}
+		NodeList kids = top.getChildNodes();
+		for (int i = 0; i < kids.getLength(); i++)
+		{
+			Node n = kids.item(i);
+			if (! (n instanceof Element))
+				continue;
+			else if (n.getNodeName().equals("topic"))
+				loadTopic1((Element)n, tm);
+			else if (n.getNodeName().equals("association"))
+				loadAssociation1((Element)n, tm);
+			else if (n.getNodeName().equals("mergeMap"))				
+				mergeMap1((Element)n, tm);
+		}
+	}
+	
+	private void loadTopic1(Element el, HGTopicMap tm)
+	{
+		Locator l = U.makeLocalLocator(iri, el.getAttribute("id"));
+		HGTopic topic = (HGTopic)system.locate(l); 
+		if (topic == null)	
+		{
+			topic = (HGTopic)tm.createTopic();
+			topic.addSourceLocator(l);
+		}
+		Element subjIdentityElement = TMXMLUtils.findChild(el, "subjectIdentity");
+		if (subjIdentityElement != null)
+			loadSubjectIdentity1(subjIdentityElement, topic);
+		// TODO: we've established all identity "pointers"...time to do merging here...
+		
+		NodeList kids = el.getChildNodes();
+		for (int i = 0; i < kids.getLength(); i++)
+		{
+			Node n = kids.item(i);
+			if (! (n instanceof Element))
+				continue;
+			else if (n.getNodeName().equals("instanceOf"))
+				topic.addType(getInstanceOf1((Element)n, tm));
+			else if (n.getNodeName().equals("baseName"))				
+				loadBaseName1((Element)n, topic, tm);
+			else if (n.getNodeName().equals("occurrence"))				
+				loadOccurrence1((Element)n, topic, tm);			
+		}
+	}
+	
+	private Topic getInstanceOf1(Element el, HGTopicMap tm)
+	{
+		NodeList kids = el.getChildNodes();
+		for (int i = 0; i < kids.getLength(); i++)
+		{
+			Node n = kids.item(i);
+			if (! (n instanceof Element))
+				continue;
+			else if (n.getNodeName().equals("topicRef"))
+			{
+				return this.getTopicByRef1((Element)n, tm);
+			}
+			else if (n.getNodeName().equals("subjectIndicatorRef"))				
+			{
+				return getTopicByIndicator1((Element)n, tm);
+			}
+		}	
+		throw new RuntimeException("No topic specified in instanceOf tag.");
+	}
+
+	private void loadSubjectIdentity1(Element el, HGTopic topic)
+	{
+		NodeList kids = el.getChildNodes();
+		for (int i = 0; i < kids.getLength(); i++)
+		{
+			Node n = kids.item(i);
+			if (! (n instanceof Element))
+				continue;
+			else if (n.getNodeName().equals("resourceRef"))
+			{
+				Locator l = getHref1((Element)n);
+				topic.addSubjectLocator(l);				
+			}
+			else if (n.getNodeName().equals("topicRef"))
+			{
+				Locator l = getHref1((Element)n);
+				topic.addSourceLocator(l);
+			}
+			else if (n.getNodeName().equals("subjectIndicatorRef"))				
+			{
+				Locator l = getHref1((Element)n);
+				topic.addSubjectIdentifier(l);
+			}		
+		}					
+	}
+
+	private void loadBaseName1(Element el, HGTopic topic, HGTopicMap tm)
+	{
+		Set<Topic> scope = null;
+		String value = null;
+		NodeList kids = el.getChildNodes();
+		for (int i = 0; i < kids.getLength(); i++)
+		{
+			Node n = kids.item(i);
+			if (! (n instanceof Element))
+				continue;
+			else if (n.getNodeName().equals("scope"))
+			{
+				scope = getScope1((Element)n, tm);
+			}
+			else if (n.getNodeName().equals("baseNameString"))
+			{
+				value = n.getTextContent();
+			}		
+		}	
+
+		TopicName name = topic.createTopicName(value, scope);
+		
+		kids = el.getChildNodes();
+		for (int i = 0; i < kids.getLength(); i++)
+		{
+			Node n = kids.item(i);			
+			if (n.getNodeName().equals("variant"))
+				loadVariant1((Element)n, name, new HashSet<Topic>(), tm);
+		}
+	}
+	
+	private void loadVariant1(Element el, TopicName name, Set<Topic> currentScope, HGTopicMap tm)
+	{
+		Set<Topic> thisScope = new HashSet<Topic>();
+		Locator resourceRef = null;
+		String resourceData = null;
+		NodeList kids = el.getChildNodes();
+		for (int i = 0; i < kids.getLength(); i++)
+		{
+			Node n = kids.item(i);			
+			if (n.getNodeName().equals("parameters"))
+				thisScope = this.getScope1((Element)el, tm); 
+			else if (n.getNodeName().equals("variantName"))
+			{
+				NodeList vkids = ((Element)n).getChildNodes();
+				for (int j = 0; j < vkids.getLength(); j++)
+				{
+					Node m = vkids.item(j);
+					if (m.getNodeName().equals("resourceRef"))
+						resourceRef = this.getHref1((Element)m);
+					else if (m.getNodeName().equals("resourceData"))
+						resourceData = m.getTextContent();
+				}
+			}
+		}
+
+		if (resourceRef != null)
+			name.createVariant(resourceRef, thisScope);
+		else if (resourceData != null)
+			name.createVariant(resourceData, thisScope);
+		else
+			throw new RuntimeException("Neither resourceRef nor resourceData present in variant.");
+		
+		kids = el.getChildNodes();
+		for (int i = 0; i < kids.getLength(); i++)
+		{
+			Node n = kids.item(i);			
+			if (n.getNodeName().equals("variant"))
+				loadVariant1((Element)n, name, thisScope, tm);
+		}
+	}
+	
+	private void loadOccurrence1(Element el, HGTopic topic, HGTopicMap tm)
+	{
+		Set<Topic> scope = null;
+		Locator resourceRef = null;
+		String resourceData = null;
+		Topic type = null;
+		NodeList kids = el.getChildNodes();
+		for (int i = 0; i < kids.getLength(); i++)
+		{
+			Node n = kids.item(i);
+			if (! (n instanceof Element))
+				continue;
+			else if (n.getNodeName().equals("scope"))
+			{
+				scope = getScope1((Element)n, tm);
+			}
+			else if (n.getNodeName().equals("instanceOf"))
+			{
+				type = getInstanceOf1((Element)n, tm);
+			}		
+			else if (n.getNodeName().equals("resourceRef"))
+				resourceRef = this.getHref1((Element)n);
+			else if (n.getNodeName().equals("resourceData"))
+				resourceData = n.getTextContent();			
+		}	
+		
+		if (resourceRef != null)
+			topic.createOccurrence(resourceRef, type, scope);
+		else if (resourceData != null)
+			topic.createOccurrence(resourceData, type, scope);
+		else
+			throw new RuntimeException("No reference or data specified in occurrence for topic " + topic);
+	}
+	
+	private void loadAssociation1(Element el, HGTopicMap tm)
+	{
+		Association ass = tm.createAssociation();
+		NodeList kids = el.getChildNodes();		
+		for (int i = 0; i < kids.getLength(); i++)
+		{
+			Node n = kids.item(i);
+			if (! (n instanceof Element))
+				continue;
+			else if (n.getNodeName().equals("scope"))
+			{
+				for (Topic t : getScope1((Element)n, tm))
+					ass.addScopingTopic(t);
+			}
+			else if (n.getNodeName().equals("instanceOf"))
+			{
+				ass.setType(getInstanceOf1((Element)n, tm));
+			}		
+			else if (n.getNodeName().equals("member"))
+			{
+				Topic type = null;
+				Set<Topic> players = new HashSet<Topic>();
+				NodeList mkids = ((Element)n).getChildNodes();
+				for (int j = 0; j < mkids.getLength(); j++)
+				{
+					Node m = mkids.item(j);
+					if (m.getNodeName().equals("roleSpec"))
+						type = getInstanceOf1((Element)m, tm);
+					else if (m.getNodeName().equals("topicRef"))
+						players.add(getTopicByRef1((Element)m, tm));
+					else if (m.getNodeName().equals("resourceRef"))
+						players.add(this.getTopicByLocator1((Element)m, tm));
+					else if (m.getNodeName().equals("subjectIndicatorRef"))
+						players.add(this.getTopicByIndicator1((Element)m, tm));
+				}
+				for (Topic player : players)
+					ass.createAssociationRole(player, type);
+			}
+		}			
+	}
+	
+	private void mergeMap1(Element el, HGTopicMap tm)
+	{
+		throw new UnsupportedOperationException("Topic map merging not supported yet.");
+	}
+	
+	private HGTopic getTopicByRef1(Element topicRef, HGTopicMap tm)
+	{
+		Locator l = getHref1(topicRef);
+		TopicMapObject result = system.locate(l);
+		if (result != null)
+		{
+			if (! (result instanceof HGTopic))
+				throw new RuntimeException("topicRef with href " + topicRef.getAttributeNS("xlink", "href") +
+						" does not refer to a topic, but to a " + result.getClass().getName());
+			else
+				return (HGTopic)result;
+		}	
+		result = tm.createTopic();
+		result.addSourceLocator(l);
+		return (HGTopic)result;
+	}
+	
+	private HGTopic getTopicByIndicator1(Element el, HGTopicMap tm)
+	{
+		Locator l = getHref1(el);
+		TopicMapObject result = system.locateByIndicator(l);
+		if (result != null)
+		{
+			if (! (result instanceof HGTopic))
+				throw new RuntimeException("topicRef with href " + el.getAttributeNS("xlink", "href") +
+						" does not refer to a topic, but to a " + result.getClass().getName());
+			else
+				return (HGTopic)result;
+		}	
+		HGTopic t = (HGTopic)tm.createTopic();
+		t.addSubjectIdentifier(l);
+		return t;		
+	}
+	
+	private HGTopic getTopicByLocator1(Element el, HGTopicMap tm)
+	{
+		Locator l = getHref1(el);
+		TopicMapObject result = system.locateBySubject(l);
+		if (result != null)
+		{
+			if (! (result instanceof HGTopic))
+				throw new RuntimeException("topicRef with href " + el.getAttributeNS("xlink", "href") +
+						" does not refer to a topic, but to a " + result.getClass().getName());
+			else
+				return (HGTopic)result;
+		}	
+		HGTopic t = (HGTopic)tm.createTopic();
+		t.addSubjectLocator(l);
+		return t;		
+	}
+	
+	private Locator getHref1(Element el)
+	{
+		String id = el.getAttribute("xlink:href");
+		if (id == null || id.length() == 0)
+			throw new RuntimeException("Missing or empty (but expected!) href attribute in el " + el);
+		if (id.charAt(0) == '#')
+			id = iri + id;
+		return U.ensureLocator(system.getGraph(), null, id);
+	}
+	
+	private Set<Topic> getScope1(Element el, HGTopicMap tm)
+	{
+		Set<Topic> result = new HashSet<Topic>();
+		NodeList kids = el.getChildNodes();
+		for (int i = 0; i < kids.getLength(); i++)
+		{
+			Node n = kids.item(i);
+			if (! (n instanceof Element))
+				continue;
+			else if (n.getNodeName().equals("resourceRef"))
+			{
+				result.add(getTopicByLocator1((Element)n, tm));
+			}
+			else if (n.getNodeName().equals("topicRef"))
+			{
+				result.add(getTopicByRef1((Element)n, tm));
+			}
+			else if (n.getNodeName().equals("subjectIndicatorRef"))				
+			{
+				result.add(getTopicByIndicator1((Element)n, tm));
+			}		
+		}
+		return result;
+	}
+	
+	public static void toElement1(HGTopic t, Element el, String iri)
+	{
+		// Types
+		for (Topic type : t.getTypes())
+		{
+			Element ref = el.getOwnerDocument().createElement("topicRef");
+			el.appendChild(ref);
+			ref.setAttribute("xlink:href", getTopicId(type, iri));
+		}
+		
+		// Identity
+		Element sid = el.getOwnerDocument().createElement("subjectIdentity");
+		for (Locator l  : t.getSubjectLocators())
+		{
+			Element e = el.getOwnerDocument().createElement("resourceRef");
+			e.setAttribute("xlink:href", l.toExternalForm());
+			sid.appendChild(e);
+		}
+		for (Locator l : t.getSourceLocators())
+		{
+			Element e = el.getOwnerDocument().createElement("topicRef");
+			e.setAttribute("xlink:href", l.toExternalForm());
+			sid.appendChild(e);
+			
+		}
+		for (Locator l : t.getSubjectIdentifiers())
+		{
+			Element e = el.getOwnerDocument().createElement("subjectIndicatorRef");
+			e.setAttribute("xlink:href", l.toExternalForm());
+			sid.appendChild(e);
+			
+		}		
+		el.appendChild(sid);
+		
+		// Name
+		for (HGTopicName n : t.getTopicNames())
+		{
+			Element ne = el.getOwnerDocument().createElement("baseName");
+			el.appendChild(ne);
+			Element nes = el.getOwnerDocument().createElement("baseNameString");
+			nes.appendChild(el.getOwnerDocument().createTextNode(n.getValue()));
+			ne.appendChild(nes);
+			for (HGVariant v : n.getVariants())
+			{
+				Element ve = el.getOwnerDocument().createElement("variant");
+				ne.appendChild(ve);
+				Element pve = el.getOwnerDocument().createElement("parameters");
+				ve.appendChild(pve);				
+				for (HGTopic scope : v.getScope())
+				{
+					for (Locator l : scope.getSourceLocators())
+					{
+						Element le = el.getOwnerDocument().createElement("topicRef");
+						le.setAttribute("xlink:href", l.toExternalForm());
+						pve.appendChild(le);
+					}					
+					for (Locator l : scope.getSubjectIdentifiers())
+					{
+						Element le = el.getOwnerDocument().createElement("subjectIndicatorRef");
+						le.setAttribute("xlink:href", l.toExternalForm());
+						pve.appendChild(le);
+					}					
+				}
+				Element vname = el.getOwnerDocument().createElement("variantName");
+				ve.appendChild(vname);
+				if (v.getValue() != null && v.getValue().length() > 0)
+				{
+					Element x = el.getOwnerDocument().createElement("resourceData");
+					x.appendChild(el.getOwnerDocument().createTextNode(v.getValue()));
+					vname.appendChild(x);
+				}
+				else
+				{
+					Element x = el.getOwnerDocument().createElement("resourceRef");
+					x.setAttribute("xlink:href", v.getResource().toExternalForm());
+					vname.appendChild(x);
+				}
+			}
+		}
+		
+		// Occurrences
+		for (HGOccurrence occ : t.getOccurrences())
+		{
+			Element oe = el.getOwnerDocument().createElement("occurrence");
+			el.appendChild(oe);
+			if (occ.getType() != null)
+			{
+				Element ref = el.getOwnerDocument().createElement("topicRef");
+				oe.appendChild(ref);
+				ref.setAttribute("xlink:href", getTopicId(occ.getType(), iri));
+			}		
+			Element soe = el.getOwnerDocument().createElement("scope");			
+			for (HGTopic scope : occ.getScope())
+			{
+				for (Locator l : scope.getSourceLocators())
+				{
+					Element le = el.getOwnerDocument().createElement("topicRef");
+					le.setAttribute("xlink:href", l.toExternalForm());
+					soe.appendChild(le);
+				}					
+				for (Locator l : scope.getSubjectIdentifiers())
+				{
+					Element le = el.getOwnerDocument().createElement("subjectIndicatorRef");
+					le.setAttribute("xlink:href", l.toExternalForm());
+					soe.appendChild(le);
+				}					
+			}
+			if (soe.getChildNodes().getLength() > 0)
+				oe.appendChild(soe);
+			if (occ.getValue() != null && occ.getValue().length() > 0)
+			{
+				Element x = el.getOwnerDocument().createElement("resourceData");
+				x.appendChild(el.getOwnerDocument().createTextNode(occ.getValue()));
+				oe.appendChild(x);
+			}
+			else
+			{
+				Element x = el.getOwnerDocument().createElement("resourceRef");
+				x.setAttribute("xlink:href", occ.getResource().toExternalForm());
+				oe.appendChild(x);
+			}			
+		}
+	}
+	
+	public static void toElement1(HGAssociation a, Element el, String iri)
+	{
+		if (a.getType() != null)
+		{
+			Element ref = el.getOwnerDocument().createElement("topicRef");
+			el.appendChild(ref);
+			ref.setAttribute("xlink:href", getTopicId(a.getType(), iri));			
+		}
+		Element soe = el.getOwnerDocument().createElement("scope");			
+		for (HGTopic scope : a.getScope())
+		{
+			for (Locator l : scope.getSourceLocators())
+			{
+				Element le = el.getOwnerDocument().createElement("topicRef");
+				le.setAttribute("xlink:href", l.toExternalForm());
+				soe.appendChild(le);
+			}					
+			for (Locator l : scope.getSubjectIdentifiers())
+			{
+				Element le = el.getOwnerDocument().createElement("subjectIndicatorRef");
+				le.setAttribute("xlink:href", l.toExternalForm());
+				soe.appendChild(le);
+			}					
+		}		
+		if (soe.getChildNodes().getLength() > 0)
+			el.appendChild(soe);
+		for (HGAssociationRole r : a.getAssociationRoles())
+		{
+			Element re = el.getOwnerDocument().createElement("member");
+			el.appendChild(re);
+			if (r.getType() != null)
+			{
+				Element spec = el.getOwnerDocument().createElement("roleSpec");
+				re.appendChild(spec);
+				Element ref = el.getOwnerDocument().createElement("topicRef");
+				spec.appendChild(ref);
+				ref.setAttribute("xlink:href", getTopicId(r.getType(), iri));
+			}
+			Element pref = el.getOwnerDocument().createElement("topicRef");
+			pref.setAttribute("xlink:href", getTopicId(r.getPlayer(), iri));
+			re.appendChild(pref);
+		}
+	}
+	
+	public static String getTopicId(Topic t, String iri)
+	{
+		for (Object x : t.getSourceLocators())
+		{
+			String href = ((Locator)x).toExternalForm();			
+			if (href.startsWith(iri + "#"))
+				return href.substring(iri.length() + 1);
+		}		
+		return null;
 	}	
 }

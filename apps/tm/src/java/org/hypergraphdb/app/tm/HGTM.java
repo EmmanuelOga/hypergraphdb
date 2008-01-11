@@ -125,4 +125,31 @@ public class HGTM
 	public static final String schemaStringType = "http://www.w3.org/2001/XMLSchema#string";
 	public static final HGPersistentHandle hSchemaStringType = 
 		HGHandleFactory.makeHandle("a80bc40a-3fa1-11dc-bfc2-b65c7db952a2");
+	
+	//
+	// XTM 1.0 Mandatory published subject indicators
+	//
+	public static final String xtmCoreTopic = 
+		"http://www.topicmaps.org/xtm/1.0/core.xtm#topic";	
+	public static final String xtmCoreAssociation = 
+		"http://www.topicmaps.org/xtm/1.0/core.xtm#association";	
+	public static final String xtmCoreOccurrence = 
+		"http://www.topicmaps.org/xtm/1.0/core.xtm#occurrence";	
+	public static final String xtmCoreClassInstance = 
+		"http://www.topicmaps.org/xtm/1.0/core.xtm#class-instance";	
+	public static final String xtmCoreClass = 
+		"http://www.topicmaps.org/xtm/1.0/core.xtm#class";	
+	public static final String xtmCoreInstance = 
+		"http://www.topicmaps.org/xtm/1.0/core.xtm#instance";		
+	public static final String xtmCoreSuperclassSubclass =
+		"http://www.topicmaps.org/xtm/1.0/core.xtm#superclass-subclass";	
+	public static final String xtmCoreSuperclass = 
+		"http://www.topicmaps.org/xtm/1.0/core.xtm#superclass";	
+	public static final String xtmCoreSubclass = 
+		"http://www.topicmaps.org/xtm/1.0/core.xtm#subclass";	
+	public static final String xtmCoreSort = 
+		"http://www.topicmaps.org/xtm/1.0/core.xtm#sort";	
+	public static final String xtmCoreDisplay = 
+		"http://www.topicmaps.org/xtm/1.0/core.xtm#display";	
+	
 }

@@ -3,7 +3,6 @@ package org.hypergraphdb.app.tm;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGLink;
 import org.hypergraphdb.annotation.HGIgnore;
-import org.tmapi.core.Association;
 import org.tmapi.core.AssociationRole;
 import org.tmapi.core.Locator;
 import org.tmapi.core.TMAPIException;
@@ -33,27 +32,27 @@ public class HGAssociationRole extends HGTopicMapObjectBase implements Associati
 		this.targetSet = targetSet;
 	}
 		
-	public Association getAssociation()
+	public HGAssociation getAssociation()
 	{
-		return (Association)graph.get(targetSet[2]);
+		return graph.get(targetSet[2]);
 	}
 
 	@HGIgnore
-	public Topic getPlayer()
+	public HGTopic getPlayer()
 	{
-		return (Topic)graph.get(targetSet[0]);
+		return graph.get(targetSet[0]);
 	}
 
 	@HGIgnore
-	public Topic getReifier()
+	public HGTopic getReifier()
 	{
 		return null;
 	}
 
 	@HGIgnore
-	public Topic getType()
+	public HGTopic getType()
 	{
-		return (Topic)graph.get(targetSet[1]);
+		return graph.get(targetSet[1]);
 	}
 
 	public void setPlayer(Topic player)

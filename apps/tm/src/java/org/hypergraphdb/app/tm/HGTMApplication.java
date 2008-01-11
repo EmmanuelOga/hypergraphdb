@@ -1,17 +1,17 @@
 package org.hypergraphdb.app.tm;
 
-import java.util.List;
-
 import org.hypergraphdb.HGHandle;
-import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.HGTypeSystem;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.app.management.HGApplication;
+import org.hypergraphdb.app.management.HGManagement;
 import org.hypergraphdb.atom.HGRelType;
+import org.hypergraphdb.indexing.ByPartIndexer;
 import org.tmapi.core.Locator;
 
 public class HGTMApplication extends HGApplication 
 {
+	public static final String INFERRED_TYPES_RESOURCE = "/org/hypergraphdb/app/tm/inferredTypes.properties";
 	private void loadPredefinedTopics(HyperGraph graph)
 	{
 		HGTopic t = null;
@@ -108,6 +108,8 @@ public class HGTMApplication extends HGApplication
 		graph.getTransactionManager().beginTransaction();
 		try
 		{
+			HGManagement.defineTypeClasses(graph, INFERRED_TYPES_RESOURCE);
+			
 			HGHandle [] locatorTopicTypes = 
 				new HGHandle[] { ts.getTypeHandle(Locator.class), ts.getTypeHandle(HGTopic.class) };
 			HGHandle [] locatorItemTypes =
@@ -150,7 +152,7 @@ public class HGTMApplication extends HGApplication
 
 	private void undefineTypes(HyperGraph graph)
 	{
-		graph.getTransactionManager().beginTransaction();
+//		graph.getTransactionManager().beginTransaction();
 		try
 		{
 			graph.remove(HGTM.hSubjectIdentifier);
@@ -169,24 +171,43 @@ public class HGTMApplication extends HGApplication
 			
 			unloadPredefinedTopics(graph);
 			
-			graph.getTransactionManager().commit();
+	//		graph.getTransactionManager().commit();			
 		}
 		catch (Throwable t)
 		{
-			graph.getTransactionManager().abort();
+//			graph.getTransactionManager().abort();
 			if (t instanceof RuntimeException)
 				throw (RuntimeException)t;
 			else
 				throw new RuntimeException(t);
 		}
+		HGManagement.undefineTypeClasses(graph, INFERRED_TYPES_RESOURCE);		
 	}
 
+	private void createIndices(HyperGraph graph)
+	{
+		HGHandle type = graph.getTypeSystem().getTypeHandle(URILocator.class);
+		graph.getIndexManager().register(new ByPartIndexer(type, new String[]{"reference"}));
+		type = graph.getTypeSystem().getTypeHandle(HGTopicName.class);
+		graph.getIndexManager().register(new ByPartIndexer(type, new String[]{"value"}));
+		type = graph.getTypeSystem().getTypeHandle(HGVariant.class);
+		graph.getIndexManager().register(new ByPartIndexer(type, new String[]{"value"}));		
+	}
+	
+	
+	private void deleteIndices(HyperGraph graph)
+	{
+		HGHandle type = graph.getTypeSystem().getTypeHandle(URILocator.class);
+		graph.getIndexManager().unregisterAll(type);
+		type = graph.getTypeSystem().getTypeHandle(HGTopicName.class);
+		graph.getIndexManager().unregisterAll(type);
+		type = graph.getTypeSystem().getTypeHandle(HGVariant.class);
+		graph.getIndexManager().unregisterAll(type);		
+	}
+	
 	private void deleteLocators(HyperGraph graph)
 	{
 		graph.remove(graph.getTypeSystem().getTypeHandle(URILocator.class));
-/*		List<HGHandle> all = hg.findAll(graph, hg.type(URILocator.class));
-		for (HGHandle x : all)
-			graph.remove(x); */
 	}
 	
 	public HGTMApplication()
@@ -197,16 +218,18 @@ public class HGTMApplication extends HGApplication
 	public void install(HyperGraph graph) 
 	{
 		defineTypes(graph);
+		createIndices(graph);
 	}
 
 	public void reset(HyperGraph graph) 
-	{
+	{		
 		uninstall(graph);
 		install(graph);
 	}
 
 	public void uninstall(HyperGraph graph) 
 	{
+		deleteIndices(graph);
 		undefineTypes(graph);
 		deleteLocators(graph);
 	}

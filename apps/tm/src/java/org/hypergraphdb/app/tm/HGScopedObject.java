@@ -14,6 +14,8 @@ public abstract class HGScopedObject extends HGTopicMapObjectBase implements Sco
 	{
 		HGHandle rel = hg.findOne(graph, 
 				  hg.and(hg.type(HGTM.hScopeOf),
+						 hg.incident(graph.getHandle(this)),
+						 hg.incident(graph.getHandle(t)),
 						 hg.orderedLink(graph.getHandle(this), graph.getHandle(t))));
 		if (rel != null)
 			graph.add(new HGRel(HGTM.ScopeOf, new HGHandle [] {graph.getHandle(this), graph.getHandle(t)}));

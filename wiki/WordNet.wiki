@@ -13,11 +13,15 @@ HGWN does not support the so called "polysemy count" - number of uses of a given
 
 Main package: `org.hypergraphdb.app.wordnet`. All Wordnet related classes are to be found underneath this package.
 
-JWNL configuration files are maintained in org.hypergraph.app.wordnet.configuration. They are only needed when Wordnet is initially loaded into HyperGraphDB.
+JWNL configuration files are maintained in `org.hypergraph.app.wordnet.configuration`. They are only needed when Wordnet is initially loaded into HyperGraphDB.
 
-The package org.hypergraphdb.wordnet.data contains 
+The package `org.hypergraphdb.app.wordnet.data` contains classes implementing the core Wordnet representation and the package `org.hypergraphdb.app.wordnet.data.pointe` contains classes representing semantic relationships between synsets. Those are called pointers as in the original WordNet terminology.
 
+==Representation Details==
 
+===Exceptions===
+
+For each part of speech (noun, adjective, verb, adverb), WordNet contains a list of exceptional forms of the root lexeme. For nouns, this is usually the irregular plular forms, for adjectives and adverbs irregular superlatives, for verbs irregular conjugation. This is useful in morphological analysis where the normal rules for inflexion do not apply. Exception are represented in HGWN as links of type `ExcLink` and its sub-classes, one for reach part of speech. The first target of an exception link is the root word and the other targets are its exceptional forms. The links have an arity >= 2. Both root and exceptional forms are stored as lexemes in HyperGraphDB (i.e. as instances of the type `Word`).
 
 ==Loading WordNet in a HyperGraphDB==
 

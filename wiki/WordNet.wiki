@@ -11,7 +11,7 @@ HGWN does not support the so called "polysemy count" - number of uses of a given
 
 ==Package Overview==
 
-Main package: org.hypergraphdb.app.wordnet. All Wordnet related classes are to be found underneath this package.
+Main package: `org.hypergraphdb.app.wordnet`. All Wordnet related classes are to be found underneath this package.
 
 JWNL configuration files are maintained in org.hypergraph.app.wordnet.configuration. They are only needed when Wordnet is initially loaded into HyperGraphDB.
 

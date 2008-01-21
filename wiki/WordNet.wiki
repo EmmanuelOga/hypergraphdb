@@ -23,6 +23,8 @@ Each word/lexeme is stored as an instance of the class `org.hypergraphdb.app.wor
 
 Pointers are relations between synsets. There are many types of pointers and they different according to the part of speech for which they are used. Refer to the various WordNet papers (links can be found on their homepage) for a description of the semantic theory behind. All pointers are defined as links between synsets in the package `org.hypergraphdb.app.wordnet.data.pointer`. Usually those links have arity 2 and most of them are ordered - for instance, hypernym links are ordered while the `Similar` pointer is not.
 
+So essentially: the basic datum is a `Word`, its sense represented as a `SynsetLink` which is a link between words and semantic relationships with other senses is represented as a `Pointer` which is a link between `SynsetLinks`. This is a natural representation steming from the generality of the HyperGraphDB schema.
+
 ===Exceptions===
 
 For each part of speech (noun, adjective, verb, adverb), WordNet contains a list of exceptional forms of the root lexeme. For nouns, this is usually the irregular plular forms, for adjectives and adverbs irregular superlatives, for verbs irregular conjugation. This is useful in morphological analysis where the normal rules for inflexion do not apply. Exception are represented in HGWN as links of type `ExcLink` and its sub-classes, one for reach part of speech. The first target of an exception link is the root word and the other targets are its exceptional forms. The links have an arity >= 2. Both root and exceptional forms are stored as lexemes in HyperGraphDB (i.e. as instances of the type `Word`).

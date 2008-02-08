@@ -7,7 +7,7 @@ The HyperGraphDB Wordnet application (called henceforth HGWN) is essentially a r
   * Querying for specific semantical or lexical relationship of a given word
   * Morphological analysys - e.g. finding base form of  a given word or collocation
 
-HGWN does not support the so called "polysemy count" - number of uses of a given word in a specific sense as obtained by analyzing several sample texts. This feature is absolete in WordNet too and is left unchanged since 2003.  
+HGWN does not support the so called "polysemy count" - number of uses of a given word in a specific sense as obtained by analyzing several sample texts. This feature is obsolete in WordNet too and is left unchanged since 2003.  
 
 ==Package Overview==
 
@@ -15,13 +15,13 @@ Main package: `org.hypergraphdb.app.wordnet`. All Wordnet related classes are to
 
 JWNL configuration files are maintained in `org.hypergraph.app.wordnet.configuration`. They are only needed when Wordnet is initially loaded into HyperGraphDB.
 
-The package `org.hypergraphdb.app.wordnet.data` contains classes implementing the core Wordnet representation and the package `org.hypergraphdb.app.wordnet.data.pointe` contains classes representing semantic relationships between synsets. Those are called pointers as in the original WordNet terminology.
+The package `org.hypergraphdb.app.wordnet.data` contains classes implementing the core Wordnet representation and the package `org.hypergraphdb.app.wordnet.data.pointer` contains classes representing semantic relationships between synsets. Those are called pointers as in the original WordNet terminology.
 
 ==Representation Details==
 
-Each word/lexeme is stored as an instance of the class `org.hypergraphdb.app.wordnet.data.Word`. Synsets are stored as instances one of the subclasses of`SynsetLink`. There is `SynsetLink` subclass for each part of speech. Thus noun senses are represented as instances of `NounSynsetLink`. Those are HyperGraphDB links with arbitrary arity >= 1. The original WordNet ID is stored as the `id` property of synsets and the sense definition (a dictionary style definition in plain english) is stored as the `gloss` property.
+Each word/lexeme is stored as an instance of the class `org.hypergraphdb.app.wordnet.data.Word`. Synsets are stored as instances one of the sub-classes of`SynsetLink`. There is `SynsetLink` subclass for each part of speech. Thus, noun senses are represented as instances of `NounSynsetLink`. Those are HyperGraphDB links with arbitrary arity >= 1. The original WordNet ID is stored as the `id` property of synsets and the sense definition (a dictionary style definition in plain english) is stored as the `gloss` property.
 
-Pointers are relations between synsets. There are many types of pointers and they different according to the part of speech for which they are used. Refer to the various WordNet papers (links can be found on their homepage) for a description of the semantic theory behind. All pointers are defined as links between synsets in the package `org.hypergraphdb.app.wordnet.data.pointer`. Usually those links have arity 2 and most of them are ordered - for instance, hypernym links are ordered while the `Similar` pointer is not.
+Pointers are relations between synsets. There are many types of pointers and they differ according to the part of speech for which they are used. Refer to the various WordNet papers (links can be found on their homepage) for a description of the semantic theory behind. All pointers are defined as links between synsets in the package `org.hypergraphdb.app.wordnet.data.pointer`. Usually those links have arity 2 and most of them are ordered - for instance, hypernymy links are ordered while the `Similar` pointer is not.
 
 So essentially: the basic datum is a `Word`, its sense represented as a `SynsetLink` which is a link between words and semantic relationships with other senses is represented as a `Pointer` which is a link between `SynsetLinks`. This is a natural representation steming from the generality of the HyperGraphDB schema.
 

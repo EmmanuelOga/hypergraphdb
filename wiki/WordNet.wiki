@@ -4,7 +4,7 @@ the [http://wordnet.princeton.edu/ Wordnet home page at Princeton].
 The HyperGraphDB Wordnet application (called henceforth HGWN) is essentially a representation of all the information from WordNet within HyperGraphDB. This includes support for:
 
   * Querying the DB for a given word.
-  * Querying for specific semanthycal or lexical relationship of a given word
+  * Querying for specific semantical or lexical relationship of a given word
   * Morphological analysys - e.g. finding base form of  a given word or collocation
 
 HGWN does not support the so called "polysemy count" - number of uses of a given word in a specific sense as obtained by analyzing several sample texts. This feature is absolete in WordNet too and is left unchanged since 2003.  

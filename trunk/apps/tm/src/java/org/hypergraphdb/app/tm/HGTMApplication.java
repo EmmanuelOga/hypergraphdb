@@ -7,6 +7,7 @@ import org.hypergraphdb.app.management.HGApplication;
 import org.hypergraphdb.app.management.HGManagement;
 import org.hypergraphdb.atom.HGRelType;
 import org.hypergraphdb.indexing.ByPartIndexer;
+import org.hypergraphdb.type.TypeUtils;
 import org.tmapi.core.Locator;
 
 public class HGTMApplication extends HGApplication 
@@ -155,18 +156,43 @@ public class HGTMApplication extends HGApplication
 //		graph.getTransactionManager().beginTransaction();
 		try
 		{
+			TypeUtils.deleteInstances(graph, HGTM.hSubjectIdentifier);
 			graph.remove(HGTM.hSubjectIdentifier);
+			
+			TypeUtils.deleteInstances(graph, HGTM.hSubjectLocator);
 			graph.remove(HGTM.hSubjectLocator);
+			
+			TypeUtils.deleteInstances(graph, HGTM.hSourceLocator);			
 			graph.remove(HGTM.hSourceLocator);
+			
+			TypeUtils.deleteInstances(graph, HGTM.hTypeOf);			
 			graph.remove(HGTM.hTypeOf);
+			
+			TypeUtils.deleteInstances(graph, HGTM.hOccurrence);			
 			graph.remove(HGTM.hOccurrence);
+			
+			TypeUtils.deleteInstances(graph, HGTM.hScopeOf);			
 			graph.remove(HGTM.hScopeOf);
+			
+			TypeUtils.deleteInstances(graph, HGTM.hReifierOf);			
 			graph.remove(HGTM.hReifierOf);
+			
+			TypeUtils.deleteInstances(graph, HGTM.hNameOf);			
 			graph.remove(HGTM.hNameOf);
+			
+			TypeUtils.deleteInstances(graph, HGTM.hVariantOf);			
 			graph.remove(HGTM.hVariantOf);
+			
+			TypeUtils.deleteInstances(graph, HGTM.hMapMember);			
 			graph.remove(HGTM.hMapMember);
+			
+			TypeUtils.deleteInstances(graph, HGTM.hSchemaAnyType);			
 			graph.remove(HGTM.hSchemaAnyType);
+			
+			TypeUtils.deleteInstances(graph, HGTM.hSchemaAnyURI);			
 			graph.remove(HGTM.hSchemaAnyURI);
+			
+			TypeUtils.deleteInstances(graph, HGTM.hSchemaStringType);			
 			graph.remove(HGTM.hSchemaStringType);		
 			
 			unloadPredefinedTopics(graph);

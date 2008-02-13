@@ -13,6 +13,8 @@ import org.tmapi.core.TopicMapObject;
 import org.tmapi.core.TopicName;
 import org.tmapi.core.Variant;
 import org.w3c.dom.*;
+
+import java.net.URLDecoder;
 import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -1196,123 +1198,149 @@ public class TMXMLProcessor
 		// Types
 		for (Topic type : t.getTypes())
 		{
+			Element inst = el.getOwnerDocument().createElement("instanceOf");
 			Element ref = el.getOwnerDocument().createElement("topicRef");
-			el.appendChild(ref);
-			ref.setAttribute("xlink:href", getTopicId(type, iri));
+			ref.setAttribute("xlink:href", getTopicId(type, iri));			
+			inst.appendChild(ref);
+			el.appendChild(inst);
 		}
 		
 		// Identity
+		String id = getTopicId(t, iri);
+		if (id != null && id.length() > 0)
+			el.setAttribute("id", id.substring(1));	
 		Element sid = el.getOwnerDocument().createElement("subjectIdentity");
+		for (Locator l : t.getSourceLocators())
+		{
+			if (id != null && id.length() > 0 && l.toExternalForm().endsWith(id))
+				continue;
+			Element e = el.getOwnerDocument().createElement("topicRef");			
+			e.setAttribute("xlink:href", getLocalRef(iri, l.toExternalForm()));
+			sid.appendChild(e);
+			
+		}		
 		for (Locator l  : t.getSubjectLocators())
 		{
 			Element e = el.getOwnerDocument().createElement("resourceRef");
-			e.setAttribute("xlink:href", l.toExternalForm());
+			e.setAttribute("xlink:href", getLocalRef(iri, l.toExternalForm()));
 			sid.appendChild(e);
-		}
-		for (Locator l : t.getSourceLocators())
-		{
-			Element e = el.getOwnerDocument().createElement("topicRef");
-			e.setAttribute("xlink:href", l.toExternalForm());
-			sid.appendChild(e);
-			
 		}
 		for (Locator l : t.getSubjectIdentifiers())
 		{
 			Element e = el.getOwnerDocument().createElement("subjectIndicatorRef");
-			e.setAttribute("xlink:href", l.toExternalForm());
+			e.setAttribute("xlink:href", getLocalRef(iri, l.toExternalForm()));
 			sid.appendChild(e);
 			
 		}		
 		el.appendChild(sid);
 		
-		// Name
+		// Names
 		for (HGTopicName n : t.getTopicNames())
-		{
-			Element ne = el.getOwnerDocument().createElement("baseName");
-			el.appendChild(ne);
-			Element nes = el.getOwnerDocument().createElement("baseNameString");
-			nes.appendChild(el.getOwnerDocument().createTextNode(n.getValue()));
-			ne.appendChild(nes);
-			for (HGVariant v : n.getVariants())
-			{
-				Element ve = el.getOwnerDocument().createElement("variant");
-				ne.appendChild(ve);
-				Element pve = el.getOwnerDocument().createElement("parameters");
-				ve.appendChild(pve);				
-				for (HGTopic scope : v.getScope())
-				{
-					for (Locator l : scope.getSourceLocators())
-					{
-						Element le = el.getOwnerDocument().createElement("topicRef");
-						le.setAttribute("xlink:href", l.toExternalForm());
-						pve.appendChild(le);
-					}					
-					for (Locator l : scope.getSubjectIdentifiers())
-					{
-						Element le = el.getOwnerDocument().createElement("subjectIndicatorRef");
-						le.setAttribute("xlink:href", l.toExternalForm());
-						pve.appendChild(le);
-					}					
-				}
-				Element vname = el.getOwnerDocument().createElement("variantName");
-				ve.appendChild(vname);
-				if (v.getValue() != null && v.getValue().length() > 0)
-				{
-					Element x = el.getOwnerDocument().createElement("resourceData");
-					x.appendChild(el.getOwnerDocument().createTextNode(v.getValue()));
-					vname.appendChild(x);
-				}
-				else
-				{
-					Element x = el.getOwnerDocument().createElement("resourceRef");
-					x.setAttribute("xlink:href", v.getResource().toExternalForm());
-					vname.appendChild(x);
-				}
-			}
-		}
+			exportTopicName1(n, el, iri);
 		
 		// Occurrences
 		for (HGOccurrence occ : t.getOccurrences())
+			exportOccurrence1(occ, el, iri);
+	}
+	
+	public static void exportTopicName1(TopicName n, Element parentEl, String iri)
+	{
+		Element ne = parentEl.getOwnerDocument().createElement("baseName");
+		parentEl.appendChild(ne);
+		scopeEntity1(ne, n.getScope(), iri);			
+		Element nes = parentEl.getOwnerDocument().createElement("baseNameString");
+		nes.appendChild(parentEl.getOwnerDocument().createTextNode(n.getValue()));
+		ne.appendChild(nes);
+		for (Object o : n.getVariants())
 		{
-			Element oe = el.getOwnerDocument().createElement("occurrence");
-			el.appendChild(oe);
-			if (occ.getType() != null)
+			Variant v = (Variant)o;
+			Element ve = parentEl.getOwnerDocument().createElement("variant");
+			ne.appendChild(ve);
+			Element pve = parentEl.getOwnerDocument().createElement("parameters");
+			ve.appendChild(pve);				
+			for (Object x : v.getScope())
 			{
-				Element ref = el.getOwnerDocument().createElement("topicRef");
-				oe.appendChild(ref);
-				ref.setAttribute("xlink:href", getTopicId(occ.getType(), iri));
-			}		
-			Element soe = el.getOwnerDocument().createElement("scope");			
-			for (HGTopic scope : occ.getScope())
-			{
-				for (Locator l : scope.getSourceLocators())
+				Topic scope = (Topic)x;
+				for (Object y : scope.getSourceLocators())
 				{
-					Element le = el.getOwnerDocument().createElement("topicRef");
-					le.setAttribute("xlink:href", l.toExternalForm());
-					soe.appendChild(le);
+					Locator l = (Locator)y;
+					Element le = parentEl.getOwnerDocument().createElement("topicRef");
+					le.setAttribute("xlink:href", getLocalRef(iri, l.toExternalForm()));
+					pve.appendChild(le);
 				}					
-				for (Locator l : scope.getSubjectIdentifiers())
+				for (Object y : scope.getSubjectIdentifiers())
 				{
-					Element le = el.getOwnerDocument().createElement("subjectIndicatorRef");
-					le.setAttribute("xlink:href", l.toExternalForm());
-					soe.appendChild(le);
+					Locator l = (Locator)y;
+					Element le = parentEl.getOwnerDocument().createElement("subjectIndicatorRef");
+					le.setAttribute("xlink:href", getLocalRef(iri, l.toExternalForm()));
+					pve.appendChild(le);
 				}					
 			}
-			if (soe.getChildNodes().getLength() > 0)
-				oe.appendChild(soe);
-			if (occ.getValue() != null && occ.getValue().length() > 0)
+			Element vname = parentEl.getOwnerDocument().createElement("variantName");
+			ve.appendChild(vname);
+			if (v.getValue() != null && v.getValue().length() > 0)
 			{
-				Element x = el.getOwnerDocument().createElement("resourceData");
-				x.appendChild(el.getOwnerDocument().createTextNode(occ.getValue()));
-				oe.appendChild(x);
+				Element x = parentEl.getOwnerDocument().createElement("resourceData");
+				x.appendChild(parentEl.getOwnerDocument().createTextNode(v.getValue()));
+				vname.appendChild(x);
 			}
 			else
 			{
-				Element x = el.getOwnerDocument().createElement("resourceRef");
-				x.setAttribute("xlink:href", occ.getResource().toExternalForm());
-				oe.appendChild(x);
-			}			
+				Element x = parentEl.getOwnerDocument().createElement("resourceRef");
+				x.setAttribute("xlink:href", getLocalRef(iri, v.getResource().toExternalForm()));
+				vname.appendChild(x);
+			}
+		}		
+	}
+	
+	public static void exportOccurrence1(Occurrence occ, Element parentEl, String iri)
+	{
+		Element oe = parentEl.getOwnerDocument().createElement("occurrence");
+		parentEl.appendChild(oe);		
+		if (occ.getType() != null)
+		{
+			Element inst = parentEl.getOwnerDocument().createElement("instanceOf");
+			Element ref = parentEl.getOwnerDocument().createElement("topicRef");
+			ref.setAttribute("xlink:href", getTopicId(occ.getType(), iri));
+			inst.appendChild(ref);
+			oe.appendChild(inst);
+		}		
+		scopeEntity1(oe, occ.getScope(), iri);
+		if (occ.getValue() != null && occ.getValue().length() > 0)
+		{
+			Element x = parentEl.getOwnerDocument().createElement("resourceData");
+			x.appendChild(parentEl.getOwnerDocument().createTextNode(occ.getValue()));
+			oe.appendChild(x);
 		}
+		else
+		{
+			Element x = parentEl.getOwnerDocument().createElement("resourceRef");
+			x.setAttribute("xlink:href", getLocalRef(iri, occ.getResource().toExternalForm()));
+			oe.appendChild(x);
+		}					
+	}
+	
+	public static void scopeEntity1(Element entity, Set<HGTopic> scope, String iri)
+	{
+		if (scope.size() == 0)
+			return;
+		Element soe = entity.getOwnerDocument().createElement("scope");			
+		for (HGTopic s : scope)
+		{
+			for (Locator l : s.getSourceLocators())
+			{
+				Element le = entity.getOwnerDocument().createElement("topicRef");
+				le.setAttribute("xlink:href", getLocalRef(iri, l.toExternalForm()));
+				soe.appendChild(le);
+			}					
+			for (Locator l : s.getSubjectIdentifiers())
+			{
+				Element le = entity.getOwnerDocument().createElement("subjectIndicatorRef");
+				le.setAttribute("xlink:href", getLocalRef(iri, l.toExternalForm()));
+				soe.appendChild(le);
+			}					
+		}		
+		entity.appendChild(soe);
 	}
 	
 	public static void toElement1(HGAssociation a, Element el, String iri)
@@ -1323,24 +1351,7 @@ public class TMXMLProcessor
 			el.appendChild(ref);
 			ref.setAttribute("xlink:href", getTopicId(a.getType(), iri));			
 		}
-		Element soe = el.getOwnerDocument().createElement("scope");			
-		for (HGTopic scope : a.getScope())
-		{
-			for (Locator l : scope.getSourceLocators())
-			{
-				Element le = el.getOwnerDocument().createElement("topicRef");
-				le.setAttribute("xlink:href", l.toExternalForm());
-				soe.appendChild(le);
-			}					
-			for (Locator l : scope.getSubjectIdentifiers())
-			{
-				Element le = el.getOwnerDocument().createElement("subjectIndicatorRef");
-				le.setAttribute("xlink:href", l.toExternalForm());
-				soe.appendChild(le);
-			}					
-		}		
-		if (soe.getChildNodes().getLength() > 0)
-			el.appendChild(soe);
+		scopeEntity1(el, a.getScope(), iri);
 		for (HGAssociationRole r : a.getAssociationRoles())
 		{
 			Element re = el.getOwnerDocument().createElement("member");
@@ -1361,12 +1372,25 @@ public class TMXMLProcessor
 	
 	public static String getTopicId(Topic t, String iri)
 	{
+		String href = null;
 		for (Object x : t.getSourceLocators())
 		{
-			String href = ((Locator)x).toExternalForm();			
+			href = ((Locator)x).toExternalForm();			
 			if (href.startsWith(iri + "#"))
-				return href.substring(iri.length() + 1);
+				return href.substring(iri.length());
+			else if (href.startsWith(iri + "%23"))
+				return "#" + href.substring(iri.length() + 3);
 		}		
-		return null;
-	}	
+		return URLDecoder.decode(href);
+	}
+	
+	public static String getLocalRef(String iri, String href)
+	{
+		if (href.startsWith(iri + "#"))
+			return href.substring(iri.length());
+		else if (href.startsWith(iri + "%23"))
+			return "#" + href.substring(iri.length() + 3);
+		else
+			return URLDecoder.decode(href);
+	}
 }

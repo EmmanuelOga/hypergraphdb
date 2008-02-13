@@ -213,7 +213,7 @@ public final class HGTopicMapSystem implements TopicMapSystem
 	 * @param targetRoleType The type of the role of associated topics to be returned.
 	 * @return A list of topics associated to <code>t</code> with role type <code>targetRoleType</code>.
 	 */
-	public List<Topic> findAssociated(Topic t, Topic roleType, Topic targetRoleType)	
+	public List<Topic> findAssociated(Topic t, Topic roleType, Topic targetRoleType)
 	{
 		return findAssociated(graph.getHandle(t), graph.getHandle(roleType), graph.getHandle(targetRoleType));
 	}

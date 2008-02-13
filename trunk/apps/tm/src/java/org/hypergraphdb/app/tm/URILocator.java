@@ -28,9 +28,10 @@ public class URILocator implements Locator
 				}
 /*				case ';': case '/': case '?': case ':': case '@':
 				case '&': case '=': case '+': case '$': case ',': */
-				case ' ': case '<': case '>': case '#': case '"':
+				case ' ': case '<': case '>': case '"':
 				case '{': case '}': case '|': case '\\':
 				case '^': case '[': case ']': case '`': 
+				case '#': // controversial!
 				{
 					result.append('%');
 					result.append(Integer.toHexString(c));

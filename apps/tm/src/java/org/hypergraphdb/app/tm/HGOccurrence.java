@@ -3,10 +3,8 @@ package org.hypergraphdb.app.tm;
 import java.util.Set;
 
 import org.hypergraphdb.HGHandle;
-import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.annotation.AtomReference;
 import org.hypergraphdb.annotation.HGIgnore;
-import org.hypergraphdb.atom.HGRel;
 import org.tmapi.core.Locator;
 import org.tmapi.core.Occurrence;
 import org.tmapi.core.Topic;
@@ -45,9 +43,8 @@ public class HGOccurrence extends HGScopedObject implements Occurrence
 	{
 		if (topic == null)
 		{
-			HGHandle rel = hg.findOne(graph, hg.and(hg.type(HGTM.hOccurrence), 
-													hg.link(graph.getHandle(this))));
-			topic = ((HGRel)graph.get(rel)).getTargetAt(1);
+			Object x = (HGTopic)U.getOneRelated(graph, HGTM.hOccurrence, graph.getHandle(this), null);
+			topic = graph.getHandle(x); 
 		}
 		return (Topic)graph.get(topic);
 	}

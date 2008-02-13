@@ -171,7 +171,7 @@ public class HGTopicMap extends HGTopicMapObjectBase implements TopicMap
 	
 	public void remove() throws TMAPIException
 	{
-		graph.getTransactionManager().beginTransaction();
+//		graph.getTransactionManager().beginTransaction();
 		try
 		{
 			for (Association a : getAssociations())
@@ -186,13 +186,13 @@ public class HGTopicMap extends HGTopicMapObjectBase implements TopicMap
 			for (Locator l : getSourceLocators())
 				removeSourceLocator(l);			
 			graph.remove(graph.getHandle(this));
-			graph.getTransactionManager().endTransaction(true);			
+	//		graph.getTransactionManager().endTransaction(true);			
 		}
 		catch (Throwable t)
 		{
 			try 
 			{ 
-				graph.getTransactionManager().endTransaction(false);
+		//		graph.getTransactionManager().endTransaction(false);
 				throw new TMAPIRuntimeException(t);
 			}
 			catch (Exception ex) 

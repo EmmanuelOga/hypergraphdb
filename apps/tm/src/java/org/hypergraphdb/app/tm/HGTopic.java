@@ -208,7 +208,7 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 		return names;
 	}
 
-	public Topic getType()
+	public HGTopic getType()
 	{
 		getTypes();
 		if (types.size() == 0)
@@ -223,10 +223,24 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 			types = U.getRelatedObjects(graph, HGTM.hTypeOf, null, graph.getHandle(this));
 		return types;
 	}
-
+	
+	/**
+	 * <p>Return a set of all topics that are have <code>this</code> topic as a type.</p>
+	 */
 	public Set<HGTopic> getInstances()
 	{
 		return U.getRelatedObjects(graph, HGTM.hTypeOf, graph.getHandle(this), null);
+	}
+	
+	public Set<HGOccurrence> getOccurrencesByType(Topic type)
+	{
+		Set<HGOccurrence> result = new HashSet<HGOccurrence>();
+		for (HGOccurrence occ : getOccurrences())
+		{
+			if (occ.getType() == type)
+				result.add(occ);
+		}
+		return result;
 	}
 	
 	public void mergeIn(Topic other) throws MergeException
@@ -322,9 +336,10 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 	
 	public String toString()
 	{
-		Set names = this.getTopicNames();
-		if (names.size() > 0)
-			return ((TopicName)names.iterator().next()).getValue();
+		Set<HGTopicName> names = this.getTopicNames();
+		for (HGTopicName n : names)
+			if (n.getScope().size() == 0)
+				return n.getValue();
 		Set locators = this.getSourceLocators();
 		if (locators.size() > 0)
 		{ 

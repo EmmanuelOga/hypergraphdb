@@ -38,19 +38,19 @@ public class HGAssociationRole extends HGTopicMapObjectBase implements Associati
 	}
 
 	@HGIgnore
-	public HGTopic getPlayer()
+	public Topic getPlayer()
 	{
 		return graph.get(targetSet[0]);
 	}
 
 	@HGIgnore
-	public HGTopic getReifier()
+	public Topic getReifier()
 	{
 		return null;
 	}
 
 	@HGIgnore
-	public HGTopic getType()
+	public Topic getType()
 	{
 		return graph.get(targetSet[1]);
 	}

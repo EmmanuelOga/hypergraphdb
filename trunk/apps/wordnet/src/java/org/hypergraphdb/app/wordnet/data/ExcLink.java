@@ -3,7 +3,18 @@ package org.hypergraphdb.app.wordnet.data;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPlainLink;
 
-public class ExcLink extends HGPlainLink{
+/**
+ * 
+ * <p>
+ * Represents exceptions: the first target is the exceptional form and the rest
+ * of the targets (usually there's only one) represents the stem. 
+ * </p>
+ *
+ * @author Borislav Iordanov
+ *
+ */
+public class ExcLink extends HGPlainLink
+{
 
 	public ExcLink() {
 		super();

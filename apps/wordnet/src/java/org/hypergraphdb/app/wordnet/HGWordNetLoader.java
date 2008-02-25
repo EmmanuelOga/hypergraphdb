@@ -8,8 +8,6 @@ import java.util.BitSet;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import net.didion.jwnl.JWNL;
@@ -230,7 +228,7 @@ public class HGWordNetLoader
 		while (it.hasNext())
 		{
 			IndexWord word = (IndexWord) it.next();
-			addWord(graph, word.getLemma());
+			addWord(graph, cleanupLemma(word.getLemma()));
 		}
 	}
 	
@@ -251,10 +249,11 @@ public class HGWordNetLoader
 		HGHandle[] targets = new HGHandle[words.length];
 		for (int i = 0; i < words.length; i++)
 		{
-			targets[i] = getWordHandle(graph, words[i].getLemma());
+			String lemma = cleanupLemma(words[i].getLemma());
+			targets[i] = getWordHandle(graph, lemma);
 				//wordHandles.get(words[i].getLemma()); // 
 			if (targets[i] == null)
-				targets[i] = addWord(graph, words[i].getLemma());
+				targets[i] = addWord(graph, lemma);
 		}
 		SynsetLink link = createSynsetLink(syn);
 		link.setTargets(targets);
@@ -267,6 +266,16 @@ public class HGWordNetLoader
 			n_syn++;
 		} */
 		return sh;
+	}
+	
+	private String cleanupLemma(String lemma)
+	{		
+		// some adjectives are stored with markers for syntax position (e.g. proof(p))
+		int markPos = lemma.indexOf('(');
+		if (markPos > 0)
+			return lemma.substring(0, markPos);
+		else
+			return lemma;
 	}
 	
 	private SynsetLink createSynsetLink(Synset syn)
@@ -322,10 +331,11 @@ public class HGWordNetLoader
 			Exc exc = (Exc) it.next();
 			String[] excs = exc.getExceptionArray();
 			HGHandle[] targets = new HGHandle[excs.length + 1];
-			targets[0] = getWordHandle(graph, exc.getLemma()); // wordHandles.get(exc.getLemma()); 
+			String lemma = cleanupLemma(exc.getLemma());
+			targets[0] = getWordHandle(graph, lemma); // wordHandles.get(exc.getLemma()); 
 			for (int i = 0; i < excs.length; i++)
 			{
-				targets[i + 1] = getWordHandle(graph, excs[i]);//wordHandles.get(excs[i]);
+				targets[i + 1] = getWordHandle(graph, cleanupLemma(excs[i]));//wordHandles.get(excs[i]);
 			}
 			graph.add(createExcLink(targets, pos));
 			n_exc++;
@@ -337,12 +347,13 @@ public class HGWordNetLoader
 	{
 		ExcLink link = null;
 		if (pos == 0)
-			link = new NounExcLink();
+			link = new AdjExcLink();
 		else if (pos == 1)
-			link = new VerbExcLink();
+			link = new NounExcLink();
 		else if (pos == 2)
 			link = new AdverbExcLink();
-		else if (pos == 3) link = new AdjExcLink();
+		else if (pos == 3) 
+			link = new VerbExcLink();
 		link.setTargets(targets);
 		return link;
 	}

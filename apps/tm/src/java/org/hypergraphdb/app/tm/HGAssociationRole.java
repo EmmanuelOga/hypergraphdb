@@ -1,5 +1,7 @@
 package org.hypergraphdb.app.tm;
 
+import java.util.Set;
+
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGLink;
 import org.hypergraphdb.annotation.HGIgnore;
@@ -92,8 +94,11 @@ public class HGAssociationRole extends HGTopicMapObjectBase implements Associati
 		for (Locator l : getSourceLocators())
 			removeSourceLocator(l);					
 		graph.remove(thisH);
+		Set<HGAssociationRole> R = ((HGTopic)getPlayer()).roles;
+		if (R != null)
+			R.remove(this);
 	}
-	
+		
     public void notifyTargetRemoved(int i)
     {
     	throw new IllegalArgumentException("Illegal attempt to remove a HGAssociationRole target.");

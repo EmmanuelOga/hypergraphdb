@@ -231,6 +231,16 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 	{
 		return U.getRelatedObjects(graph, HGTM.hTypeOf, graph.getHandle(this), null);
 	}
+
+	/**
+	 * <p>
+	 * Return all topic map elements that are scoped by this topic.
+	 * </p>
+	 */
+	public Set<HGTopicMapObjectBase> getScoped()
+	{
+		return U.getRelatedObjects(graph, HGTM.hScopeOf, null, graph.getHandle(this));		
+	}
 	
 	public Set<HGOccurrence> getOccurrencesByType(Topic type)
 	{
@@ -317,6 +327,57 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 			throw new HGException(ex);
 		}
 		graph.remove(thisH, false);
+	}
+	
+	/**
+	 * <p>
+	 * Remove the topic and all its associations, and all things in its scope,
+	 * anything that could prevent it from being removed. Note note this will remove
+	 * all topics that have this one listed as their type and/or listed as their scope.
+	 * In fact, calling this method is equivalent to calling <code>forceRemove(true, true)</code>
+	 * </p>
+	 * 
+	 * @throws TMAPIException
+	 */
+	public void forceRemove() throws TMAPIException
+	{
+		forceRemove(true, true);
+	}
+	
+	/**
+	 * <p>
+	 * Remove the topic and all its associations. The topic will be dissociated from
+	 * scoping an object or typing another topic. In addition, if topics that are instances 
+	 * of this topic should be removed, pass <code>true</code> in the <code>removeInstances</code>
+	 * parameter. Similarly, whether object having this topic as (part of) their scope should
+	 * be removed is controlled by the <code>removeScoped</code> parameter.
+	 * </p>
+	 * 
+	 * @param removeInstances Whether to remove topics having this topic in their types list.
+	 * @param removeScoped Whether to remove topic map objects having this topic in their scope. 
+	 * @throws TMAPIException
+	 */	
+	public void forceRemove(boolean removeInstances, boolean removeScoped) throws TMAPIException
+	{
+		// From associations
+		Collection<HGAssociationRole> roles = new ArrayList<HGAssociationRole>(getRolesPlayed().size()); 
+		roles.addAll(getRolesPlayed());
+		for (HGAssociationRole role : roles)
+			role.remove();		
+		 
+		if (removeInstances)
+			for (HGTopic t : getInstances())
+				t.remove();
+		else
+			U.removeRelations(graph, HGTM.hTypeOf, graph.getHandle(this), null);
+		
+		if (removeScoped)
+			for (HGTopicMapObjectBase x : getScoped())
+				x.remove();
+		else
+			U.removeRelations(graph, HGTM.hScopeOf, null, graph.getHandle(this));
+		
+		remove();
 	}
 	
 	/**

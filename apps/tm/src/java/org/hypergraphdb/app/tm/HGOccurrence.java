@@ -16,6 +16,7 @@ public class HGOccurrence extends HGScopedObject implements Occurrence
 	private Locator dataType;
 	private String value;
 	HGHandle topic;
+	Object type = U.UNKNOWN;
 	
 	public HGOccurrence()
 	{
@@ -52,8 +53,13 @@ public class HGOccurrence extends HGScopedObject implements Occurrence
 	@HGIgnore
 	public Topic getType()
 	{
-		HGHandle type = U.getTypeOf(graph, graph.getHandle(this));
-		return type != null ? (Topic)graph.get(type) : null;		
+		if (type == U.UNKNOWN)
+		{
+			type = U.getTypeOf(graph, graph.getHandle(this));
+			if (type != null)
+				type = graph.get((HGHandle)type);
+		}
+		return (Topic)type;
 	}
 
 	public String getValue()

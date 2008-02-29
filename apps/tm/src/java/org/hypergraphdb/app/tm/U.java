@@ -15,6 +15,8 @@ import org.tmapi.core.TopicMap;
 
 class U
 {
+	static final Object UNKNOWN = new Object();
+	
 	static String handleIRI(String iri)
 	{
 		return iri;

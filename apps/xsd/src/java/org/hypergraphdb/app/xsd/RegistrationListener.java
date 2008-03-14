@@ -1,20 +1,20 @@
 package org.hypergraphdb.app.xsd;
 
 import org.hypergraphdb.HyperGraph;
+import org.hypergraphdb.event.HGEvent;
 import org.hypergraphdb.event.HGListener;
-import org.hypergraphdb.event.HGOpenedEvent;
 
 /**
  * 
  */
-public class RegistrationListener implements HGListener<HGOpenedEvent>
+public class RegistrationListener implements HGListener
 {
 
    /**
     * Registers the XSD predefined types.
     */
    public Result handle(
-      HyperGraph hg, HGOpenedEvent event)
+      HyperGraph hg, HGEvent e)
    {
       hg.getTypeSystem().addPredefinedType(SimpleTypeConstructor.HANDLE,
             SimpleTypeConstructor.INSTANCE, null);

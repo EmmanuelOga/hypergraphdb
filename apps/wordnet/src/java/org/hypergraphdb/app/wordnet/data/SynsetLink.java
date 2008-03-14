@@ -67,6 +67,6 @@ public class SynsetLink extends HGPlainLink
 	
 	public int hashCode() 
 	{
-		return getGloss().hashCode();
+		return (int)id;
 	}
 }

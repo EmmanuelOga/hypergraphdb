@@ -3,8 +3,6 @@ package org.hypergraphdb.app.wordnet.data;
 import java.io.Serializable;
 import java.util.*;
 
-import org.hypergraphdb.app.wordnet.StringFormatter;
-
 import net.didion.jwnl.data.POS;
 import net.didion.jwnl.util.Resolvable;
 
@@ -177,14 +175,9 @@ public final class PtType implements Serializable
 		this.setClazz(clazz);
 	}
 
-	private transient String _cachedToString = null;
-
-	public String toString() {
-		if (_cachedToString == null) {
-            _cachedToString = StringFormatter.resolveMessage(
-            		"DATA_TOSTRING_011", new Object[]{getLabel(), getKey(), getFlagsAsString()});
-        }
-		return _cachedToString;
+	public String toString() 
+	{
+		return getLabel() + "-" + getKey() + "-" + getClazz().getName();
 	}
 
 	public String getKey() {
@@ -210,20 +203,5 @@ public final class PtType implements Serializable
 
 	public int hashCode() {
 		return getLabel().hashCode();
-	}
-
-	private String _flagStringCache = null;
-
-	private String getFlagsAsString() {
-		if (_flagStringCache == null) {
-			String str = "";
-			if ((_flags & N) != 0) str += StringFormatter.resolveMessage("NOUN") + ", ";
-			if ((_flags & V) != 0) str += StringFormatter.resolveMessage("VERB") + ", ";
-			if ((_flags & ADJ) != 0) str += StringFormatter.resolveMessage("ADJECTIVE") + ", ";
-			if ((_flags & ADV) != 0) str += StringFormatter.resolveMessage("ADVERB") + ", ";
-			if ((_flags & LEXICAL) != 0) str += StringFormatter.resolveMessage("LEXICAL") + ", ";
-			_flagStringCache = str.substring(0, str.length() - 2);
-		}
-		return _flagStringCache;
 	}
 }

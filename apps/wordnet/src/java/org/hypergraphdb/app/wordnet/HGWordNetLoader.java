@@ -27,17 +27,7 @@ import org.hypergraphdb.HGIndex;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HGTypeSystem;
 import org.hypergraphdb.HyperGraph;
-import org.hypergraphdb.app.wordnet.data.AdjExcLink;
-import org.hypergraphdb.app.wordnet.data.AdjSynsetLink;
-import org.hypergraphdb.app.wordnet.data.AdverbExcLink;
-import org.hypergraphdb.app.wordnet.data.AdverbSynsetLink;
-import org.hypergraphdb.app.wordnet.data.ExcLink;
-import org.hypergraphdb.app.wordnet.data.NounExcLink;
-import org.hypergraphdb.app.wordnet.data.NounSynsetLink;
-import org.hypergraphdb.app.wordnet.data.SynsetLink;
-import org.hypergraphdb.app.wordnet.data.VerbExcLink;
-import org.hypergraphdb.app.wordnet.data.VerbFrameLink;
-import org.hypergraphdb.app.wordnet.data.VerbSynsetLink;
+import org.hypergraphdb.app.wordnet.data.*;
 import org.hypergraphdb.indexing.ByPartIndexer;
 
 /**
@@ -61,16 +51,14 @@ public class HGWordNetLoader
 {
 	final static String PROPS_RESOURCE = "org/hypergraphdb/app/wordnet/configuration/file_properties.xml";
 	final POS[] pos = new POS[] { POS.ADJECTIVE, POS.NOUN, POS.ADVERB, POS.VERB};
-	final Comparator posComparator = new Comparator()
+	final Comparator<POS> posComparator = new Comparator<POS>()
 	{
-		public int compare(Object left, Object right)
+		public int compare(POS left, POS right)
 		{
-			POS pl = (POS)left;
-			POS pr = (POS)right;
-			return pl.getKey().compareTo(pr.getKey());
+			return left.getKey().compareTo(right.getKey());
 		}
 	};
-	final Class[] synset_link_classes = new Class[] 
+	final Class<?>[] synset_link_classes = new Class<?>[] 
 	{
 		AdjSynsetLink.class,
 		NounSynsetLink.class,
@@ -251,7 +239,7 @@ public class HGWordNetLoader
 		{
 			String lemma = cleanupLemma(words[i].getLemma());
 			targets[i] = getWordHandle(graph, lemma);
-		}
+		}		
 		SynsetLink link = createSynsetLink(syn);
 		link.setTargets(targets);
 		HGHandle sh = graph.add(link);
@@ -300,16 +288,9 @@ public class HGWordNetLoader
 			for (int i = 0; i < ps.length; i++)
 			{
 				n_point++;
-				org.hypergraphdb.app.wordnet.data.Pointer hg_p = makePointer(graph, synHandle, ps[i]);
-				if (hg_p != null)
-				{
-					graph.add(hg_p);
-				} 
-				else
-				{
-					throw new NullPointerException("!!!!!!!NULL Pointer: "
-							+ ps[i]);
-				}
+				SemanticLink semlink = makeSemanticLink(graph, synHandle, ps[i]);
+				if (semlink != null)
+					graph.add(semlink);
 			}
 		}
 	}
@@ -349,19 +330,18 @@ public class HGWordNetLoader
 	}
 
 
-	private org.hypergraphdb.app.wordnet.data.Pointer makePointer(HyperGraph graph, HGHandle sourceHandle, Pointer p) throws JWNLException
+	private SemanticLink makeSemanticLink(HyperGraph graph, HGHandle sourceHandle, Pointer p) throws JWNLException
 	{
 		PtType ptType = PtType.getPointerTypeForKey(p.getType().getKey()); 
 		if (ptType == null)
 		{
 			return null;
 		}
-		Class clazz = ptType.getClazz();
-		org.hypergraphdb.app.wordnet.data.Pointer hg_p = null;
+		Class<? extends SemanticLink> clazz = ptType.getClazz();
+		SemanticLink semlink = null;
 		try
 		{
-			hg_p = (org.hypergraphdb.app.wordnet.data.Pointer) clazz
-					.newInstance();
+			semlink = clazz.newInstance();
 		}
 		catch (Exception ex)
 		{
@@ -382,8 +362,8 @@ public class HGWordNetLoader
 			logger.warning("Could not create pointer " + p + " because target synset " + s1 + " is not in HGDB.");
 			return null;
 		}
-		hg_p.setTargets(ptrTargets);
-		return hg_p;
+		semlink.setTargets(ptrTargets);
+		return semlink;
 	}
 
 	private Synset getSynsetForPointerTarget(PointerTarget p)

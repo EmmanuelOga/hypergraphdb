@@ -7,7 +7,6 @@ import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.query.impl.TraversalBasedQuery;
 import org.hypergraphdb.util.Pair;
 import org.hypergraphdb.algorithms.HGBreadthFirstTraversal;
-import org.hypergraphdb.algorithms.HGDepthFirstTraversal;
 import org.hypergraphdb.algorithms.HGTraversal;
 import org.hypergraphdb.app.wordnet.data.*;
 
@@ -94,19 +93,83 @@ public class SemTools
 			result.add(synset1);
 			return result;
 		}
+
+		// We proceed in a way similar to the algorithm that finds a single LCA (least
+		// common ancestor) implemented in 'getLeastCommonSubsumer'. However, instead
+		// of stopping at the first one that is found, we continue until all roots of the
+		// hyponymy DAG are reached.
+		// 
+		// We must be careful to include only LCAs in the
+		// result set. So for any ancestor that we find during the traversal, we must make
+		// sure that it doesn't have a descendant which is LCA of synset1 and synset2. Depending
+		// on the structure of the sub-graph that we are examining we may reach an ancestor
+		// 'X' that is not an LCA but before we have examined the path which contains a the actual
+		// LCA. The key observation in the following algorithm is that we will eventually 
+		// examine that path at which point we can invalidate X as an LCA and remove it from
+		// the result set. 
+		//
+		// All atoms reachable from an already found ancestor are ancestors also and could
+		// potentially be reached from other paths and added as candidate LCAs. So we need
+		// to keep track of all of them. 
+		// 
+		// Consider the set 'A' of all common ancestors to synset1 and synset2. This set
+		// can be partitioned into the set 'R' of all LCAs (the result set) and the set 'I' 
+		// of all the other ancestors which are not LCAs (the "invalid" set). So the algorithm
+		// here maintains both the sets R and I in such a way that at the end
+		// R contains only LCAs. R is represented by the variable 'result' and I by the variable
+		// 'invalid'. When a common ancestor X is found below, the two set are updated as follows:
+		//
+		// if X's sibling in the Isa link is in I or R then
+		// 		add X to I
+		//      if X is in R, remove from there
+		// else if X itself is not in I or R then
+		//	    add X to R
+		//
+		// Essentially, the first time an atom is found to be an ancestor, we add it to the
+		// result set tentatively. We then keep adding its own ancestors to the set of invalid
+		// ones. And as soon as an atom is found to be a parent of something already examined
+		// it is added as an invalid ancestors and removed as a candidate of the result set.
+		// Maybe to much explanation for something not so complicated, but anyway...
+		
+		Set<HGHandle> invalid = new HashSet<HGHandle>();
 		
 		HGTraversal t1 = new HGBreadthFirstTraversal(synset1, wn.isaRelatedGenerator(false, true));
 		HGTraversal t2 = new HGBreadthFirstTraversal(synset2, wn.isaRelatedGenerator(false, true));
 		
-		while (t1.hasNext() && t2.hasNext())
+		while (true)
 		{
-			Pair<HGHandle, HGHandle> x = t1.next();
-			Pair<HGHandle, HGHandle> y = t2.next();
-			
-			if (t1.isVisited(y.getSecond()))
-				result.add(y.getSecond());
-			else if (t2.isVisited(x.getSecond()))
-				result.add(x.getSecond());
+			if (t1.hasNext())
+			{
+				Pair<HGHandle, HGHandle> x = t1.next();
+				if (t2.isVisited(x.getSecond()))
+				{
+					HGHandle sibling = ((HGLink)graph.getHandle(x.getFirst())).getTargetAt(0);
+					if (invalid.contains(sibling) || result.contains(sibling))
+					{
+						invalid.add(x.getSecond());
+						result.remove(x.getSecond());
+					}
+					else if (!invalid.contains(x.getSecond()) && !result.contains(x.getSecond()))
+						result.add(x.getSecond());
+				}
+			}
+			else if (!t2.hasNext())
+				break;
+			if (t2.hasNext())
+			{
+				Pair<HGHandle, HGHandle> x = t2.next();			
+				if (t1.isVisited(x.getSecond()))
+				{
+					HGHandle sibling = ((HGLink)graph.getHandle(x.getFirst())).getTargetAt(0);
+					if (invalid.contains(sibling) || result.contains(sibling))
+					{
+						invalid.add(x.getSecond());
+						result.remove(x.getSecond());
+					}
+					else if (!invalid.contains(x.getSecond()) && !result.contains(x.getSecond()))
+						result.add(x.getSecond());					
+				}
+			}
 		}
 		
 		return result;

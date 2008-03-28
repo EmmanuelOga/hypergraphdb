@@ -6,9 +6,13 @@ import org.hypergraphdb.*;
 import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.query.impl.TraversalBasedQuery;
 import org.hypergraphdb.util.Pair;
+import org.hypergraphdb.algorithms.GraphClassics;
+import org.hypergraphdb.algorithms.HGALGenerator;
 import org.hypergraphdb.algorithms.HGBreadthFirstTraversal;
 import org.hypergraphdb.algorithms.HGTraversal;
 import org.hypergraphdb.app.wordnet.data.*;
+import org.hypergraphdb.app.wordnet.stats.NounIsaDepth;
+import org.hypergraphdb.app.wordnet.stats.VerbIsaDepth;
 
 public class SemTools
 {
@@ -170,8 +174,7 @@ public class SemTools
 						result.add(x.getSecond());					
 				}
 			}
-		}
-		
+		}		
 		return result;
 	}
 	
@@ -208,18 +211,174 @@ public class SemTools
 		return null;
 	}
 	
-	public double getPathSimilarity(HGHandle s1, HGHandle s2)
+	/**
+	 * <p>Return the shortest number of ISA edges connecting two synsets or
+	 * -1 if they are not connected. Note that noun senses are always connected, but
+	 * verb senses not necessarily. The <code>Similar</code> will be used for adjectives
+	 * and adverbs are not supported.</p>
+	 */
+	public long getPathLength(HGHandle s1, HGHandle s2)
 	{
-		return 0.0;
+		SynsetLink x = graph.get(s1);
+		SynsetLink y = graph.get(s2);
+		if (!x.getClass().equals(y.getClass()))
+			throw new IllegalArgumentException("Can't calculate path b/w different parts of speech.");
+		HGALGenerator gen = null;
+		if (x instanceof NounSynsetLink || x instanceof VerbSynsetLink)
+			gen = wn.isaRelatedGenerator(true, true);
+		else if (x instanceof AdjSynsetLink)
+			gen = wn.relatedGenerator(Similar.class);
+		else
+			throw new IllegalArgumentException("Unsupported SynsetLink type for path length: " + x.getClass().getName());
+		Double r = GraphClassics.dijkstra(s1, s2, gen);
+		if (r == null)
+			return -1;
+		else
+			return r.longValue();
 	}
 	
+	/**
+	 * <p>
+	 * Calculate the Wu-Palmer similarity measure between two concepts. Because this
+	 * measure assumes a taxonomy DAG (Directed-Acyclic-Graph) organization of the concepts,
+	 * it only works for nouns and verb as they exhibit such an organization via IS-A
+	 * relationships. The synsets s1 and s2 must be of the same type (either verb or noun
+	 * sysnets). 
+	 * </p>
+	 * 
+	 * <p>
+	 * The measure is calculated by: <code>2*depth(lcs(s1, s2))/(depth(s1) + depth(s2))</code>
+	 * where depth(x) is the number of edges from the root of the taxonomy to the concept x and
+	 * lcs(s1,s2) is the least-common-subsumer of the two concepts s1 and s2. When s1 and
+	 * </p>
+	 *
+	 * <p>
+	 * If s1 == s2 then Double.MAX_VALUE is returned.
+	 * </p> 
+	 */
 	public double getWuPalmerSimilarity(HGHandle s1, HGHandle s2)
 	{
-		return 0.0;
+		SynsetLink x = graph.get(s1);
+		SynsetLink y = graph.get(s2);
+		if (!x.getClass().equals(y.getClass()))
+			throw new IllegalArgumentException("Can't calculate similarity b/w different parts of speech.");
+		HGHandle root = null;
+		if (x instanceof NounSynsetLink)
+			root = wn.getNounIsaRoot();
+		else if (x instanceof VerbSynsetLink)
+			root = wn.getVerbIsaRoot();
+		else
+			throw new IllegalArgumentException("Can only calculate Wu-Palmer similarity for nouns or verbs.");
+		
+		long xdepth = wn.getIsaDepth(s1, root);
+		long ydepth = wn.getIsaDepth(s2, root);
+		
+		if (xdepth == -1 || ydepth == -1)
+			return 0.0;
+		
+		Set<HGHandle> lcsSet = getAllLeastCommonSubsumers(s1, s2);
+		double result = 0.0;
+		double xydepths = xdepth + ydepth;
+		for (HGHandle lcs : lcsSet)
+		{
+			long d = wn.getIsaDepth(lcs, root);
+			if (d > 0)
+				result = Math.max(result, 2.0*(double)d/xydepths);
+		}
+		return result;
 	}
 	
+	/**
+	 * <p>
+	 * Calculate the Leacock-Chodorow similarty between two senses in WordNet. This
+	 * measure assumes a hierarchically organized taxonomy and therefore works
+	 * only for noun and verb senses. The synsets s1 and s2 must be of the same type 
+	 * (either verb or noun sysnets). 
+	 * </p>
+	 * 
+	 * <p>
+	 * The measure calculates <code>-Log[dist(s1,s2)/(2*taxonomyDepth)]</code>
+	 * where <code>taxonomyDepth</code> is the longest distance between the root
+	 * and any leaf and <code>dist(s1, s2)</code> is the shortest distance between
+	 * s1 and s2. The denominator is a scaling factor.
+	 * </p>
+	 *
+	 * <p>
+	 * If s1 == s2 then Double.MAX_VALUE is returned.
+	 * </p>
+	 */
 	public double getLeacockChodorowSimilarity(HGHandle s1, HGHandle s2)
 	{
-		return 0.0;
+		long pathLength = getPathLength(s1, s2);
+		if (pathLength == -1)
+			return Double.MAX_VALUE;
+		else
+		{			
+			SynsetLink x = graph.get(s1);
+			WNStat<Long> depthStatistic;
+			if (x instanceof NounSynsetLink)			
+				depthStatistic = wn.getStatistic(NounIsaDepth.class);
+			else if (x instanceof VerbSynsetLink)
+				depthStatistic = wn.getStatistic(VerbIsaDepth.class);
+			else
+				throw new IllegalArgumentException(
+						"Can't calculate measure because the taxonomy doesn't have a max-depth statistic for this type of synset: " 
+						+ x.getClass().getName());
+			if (!depthStatistic.isCalculated())
+				depthStatistic.calculate();
+			return -Math.log((double)pathLength/2*depthStatistic.getValue());
+		}
 	}
+	
+	/**
+	 * <p>
+	 * Compute the Resnik similarity between two synsets that are either both verbs or nouns.
+	 * The formula is <code>InformationContent(LeastCommonSubsumer(s1, s2))</code>. Where there
+	 * is more than on LCS (a.k.a. L(east)C(ommon)A(ncestor)), the max over all of them is taken. 
+	 * </p>
+	 */
+	public double getResnikSimilarity(HGHandle s1, HGHandle s2)
+	{
+		Set<HGHandle> lcsSet = getAllLeastCommonSubsumers(s1, s2);
+		double result = 0.0;
+		for (HGHandle h : lcsSet)
+			result = Math.max(result, getInformationContent(h));
+		return result;
+	}
+	
+	/**
+	 * <p>
+	 * Compute the Jiang-Conrath similarity between two synsets that are either both verbs or nouns.
+	 * The formula is <code>1/[IC(s1) + IC(s2) - 2*IC(LCS(s1, s2))]</code>. IC refers to information
+	 * content and LCS to least common subsumer. Where there
+	 * is more than on LCS (a.k.a. L(east)C(ommon)A(ncestor)), the max of IC(LCS(s1, s2))
+	 * over all of them is taken. 
+	 * </p>
+	 */
+	public double getJiangConrathSimilarity(HGHandle s1, HGHandle s2)
+	{
+		Set<HGHandle> lcsSet = getAllLeastCommonSubsumers(s1, s2);
+		double ics = 0.0;
+		for (HGHandle h : lcsSet)
+			ics = Math.max(ics, getInformationContent(h));
+		return 1.0/(getInformationContent(s1) + getInformationContent(s2) - 2*ics);
+	}
+
+	/**
+	 * <p>
+	 * Compute the Lin similarity between two synsets that are either both verbs or nouns.
+	 * The formula is <code>2*IC(LCS(s1,s2))/(IC(s1) + IC(s2))</code>. IC refers to information
+	 * content and LCS to least common subsumer. Where there
+	 * is more than on LCS (a.k.a. L(east)C(ommon)A(ncestor)), the max of IC(LCS(s1,s2))
+	 * over all of them is taken. 
+	 * </p>
+	 */	
+	public double getLinSimilarity(HGHandle s1, HGHandle s2)
+	{
+		Set<HGHandle> lcsSet = getAllLeastCommonSubsumers(s1, s2);
+		double ics = 0.0;
+		for (HGHandle h : lcsSet)
+			ics = Math.max(ics, getInformationContent(h));
+		return 2.0*ics/(getInformationContent(s1) + getInformationContent(s2));
+	}	
 }

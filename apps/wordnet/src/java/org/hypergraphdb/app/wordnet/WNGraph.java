@@ -1,14 +1,20 @@
 package org.hypergraphdb.app.wordnet;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGHandleFactory;
+import org.hypergraphdb.HGPersistentHandle;
+import org.hypergraphdb.HGSearchResult;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.app.wordnet.data.*;
+import org.hypergraphdb.atom.HGAtomSet;
 import org.hypergraphdb.algorithms.*;
 import org.hypergraphdb.query.HGAtomPredicate;
+import org.hypergraphdb.util.HGUtils;
 
 /**
  * 
@@ -23,6 +29,9 @@ import org.hypergraphdb.query.HGAtomPredicate;
 public class WNGraph
 {
 	private HyperGraph graph;
+	private Map<Class<? extends WNStat<?>>, WNStat<?>> stats = new HashMap<Class<? extends WNStat<?>>, WNStat<?>>();
+	
+	private static final HGPersistentHandle VERB_ISA_ROOT = HGHandleFactory.makeHandle("ec0de085-4ed6-4b73-b520-cb21406c1881");
 	
 	public WNGraph(HyperGraph graph)
 	{
@@ -35,6 +44,200 @@ public class WNGraph
 	public HyperGraph getGraph() 
 	{
 		return graph;
+	}
+
+	/**
+	 * <p>
+	 * Return the value of a global WordNet statistic by its type or null if that statistic
+	 * hasn't been calculated yet. 
+	 * </p>
+	 * 
+	 * @param <T>
+	 * @param type
+	 * @return
+	 */
+	public synchronized <T> T getStatisticValue(Class<? extends WNStat<T>> type)
+	{
+		return getStatistic(type).getValue();
+	}
+	
+	/**
+	 * <p>
+	 * Return the instance of a global WordNet statistic by its type. A new instance will
+	 * be created and added to the HyperGraphDB if it doesn't already exist. Note that
+	 * the statistic will <b>NOT</b> automatically calculated. If you have not previously
+	 * triggered a calculation of the statistic and want to lazily calculate it as soon
+	 * as it is needed, call its <code>isCalculated</code> to check and trigger the 
+	 * calculation on the spot.
+	 * </p>
+	 * 
+	 * @param <T>
+	 * @param type
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")	
+	public synchronized <T> WNStat<T> getStatistic(Class<? extends WNStat<T>> type)
+	{
+		WNStat<T> s = (WNStat<T>)stats.get(type);		
+		if (s == null)
+		{
+			s = hg.getOne(graph, hg.type(type));
+			if (s == null)
+				try
+				{
+					s = (WNStat<T>)type.newInstance();
+					s.setHyperGraph(graph);
+					graph.add(s);
+				}
+				catch (Exception ex)
+				{
+					throw new RuntimeException(ex);
+				}
+			stats.put(type, s);			
+		}
+		return s;
+	}
+	
+	/**
+	 * <p>
+	 * Find the top-level ancestor of node in an IS-A hierarchy. Note that this
+	 * doesn't perform any cycle detection - it could loop forever if the underlying
+	 * graph structure is not a DAG.
+	 * </p>
+	 * 
+	 * @param synset A sense participating in an IS-A hierarchy.
+	 * @return The top-level ancestor of <code>synset</code>
+	 */
+	public HGHandle findIsaRoot(HGHandle synset)
+	{
+		HGALGenerator gen = isaRelatedGenerator(false, true);
+	    while (true)
+	    {
+	    	HGSearchResult<HGHandle> rs = gen.generate(synset);
+	    	try
+	    	{
+		    	if (!rs.hasNext()) 
+		    		return synset;
+		        synset = rs.next();
+	    	}
+	    	finally
+	    	{
+				HGUtils.closeNoException(rs);
+	    	}
+	    }	
+	}
+	
+	/**
+	 * <p>
+	 * Assuming <code>synset</code> is a descendant of <code>root</code> in an IS-A
+	 * hierarchy, finding the distance between them.
+	 * </p>
+	 * 
+	 * <p>
+	 * In case the method finds out that <code>synset</code> is not a descendent of 
+	 * <code>root</code>, then <code>-1</code> is returned. 
+	 * </p>
+	 * 
+	 * @param synset The descendant.
+	 * @param root The root.
+	 * @return The distance between <code>synset</code> and <code>root</code> in an IS-A DAG.
+	 */
+	public long getIsaDepth(HGHandle synset, HGHandle root)
+	{
+		HGALGenerator gen = isaRelatedGenerator(false, true);
+		Double r = GraphClassics.dijkstra(synset, root, gen);
+		if (r == null)
+			return -1;
+		else
+			return r.longValue();
+	}
+	
+	/**
+	 * <p>
+	 * Retrieve the root of the noun ISA hierarchy. Recent versions of WordNet have the word
+	 * "entity" mapped in a single synset which is the top-level noun sense.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public HGHandle getNounIsaRoot()
+	{
+		HGHandle wh = hg.findOne(graph, hg.and(hg.type(Word.class), hg.eq("lemma", "entity")));
+		return hg.findOne(graph, hg.and(hg.type(NounSynsetLink.class), hg.incident(wh)));
+	}
+	
+	/** 
+	 * <p>Return the root verb sense of the IS-A hierarchy. Unlike nouns, WordNet
+	 * doesn't define a top-level verb sense (simply because there isn't a good enough
+	 * candidate in the English vocabulary). However, for computational purposes we
+	 * can connect all top-level nodes in the verb IS-A DAG to a single root.</p>
+	 * 
+	 * <p>
+	 * This method will return the dummy verb sense that serves as the top-level node.
+	 * If it hasn't been already create, it will create and connect it to all existing
+	 * top-level nodes. Which, of course, is somewhat computational intensive.
+	 * </p>
+	 */
+	public HGHandle getVerbIsaRoot()
+	{
+		if (graph.get(VERB_ISA_ROOT) != null)
+			return VERB_ISA_ROOT;
+		
+		// Otherwise, we have to find all roots, add the VERB_ISA_ROOT as an
+		// empty synset and connect them to it.
+		HGAtomSet verbRoots = new HGAtomSet();
+		HGAtomSet visited = new HGAtomSet();
+		HGALGenerator gen = isaRelatedGenerator(false, true);
+		HGSearchResult<HGHandle> rs = graph.find(hg.type(VerbSynsetLink.class));
+		try
+		{
+			while (rs.hasNext())
+			{
+				HGHandle current = rs.next();
+				if (visited.contains(current))
+					continue;				
+			    while (true)
+			    {
+			    	visited.add(current);
+			    	HGSearchResult<HGHandle> siblings = gen.generate(current);
+			    	try
+			    	{
+				    	if (!siblings.hasNext()) 
+				    	{
+				    		verbRoots.add(current);
+				    		break;
+				    	}
+				        current = rs.next();
+				        if (visited.contains(current))
+				        	break;
+			    	}
+			    	finally
+			    	{
+						HGUtils.closeNoException(rs);
+			    	}
+			    }				
+			}
+		}
+		finally
+		{
+			HGUtils.closeNoException(rs);			
+		}
+		
+		graph.getTransactionManager().beginTransaction();
+		try
+		{
+			VerbSynsetLink theroot = new VerbSynsetLink();
+			graph.define(VERB_ISA_ROOT, theroot, null);
+			for (HGHandle r : verbRoots)
+				graph.add(new KindOf(r, (HGHandle)VERB_ISA_ROOT));
+			graph.getTransactionManager().endTransaction(true);
+		}
+		catch (Throwable t)
+		{
+			try { graph.getTransactionManager().endTransaction(false); }
+			catch (Throwable tt) { }
+		}
+		return VERB_ISA_ROOT;
 	}
 	
 	/**
@@ -65,6 +268,15 @@ public class WNGraph
 			}
 		};
 		return new DefaultALGenerator(graph, pred, null, returnChildren, returnParents, false);
+	}
+
+	/**
+	 * <p>Get a generator for a symmetric semantic relationship (such as the <code>Similar</code>
+	 * relationships between adjective senses.</p>
+	 */
+	public HGALGenerator relatedGenerator(Class<? extends SemanticLink> type)
+	{
+		return new DefaultALGenerator(graph, hg.type(type), null, true, true, false);
 	}
 	
 	/**

@@ -12,4 +12,8 @@ public class VerbSynsetLink extends SynsetLink{
 		super(targets);
 	}
 	
+	public String toString()
+	{
+		return "Verb(" + getGloss() + ")";
+	}	
 }

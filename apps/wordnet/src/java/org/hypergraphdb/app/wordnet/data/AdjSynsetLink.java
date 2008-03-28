@@ -12,4 +12,8 @@ public class AdjSynsetLink extends SynsetLink{
 		super(targets);
 	}
 
+	public String toString()
+	{
+		return "Adjective(" + getGloss() + ")";
+	}
 }

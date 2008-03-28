@@ -12,5 +12,8 @@ public class AdverbSynsetLink extends SynsetLink{
 		super(targets);
 	}
 
-	
+	public String toString()
+	{
+		return "Adverb(" + getGloss() + ")";
+	}	
 }

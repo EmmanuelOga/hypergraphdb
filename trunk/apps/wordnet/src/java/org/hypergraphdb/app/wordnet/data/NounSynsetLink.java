@@ -12,4 +12,8 @@ public class NounSynsetLink extends SynsetLink{
 		super(targets);
 	}
 
+	public String toString()
+	{
+		return "Noun(" + getGloss() + ")";
+	}	
 }

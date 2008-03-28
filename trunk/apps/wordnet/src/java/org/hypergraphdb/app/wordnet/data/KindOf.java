@@ -24,7 +24,7 @@ public class KindOf extends Isa
 		super();
 	}
 
-	public KindOf(HGHandle[] outgoingSet) 
+	public KindOf(HGHandle...outgoingSet) 
 	{
 		super(outgoingSet);
 	}

@@ -2,6 +2,15 @@ package org.hypergraphdb.app.wordnet.data;
 
 import org.hypergraphdb.HGHandle;
 
+/**
+ * 
+ * <p>
+ * States a similarity relation between two adjective synset.
+ * </p>
+ *
+ * @author Borislav Iordanov
+ *
+ */
 public class Similar extends SemanticLink
 {
 

@@ -22,6 +22,7 @@ import net.didion.jwnl.data.VerbFrame;
 import net.didion.jwnl.data.Word;
 import net.didion.jwnl.dictionary.Dictionary;
 
+import org.hypergraphdb.HGEnvironment;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGIndex;
 import org.hypergraphdb.HGPersistentHandle;
@@ -406,5 +407,27 @@ public class HGWordNetLoader
 			graph.add(link);
 			n_vlinks++;
 		}
-	}	
+	}
+	
+	public static void main(String [] args)
+	{
+		if (args.length < 2)
+		{
+			System.out.println("Usage: HGWordnetLoader dictionaryLocation hypergraphDBLocation");
+			System.exit(0);
+		}		
+		HGWordNetLoader loader = new HGWordNetLoader();
+		loader.setDictionaryLocation(args[0]);
+		try
+		{
+			HyperGraph graph = HGEnvironment.get(args[1]);
+			System.out.println("Loading WordNet to " + args[1] + " from dictionary " + args[0]);
+			loader.loadWordNet(graph);
+			System.out.println("WordNet sucessfully loaded.");
+		}
+		catch (Throwable t)
+		{
+			t.printStackTrace();
+		}
+	}
 }

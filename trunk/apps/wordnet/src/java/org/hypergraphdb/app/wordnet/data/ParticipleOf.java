@@ -4,7 +4,6 @@ import org.hypergraphdb.HGHandle;
 
 public class ParticipleOf extends SemanticLink
 {
-
 	public ParticipleOf() {
 		super();
 	}
@@ -12,5 +11,4 @@ public class ParticipleOf extends SemanticLink
 	public ParticipleOf(HGHandle[] outgoingSet) {
 		super(outgoingSet);
 	}
-
 }

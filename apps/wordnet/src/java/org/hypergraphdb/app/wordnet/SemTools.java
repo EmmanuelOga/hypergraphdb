@@ -36,6 +36,16 @@ public class SemTools
 		this.wn = new WNGraph(graph);
 	}
 	
+	public WNGraph getWNGraph()
+	{
+		return wn;
+	}
+	
+	public HyperGraph getGraph()
+	{
+		return graph;
+	}
+	
 	/**
 	 * <p>Compute and return a WordNet-intrinsic information content
 	 * measure for a synset. The measure is computed according to 
@@ -125,7 +135,7 @@ public class SemTools
 		//
 		// if X's sibling in the Isa link is in I or R then
 		// 		add X to I
-		//      if X is in R, remove from there
+		//      if X is in R, remove it from there
 		// else if X itself is not in I or R then
 		//	    add X to R
 		//
@@ -380,5 +390,6 @@ public class SemTools
 		for (HGHandle h : lcsSet)
 			ics = Math.max(ics, getInformationContent(h));
 		return 2.0*ics/(getInformationContent(s1) + getInformationContent(s2));
-	}	
+	}
+	 
 }

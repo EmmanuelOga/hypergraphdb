@@ -5,7 +5,7 @@ import org.hypergraphdb.HGHandle;
 /**
  * 
  * <p>
- * States a similarity relation between two adjective synset.
+ * States a similarity relation between two adjective synsets.
  * </p>
  *
  * @author Borislav Iordanov

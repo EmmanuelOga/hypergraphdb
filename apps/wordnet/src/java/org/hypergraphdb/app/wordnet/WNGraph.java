@@ -311,4 +311,34 @@ public class WNGraph
 							   	      leftToRight ? HGHandleFactory.anyHandle : synset))
 				));
 	}
+	
+	public List<HGHandle> getSenses(HGHandle word, HGHandle senseType)
+	{
+		return hg.findAll(graph, hg.and(hg.type(senseType), hg.incident(word)));
+	}
+	
+	public List<HGHandle> getSenses(HGHandle word, Class<? extends SynsetLink> type)
+	{
+		return hg.findAll(graph, hg.and(hg.type(type), hg.incident(word)));
+	}	
+	
+	public List<HGHandle> getNounSenses(HGHandle word)
+	{
+		return getSenses(word, NounSynsetLink.class);
+	}
+
+	public List<HGHandle> getVerbSenses(HGHandle word)
+	{
+		return getSenses(word, VerbSynsetLink.class);
+	}
+	
+	public List<HGHandle> getAdverbSenses(HGHandle word)
+	{
+		return getSenses(word, AdverbSynsetLink.class);
+	}
+	
+	public List<HGHandle> getAdjSenses(HGHandle word)
+	{
+		return getSenses(word, AdjSynsetLink.class);
+	}	
 }

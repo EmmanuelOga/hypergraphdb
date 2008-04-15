@@ -117,4 +117,20 @@ public class URILocator implements Locator
 	{
 		return toExternalForm();
 	}
+	
+	public int hashCode()
+	{
+		if (uri == null) return 0;
+		else return uri.hashCode();
+	}
+	
+	public boolean equals(Object o)
+	{
+		if (! (o instanceof URILocator)) return false;
+		URILocator x = (URILocator)o;
+		if (uri == null)
+			return x.uri == null;
+		else
+			return uri.equals(x.uri);
+	}
 }

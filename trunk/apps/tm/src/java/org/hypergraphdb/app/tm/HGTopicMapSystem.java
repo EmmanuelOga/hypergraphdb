@@ -41,13 +41,26 @@ public final class HGTopicMapSystem implements TopicMapSystem
 			graph.close();
 	}
 
+	public Locator toLocator(String reference)
+	{
+		return U.ensureLocator(graph, null, reference);
+	}
+
+	public Locator toLocator(String base, String reference)
+	{
+		return U.ensureLocator(graph, base, reference);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public <T extends TopicMapObject> T locate(Locator itemIdentifier)
 	{
+		HGHandle lh = graph.getHandle(itemIdentifier);
+		if (lh == null)
+			lh = U.ensureLocator(graph, itemIdentifier); 
 		return (T)
 				U.getOneRelated(graph, 
 							    HGTM.hSourceLocator, 
-							    U.ensureLocator(graph, itemIdentifier), 
+							    lh, 
 							    null);
 	}
 	
@@ -60,10 +73,13 @@ public final class HGTopicMapSystem implements TopicMapSystem
 	@SuppressWarnings("unchecked")
 	public <T extends TopicMapObject> T locateByIndicator(Locator subjectIdentifier)
 	{
+		HGHandle lh = graph.getHandle(subjectIdentifier);
+		if (lh == null)
+			lh = U.ensureLocator(graph, subjectIdentifier);
 		return (T)
 				U.getOneRelated(graph, 
 							    HGTM.hSubjectIdentifier, 
-							    U.ensureLocator(graph, subjectIdentifier), 
+							    lh, 
 							    null);
 	}
 	
@@ -76,10 +92,13 @@ public final class HGTopicMapSystem implements TopicMapSystem
 	@SuppressWarnings("unchecked")
 	public <T extends TopicMapObject> T locateBySubject(Locator subjectLocator)
 	{
+		HGHandle lh = graph.getHandle(subjectLocator);
+		if (lh == null)
+			lh = U.ensureLocator(graph, subjectLocator);
 		return (T)
 				U.getOneRelated(graph, 
 							    HGTM.hSubjectLocator, 
-							    U.ensureLocator(graph, subjectLocator), 
+							    lh, 
 							    null);
 	}
 	
@@ -105,6 +124,7 @@ public final class HGTopicMapSystem implements TopicMapSystem
 		result.setBaseLocator(l);
 		result.graph = graph;
 		graph.add(result);
+		result.system = this;
 		return result;
 	}
 

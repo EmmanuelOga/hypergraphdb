@@ -104,6 +104,11 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 		addOccurrence(result, type, scope);
 		return result;
 	}
+	
+	public HGTopicName createTopicName(String value)
+	{
+		return createTopicName(value, (Collection)null);
+	}
 
 	public HGTopicName createTopicName(String value, Collection scope) throws MergeException
 	{
@@ -208,6 +213,14 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 		return names;
 	}
 
+	public HGTopicName getDefaultName()
+	{
+		for (HGTopicName name : getTopicNames())
+			if (name.getScope().isEmpty())
+				return name;
+		return null;
+	}
+	
 	public HGTopic getType()
 	{
 		getTypes();
@@ -251,6 +264,24 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 				result.add(occ);
 		}
 		return result;
+	}
+
+	/**
+	 * 
+	 * <p>
+	 * Get a single occurrence with the specified type.
+	 * </p>
+	 *
+	 * @param type The type of the occurrence.
+	 * @return
+	 */
+	public HGOccurrence getOccurrence(Topic type)
+	{
+		Set<HGOccurrence> result = getOccurrencesByType(type);
+		if (result.size() > 0)
+			return result.iterator().next();
+		else
+			return null;
 	}
 	
 	public void mergeIn(Topic other) throws MergeException

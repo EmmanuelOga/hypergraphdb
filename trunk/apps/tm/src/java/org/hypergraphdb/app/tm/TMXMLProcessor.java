@@ -1312,7 +1312,7 @@ public class TMXMLProcessor
 			x.appendChild(parentEl.getOwnerDocument().createTextNode(occ.getValue()));
 			oe.appendChild(x);
 		}
-		else
+		else if (occ.getResource() != null)
 		{
 			Element x = parentEl.getOwnerDocument().createElement("resourceRef");
 			x.setAttribute("xlink:href", getLocalRef(iri, occ.getResource().toExternalForm()));

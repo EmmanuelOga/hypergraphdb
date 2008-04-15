@@ -30,11 +30,22 @@
         </fileset>
 		<pathelement path="${java.class.path}" />
 	</path>
+
+	<path id="tm-classpath">
+        <fileset dir="tm/jars">
+            <include name="**/*.jar"/>
+        </fileset>    
+        <fileset dir="../.">
+            <include name="**/*.jar"/>
+        </fileset>
+		<pathelement path="${java.class.path}" />
+	</path>
     
     <target name="init">
 		<mkdir dir="${build}"/>
         <mkdir dir="${build}/management"/>
         <mkdir dir="${build}/wordnet"/>
+        <mkdir dir="${build}/tm"/>
         <mkdir dir="${build}/xsd"/>
     </target>
     
@@ -45,10 +56,27 @@
 
 	<target name="wordnet" depends="init" description="Build HyperGraphDB WordNet Jar">
 		<javac source="1.5" classpathref="wordnet-classpath" debug="${debug}" destdir="${build}/wordnet" srcdir="wordnet/src/java"/>
+        <copy todir="${build}/wordnet">
+          <fileset dir="wordnet/src/java">
+            <include name="**/*.xml"/>            
+            <include name="**/*.properties"/>
+          </fileset>
+        </copy>        
 		<jar basedir="${build}/wordnet" jarfile="${jars}/hgdbwordnet.jar">
             <zipfileset src="wordnet/jars/jwnl.jar"/>
             <zipfileset src="wordnet/jars/utilities.jar"/>
         </jar>
+	</target>
+
+	<target name="tm" depends="init" description="Build HyperGraphDB TopicMaps Jar">
+		<javac source="1.5" classpathref="tm-classpath" debug="${debug}" destdir="${build}/tm" srcdir="tm/src/java"/>
+        <copy todir="${build}/wordnet">
+          <fileset dir="tm/src/java">
+            <include name="**/*.xml"/>            
+            <include name="**/*.properties"/>
+          </fileset>
+        </copy>        
+		<jar basedir="${build}/tm" jarfile="${jars}/tmhgdb.jar"/>
 	</target>
     
 	<target name="xsd" depends="init" description="Build HyperGraphDB XSD Jar">
@@ -63,4 +91,16 @@
 		<delete dir="${build}" />
 	</target>
 
+    <target description="Load WordNet into a HyperGraphDB instance." name="loadWordNet">
+        <echo message="Starting WordNet Loader with args ${dictionaryPath} ${hypergraphDBLocation}"/>
+        <java classname="org.hypergraphdb.app.wordnet.HGWordNetLoader" fork="true">
+            <env key="PATH" value="c:/work/hg/core/lib/native/windows"/>                        
+            <arg value="${dictionaryPath}"/>
+            <arg value="${hypergraphDBLocation}"/>
+            <classpath>
+                <path refid="wordnet-classpath"/>
+                <pathelement location="${jars}/hgdbwordnet.jar"/>
+            </classpath>            
+        </java>
+    </target>
 </project>

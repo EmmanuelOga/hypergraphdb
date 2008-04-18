@@ -11,13 +11,26 @@ import org.hypergraphdb.algorithms.HGALGenerator;
 import org.hypergraphdb.algorithms.HGBreadthFirstTraversal;
 import org.hypergraphdb.algorithms.HGTraversal;
 import org.hypergraphdb.app.wordnet.data.*;
+import org.hypergraphdb.app.wordnet.ext.ConceptualDensity;
 import org.hypergraphdb.app.wordnet.stats.NounIsaDepth;
 import org.hypergraphdb.app.wordnet.stats.VerbIsaDepth;
 
+/**
+ * 
+ * <p>
+ * A collection of functions to perform semantic analysis in WordNet. This mainly
+ * has to do with similarity measures needed to do WSD (word sense disambiguation)
+ * with WordNet as the lexical resources. 
+ * </p>
+ *
+ * @author Borislav Iordanov
+ *
+ */
 public class SemTools
 {
 	private HyperGraph graph;
 	private WNGraph wn;
+	private ConceptualDensity conceptualDensity = null;
 	
 	private long countNounDescendents(HGHandle s)
 	{
@@ -44,6 +57,13 @@ public class SemTools
 	public HyperGraph getGraph()
 	{
 		return graph;
+	}
+	
+	public ConceptualDensity getConceptualDensity()
+	{
+		if (conceptualDensity == null)
+			conceptualDensity = new ConceptualDensity(wn);
+		return conceptualDensity;
 	}
 	
 	/**
@@ -391,5 +411,4 @@ public class SemTools
 			ics = Math.max(ics, getInformationContent(h));
 		return 2.0*ics/(getInformationContent(s1) + getInformationContent(s2));
 	}
-	 
 }

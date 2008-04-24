@@ -312,6 +312,41 @@ public class WNGraph
 				));
 	}
 	
+	/**
+	 * <p>
+	 * Return a WordNet sense by its offset/id in the original WordNet files. Note that
+	 * this id is not stable across WordNet versions. However, in general, there is a way
+	 * to convert ids between consecutive versions so it's relatively safe to use it as
+	 * an identifier outside HyperGraphDB.
+	 * </p>
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public HGHandle getSenseById(long id)
+	{
+		return hg.findOne(graph, hg.and(hg.typePlus(SynsetLink.class), hg.eq("id", id)));
+	}
+	
+	/**
+	 * <p>Retrieve the sense type (i.e. the concrete <code>SynsetLink</code> type atom)
+	 * for a given part of speech.</p>
+	 * 
+	 * @param pos The part of speech.
+	 * @return the <code>HGHandle</code> of the type atom representing the sense type.
+	 */
+	public HGHandle getSenseType(Pos pos)
+	{
+		switch (pos)
+		{
+			case noun : return graph.getTypeSystem().getTypeHandle(NounSynsetLink.class);
+			case verb : return graph.getTypeSystem().getTypeHandle(VerbSynsetLink.class);
+			case adverb : return graph.getTypeSystem().getTypeHandle(AdverbSynsetLink.class);
+			case adjective : return graph.getTypeSystem().getTypeHandle(AdjSynsetLink.class);
+			default: return null;
+		}
+	}
+	
 	public List<HGHandle> getSenses(HGHandle word, HGHandle senseType)
 	{
 		return hg.findAll(graph, hg.and(hg.type(senseType), hg.incident(word)));

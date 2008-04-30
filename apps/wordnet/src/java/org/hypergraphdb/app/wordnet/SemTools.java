@@ -177,7 +177,7 @@ public class SemTools
 				Pair<HGHandle, HGHandle> x = t1.next();
 				if (t2.isVisited(x.getSecond()))
 				{
-					HGHandle sibling = ((HGLink)graph.getHandle(x.getFirst())).getTargetAt(0);
+					HGHandle sibling = ((HGLink)graph.get(x.getFirst())).getTargetAt(0);
 					if (invalid.contains(sibling) || result.contains(sibling))
 					{
 						invalid.add(x.getSecond());
@@ -194,7 +194,7 @@ public class SemTools
 				Pair<HGHandle, HGHandle> x = t2.next();			
 				if (t1.isVisited(x.getSecond()))
 				{
-					HGHandle sibling = ((HGLink)graph.getHandle(x.getFirst())).getTargetAt(0);
+					HGHandle sibling = ((HGLink)graph.get(x.getFirst())).getTargetAt(0);
 					if (invalid.contains(sibling) || result.contains(sibling))
 					{
 						invalid.add(x.getSecond());
@@ -245,7 +245,7 @@ public class SemTools
 	 * <p>Return the shortest number of ISA edges connecting two synsets or
 	 * -1 if they are not connected. Note that noun senses are always connected, but
 	 * verb senses not necessarily. The <code>Similar</code> will be used for adjectives
-	 * and adverbs are not supported.</p>
+	 * while adverbs are not supported.</p>
 	 */
 	public long getPathLength(HGHandle s1, HGHandle s2)
 	{
@@ -379,7 +379,7 @@ public class SemTools
 	/**
 	 * <p>
 	 * Compute the Jiang-Conrath similarity between two synsets that are either both verbs or nouns.
-	 * The formula is <code>1/[IC(s1) + IC(s2) - 2*IC(LCS(s1, s2))]</code>. IC refers to information
+	 * The formula is <code>1 - [IC(s1) + IC(s2) - 2*IC(LCS(s1, s2))]/2</code>. IC refers to information
 	 * content and LCS to least common subsumer. Where there
 	 * is more than on LCS (a.k.a. L(east)C(ommon)A(ncestor)), the max of IC(LCS(s1, s2))
 	 * over all of them is taken. 
@@ -391,7 +391,7 @@ public class SemTools
 		double ics = 0.0;
 		for (HGHandle h : lcsSet)
 			ics = Math.max(ics, getInformationContent(h));
-		return 1.0/(getInformationContent(s1) + getInformationContent(s2) - 2*ics);
+		return 1.0 -(getInformationContent(s1) + getInformationContent(s2) - 2.0*ics)/2.0;
 	}
 
 	/**

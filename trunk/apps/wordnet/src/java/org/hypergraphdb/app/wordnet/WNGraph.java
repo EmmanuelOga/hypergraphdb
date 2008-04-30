@@ -48,6 +48,19 @@ public class WNGraph
 
 	/**
 	 * <p>
+	 * Return the <code>HGHandle</code> of a WordNet <code>Word</code> instance given its lemma.
+	 * </p>
+	 * 
+	 * @param lemma
+	 * @return
+	 */
+	public HGHandle findWord(String lemma)
+	{
+		return hg.findOne(graph, hg.and(hg.type(Word.class), hg.eq("lemma", lemma)));
+	}
+	
+	/**
+	 * <p>
 	 * Return the value of a global WordNet statistic by its type or null if that statistic
 	 * hasn't been calculated yet. 
 	 * </p>

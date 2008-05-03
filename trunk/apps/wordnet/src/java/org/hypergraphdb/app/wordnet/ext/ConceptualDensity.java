@@ -44,9 +44,20 @@ public class ConceptualDensity
 			// adverb don't have much to offer in terms of semantic relationships
 			// the best we could is antonyms and also use similarity whenever
 			// the adverb is derived from an adjective.
-			DerivedFrom derivedFrom = 
-				hg.findOne(wn.getGraph(), hg.apply(hg.targetAt(wn.getGraph(), 0), 
-											hg.and(hg.type(DerivedFrom.class), hg.incident(synsetHandle))));
+			DerivedFrom derivedFrom = null;
+/*
+ *  broken code - DerivedFrom is actually a lexical relation, we can't do much with an adverb synset, except
+ *  
+ *  maybe looking at adjectives from which it is derived etc...or if we had some corpus data to get a list
+ *  of relevant words....
+ *   
+ * 
+ 				hg.findOne(wn.getGraph(), 
+						hg.apply(hg.deref(wn.getGraph()), 
+								 hg.apply(hg.targetAt(wn.getGraph(), 0), 
+						 		          hg.and(hg.type(DerivedFrom.class), hg.incident(synsetHandle)))));
+						 		          
+						 		          */
 			HGAtomPredicate linkPredicate = hg.type(Antonym.class);
 			if (derivedFrom != null)
 			{
@@ -220,7 +231,7 @@ public class ConceptualDensity
 		Map<Pair<HGHandle, HGHandle>, Pair<Double, Double>> result = 
 			new HashMap<Pair<HGHandle, HGHandle>, Pair<Double, Double>>();
 		List<HGHandle> xList = wn.getSenses(x, wn.getSenseType(xpos));
-		List<HGHandle> yList = wn.getSenses(x, wn.getSenseType(ypos));
+		List<HGHandle> yList = wn.getSenses(y, wn.getSenseType(ypos));
 		Map<HGHandle, Double> xtotals = normalize ? new HashMap<HGHandle, Double>(yList.size()) : null;
 		Map<HGHandle, Double> ytotals = normalize ? new HashMap<HGHandle, Double>(xList.size()) : null;
 		for (HGHandle xsense : xList)
@@ -249,9 +260,27 @@ public class ConceptualDensity
 			for (Map.Entry<Pair<HGHandle, HGHandle>, Pair<Double, Double>> e : result.entrySet())
 			{
 				Pair<Double, Double> p = e.getValue();
-				e.setValue(new Pair<Double, Double>(p.getFirst()/ytotals.get(e.getKey().getFirst()), 
-												    p.getSecond()/xtotals.get(e.getKey().getSecond())));
+				double xnormalize = ytotals.get(e.getKey().getFirst());
+				double ynormalize = xtotals.get(e.getKey().getSecond());
+				e.setValue(new Pair<Double, Double>(xnormalize == 0 ? 0 : p.getFirst()/xnormalize, 
+												    ynormalize == 0 ? 0 : p.getSecond()/ynormalize));
 			}
 		return result;
-	}	 
+	}
+	
+	/**
+	 * <p>
+	 * A convenience method to create a density map using the string names for parts of speech:
+	 * noun, verb, adverb and adjective.
+	 * </p>
+	 */
+	public Map<Pair<HGHandle, HGHandle>, Pair<Double, Double>> getDensityMap(HGHandle x, 
+																		     String xpos, 
+																		     HGHandle y, 
+																		     String ypos, 
+																		     String densityPos,
+																		     boolean normalize)
+    {
+		return getDensityMap(x, Pos.valueOf(xpos), y, Pos.valueOf(ypos), Pos.valueOf(densityPos), normalize);
+    }
 }

@@ -220,13 +220,13 @@ public class WNGraph
 				    		verbRoots.add(current);
 				    		break;
 				    	}
-				        current = rs.next();
+				        current = siblings.next();
 				        if (visited.contains(current))
 				        	break;
 			    	}
 			    	finally
 			    	{
-						HGUtils.closeNoException(rs);
+						HGUtils.closeNoException(siblings);
 			    	}
 			    }				
 			}
@@ -236,20 +236,10 @@ public class WNGraph
 			HGUtils.closeNoException(rs);			
 		}
 		
-		graph.getTransactionManager().beginTransaction();
-		try
-		{
-			VerbSynsetLink theroot = new VerbSynsetLink();
-			graph.define(VERB_ISA_ROOT, theroot, null);
-			for (HGHandle r : verbRoots)
-				graph.add(new KindOf(r, (HGHandle)VERB_ISA_ROOT));
-			graph.getTransactionManager().endTransaction(true);
-		}
-		catch (Throwable t)
-		{
-			try { graph.getTransactionManager().endTransaction(false); }
-			catch (Throwable tt) { }
-		}
+		VerbSynsetLink theroot = new VerbSynsetLink();
+		graph.define(VERB_ISA_ROOT, theroot, null);
+		for (HGHandle r : verbRoots)
+			graph.add(new KindOf(r, (HGHandle)VERB_ISA_ROOT));
 		return VERB_ISA_ROOT;
 	}
 	

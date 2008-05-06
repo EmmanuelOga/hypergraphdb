@@ -25,4 +25,14 @@ HGSearchResult<HGHandle> rs = graph.find(cond);
 // etc...
 }}}
 
-*It is very important* that HGSearchResult instances be closed properly and promptly (i.e. as soon as possible). They will generally hold an open cursor on the filesystem and must be closed like any other external resource, be it an open file or a socket connection, or an SQL result set. 
+*It is very important* that `HGSearchResult` instances be closed properly and promptly (i.e. as soon as possible). They will generally hold an open cursor on the filesystem and must be closed like any other external resource, be it an open file or a socket connection, or an SQL result set. And unlike the example above, as a good coding practice working with a `HGSearchResult` should always be enclosed in a `try ... finally` block:
+
+{{{
+HGSearchResult<HGHandle> rs = graph.find(cond);
+try { use rs here } 
+finally { HGUtils.closeNoException(rs); }
+}}}
+
+Note the use of `HGUtils.closeNoException' above. In the HGDB API, we've chosen not to throw any checked exceptions because it's annoying when you don't care about them. However, as with many other HGDB methods, a call the `HGSearchResult` may well throw an `HGException`. If you don't want that exception to propagate and interrupt your program, then the `HGUtils.closeNoException` is a convenient shorthand for code such as `try { rs.close(); } catch (Throwable t) { }`.
+
+The `HGQuery.hg` interface offers a few additional convenience methods to avoid having to 

@@ -37,7 +37,9 @@ Note the use of `HGUtils.closeNoException` above. In the HGDB API, we've chosen 
 
 The most common case of a deadlock in HGDB happens due to a non-closed search result set. Whenever a result set is not closed, it keeps a lock on some part of the database which makes it impossible to write data to that part. This can happen in a multithreaded as well as in a single-threaded application, but it mostly happens within a single thread! In multi-threaded applications, conflicts are resolved by repeatedly retrying transactions in a random order. Thus, if there is a thread scanning a result set while another thread is trying to write some data, the latter transaction will be retried until the result set from the former gets closed and the database unlocked. But in a single thread, an open result set followed by an attempt to write will lock indefinitely because there result set never gets the chance to close. For this reason, it is a good coding practice to first read all results that one cares about (e.g. in a Java collection), close the result set, and then continue with actual processing. 
 
-The `HGQuery.hg` interface offers a few additional convenience methods to avoid having to deal with `HGSearchResult`s:
+The `HGQuery.hg` interface offers a few additional convenience methods to avoid having to deal with `HGSearchResult`:
 
 || findOne || Retrieve the first item from the query result set ||
-|| getOne || Same as findOne, but implicitly dereference the HGHandle ||
+|| getOne || Same as findOne, but implicitly dereference the item, assuming it is a HGHandle ||
+|| findAll || Retrieve all results from a query and put them in a java.util.List ||
+|| getAll || Same as findAll, but implicitly dereference each item. ||

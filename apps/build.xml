@@ -18,7 +18,7 @@
         <fileset dir="wordnet/jars">
             <include name="**/*.jar"/>
         </fileset>    
-        <fileset dir="../.">
+        <fileset dir="../hgcore/.">
             <include name="**/*.jar"/>
         </fileset>
 		<pathelement path="${java.class.path}" />
@@ -27,6 +27,16 @@
 	<path id="xsd-classpath">
         <fileset dir="../.">
             <include name="**/*.jar"/>
+        </fileset>
+		<pathelement path="${java.class.path}" />
+	</path>
+
+	<path id="prolog-classpath">
+        <fileset dir="../hgcore/.">
+            <include name="**/*.jar"/>
+        </fileset>
+        <fileset dir=".">
+            <include name="hgdbmanagement.jar"/>
         </fileset>
 		<pathelement path="${java.class.path}" />
 	</path>
@@ -47,6 +57,7 @@
         <mkdir dir="${build}/wordnet"/>
         <mkdir dir="${build}/tm"/>
         <mkdir dir="${build}/xsd"/>
+        <mkdir dir="${build}/prolog"/>
     </target>
     
 	<target name="management" depends="init" description="Build HyperGraphDB Management Jar">
@@ -83,8 +94,13 @@
 		<javac source="1.5" classpathref="xsd-classpath" debug="${debug}" destdir="${build}/xsd" srcdir="xsd/src/java"/>
 		<jar basedir="${build}/xsd" jarfile="${jars}/hgdbxsd.jar"/>
 	</target>
+
+	<target name="prolog" depends="init" description="Build tuProlog Jar">
+		<javac source="1.5" classpathref="prolog-classpath" debug="${debug}" destdir="${build}/prolog" srcdir="prolog/src/java"/>
+		<jar basedir="${build}/prolog" jarfile="${jars}/hgdbtuprolog.jar"/>
+	</target>
     
-	<target name="all-jars" depends="management, wordnet, xsd"/>
+	<target name="all-jars" depends="management, wordnet, xsd, prolog"/>
 
 	<target description="clean up" name="clean">
 		<!-- Delete the ${build} and ${dist} directory trees -->

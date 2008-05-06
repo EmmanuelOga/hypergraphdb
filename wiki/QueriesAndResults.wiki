@@ -1,0 +1,9 @@
+#summary Idioms for working with queries and results.
+
+= Introduction =
+
+Here are a few idioms and code snippets that show how to do queries with HGDB and how to work with result sets. 
+
+= The Queries API =
+
+There is no query language for HGDB at the time of this writing, though we've outlined some ideas on TowardsAHyperGraphQueryLanguage page.

@@ -18,7 +18,7 @@
         <fileset dir="wordnet/jars">
             <include name="**/*.jar"/>
         </fileset>    
-        <fileset dir="../hgcore/.">
+        <fileset dir="../.">
             <include name="**/*.jar"/>
         </fileset>
 		<pathelement path="${java.class.path}" />
@@ -32,7 +32,7 @@
 	</path>
 
 	<path id="prolog-classpath">
-        <fileset dir="../hgcore/.">
+        <fileset dir="../.">
             <include name="**/*.jar"/>
         </fileset>
         <fileset dir=".">

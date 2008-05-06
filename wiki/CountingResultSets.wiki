@@ -1,3 +1,4 @@
+#summary A quick note about the first draft on counting result sets ===
 === A quick note about the first draft on counting result sets ===
 
 Counting result set is implemented by the `HGQuery.hg.count()` function. The supporting class at this time of writing is sort of a first, experimental version that is not very much tied to the rest of query processing where the optimization heuristics still don't use size estimate. It is called `ResultSizeEstimation` and it basically mimics the `ExpressionBasedQuery` implementation where each condition type is mapped to an implementation of a `Counter` interface that looks like this:

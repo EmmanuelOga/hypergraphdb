@@ -33,6 +33,8 @@ try { use rs here }
 finally { HGUtils.closeNoException(rs); }
 }}}
 
-Note the use of `HGUtils.closeNoException' above. In the HGDB API, we've chosen not to throw any checked exceptions because it's annoying when you don't care about them. However, as with many other HGDB methods, a call the `HGSearchResult` may well throw an `HGException`. If you don't want that exception to propagate and interrupt your program, then the `HGUtils.closeNoException` is a convenient shorthand for code such as `try { rs.close(); } catch (Throwable t) { }`.
+Note the use of `HGUtils.closeNoException` above. In the HGDB API, we've chosen not to throw any checked exceptions because it's annoying when you don't care about them. However, as with many other HGDB methods, a call the `HGSearchResult` may well throw an `HGException`. If you don't want that exception to propagate and interrupt your program, then the `HGUtils.closeNoException` is a convenient shorthand for code such as `try { rs.close(); } catch (Throwable t) { }`.
+
+The most common case of a deadlock in HGDB happens due to a non-closed search result set. Whenever a result set is not closed, it keeps a lock on some part of the database which makes it impossible to write data to that part. This can happen in a multithreaded as well as in a single-threaded application. In multi-threaded applications, conflicts are resolved by repeatedly retrying transactions in a random order. Thus, if there is a thread scanning a result set while another thread is trying to write some data, the latter transaction will be retried until the result set from the former gets closed and the database unlocked. For this reason, it is a good coding practice to first read all results that one cares about (e.g. in a Java collection), close the result set, and then continue with actual processing. 
 
 The `HGQuery.hg` interface offers a few additional convenience methods to avoid having to 

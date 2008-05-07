@@ -6,7 +6,9 @@ Here are a few idioms and code snippets that show how to do queries with HGDB an
 
 Unlike other parts of the HyperGraphDB, the querying system is not yet extensible because we don't have a robust framework for interpreting and optimizing queries yet. On the other, since even low-level APIs (such as indexing) are public it is possible implement any custom query conceivable, but with more work.
 
-== The Query API ==
+The current querying paradigm takes the universe of atoms stored in a HyperGraphDB as the starting result set and lets you restrict it via various conditions constraining the atoms' values, types and linkage structure. The result of a query is always a stream of atoms. 
+
+== Query API Overview ==
 
 Because there is no query language for HGDB at the time of this writing (though we've outlined some ideas on TowardsHyperGraphQueryLanguage page), queries are build up as query conditions, classes implementing the `HGQueryCondition` interface, and submitted via a call to `HyperGraph.find`. For example:
 
@@ -27,7 +29,7 @@ HGSearchResult<HGHandle> rs = graph.find(cond);
 // etc...
 }}}
 
-In both cases a `HGSearchResult` is returned which behaves roughly like a JDBC result set. It implements that standard `java.util.Iterator` interface and an extension to it for moving backwards `org.hypergraphdb.TwoWayIterator`. Thus, it can be traversed back and forth via calls to its `hasNext, next, hasPrev` and `prev` methods.
+In both cases a `HGSearchResult` is returned which behaves roughly like a JDBC result set. It implements the standard `java.util.Iterator` interface and an extension to it for moving backwards `org.hypergraphdb.TwoWayIterator`. Thus, it can be traversed back and forth via calls to its `hasNext, next, hasPrev` and `prev` methods.
 
 The `HGQuery.hg` interface offers a few additional convenience methods to avoid having to deal with `HGSearchResult`:
 
@@ -36,7 +38,13 @@ The `HGQuery.hg` interface offers a few additional convenience methods to avoid 
 || findAll || Retrieve all results from a query and put them in a java.util.List ||
 || getAll || Same as findAll, but implicitly dereference each item. ||
 
-In addition, to every `HGQueryCondition` class that one finds in the `org.hypergraphdb.query` package, there corresponds a convenience constructor method in `HGQuery.hg` interface. To get an overview, visit the Javadocs.
+In general, we strongly advise using those methods when the result set is not very large and when the whole set will have to be traversed. More on the rationale of this recommendation below.
+
+In addition, to every `HGQueryCondition` class that one finds in the `org.hypergraphdb.query` package, there corresponds a convenience constructor method in `HGQuery.hg` interface. To get an overview, visit the Javadocs. In what follows, we won't be using the "raw" conditions, but this convenience API. 
+
+== Querying by Type and Value ==
+
+== Querying Graph Structure ==
 
 == Closing Result Sets ==
 

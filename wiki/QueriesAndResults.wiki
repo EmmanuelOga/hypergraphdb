@@ -1,12 +1,14 @@
 #summary Idioms for working with queries and results.
 
-= Introduction =
+== Introduction ==
 
-Here are a few idioms and code snippets that show how to do queries with HGDB and how to work with result sets. 
+Here are a few idioms and code snippets that show how to do queries with HGDB and how to work with result sets. Full documentation of the API is within the Javadocs. 
 
-= The Queries API =
+Unlike other parts of the HyperGraphDB, the querying system is not yet extensible because we don't have a robust framework for interpreting and optimizing queries yet. On the other, since even low-level APIs (such as indexing) are public it is possible implement any custom query conceivable, but with more work.
 
-There is no query language for HGDB at the time of this writing, though we've outlined some ideas on TowardsHyperGraphQueryLanguage page. Queries are build up as query conditions, classes implementing the `HGQueryCondition` interface, and submitted via a call to `HyperGraph.find`. For example:
+== The Query API ==
+
+Because there is no query language for HGDB at the time of this writing (though we've outlined some ideas on TowardsHyperGraphQueryLanguage page), queries are build up as query conditions, classes implementing the `HGQueryCondition` interface, and submitted via a call to `HyperGraph.find`. For example:
 
 {{{
 HGQueryCondition cond = new And(new AtomTypeCondition(MyLink.class), new IncidentCondition(atom));
@@ -15,7 +17,7 @@ while (rs.hasNext()) System.out.println(rs.next());
 rs.close();
 }}}
 
-A more coding friendly API is provided by the `HGQuery.hg` class which, with Java 5 static imports, can be used like this:
+will retrieve all links of type `MyLink` that point to `atom` (a `HGHandle`). A more coding friendly API is provided by the `HGQuery.hg` class which, with Java 5 static imports, can be used like this:
 
 {{{
 import org.hypergraphdb.HGQuery.hg;
@@ -24,6 +26,19 @@ HGQueryCondition cond = hg.and(hg.type(MyLink.class), hg.incident(atom));
 HGSearchResult<HGHandle> rs = graph.find(cond);
 // etc...
 }}}
+
+In both cases a `HGSearchResult` is returned which behaves roughly like a JDBC result set. It implements that standard `java.util.Iterator` interface and an extension to it for moving backwards `org.hypergraphdb.TwoWayIterator`. Thus, it can be traversed back and forth via calls to its `hasNext, next, hasPrev` and `prev` methods.
+
+The `HGQuery.hg` interface offers a few additional convenience methods to avoid having to deal with `HGSearchResult`:
+
+|| findOne || Retrieve the first item from the query result set ||
+|| getOne || Same as findOne, but implicitly dereference the item, assuming it is a HGHandle ||
+|| findAll || Retrieve all results from a query and put them in a java.util.List ||
+|| getAll || Same as findAll, but implicitly dereference each item. ||
+
+In addition, to every `HGQueryCondition` class that one finds in the `org.hypergraphdb.query` package, there corresponds a convenience constructor method in `HGQuery.hg` interface. To get an overview, visit the Javadocs.
+
+== Closing Result Sets ==
 
 *It is very important* that `HGSearchResult` instances be closed properly and promptly (i.e. as soon as possible). They will generally hold an open cursor on the filesystem and must be closed like any other external resource, be it an open file or a socket connection, or an SQL result set. And unlike the example above, as a good coding practice working with a `HGSearchResult` should always be enclosed in a `try ... finally` block:
 
@@ -35,11 +50,5 @@ finally { HGUtils.closeNoException(rs); }
 
 Note the use of `HGUtils.closeNoException` above. In the HGDB API, we've chosen not to throw any checked exceptions because it's annoying when you don't care about them. However, as with many other HGDB methods, a call the `HGSearchResult` may well throw an `HGException`. If you don't want that exception to propagate and interrupt your program, then the `HGUtils.closeNoException` is a convenient shorthand for code such as `try { rs.close(); } catch (Throwable t) { }`.
 
-The most common case of a deadlock in HGDB happens due to a non-closed search result set. Whenever a result set is not closed, it keeps a lock on some part of the database which makes it impossible to write data to that part. This can happen in a multithreaded as well as in a single-threaded application, but it mostly happens within a single thread! In multi-threaded applications, conflicts are resolved by repeatedly retrying transactions in a random order. Thus, if there is a thread scanning a result set while another thread is trying to write some data, the latter transaction will be retried until the result set from the former gets closed and the database unlocked. But in a single thread, an open result set followed by an attempt to write will lock indefinitely because there result set never gets the chance to close. For this reason, it is a good coding practice to first read all results that one cares about (e.g. in a Java collection), close the result set, and then continue with actual processing. 
-
-The `HGQuery.hg` interface offers a few additional convenience methods to avoid having to deal with `HGSearchResult`:
-
-|| findOne || Retrieve the first item from the query result set ||
-|| getOne || Same as findOne, but implicitly dereference the item, assuming it is a HGHandle ||
-|| findAll || Retrieve all results from a query and put them in a java.util.List ||
-|| getAll || Same as findAll, but implicitly dereference each item. ||
+The most common case of a deadlock in HGDB happens due to a non-closed search result set. Whenever a result set is not closed, it keeps a lock on some part of the database which makes it impossible to write data to that part. This can happen in a multithreaded as well as in a single-threaded application, but it mostly happens within a single thread! In multi-threaded applications, conflicts are resolved by repeatedly retrying transactions in a random order. Thus, if there is a thread scanning a result set while another thread is trying to write some data, the latter transaction will be retried until the result set from the former gets closed and the database unlocked. But in a single thread, an open result set followed by an attempt to write will lock indefinitely because there result set never gets the chance to close. For this reason, it is a good coding practice to first read all results that one cares about (e.g. in a Java collection), close the result set, and then continue with actual processing.
+ 

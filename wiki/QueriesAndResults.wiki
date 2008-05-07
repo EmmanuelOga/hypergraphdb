@@ -95,9 +95,29 @@ But it is much more common to have a type constraint in the conjunction:
 
 because in general links of a given type all have the same arity and a type condition is perhaps the most direct and efficient way of reducing the set of possible results (otherwise all atoms in the graph must be scanned). 
 
-A very common situation is when you know some of the link's targets at specific positions, but not all. Take the `HGSubsumes` link for example. Such a link is added between two types A and B whenever A is a more general type (e.g. a parent class) of which B is a specific case (a derived class).  
+A very common situation is when you know some of the link's targets at specific positions, but not all. Take the `HGSubsumes` link for example. Such a link is added between two types A and B whenever A is a more general type (e.g. a parent class) of which B is a specific case (a derived class).  To find all `HGSubsumes` links with A is the parent the following conditions wouldn't work:
+
+`hg.orderedLink(A)`
+
+because it doesn't say whether A must appear in the first or in the second position of the link. To remedy the problem, one should full specify the target set by putting an _any_ indicator at positions where the actual target is unknown. This any indicator is a special `HGHandle` constant defined in the `HGHandleFactory` class and also available by calling `hg.anyHandle()`. Thus the above condition should be rewritten as:
+
+`hg.orderedLink(A, hg.anyHandle())`
+
+In addition, since at the time of this writing the query processor is not very smart, it is best to also indicate explicitly that the desired links in the result set must point to A via `hg.incident` condition:
+
+`hg.and(hg.type(HGSubsumes.class), hg.orderedLink(A, hg.anyHandle()), hg.incident(A))`
 
 Standard graph traversals are also implemented as search operators in the form of `hg.bfs` (for breadth-first search) and `hg.dfs` (depth-first search) family of methods. Traversal search conditions are translated to the implementation in the `org.hypergraphdb.algorithms` package and use the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/algorithms/DefaultALGenerator.html default adjency list generator] to do the traversal.  
+
+== Transforming the Result Set ==
+
+The stream of atoms resulting from a query can be transformed by applying mapping to each item. This is done with the `hg.apply` operator. There are several common predefined mappings in the `HGQuery.hg` class such as `hg.deref`, `hg.linkProjection` and `hg.targetAt`. All of those method return an instance of the `org.hypergraphdb.utils.Mapping` interface which essentially defines a one argument function. For example, to obtain the actual sub-types from the set of `HGSubsumes` link resulting from the condition above, one could write:
+
+`hg.apply(hg.linkProjection(1, hg.and(hg.type(HGSubsumes.class), hg.orderedLink(A, hg.anyHandle()), hg.incident(A))))`
+
+This condition says: all targets at position 1 (i.e. the second target) of `HGSubsumes` links whose first target is _A_.
+
+While it is not possible to define custom query conditions at the moment, one can easily define new mappings for use in expressions such as above.
 
 == Closing Result Sets ==
 

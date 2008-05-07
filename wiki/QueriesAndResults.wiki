@@ -44,6 +44,20 @@ In addition, to every `HGQueryCondition` class that one finds in the `org.hyperg
 
 == Querying by Type and Value ==
 
+Each atom has a type and a value. And values may be composite records. To constrain the type of an atom use the `hg.type` or `hg.typePlus` methods. The first returns a condition constraining the result set to a specific type and the second returns a condition constraining it to a all sub-types of a given type. Both take either the `HGHandle` of the type of interest or a Java `Class` that has been mapped to a HyperGraphDB type. The `hg.typePlus` condition is equivalent to an "or" between all sub-types. For example, if class (or interface) A has two derived class B and C then:
+
+{{{
+  List<HGHandle> result = hg.findAll(hg.typePlus(A.class));
+}}}
+
+is equivalent to:
+
+{{{
+  List<HGHandle> result = hg.findAll(hg.or(hg.type(B.class), hg.type(C.class)));
+}}}
+
+Note that (since a Java can implement mulitple interfaces), it might make sense to have a query like `hg.and(hg.typePlus(X), hg.typePlus(Y))`, but an "and" between two exact types like `hg.and(hg.type(X), hg.type(Y))` would always return an empty result set.
+
 == Querying the Graph Structure ==
 
 == Closing Result Sets ==

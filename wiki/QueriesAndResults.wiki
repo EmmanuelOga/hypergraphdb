@@ -79,6 +79,26 @@ For instance, here is a query that find all atoms of a hypothetical type `PathLi
 
 == Querying the Graph Structure ==
 
+The atoms in the result can be constrained to be links pointing to a set of atoms and/or targets to a set links. The two main operators are `hg.target(linkHandle)` and `hg.incident(atomHandle)`. The first states that an atom in the results should be a target of (i.e. a member of the outgoing set of, i.e. pointed to by) the link identified by `linkHandle`. Conversely, the second states that an atom in the result set should be a link pointing to (i.e. incident to) the atom identified by `atomHandle`.
+
+When searching for links that have a known target set, or where a subset of the target set is known, use the `hg.link` or `hg.orderedLink` operators. Both take an arbitrary number of atom handles as parameters. The `hg.link` operator ignores the order of the atoms in a target set while the `hg.orderedLink` operator doesn't. When searching for ordered links, which is probably the most common case, one must pay attention to the link's arity in addition to listing its target set in the desired order. An expression like 
+
+`hg.orderedLink(x, y, z)` 
+
+while return all links that point to x, y and z in that order regardless of whether their target sets contain other atoms before, after or in-between x, y and z. Thus a link with a target set [a, x, b, y, z, c, d] will match. One could further constrain the link's arity:
+
+`hg.and(hg.orderedLink(x, y, z), hg.arity(3))`
+
+But it is much more common to have a type constraint in the conjunction:
+
+`hg.and(hg.type(linkType), hg.orderedLink(x, y, z))`
+
+because in general links of a given type all have the same arity and a type condition is perhaps the most direct and efficient way of reducing the set of possible results (otherwise all atoms in the graph must be scanned). 
+
+A very common situation is when you know some of the link's targets at specific positions, but not all. Take the `HGSubsumes` link for example. Such a link is added between two types A and B whenever A is a more general type (e.g. a parent class) of which B is a specific case (a derived class).  
+
+Standard graph traversals are also implemented as search operators in the form of `hg.bfs` (for breadth-first search) and `hg.dfs` (depth-first search) family of methods. Traversal search conditions are translated to the implementation in the `org.hypergraphdb.algorithms` package and use the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/algorithms/DefaultALGenerator.html default adjency list generator] to do the traversal.  
+
 == Closing Result Sets ==
 
 *It is very important* that `HGSearchResult` instances be closed properly and promptly (i.e. as soon as possible). They will generally hold an open cursor on the filesystem and must be closed like any other external resource, be it an open file or a socket connection, or an SQL result set. And unlike the example above, as a good coding practice working with a `HGSearchResult` should always be enclosed in a `try ... finally` block:

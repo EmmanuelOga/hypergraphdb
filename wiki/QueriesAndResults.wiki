@@ -40,11 +40,11 @@ The `HGQuery.hg` interface offers a few additional convenience methods to avoid 
 
 In general, we strongly advise using those methods when the result set is not very large and when the whole set will have to be traversed. More on the rationale of this recommendation below.
 
-In addition, to every `HGQueryCondition` class that one finds in the `org.hypergraphdb.query` package, there corresponds a convenience constructor method in `HGQuery.hg` interface. To get an overview, visit the Javadocs. In what follows, we won't be using the "raw" conditions, but this convenience API. 
+In addition, to every `HGQueryCondition` class that one finds in the `org.hypergraphdb.query` package, there corresponds a convenience constructor method in `HGQuery.hg` interface. To get a full view of this interface, visit [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGQuery.hg.html its Javadocs]. In what follows, we won't be using the "raw" conditions, but this convenience API. 
 
 == Querying by Type and Value ==
 
-== Querying Graph Structure ==
+== Querying the Graph Structure ==
 
 == Closing Result Sets ==
 

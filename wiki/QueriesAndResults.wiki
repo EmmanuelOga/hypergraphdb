@@ -1,4 +1,4 @@
-#summary Idioms for working with queries and results.
+#summary Working with queries and results.
 
 == Introduction ==
 

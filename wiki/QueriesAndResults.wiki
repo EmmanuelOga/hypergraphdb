@@ -42,21 +42,40 @@ In general, we strongly advise using those methods when the result set is not ve
 
 In addition, to every `HGQueryCondition` class that one finds in the `org.hypergraphdb.query` package, there corresponds a convenience constructor method in `HGQuery.hg` interface. To get a full view of this interface, visit [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGQuery.hg.html its Javadocs]. In what follows, we won't be using the "raw" conditions, but this convenience API. 
 
+== Logical Operators ==
+
+The three standard logical operators _and_, _or_ and _not_ are supported via calls to the variable argument methods `hg.and`, `hg.or` and the `hg.not` method. It must be noted that the _not_ operator can result in inefficient queries because most of the time it cannot be translated to an index lookup and the negated condition needs to be used as a predicate while scanning a potentially large result set.
+
 == Querying by Type and Value ==
 
 Each atom has a type and a value. And values may be composite records. To constrain the type of an atom use the `hg.type` or `hg.typePlus` methods. The first returns a condition constraining the result set to a specific type and the second returns a condition constraining it to a all sub-types of a given type. Both take either the `HGHandle` of the type of interest or a Java `Class` that has been mapped to a HyperGraphDB type. The `hg.typePlus` condition is equivalent to an "or" between all sub-types. For example, if class (or interface) A has two derived class B and C then:
 
 {{{
-  List<HGHandle> result = hg.findAll(hg.typePlus(A.class));
+  List<HGHandle> result = hg.findAll(graph, hg.typePlus(A.class));
 }}}
 
 is equivalent to:
 
 {{{
-  List<HGHandle> result = hg.findAll(hg.or(hg.type(B.class), hg.type(C.class)));
+  List<HGHandle> result = hg.findAll(graph, hg.or(hg.type(B.class), hg.type(C.class)));
 }}}
 
 Note that (since a Java can implement mulitple interfaces), it might make sense to have a query like `hg.and(hg.typePlus(X), hg.typePlus(Y))`, but an "and" between two exact types like `hg.and(hg.type(X), hg.type(Y))` would always return an empty result set.
+
+Atom values are constrained with the following set of operators (i.e. methods in the `HGQuery.hg` interface):
+
+|| eq(Object x) || The value must be equal to the passed in object. ||
+|| eq(String part, Object x) || The property _part_ of a complex value must be equals to _x_. ||
+|| lt, lte || Less-than and less-than-or-equal operators. Note that this only works when atom values actually have an order relation defined on them. ||
+|| gt, gte || Greater-than and greater-than-or-equal operators. ||
+
+Note that all the operator in the above table work both on atom values proper and on value parts (e.g. bean properties). 
+
+For instance, here is a query that find all atoms of a hypothetical type `PathLink` whose `label` property has the value "highway" and whose `length` property is greater than 1000:
+
+{{{
+  List<PathLink> longHighways = hg.getAll(graph, hg.and(hg.type(PathLink.class), hg.eq("label", "highway"), hg.gt("length", 1000)));
+}}}
 
 == Querying the Graph Structure ==
 

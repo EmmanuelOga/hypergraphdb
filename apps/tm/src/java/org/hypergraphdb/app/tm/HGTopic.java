@@ -4,13 +4,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.HGException;
 import org.hypergraphdb.HGHandle;
+import org.hypergraphdb.HGHandleFactory;
+import org.hypergraphdb.HGLink;
+import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HGSearchResult;
 import org.hypergraphdb.atom.HGRel;
+import org.hypergraphdb.query.AtomTypeCondition;
+import org.hypergraphdb.query.HGQueryCondition;
 import org.hypergraphdb.util.HGUtils;
 import org.tmapi.core.Locator;
 import org.tmapi.core.MergeException;
@@ -19,6 +25,7 @@ import org.tmapi.core.Occurrence;
 import org.tmapi.core.TMAPIException;
 import org.tmapi.core.Topic;
 import org.tmapi.core.TopicInUseException;
+import org.tmapi.core.TopicMapObject;
 import org.tmapi.core.TopicName;
 
 public class HGTopic extends HGTopicMapObjectBase implements Topic
@@ -238,13 +245,47 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 	}
 	
 	/**
-	 * <p>Return a set of all topics that are have <code>this</code> topic as a type.</p>
+	 * <p>Return a set of all instances (topics or occurrences or names) that are 
+	 * have <code>this</code> topic as a type.</p>
 	 */
-	public Set<HGTopic> getInstances()
+	public Set<TopicMapObject> getInstances()
 	{
 		return U.getRelatedObjects(graph, HGTM.hTypeOf, graph.getHandle(this), null);
 	}
 
+	public Set<HGTopic> getTopicInstances()
+	{
+		HashSet<HGTopic> result = new HashSet<HGTopic>();
+		HGHandle thisHandle = graph.getHandle(this);
+		HGQueryCondition relQuery = hg.and(hg.type(HGTM.hTypeOf),
+							   hg.incident(graph.getHandle(this)),	
+							   hg.orderedLink(new HGHandle[] {thisHandle, HGHandleFactory.anyHandle}));
+		HGSearchResult<HGHandle> rs = graph.find(relQuery);
+		AtomTypeCondition c = new AtomTypeCondition(graph.getTypeSystem().getTypeHandle(HGTopic.class));
+		try
+		{
+			while (rs.hasNext())
+			{
+				HGHandle relation = rs.next();
+				HGHandle instance = null;
+				if (graph.isLoaded(relation))
+					instance = ((HGLink)graph.get(relation)).getTargetAt(1);
+				else
+				{
+					HGPersistentHandle [] all = graph.getStore().getLink(graph.getPersistentHandle(relation));
+					instance = all[3];
+				}
+				if (c.satisfies(graph, instance))
+					result.add((HGTopic)graph.get(instance));
+			}
+		}
+		finally
+		{
+			HGUtils.closeNoException(rs);
+		}
+		return result;		
+	}
+	
 	/**
 	 * <p>
 	 * Return all topic map elements that are scoped by this topic.
@@ -397,8 +438,8 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 			role.remove();		
 		 
 		if (removeInstances)
-			for (HGTopic t : getInstances())
-				t.remove();
+			for (TopicMapObject x : getInstances())
+				x.remove();
 		else
 			U.removeRelations(graph, HGTM.hTypeOf, graph.getHandle(this), null);
 		

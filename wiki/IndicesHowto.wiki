@@ -27,5 +27,12 @@ The `ByTargetIndexer` lets you index links by targets at specific positions. Tak
 graph.getIndexManager().register(new ByTargetIndexer(HGTypeSystem.SUBSUMES_PERSISTENT_HANDLE, 1));
 }}}
 
+Note that indexing by link targets is only useful when doing queries on ordered links. Otherwise, the implicit indexing by incidence sets mentionned in the introduction suffices. To take advantage of the index above, you would write a query like this:
+
+{{{
+List<HGHandle> L = hg.findAll(hg.and(hg.type(HGSubsumes.class), hg.orderedLink(hg.anyHandle(), someHandle)));
+}}}
+
+Note the use of `hg.anyHandle()` at position 0 of the ordered link condition. It is important to be explicit about the exact form of an ordered link in your query. Otherwise, the query system will not be able to associated the provided value (`someHandle` in the example above) with an available index.
 
 At the time of this writing, only indices based on a single attribute are supported. 

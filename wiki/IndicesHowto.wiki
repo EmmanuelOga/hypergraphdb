@@ -1,0 +1,23 @@
+#summary How to use indices
+
+= Introduction =
+
+HyperGraphDB allows you to index atoms by their attributes. Internally, various indices are maintained around the basic organizational layout of the hypergraph data. For example, because every atoms X has an associated incidence set holding all links pointing to it, the set of those links is readily available and can be efficiently intersected with other incidence sets. But to quickly retrieve a set of atoms based on their values, one needs to explicitly create an index.
+
+= About HyperGraphDB Indexing =
+
+At the lowest level, indices are just key-value tables that the storage layer manages. There are also bi-directional indices where a set of keys matching a given value can be retrieved. Some type implementations work directly with the storage layer to maintain internal indices normally hidden from the user. Such internal indices are of no concern to us here. Suffice it to mention that given a unique name, you can create an index using the `HGStore` API and then put whatever you want in it as long as you can translated your data to/from byte buffers.
+
+Indexing at the level of atoms is supported by an `HGIndexManager` that is associated with every `HyperGraph` instance. Every time an atom is added, removed or replaced, the `HyperGraph` will trigger an event with its `HGIndexManager` to update all relevant indices. 
+
+Indices themselves are created by registering _indexers_, which are implementations of the `HGIndexer` class, with the index manager. An `HGIndexer` is essentially responsible for creating a key given an atom. It is always associated with a specific atom type. So indices are always type-based. Moreover, at the moment, sub-types are not automatically indexed even though this is a planned extension. 
+
+The two `HGIndexer` implementation available currently are `ByPartIndexer` and `ByTargetIndexer`. The `ByPartIndexer` lets you create an index based on some atom property. For example if you have a `SiteUser` Java beanm, with a bean property called `email`, you can index all users by their email like this:
+
+{{{
+HGHandle siteUserType = graph.getTypeSystem().getTypeHandle(SiteUser.class);
+graph.getIndexManager().register(new ByPartIndexer(siteUserType, "email");
+}}}
+
+The `ByTargetIndexer` lets you index links by targets at specific positions. 
+At the time of this writing, only indices based on a single attribute are supported. 

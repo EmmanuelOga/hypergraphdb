@@ -103,10 +103,6 @@ because it doesn't say whether A must appear in the first or in the second posit
 
 `hg.orderedLink(A, hg.anyHandle())`
 
-In addition, since at the time of this writing the query processor is not very smart, it is best to also indicate explicitly that the desired links in the result set must point to A via `hg.incident` condition:
-
-`hg.and(hg.type(HGSubsumes.class), hg.orderedLink(A, hg.anyHandle()), hg.incident(A))`
-
 Standard graph traversals are also implemented as search operators in the form of `hg.bfs` (for breadth-first search) and `hg.dfs` (depth-first search) family of methods. Traversal search conditions are translated to the implementation in the `org.hypergraphdb.algorithms` package and use the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/algorithms/DefaultALGenerator.html default adjency list generator] to do the traversal.  
 
 == Transforming the Result Set ==

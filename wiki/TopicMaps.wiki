@@ -1,4 +1,4 @@
-=== TopicMaps Standard Resources ===
+=sumary TopicMaps Standard Resources
 
 There's the older topic maps standard of 1.0 and the newer evolution 2.0 which is only
 conceptually sort of compatible with the old one.

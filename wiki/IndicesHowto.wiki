@@ -12,12 +12,20 @@ Indexing at the level of atoms is supported by an `HGIndexManager` that is assoc
 
 Indices themselves are created by registering _indexers_, which are implementations of the `HGIndexer` class, with the index manager. An `HGIndexer` is essentially responsible for creating a key given an atom. It is always associated with a specific atom type. So indices are always type-based. Moreover, at the moment, sub-types are not automatically indexed even though this is a planned extension. 
 
-The two `HGIndexer` implementation available currently are `ByPartIndexer` and `ByTargetIndexer`. The `ByPartIndexer` lets you create an index based on some atom property. For example if you have a `SiteUser` Java beanm, with a bean property called `email`, you can index all users by their email like this:
+The two `HGIndexer` implementations available currently are `ByPartIndexer` and `ByTargetIndexer`. The `ByPartIndexer` lets you create an index based on some atom property. For example if you have a `SiteUser` Java bean, with a bean property called `email`, you can index all users by their email like this:
 
 {{{
 HGHandle siteUserType = graph.getTypeSystem().getTypeHandle(SiteUser.class);
 graph.getIndexManager().register(new ByPartIndexer(siteUserType, "email");
 }}}
 
-The `ByTargetIndexer` lets you index links by targets at specific positions. 
+Now, when you query for site users by email (e.g. `hg.and(hg.type(SiteUser.class), hg.eq("email", "bill@microsoft.com"))`), the index will be used.
+
+The `ByTargetIndexer` lets you index links by targets at specific positions. Take the predefined `HGSubsumes` link as an example which links something _general_ (target at position 0) to something _specific_ (target at position 1). You can index all `HGSubsumes` atoms by their second target like this:
+
+{{{
+graph.getIndexManager().register(new ByTargetIndexer(HGTypeSystem.SUBSUMES_PERSISTENT_HANDLE, 1));
+}}}
+
+
 At the time of this writing, only indices based on a single attribute are supported. 

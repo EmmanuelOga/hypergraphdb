@@ -10,6 +10,8 @@ public class DumpDatabaseContent {
 		
 		HyperGraph hg = new HyperGraph("./TestDB");
 		
+		hg.add("test");
+		
 		HGSearchResult rs = hg.find(new AnyAtomCondition());
 
 		while (rs.hasNext()) 

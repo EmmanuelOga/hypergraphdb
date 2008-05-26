@@ -1,6 +1,7 @@
 package hgtest.jxta;
 
 import org.hypergraphdb.HGHandle;
+import org.hypergraphdb.peer.HGTypeSystemPeer;
 import org.hypergraphdb.peer.HyperGraphPeer;
 import org.hypergraphdb.peer.PeerConfiguration;
 import org.hypergraphdb.peer.jxta.JXTAPeerConfiguration;
@@ -24,11 +25,16 @@ public class HyperGraphDBClient{
 
 		HGHandle handle = peer.add("First atom to be sent");
 
-		System.out.println("Client added handle: " + handle.toString());
+		System.out.println("Client added handle: " + ((handle == null) ? "null" : handle.toString()));
 		
 		Object retrievedData = peer.get(handle);
 		
-		System.out.println("Client read: " + retrievedData.toString());
+		System.out.println("Client read: " + ((retrievedData == null) ? "null" : retrievedData.toString()));
+		
+		HGHandle stringHandler = ((HGTypeSystemPeer)peer.getTypeSystem()).getTypeHandle(String.class);
+		
+		System.out.println("Handle for type string: " + ((handle == null) ? "null" : handle.toString()));
+		
 	}
 
     

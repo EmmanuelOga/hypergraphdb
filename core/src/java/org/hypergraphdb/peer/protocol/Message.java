@@ -21,10 +21,6 @@ public class Message {
 	 */
 	private ObjectSerializer serializer;
 	/**
-	 * peer to execute requests on
-	 */
-	private HyperGraphPeer hg;
-	/**
 	 * Service request parameters
 	 */
 	private Object params[];
@@ -34,11 +30,6 @@ public class Message {
 	 */
 	private MessageHandler handler;
 	
-	public Message(ServiceType serviceType, MessageHandler handler, HyperGraphPeer hg){
-		this.serviceType = serviceType;
-		this.handler = handler;
-		this.hg = hg;
-	}
 	
 	public Message(ServiceType serviceType, MessageHandler handler){
 		this.serviceType = serviceType;
@@ -46,7 +37,7 @@ public class Message {
 	}
 	
 	public Message clone(){
-		Message msg = new Message(serviceType, handler, hg);
+		Message msg = new Message(serviceType, handler);
 		return msg;
 	}
 
@@ -68,7 +59,7 @@ public class Message {
 		}
 		
 		//execute & return
-		return handler.handleRequest(hg, params);
+		return handler.handleRequest(params);
 	}
 	
 	/**

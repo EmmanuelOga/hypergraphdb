@@ -2,5 +2,6 @@ package org.hypergraphdb.peer;
 
 public enum ServiceType {
 	ADD,
-	GET
+	GET,
+	GET_TYPE_HANDLE
 }

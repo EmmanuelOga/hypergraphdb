@@ -23,18 +23,16 @@ public class ObjectSerializer {
 	}
 	
 	public void serialize(OutputStream out, Object data) throws IOException{
-		if (data instanceof Serializable){
+		//TODO this is just temporary
+		if (data instanceof HGPersistentHandle){
+			//this is suppose to mark next as special ...
+			out.write(1);
+			out.write(((HGPersistentHandle)data).toByteArray());
+		} else if (data instanceof Serializable){
 
 			out.write(0);
 			ObjectOutputStream objStream = new ObjectOutputStream(out);
 			objStream.writeObject(data);
-		}else{
-			//TODO this is just temporary
-			if (data instanceof HGPersistentHandle){
-				//this is suppose to mark next as special ...
-				out.write(1);
-				out.write(((HGPersistentHandle)data).toByteArray());
-			}			
 		}
 	}
 	

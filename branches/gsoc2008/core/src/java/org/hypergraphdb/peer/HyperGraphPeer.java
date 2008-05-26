@@ -36,6 +36,9 @@ public class HyperGraphPeer {
 	 */
 	private HyperGraph hg = null;
 	
+	
+	private HGTypeSystemPeer typeSystem = null;
+	
 	/**
 	 * @param configuration
 	 */
@@ -57,7 +60,7 @@ public class HyperGraphPeer {
 			}catch(Exception ex){
 				ex.printStackTrace();
 			}
-						
+
 			if (serverInterface != null){
 				
 				if(serverInterface.configure(configuration.getServerInterfaceConfiguration())){
@@ -70,32 +73,29 @@ public class HyperGraphPeer {
 		if (configuration.getCanForwardRequests()){
 			try{
 				peerForwarder = (PeerForwarder)Class.forName(configuration.getPeerForwarderType()).getConstructor().newInstance();
-				
-				peerForwarder.configure(configuration.getPeerForwarderConfiguration());
+
 			}catch(Exception ex){
 				ex.printStackTrace();
 			}
+			
+			if (peerForwarder != null){
+				//create type system peer
+
+				peerForwarder.configure(configuration.getPeerForwarderConfiguration());
+
+			}
 		}
 		
+		typeSystem = new HGTypeSystemPeer(peerForwarder, (hg == null) ? null : hg.getTypeSystem());
+
 		// TODO actually compute this
 		return true;
 	}
 	
 	private void registerMessageTemplates() {
 		//set up message templates
-		MessageFactory.registerMessageTemplate(ServiceType.ADD, new Message(ServiceType.ADD, new MessageHandler(){
-			public Object handleRequest(HyperGraphPeer hg, Object[] params){
-				return hg.add(params[0]);
-			}
-		}, this));
-
-		MessageFactory.registerMessageTemplate(ServiceType.GET, new Message(ServiceType.GET, new MessageHandler(){
-			public Object handleRequest(HyperGraphPeer hg, Object[] params){
-				if (params[0] instanceof HGHandle){
-					return hg.get((HGHandle)params[0]);
-				}else return null;
-			}
-		}, this));
+		MessageFactory.registerMessageTemplate(ServiceType.ADD, new Message(ServiceType.ADD, new AddMessageHandler()));
+		MessageFactory.registerMessageTemplate(ServiceType.GET, new Message(ServiceType.GET, new GetMessageHandler()));
 	}
 
 	void stop(){
@@ -136,20 +136,51 @@ public class HyperGraphPeer {
 		return result;
 	}
 	
+	/**
+	 * @param clazz
+	 * @return
+	 * 
+	 * TODO: this should return TypeSystem interface when common interfaces are defined ...  
+	 */
+	public Object getTypeSystem(){
+		Object result = null;
+		
+		if (shouldForward()){
+			result = typeSystem;
+		}else{
+			result = hg.getTypeSystem();
+		}
+		
+		return result;
+	}
+	
 	private boolean shouldForward() {
 		// TODO add logic to see if the atom should be added here
 		return configuration.getCanForwardRequests();
 	}
 
-/*	private class AddMessageRequestListener implements HGServerListener {
+	private class AddMessageHandler implements MessageHandler{
 
+		/* (non-Javadoc)
+		 * @see org.hypergraphdb.peer.protocol.MessageHandler#handleRequest(java.lang.Object, java.lang.Object[])
+		 * 
+		 * TODO: add logic to handle different signatures
+		 */
 		@Override
-		public void serveRequest(InputStream in) {
-			// TODO for now recreate atom and call add
-			Object atom = ObjectSerializer.deserialize(in);
-			add(atom);
+		public Object handleRequest(Object[] params) {
+			return add(params[0]);
 		}
 		
-	}*/
+	}
+	private class GetMessageHandler implements MessageHandler{
+
+		@Override
+		public Object handleRequest(Object[] params) {
+			if (params[0] instanceof HGHandle){
+				return get((HGHandle)params[0]);
+			}else return null;
+		}
+		
+	}
 	
 }

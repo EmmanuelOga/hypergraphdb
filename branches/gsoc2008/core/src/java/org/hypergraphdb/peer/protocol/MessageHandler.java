@@ -11,5 +11,5 @@ import org.hypergraphdb.peer.HyperGraphPeer;
  * </p>
  */
 public interface MessageHandler {
-	public Object handleRequest(HyperGraphPeer hg, Object[] params);
+	public Object handleRequest(Object[] params);
 }

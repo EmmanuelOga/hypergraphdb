@@ -23,17 +23,21 @@ public class HyperGraphDBClient{
 		
 		peer.start();
 
-		HGHandle handle = peer.add("First atom to be sent");
+		HGHandle handle = null;
+		
+		handle = peer.add("First atom to be sent");
 
 		System.out.println("Client added handle: " + ((handle == null) ? "null" : handle.toString()));
 		
 		Object retrievedData = peer.get(handle);
-		
+	
 		System.out.println("Client read: " + ((retrievedData == null) ? "null" : retrievedData.toString()));
 		
-		HGHandle stringHandler = ((HGTypeSystemPeer)peer.getTypeSystem()).getTypeHandle(String.class);
+		SimpleBean b = new SimpleBean();
 		
-		System.out.println("Handle for type string: " + ((handle == null) ? "null" : handle.toString()));
+		handle = ((HGTypeSystemPeer)peer.getTypeSystem()).getTypeHandle(SimpleBean.class);
+		
+		System.out.println("Handle for type simple: " + ((handle == null) ? "null" : handle.toString()));
 		
 	}
 

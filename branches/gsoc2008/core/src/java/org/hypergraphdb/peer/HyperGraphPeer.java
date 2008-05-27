@@ -142,16 +142,8 @@ public class HyperGraphPeer {
 	 * 
 	 * TODO: this should return TypeSystem interface when common interfaces are defined ...  
 	 */
-	public Object getTypeSystem(){
-		Object result = null;
-		
-		if (shouldForward()){
-			result = typeSystem;
-		}else{
-			result = hg.getTypeSystem();
-		}
-		
-		return result;
+	public HGTypeSystemPeer getTypeSystem(){
+		return typeSystem;
 	}
 	
 	private boolean shouldForward() {

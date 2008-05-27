@@ -1,11 +1,13 @@
 package hgtest.jxta;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.hypergraphdb.peer.HyperGraphPeer;
 import org.hypergraphdb.peer.PeerConfiguration;
 import org.hypergraphdb.peer.jxta.JXTAPeerConfiguration;
 
 public class HyperGraphDBServer {
-
 	public static void main(String[] args){
 		System.out.println("Starting a HGDB server ...");
 

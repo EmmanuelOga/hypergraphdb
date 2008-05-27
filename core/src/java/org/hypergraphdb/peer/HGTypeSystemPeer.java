@@ -12,7 +12,8 @@ public class HGTypeSystemPeer {
 	
 	private PeerForwarder peerForwarder;  
 	private HGTypeSystem typeSystem;
-	
+	private MessageFactory messageFactory = new MessageFactory();
+
 	public HGTypeSystemPeer(PeerForwarder peerForwarder, HGTypeSystem typeSystem){
 		this.peerForwarder = peerForwarder;
 		this.typeSystem = typeSystem;
@@ -21,12 +22,25 @@ public class HGTypeSystemPeer {
 	}
 	
 	public HGHandle getTypeHandle(Class<?> clazz){
-		HGHandle handle = typeSystem.getTypeHandle(clazz);
+		if (shouldForward()){
+			Message msg = messageFactory.build(ServiceType.GET_TYPE_HANDLE, new Object[]{clazz});
+			Object result = peerForwarder.forward(msg);
+			
+			if (result instanceof HGHandle) return (HGHandle) result;
+			else return null;
+		}else{
+			HGHandle handle = typeSystem.getTypeHandle(clazz);
+			
+	        if (!(handle instanceof HGPersistentHandle))
+	            handle = ((HGLiveHandle)handle).getPersistentHandle();
+	        
+			return handle;			
+		}
 		
-        if (!(handle instanceof HGPersistentHandle))
-            handle = ((HGLiveHandle)handle).getPersistentHandle();
-        
-		return handle;
+	}
+	
+	private boolean shouldForward(){
+		return (peerForwarder != null);
 	}
 	
 	private void registerMessageTemplates() {

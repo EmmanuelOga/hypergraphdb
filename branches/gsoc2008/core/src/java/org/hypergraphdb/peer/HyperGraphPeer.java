@@ -118,6 +118,8 @@ public class HyperGraphPeer {
 		}else {
 			// TODO store locally
 			handle = hg.getPersistentHandle(hg.add(atom));
+			
+			System.out.println("returning handle: " + handle.toString());
 		}
 		
 		return handle;

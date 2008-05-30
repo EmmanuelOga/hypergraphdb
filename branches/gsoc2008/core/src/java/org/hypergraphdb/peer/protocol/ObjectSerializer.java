@@ -1,63 +1,59 @@
 package org.hypergraphdb.peer.protocol;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 
-import org.hypergraphdb.HGPersistentHandle;
-import org.hypergraphdb.handle.UUIDPersistentHandle;
+import org.hypergraphdb.peer.serializer.HGSerializer;
+import org.hypergraphdb.peer.serializer.IntSerializer;
+import org.hypergraphdb.peer.serializer.ObjectPool;
+import org.hypergraphdb.peer.serializer.SerializerManager;
+
+
 
 /**
  * @author Cipri Costa
  *
  * <p>
- * The root of all the serialization/deserialization mechanism. Probably going to be replaced when the mechanism is defined.
+ * The root of all the serialization/deserialization mechanism.
  * </p>
  */
-public class ObjectSerializer {
+public class ObjectSerializer
+{
+	private static final byte[] DATA_SIGNATURE = "DATA".getBytes();
+	private static final byte[] END_SIGNATURE = "END".getBytes();
+	
+	public ObjectSerializer()
+	{
+	}
 
-	public ObjectSerializer(){
+	public void serialize(OutputStream out, Object data) 
+	{
+
+		ObjectPool objectPool = new ObjectPool();
+		HGSerializer serializer = SerializerManager.getSerializer(data);
+
+		ProtocolUtils.writeSignature(out, DATA_SIGNATURE);
+		serializer.writeData(out, data, objectPool);
+		ProtocolUtils.writeSignature(out, END_SIGNATURE);
 	}
 	
-	public void serialize(OutputStream out, Object data) throws IOException{
-		//TODO this is just temporary
-		if (data instanceof HGPersistentHandle){
-			//this is suppose to mark next as special ...
-			out.write(1);
-			out.write(((HGPersistentHandle)data).toByteArray());
-		} else if (data instanceof Serializable){
-
-			out.write(0);
-			ObjectOutputStream objStream = new ObjectOutputStream(out);
-			objStream.writeObject(data);
-		}
-	}
-	
-	public Object deserialize(InputStream in) throws IOException{
-		int type = in.read();
+	public Object deserialize(InputStream in) 
+	{
 		Object result = null;
 		
-		if (type == 0){
-			ObjectInputStream objStream = null;
+		if (ProtocolUtils.verifySignature(in, DATA_SIGNATURE))
+		{
+			ObjectPool objectPool = new ObjectPool();
+			result = SerializerManager.getSerializer(in).readData(in, objectPool);
 
-			objStream = new ObjectInputStream(in);
-			try {
-				result = objStream.readObject();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}else if (type == 1){
-			byte[] data = new byte[16];
-			if (in.read(data) == data.length){
-				result = UUIDPersistentHandle.makeHandle(data);
+			if (!ProtocolUtils.verifySignature(in, END_SIGNATURE))
+			{
+				result = null;
 			}
 		}
 
 		return result;
+
 	}
 
 }

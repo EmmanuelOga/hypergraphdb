@@ -37,7 +37,7 @@ public class Protocol {
 		Object result = null;
 		
 		//get & verify signature
-		if (verifySignature(in)){
+		if (ProtocolUtils.verifySignature(in, SIGNATURE)){
 			//loop -> get message; dispatch message; write response;
 			Message msg = messageFactory.build(in);
 				
@@ -55,7 +55,7 @@ public class Protocol {
 	public Object handleResponse(InputStream in, Session session) throws IOException{
 		Object result = null;
 		
-		if (verifySignature(in)){
+		if (ProtocolUtils.verifySignature(in, SIGNATURE)){
 			result = session.getSerializer().deserialize(in);
 		}
 		
@@ -79,14 +79,6 @@ public class Protocol {
 		
 	}
 	
-	private boolean verifySignature(InputStream in) throws IOException {
-		byte[] signature = new byte[SIGNATURE.length];
-		if (in.read(signature) == SIGNATURE.length){
-			return Arrays.equals(signature, SIGNATURE);
-		}
-		
-		return false;
-	}
 
 	private void writeSignature(OutputStream out) throws IOException{
 		out.write(SIGNATURE);

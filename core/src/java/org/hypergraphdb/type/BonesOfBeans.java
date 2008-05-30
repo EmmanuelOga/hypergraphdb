@@ -82,7 +82,7 @@ public class BonesOfBeans
             bean.getClass().getName());
         else if (index >= 0 && !(desc instanceof IndexedPropertyDescriptor))
             throw new HGException("Property " + propname +
-            " could is not an indexed property in bean " +
+            " is not an indexed property in bean " +
             bean.getClass().getName());
         else
             return desc;

@@ -28,17 +28,17 @@ public class HyperGraphDBClient{
 		handle = peer.add("First atom to be sent");
 
 		System.out.println("Client added handle: " + ((handle == null) ? "null" : handle.toString()));
-		
+				
 		Object retrievedData = peer.get(handle);
 	
 		System.out.println("Client read: " + ((retrievedData == null) ? "null" : retrievedData.toString()));
 		
 		SimpleBean b = new SimpleBean();
-		
+		/*
 		handle = ((HGTypeSystemPeer)peer.getTypeSystem()).getTypeHandle(SimpleBean.class);
 		
 		System.out.println("Handle for type simple: " + ((handle == null) ? "null" : handle.toString()));
-		
+		*/		
 	}
 
     

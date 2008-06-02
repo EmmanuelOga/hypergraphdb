@@ -15,7 +15,7 @@ public class IntSerializer extends PrimitiveTypeSerializer {
 	@Override
 	public void serialize(OutputStream out, Object data) {
 		if ((data == null) || (data instanceof Integer)){
-			serializeInt(out, SerializerManager.INT_SERIALIZER_ID);
+			serializeInt(out, DefaultSerializerManager.INT_SERIALIZER_ID);
 			serializeInt(out, (Integer) data);
 		}
 	}

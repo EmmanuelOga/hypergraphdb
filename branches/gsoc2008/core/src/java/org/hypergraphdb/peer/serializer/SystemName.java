@@ -3,6 +3,8 @@ package org.hypergraphdb.peer.serializer;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.hypergraphdb.peer.protocol.SerializerManager;
+
 
 public class SystemName
 {
@@ -57,7 +59,7 @@ public class SystemName
 	
 	public static class SystemNameSerializer extends PooledObjectSerializer
 	{
-		public SystemNameSerializer(){}
+		public SystemNameSerializer(SerializerManager manager){ super(manager);}
 		
 		@Override
 		protected Object createObject(InputStream in, ObjectPool objectPool)
@@ -74,7 +76,7 @@ public class SystemName
 		@Override
 		protected void putData(OutputStream out, Object data, ObjectPool objectPool)
 		{
-			IntSerializer.serializeInt(out, SerializerManager.SYSTEM_NAME_SERIALIZER_ID);
+			IntSerializer.serializeInt(out, DefaultSerializerManager.SYSTEM_NAME_SERIALIZER_ID);
 			StringSerializer.serializeString(out, ((SystemName)data).getName());
 		}
 		

@@ -24,6 +24,14 @@ public class SerializationTest {
 		testArrays();
 		
 		testHGTypes();
+		
+		testSomeOtherJavaObjects();
+	}
+
+	private static void testSomeOtherJavaObjects()
+	{
+		testObject(SimpleBean.class);
+		
 	}
 
 	private static void testHGTypes()

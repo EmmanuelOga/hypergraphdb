@@ -31,10 +31,9 @@ public class StreamObjectReference
 		@Override
 		public void writeData(OutputStream out, Object data, ObjectPool objectPool)
 		{
-			IntSerializer.serializeInt(out, SerializerManager.STREAM_OBJECT_REFERENCE_SERIALIZER_ID);
+			IntSerializer.serializeInt(out, DefaultSerializerManager.STREAM_OBJECT_REFERENCE_SERIALIZER_ID);
 			IntSerializer.serializeInt(out, ((StreamObjectReference)data).getObjectID());
 		}
-		
 	}
 
 }

@@ -3,14 +3,23 @@ package org.hypergraphdb.peer.serializer;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.hypergraphdb.peer.protocol.SerializerManager;
 
-public abstract class PooledObjectSerializer implements HGSerializer
+
+public abstract class PooledObjectSerializer extends ChainedSerializer
 {
-	private HGSerializer referenceSerializer = SerializerManager.getSerializerByType(StreamObjectReference.class);
+	private HGSerializer referenceSerializer = null;
 	
 	protected abstract void putData(OutputStream out, Object data, ObjectPool objectPool);
 	protected abstract Object createObject(InputStream in, ObjectPool objectPool);
 	protected abstract Object loadObjectData(InputStream in, Object result, ObjectPool objectPool);
+
+	public PooledObjectSerializer(SerializerManager serializerManager)
+	{
+		super(serializerManager);
+		
+		referenceSerializer = getSerializerManager().getSerializerByType(StreamObjectReference.class);
+	}
 
 	@Override
 	public Object readData(InputStream in, ObjectPool objectPool)

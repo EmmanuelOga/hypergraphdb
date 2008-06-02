@@ -5,9 +5,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.hypergraphdb.handle.UUIDPersistentHandle;
+import org.hypergraphdb.peer.protocol.SerializerManager;
 
 public class UUIDHandlerSerializer extends PooledObjectSerializer
 {
+	public UUIDHandlerSerializer(SerializerManager serializerManager)
+	{
+		super(serializerManager);
+	}
+
 	@Override
 	protected Object createObject(InputStream in, ObjectPool objectPool)
 	{
@@ -34,7 +40,7 @@ public class UUIDHandlerSerializer extends PooledObjectSerializer
 	@Override
 	protected void putData(OutputStream out, Object data, ObjectPool objectPool)
 	{
-		IntSerializer.serializeInt(out, SerializerManager.UUID_HANDLE_SERIALIZER_ID);
+		IntSerializer.serializeInt(out, DefaultSerializerManager.UUID_HANDLE_SERIALIZER_ID);
 		try
 		{
 			out.write(((UUIDPersistentHandle)data).toByteArray());

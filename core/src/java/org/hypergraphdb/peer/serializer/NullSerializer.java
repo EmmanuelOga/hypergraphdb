@@ -16,7 +16,7 @@ public class NullSerializer implements HGSerializer {
 	@Override
 	public void writeData(OutputStream out, Object data, ObjectPool objectPool)
 	{
-		IntSerializer.serializeInt(out, SerializerManager.NULL_SERIALIZER_ID);
+		IntSerializer.serializeInt(out, DefaultSerializerManager.NULL_SERIALIZER_ID);
 	}
 
 }

@@ -6,23 +6,28 @@ import java.io.OutputStream;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.hypergraphdb.peer.protocol.SerializerManager;
+import org.hypergraphdb.peer.protocol.SerializerMapper;
 import org.hypergraphdb.peer.serializer.SystemName.SystemNameSerializer;
 
 import org.hypergraphdb.type.BonesOfBeans;
+import org.hypergraphdb.type.JavaTypeFactory;
 
 public class BeanSerializer extends PooledObjectSerializer
 {
 	HGSerializer systemNameSerializer;
 	
-	public BeanSerializer(){
-		systemNameSerializer = new SystemNameSerializer();
+	public BeanSerializer(SerializerManager manager){
+		super(manager);
+		
+		systemNameSerializer = new SystemNameSerializer(manager);
 	}
 
 	@Override
 	public void putData(OutputStream out, Object data, ObjectPool objectPool)
 	{
 		//write serializer id
-		IntSerializer.serializeInt(out, SerializerManager.BEAN_SERIALIZER_ID);
+		IntSerializer.serializeInt(out, DefaultSerializerManager.BEAN_SERIALIZER_ID);
 		
 		Map<String, PropertyDescriptor> properties = BonesOfBeans.getAllPropertyDescriptors(data.getClass());
 		
@@ -40,7 +45,7 @@ public class BeanSerializer extends PooledObjectSerializer
 				//write data
 				Object propertyValue = BonesOfBeans.getProperty(data, entry.getValue());
 				
-				HGSerializer itemSerializer = SerializerManager.getSerializer(propertyValue); 
+				HGSerializer itemSerializer = getSerializerManager().getSerializer(propertyValue); 
 				itemSerializer.writeData(out, propertyValue, objectPool);
 			}
 		}
@@ -49,7 +54,7 @@ public class BeanSerializer extends PooledObjectSerializer
 	@Override
 	protected Object createObject(InputStream in, ObjectPool objectPool)
 	{
-		String typeName = ((SystemName)SerializerManager.getSerializer(in).readData(in, objectPool)).getName();
+		String typeName = ((SystemName)getSerializerManager().getSerializer(in).readData(in, objectPool)).getName();
 		return BonesOfBeans.makeBean(typeName);
 	}
 	
@@ -61,10 +66,10 @@ public class BeanSerializer extends PooledObjectSerializer
 		for(int i=0;i<n;i++){
 			//read property
 			
-			String propertyName = ((SystemName)SerializerManager.getSerializer(in).readData(in, objectPool)).getName();
+			String propertyName = ((SystemName)getSerializerManager().getSerializer(in).readData(in, objectPool)).getName();
 
 			Integer serializerId = IntSerializer.deserializeInt(in);
-			HGSerializer itemSerializer = SerializerManager.getSerializerById(serializerId); 
+			HGSerializer itemSerializer = DefaultSerializerManager.getSerializerById(serializerId); 
 
 			Object propertyValue = itemSerializer.readData(in, objectPool);
 			
@@ -72,5 +77,47 @@ public class BeanSerializer extends PooledObjectSerializer
 		}
 
 		return null;
+	}
+	
+	public static class BeanSerializerMapper implements SerializerMapper
+	{
+		public HGSerializer serializer;
+		
+		public BeanSerializerMapper(SerializerManager manager)
+		{
+			serializer = new BeanSerializer(manager);
+		}
+		
+		public HGSerializer accept(Class<?> clazz)
+		{
+			Map<String, PropertyDescriptor> descriptors = BonesOfBeans.getAllPropertyDescriptors(clazz);
+			
+			// copied from DefaultJavaTypeMapper ... not sure that we should reuse this code or they might eveolve independently
+			boolean isRecord = JavaTypeFactory.isDefaultConstructible(clazz);
+
+			if (isRecord)
+			{
+				//
+				// Determine whether the Java class has a "record" aspect to it: that is,
+				// whether there is at least one property that is both readable and  writeable.
+				//
+				isRecord = false;
+				for (PropertyDescriptor d : descriptors.values()) {
+					if (d.getReadMethod() != null && d.getWriteMethod() != null) {
+						isRecord = true;
+						break;
+					}
+				}
+			}
+			
+			if (isRecord) return serializer;
+			else return null;
+		}
+
+		@Override
+		public HGSerializer getSerializer()
+		{
+			return serializer;
+		}
 	}
 }

@@ -15,7 +15,7 @@ public class StringSerializer extends PrimitiveTypeSerializer {
 	@Override
 	public void serialize(OutputStream out, Object data) {
 		if ((data == null) || (data instanceof String)){
-			IntSerializer.serializeInt(out, SerializerManager.STRING_SERIALIZER_ID);
+			IntSerializer.serializeInt(out, DefaultSerializerManager.STRING_SERIALIZER_ID);
 			serializeString(out, (String)data);
 		}
 	}

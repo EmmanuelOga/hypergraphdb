@@ -160,7 +160,6 @@ public class HyperGraphPeer {
 		 * 
 		 * TODO: add logic to handle different signatures
 		 */
-		@Override
 		public Object handleRequest(Object[] params) {
 			return add(params[0]);
 		}
@@ -168,7 +167,6 @@ public class HyperGraphPeer {
 	}
 	private class GetMessageHandler implements MessageHandler{
 
-		@Override
 		public Object handleRequest(Object[] params) {
 			if (params[0] instanceof HGHandle){
 				return get((HGHandle)params[0]);

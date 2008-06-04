@@ -25,7 +25,6 @@ public class JXTAPeerForwarder implements PeerForwarder{
 	 */
 	private Protocol protocol = new Protocol();
 	
-	@Override
 	public boolean configure(Object configuration) {
 		boolean result = false;
 		
@@ -43,7 +42,6 @@ public class JXTAPeerForwarder implements PeerForwarder{
 	}
 	
 	
-	@Override
 	public Object forward(Message msg) {
 		
 		Object result = null;

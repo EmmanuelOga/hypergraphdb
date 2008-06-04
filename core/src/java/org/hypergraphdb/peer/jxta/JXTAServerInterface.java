@@ -31,7 +31,6 @@ public class JXTAServerInterface implements ServerInterface{
 		
 	}
 	
-	@Override
 	public boolean configure(Object configuration) {
 		boolean result = false;
 		
@@ -47,7 +46,6 @@ public class JXTAServerInterface implements ServerInterface{
 		return result;		
 	}
 
-	@Override
 	public void run() {
 		
         System.out.println("Starting ServerSocket");
@@ -106,7 +104,7 @@ public class JXTAServerInterface implements ServerInterface{
                 ie.printStackTrace();
             }
         }
-		@Override
+
 		public void run() {
 			handleRequest(socket);
 		}

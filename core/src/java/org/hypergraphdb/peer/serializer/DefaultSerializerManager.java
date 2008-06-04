@@ -83,20 +83,17 @@ public class DefaultSerializerManager implements SerializerManager
 	}
 	
 	//interface functions
-	@Override
 	public HGSerializer getSerializer(InputStream in)
 	{
 		Integer serializerId = IntSerializer.deserializeInt(in);
 		return getSerializerById(serializerId); 
 
 	}
-	@Override
 	public HGSerializer getSerializer(Object data){
 		if (data == null) return wellKnownSerializers.get("nullSerializer");
 		else return getSerializerByType(data.getClass());
 	}
 	
-	@Override
 	public HGSerializer getSerializerByType(Class<?> clazz){
 		HGSerializer serializer = null;
 		

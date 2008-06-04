@@ -71,14 +71,12 @@ public class JavaSerializer extends PooledObjectSerializer
 			serializer = new JavaSerializer(manager);
 		}
 		
-		@Override
 		public HGSerializer accept(Class<?> clazz)
 		{
 			//accept anything
 			return serializer;
 		}
 
-		@Override
 		public HGSerializer getSerializer()
 		{
 			return serializer;

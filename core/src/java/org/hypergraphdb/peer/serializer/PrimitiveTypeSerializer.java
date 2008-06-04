@@ -8,14 +8,12 @@ import java.io.OutputStream;
 public abstract class PrimitiveTypeSerializer implements HGSerializer 
 {
 	
-	@Override
 	public void writeData(OutputStream out, Object data, ObjectPool objectPool)
 	{
 		serialize(out, data);
 	}
 	
 
-	@Override
 	public Object readData(InputStream in, ObjectPool objectPool)
 	{
 		return deserialize(in);

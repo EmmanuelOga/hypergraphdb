@@ -49,7 +49,6 @@ public class HGTypeSystemPeer {
 
 	private class GetTypeHandleMessageHandler implements MessageHandler{
 
-		@Override
 		public Object handleRequest(Object[] params) {
 			if ((typeSystem != null) && (params[0] instanceof Class)){
 				return typeSystem.getTypeHandle((Class)params[0]);

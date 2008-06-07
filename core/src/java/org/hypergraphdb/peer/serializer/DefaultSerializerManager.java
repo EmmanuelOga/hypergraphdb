@@ -7,29 +7,15 @@ import java.util.ListIterator;
 
 import org.hypergraphdb.handle.UUIDPersistentHandle;
 import org.hypergraphdb.peer.protocol.SerializerManager;
-import org.hypergraphdb.peer.protocol.SerializerMapper;
-import org.hypergraphdb.peer.serializer.ArraySerializer.ArraySerializerMapper;
-import org.hypergraphdb.peer.serializer.BeanSerializer.BeanSerializerMapper;
-import org.hypergraphdb.peer.serializer.JavaSerializer.JavaSerializerMapper;
-import org.hypergraphdb.peer.serializer.StreamObjectReference.StreamObjectReferenceSerializer;
-import org.hypergraphdb.peer.serializer.SystemName.SystemNameSerializer;
 import org.hypergraphdb.util.Pair;
 
 public class DefaultSerializerManager implements SerializerManager
 {
-	public static final Integer INT_SERIALIZER_ID = 0;
-	public static final Integer STRING_SERIALIZER_ID = 1;
+	public static final Integer NULL_SERIALIZER_ID = 0;
 	
-	public static final Integer STREAM_OBJECT_REFERENCE_SERIALIZER_ID = 100;
-	public static final Integer SYSTEM_NAME_SERIALIZER_ID = 101;
-	
-	public static final Integer NULL_SERIALIZER_ID = 200;
-	
-	public static final Integer UUID_HANDLE_SERIALIZER_ID = 300;
+	public static final Integer PERSISTENT_HANDLE_SERIALIZER_ID = 100;
 
-	public static final Integer BEAN_SERIALIZER_ID = 400;
-	public static final Integer ARRAY_SERIALIZER_ID = 401;
-	public static final Integer JAVA_SERIALIZER_ID = 402;
+	public static final Integer SUBGRAPH_SERIALIZER_ID = 200;
 
 	private static HashMap<String, HGSerializer> wellKnownSerializers = new HashMap<String, HGSerializer>();
 	private static HashMap<String, Integer> wellKnownSerializerIds = new HashMap<String, Integer>();
@@ -41,20 +27,11 @@ public class DefaultSerializerManager implements SerializerManager
 	
 	public DefaultSerializerManager() 
 	{
-		//bootstrap for now ... 
-		addWellknownSerializer(String.class.getName(), new StringSerializer(), STRING_SERIALIZER_ID);
-		addWellknownSerializer(Integer.class.getName(), new IntSerializer(), INT_SERIALIZER_ID);
-		
-		addWellknownSerializer(StreamObjectReference.class.getName(), new StreamObjectReferenceSerializer(), STREAM_OBJECT_REFERENCE_SERIALIZER_ID);
-		addWellknownSerializer(SystemName.class.getName(), new SystemNameSerializer(this), SYSTEM_NAME_SERIALIZER_ID);
-		
 		addWellknownSerializer("nullSerializer", new NullSerializer(), NULL_SERIALIZER_ID);
 		
-		addSerializerMapper(new JavaSerializerMapper(this), JAVA_SERIALIZER_ID, null);
-		addSerializerMapper(new BeanSerializerMapper(this), BEAN_SERIALIZER_ID, null);
-		addSerializerMapper(new ArraySerializerMapper(this), ARRAY_SERIALIZER_ID, null);
+		addWellknownSerializer(UUIDPersistentHandle.class.getName(), new PersistentHandlerSerializer(), PERSISTENT_HANDLE_SERIALIZER_ID);
 		
-		addWellknownSerializer(UUIDPersistentHandle.class.getName(), new UUIDHandlerSerializer(this), UUID_HANDLE_SERIALIZER_ID);
+		addSerializerMapper(new SubgraphSerializer(), SUBGRAPH_SERIALIZER_ID, null);
 	}
 	
 	public static void addWellknownSerializer(String name, HGSerializer serializer, Integer id)
@@ -85,7 +62,7 @@ public class DefaultSerializerManager implements SerializerManager
 	//interface functions
 	public HGSerializer getSerializer(InputStream in)
 	{
-		Integer serializerId = IntSerializer.deserializeInt(in);
+		Integer serializerId = SerializationUtils.deserializeInt(in);
 		return getSerializerById(serializerId); 
 
 	}

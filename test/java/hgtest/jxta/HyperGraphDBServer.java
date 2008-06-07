@@ -1,8 +1,6 @@
 package hgtest.jxta;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
+import org.hypergraphdb.peer.DummyPolicy;
 import org.hypergraphdb.peer.HyperGraphPeer;
 import org.hypergraphdb.peer.PeerConfiguration;
 import org.hypergraphdb.peer.jxta.JXTAPeerConfiguration;
@@ -15,9 +13,10 @@ public class HyperGraphDBServer {
 		
 		PeerConfiguration conf = new PeerConfiguration(true, "./TestDB", 
 				true, "org.hypergraphdb.peer.jxta.JXTAServerInterface", jxtaConf, 
-				false, null, null);
+				false, null, null,
+				"./ServerCacheDb");
 		
-		HyperGraphPeer server = new HyperGraphPeer(conf);
+		HyperGraphPeer server = new HyperGraphPeer(conf, new DummyPolicy(true));
 		
 		server.start();
 

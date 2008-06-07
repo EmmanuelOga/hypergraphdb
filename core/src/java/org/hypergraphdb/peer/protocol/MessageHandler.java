@@ -1,6 +1,6 @@
 package org.hypergraphdb.peer.protocol;
 
-import org.hypergraphdb.peer.HyperGraphPeer;
+
 
 /**
  * @author Cipri Costa
@@ -11,5 +11,5 @@ import org.hypergraphdb.peer.HyperGraphPeer;
  * </p>
  */
 public interface MessageHandler {
-	public Object handleRequest(Object[] params);
+	Object handleRequest(Object params[]);
 }

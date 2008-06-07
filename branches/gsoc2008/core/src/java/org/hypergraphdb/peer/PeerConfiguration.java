@@ -1,7 +1,9 @@
 package org.hypergraphdb.peer;
 
 public class PeerConfiguration {
-
+	
+	private String cacheDatabaseName;
+	
 	private boolean hasLocalHGDB;
 	private String databaseName;
 	
@@ -15,7 +17,9 @@ public class PeerConfiguration {
 	
 	public PeerConfiguration(boolean hasLocalHGDB, String databaseName, 
 			boolean hasServerInterface, String serverInterfaceType, Object serverInterfaceConfiguration, 
-			boolean canForwardRequests, String peerForwarderType, Object peerForwarderConfiguration){
+			boolean canForwardRequests, String peerForwarderType, Object peerForwarderConfiguration,
+			String cacheDatabaseName)
+	{
 		this.hasLocalHGDB = hasLocalHGDB;
 		this.databaseName = databaseName;
 		
@@ -26,6 +30,8 @@ public class PeerConfiguration {
 		this.canForwardRequests = canForwardRequests;
 		this.peerForwarderType = peerForwarderType;
 		this.peerForwarderConfiguration = peerForwarderConfiguration;
+		
+		this.cacheDatabaseName = cacheDatabaseName;
 	}
 
 	
@@ -100,6 +106,18 @@ public class PeerConfiguration {
 
 	public void setPeerForwarderConfiguration(Object peerForwarderConfiguration) {
 		this.peerForwarderConfiguration = peerForwarderConfiguration;
+	}
+
+
+	public String getCacheDatabaseName()
+	{
+		return cacheDatabaseName;
+	}
+
+
+	public void setCacheDatabaseName(String cacheDatabaseName)
+	{
+		this.cacheDatabaseName = cacheDatabaseName;
 	}
 	
 }

@@ -1,6 +1,5 @@
-package org.hypergraphdb.peer.protocol;
+package org.hypergraphdb.peer.serializer;
 
-import org.hypergraphdb.peer.serializer.HGSerializer;
 
 public interface SerializerMapper
 {

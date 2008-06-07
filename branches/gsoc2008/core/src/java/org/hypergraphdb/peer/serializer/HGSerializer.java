@@ -5,6 +5,6 @@ import java.io.OutputStream;
 
 
 public interface HGSerializer {
-	public void writeData(OutputStream out, Object data, ObjectPool objectPool);
-	public Object readData(InputStream in, ObjectPool objectPool);
+	public void writeData(OutputStream out, Object data);
+	public Object readData(InputStream in);
 }

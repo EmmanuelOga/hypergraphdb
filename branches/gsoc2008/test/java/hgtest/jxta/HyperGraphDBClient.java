@@ -1,7 +1,7 @@
 package hgtest.jxta;
 
 import org.hypergraphdb.HGHandle;
-import org.hypergraphdb.peer.HGTypeSystemPeer;
+import org.hypergraphdb.peer.DummyPolicy;
 import org.hypergraphdb.peer.HyperGraphPeer;
 import org.hypergraphdb.peer.PeerConfiguration;
 import org.hypergraphdb.peer.jxta.JXTAPeerConfiguration;
@@ -17,23 +17,34 @@ public class HyperGraphDBClient{
 		
 		PeerConfiguration conf = new PeerConfiguration(true, "", 
 				false, null, null, 
-				true, "org.hypergraphdb.peer.jxta.JXTAPeerForwarder", jxtaConf);
+				true, "org.hypergraphdb.peer.jxta.JXTAPeerForwarder", jxtaConf,
+				"./ClientCacheDB");
 		
-		HyperGraphPeer peer = new HyperGraphPeer(conf);
+		HyperGraphPeer peer = new HyperGraphPeer(conf, new DummyPolicy(false));
 		
 		peer.start();
 
 		HGHandle handle = null;
+		Object retrievedData = null;
 		
 		handle = peer.add("First atom to be sent");
 
 		System.out.println("Client added handle: " + ((handle == null) ? "null" : handle.toString()));
 				
-		Object retrievedData = peer.get(handle);
+		retrievedData = peer.get(handle);
 	
 		System.out.println("Client read: " + ((retrievedData == null) ? "null" : retrievedData.toString()));
 		
-		SimpleBean b = new SimpleBean();
+		SimpleBean b = new SimpleBean("test");
+		
+		handle = peer.add(b);
+
+		System.out.println("Client added handle: " + ((handle == null) ? "null" : handle.toString()));
+
+		retrievedData = peer.get(handle);
+		
+		System.out.println("Client read: " + ((retrievedData == null) ? "null" : retrievedData.toString()));
+
 		/*
 		handle = ((HGTypeSystemPeer)peer.getTypeSystem()).getTypeHandle(SimpleBean.class);
 		

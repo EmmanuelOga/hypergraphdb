@@ -6,5 +6,5 @@ import org.hypergraphdb.peer.protocol.Message;
 public interface PeerForwarder {
 	boolean configure(Object configuration);
 	
-	Object forward(Message msg);
+	Object forward(Object destination, Message msg);
 }

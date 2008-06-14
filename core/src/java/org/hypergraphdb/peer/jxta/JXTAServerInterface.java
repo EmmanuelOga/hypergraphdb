@@ -5,6 +5,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import net.jxta.id.IDFactory;
+import net.jxta.pipe.PipeID;
+import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.socket.JxtaServerSocket;
 
 import org.hypergraphdb.peer.ServerInterface;
@@ -21,28 +24,38 @@ import org.hypergraphdb.peer.protocol.Session;
  */
 public class JXTAServerInterface implements ServerInterface{
 
-	private JXTAPeerConfiguration configuration;
+	private JXTAPeerConfiguration config;
 	/**
 	 * used to format messages
 	 */
 	private Protocol protocol = new Protocol();
-	
+	private JXTANetwork jxtaNetwork = new DefaultJXTANetwork();
+	PipeAdvertisement pipeAdv = null;
 	public JXTAServerInterface(){
 		
 	}
 	
-	public boolean configure(Object configuration) {
+	public boolean configure(Object config) {
 		boolean result = false;
 		
-		if (configuration instanceof JXTAPeerConfiguration){
-			this.configuration = (JXTAPeerConfiguration)configuration;
+		if (config instanceof JXTAPeerConfiguration){
+			this.config = (JXTAPeerConfiguration)config;
 			result = true;
 		}
 		
 		if (result){
-			result = JXTAManager.init("HGDB");
+			result = jxtaNetwork.init(this.config);
 		}
-		
+
+		if (result)
+		{
+			PipeID pipeID = IDFactory.newPipeID(jxtaNetwork.getPeerGroup().getPeerGroupID());
+			System.out.println("created pipe: " + pipeID.toString());
+			pipeAdv = HGAdvertisementsFactory.newPipeAdvertisement(pipeID, this.config.getPeerName());
+			jxtaNetwork.publishAdv(pipeAdv);
+			jxtaNetwork.start();
+		}
+
 		return result;		
 	}
 
@@ -52,7 +65,7 @@ public class JXTAServerInterface implements ServerInterface{
         JxtaServerSocket serverSocket = null;
         
         try {
-            serverSocket = new JxtaServerSocket(JXTAManager.getNetPeerGroup(), HGAdvertisementsFactory.newAdvertisement(configuration.getPeerId()));
+        	serverSocket = new JxtaServerSocket(jxtaNetwork.getPeerGroup(), pipeAdv);
             serverSocket.setSoTimeout(0);
         } catch (IOException e) {
             System.out.println("failed to create a server socket");
@@ -109,8 +122,4 @@ public class JXTAServerInterface implements ServerInterface{
 			handleRequest(socket);
 		}
 	}
-
-
-
-	
 }

@@ -121,7 +121,7 @@ public class HyperGraphPeer {
 	 * @param atom
 	 * @return
 	 */
-	public HGHandle add(Object atom){		
+	public HGHandle add(String storeOnPeer, Object atom){		
 		System.out.println("adding atom: " + atom.toString());
 		
 		HGHandle handle = null;
@@ -136,7 +136,7 @@ public class HyperGraphPeer {
 			Subgraph subGraph = new Subgraph(cacheGraph, cacheHandle);
 			
 			Message msg = messageFactory.build(ServiceType.ADD, new Object[]{subGraph});
-			Object result = peerForwarder.forward(msg);
+			Object result = peerForwarder.forward(storeOnPeer, msg);
 
 			if (result instanceof HGHandle){
 				handle = (HGHandle)result;
@@ -201,16 +201,19 @@ public class HyperGraphPeer {
 			//TODO optimization - check cache, only get what we need from server
 			//get data from the other peer
 			Message msg = messageFactory.build(ServiceType.GET, new Object[]{handle});
-			Subgraph subgraph = (Subgraph)peerForwarder.forward(msg);
+			Object peerResult = peerForwarder.forward(null, msg);
+			if (peerResult != null)
+			{
+				Subgraph subgraph = (Subgraph)peerResult;
 		
-			//store the result in cache
-			storeSubgraph(subgraph, cacheGraph.getStore());
+				//store the result in cache
+				storeSubgraph(subgraph, cacheGraph.getStore());
 			
-			//return result
-			result = cacheGraph.get(handle);
-			
-			//TODO: delete from local storage
-			
+				//return result
+				result = cacheGraph.get(handle);
+
+				//TODO: delete from local storage
+			}			
 		}
 		
 		return result;
@@ -219,7 +222,14 @@ public class HyperGraphPeer {
 	//TODO use streams?
 	public Subgraph getSubgraph(HGHandle handle)
 	{
-		return new Subgraph(graph, (HGPersistentHandle)handle);
+		if (graph.getStore().containsLink((HGPersistentHandle)handle))
+		{
+			System.out.println("Handle found in local repository");
+			return new Subgraph(graph, (HGPersistentHandle)handle);			
+		}else {
+			System.out.println("Handle NOT found in local repository");
+			return null;
+		}
 	}
 	
 	/**

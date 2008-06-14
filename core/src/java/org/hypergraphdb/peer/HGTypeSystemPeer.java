@@ -24,7 +24,7 @@ public class HGTypeSystemPeer {
 	public HGHandle getTypeHandle(Class<?> clazz){
 		if (shouldForward()){
 			Message msg = messageFactory.build(ServiceType.GET_TYPE_HANDLE, new Object[]{clazz});
-			Object result = peerForwarder.forward(msg);
+			Object result = peerForwarder.forward(null, msg);
 			
 			if (result instanceof HGHandle) return (HGHandle) result;
 			else return null;

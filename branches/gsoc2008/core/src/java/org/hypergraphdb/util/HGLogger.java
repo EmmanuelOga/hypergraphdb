@@ -26,4 +26,5 @@ public class HGLogger
 		System.err.println("[HGEXCEPTION] - " + t.toString());
 		t.printStackTrace(System.out);		
 	}
+	
 }

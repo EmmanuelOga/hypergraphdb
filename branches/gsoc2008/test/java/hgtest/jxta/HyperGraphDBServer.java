@@ -7,24 +7,28 @@ import org.hypergraphdb.peer.jxta.JXTAPeerConfiguration;
 
 public class HyperGraphDBServer {
 	public static void main(String[] args){
-		System.out.println("Starting a HGDB server ...");
-
-		JXTAPeerConfiguration jxtaConf = new JXTAPeerConfiguration("urn:jxta:uuid-59616261646162614E50472050325033C0C1DE89719B456691A596B983BA0E1004");
+		if (args.length != 2)
+		{
+			System.out.println("arguments: PeerName PeerGroup");
+			System.exit(0);
+		}
 		
-		PeerConfiguration conf = new PeerConfiguration(true, "./TestDB", 
+		String peerName = args[0];
+		String groupName = args[1];
+		
+		System.out.println("Starting HGDB peer " + peerName + " ...");
+
+		JXTAPeerConfiguration jxtaConf = new JXTAPeerConfiguration();
+		jxtaConf.setPeerName(peerName);
+		jxtaConf.setPeerGroupName(groupName);
+		
+		PeerConfiguration conf = new PeerConfiguration(true, "./DBs/" + peerName + "DB", 
 				true, "org.hypergraphdb.peer.jxta.JXTAServerInterface", jxtaConf, 
 				false, null, null,
-				"./ServerCacheDb");
+				"./DBs/" + peerName + "CacheDb");
 		
 		HyperGraphPeer server = new HyperGraphPeer(conf, new DummyPolicy(true));
 		
 		server.start();
-
-		while(true){
-			try {
-				Thread.sleep(10000);
-			} catch (InterruptedException e) {
-			}
-		}
 	}
 }

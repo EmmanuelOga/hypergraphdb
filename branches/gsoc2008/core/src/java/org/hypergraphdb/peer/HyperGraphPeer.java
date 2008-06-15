@@ -2,6 +2,7 @@ package org.hypergraphdb.peer;
 
 import java.util.Iterator;
 
+import org.apache.servicemix.beanflow.ActivityHelper;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HGStore;
@@ -9,6 +10,7 @@ import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.peer.protocol.Message;
 import org.hypergraphdb.peer.protocol.MessageFactory;
 import org.hypergraphdb.peer.protocol.MessageHandler;
+import org.hypergraphdb.peer.workflow.RememberClientActivity;
 import org.hypergraphdb.util.Pair;
 
 /**
@@ -136,6 +138,11 @@ public class HyperGraphPeer {
 			Subgraph subGraph = new Subgraph(cacheGraph, cacheHandle);
 			
 			Message msg = messageFactory.build(ServiceType.ADD, new Object[]{subGraph});
+			
+/*			RememberClientActivity activity = new RememberClientActivity(peerForwarder.newFilterActivity(), peerForwarder.newSendActivityFactory());
+			ActivityHelper.start(activity);
+			activity.join();*/
+			
 			Object result = peerForwarder.forward(storeOnPeer, msg);
 
 			if (result instanceof HGHandle){

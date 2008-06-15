@@ -17,6 +17,8 @@ import org.hypergraphdb.peer.PeerForwarder;
 import org.hypergraphdb.peer.protocol.Message;
 import org.hypergraphdb.peer.protocol.Protocol;
 import org.hypergraphdb.peer.protocol.Session;
+import org.hypergraphdb.peer.workflow.ActivityFactory;
+import org.hypergraphdb.peer.workflow.PeerFilterActivity;
 
 /**
  * @author Cipri Costa
@@ -143,5 +145,21 @@ public class JXTAPeerForwarder implements PeerForwarder, DiscoveryListener{
 	        }
 		
 	}
+
+
+	@Override
+	public PeerFilterActivity newFilterActivity()
+	{
+		return new JXTAPeerFilterActivity(jxtaNetwork.getAdvertisements());
+	}
+
+
+	@Override
+	public ActivityFactory newSendActivityFactory()
+	{
+		return new JXTASendActivityFactory(jxtaNetwork.getPeerGroup());
+	}
+	
+	
 
 }

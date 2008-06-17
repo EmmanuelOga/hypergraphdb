@@ -16,6 +16,7 @@ public class DefaultSerializerManager implements SerializerManager
 	public static final Integer PERSISTENT_HANDLE_SERIALIZER_ID = 100;
 
 	public static final Integer SUBGRAPH_SERIALIZER_ID = 200;
+	public static final Integer MESSAGE_SERIALIZER_ID = 201;
 
 	private static HashMap<String, HGSerializer> wellKnownSerializers = new HashMap<String, HGSerializer>();
 	private static HashMap<String, Integer> wellKnownSerializerIds = new HashMap<String, Integer>();
@@ -32,6 +33,7 @@ public class DefaultSerializerManager implements SerializerManager
 		addWellknownSerializer(UUIDPersistentHandle.class.getName(), new PersistentHandlerSerializer(), PERSISTENT_HANDLE_SERIALIZER_ID);
 		
 		addSerializerMapper(new SubgraphSerializer(), SUBGRAPH_SERIALIZER_ID, null);
+		addSerializerMapper(new MessageSerializer(), MESSAGE_SERIALIZER_ID, null);
 	}
 	
 	public static void addWellknownSerializer(String name, HGSerializer serializer, Integer id)

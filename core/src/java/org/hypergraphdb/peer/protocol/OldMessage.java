@@ -3,6 +3,7 @@ package org.hypergraphdb.peer.protocol;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.UUID;
 
 import org.hypergraphdb.peer.ServiceType;
 
@@ -13,7 +14,7 @@ import org.hypergraphdb.peer.ServiceType;
  * Used by <code>Protocol</code> to read/write service requests. Also capable of executing a message against the local peer.
  * </p>
  */
-public class Message {
+public class OldMessage {
 	private ServiceType serviceType;
 	/**
 	 * serializer used for parameters
@@ -24,19 +25,20 @@ public class Message {
 	 */
 	private Object params[];
 	
+	private UUID conversationId;
 	/**
 	 * Does the actual execution of the message on the local peer.
 	 */
 	private MessageHandler handler;
 	
 	
-	public Message(ServiceType serviceType, MessageHandler handler){
+	public OldMessage(ServiceType serviceType, MessageHandler handler){
 		this.serviceType = serviceType;
 		this.handler = handler;
 	}
 	
-	public Message clone(){
-		Message msg = new Message(serviceType, handler);
+	public OldMessage clone(){
+		OldMessage msg = new OldMessage(serviceType, handler);
 		return msg;
 	}
 
@@ -93,6 +95,16 @@ public class Message {
 
 	public void setParams(Object[] params) {
 		this.params = params;
+	}
+
+	public UUID getConversationId()
+	{
+		return conversationId;
+	}
+
+	public void setConversationId(UUID conversationId)
+	{
+		this.conversationId = conversationId;
 	}
 
 

@@ -7,16 +7,18 @@ import java.util.Timer;
 import org.apache.servicemix.beanflow.AbstractActivity;
 import org.apache.servicemix.beanflow.Activity;
 import org.apache.servicemix.beanflow.ActivityHelper;
+import org.hypergraphdb.peer.protocol.Message;
 
 public abstract class PeerFilterActivity extends AbstractActivity
 {
 	protected Object targetDescription;
 	private ActivityFactory activityFactory;
-	List<Activity> activities = new ArrayList<Activity>();
+	private Message msg;
+	
+	private List<Activity> activities = new ArrayList<Activity>();
 
 	public PeerFilterActivity()
 	{
-		
 	}
 		
 	@Override
@@ -31,7 +33,9 @@ public abstract class PeerFilterActivity extends AbstractActivity
 
 	protected void matchFound(Object target)
 	{
-		Activity newActivity = activityFactory.createActivity();
+		PeerRelatedActivity newActivity = (PeerRelatedActivity)activityFactory.createActivity();
+		newActivity.setMessage(msg);
+		newActivity.setTarget(target);
 		activities.add(newActivity);
 		
 		ActivityHelper.start(newActivity);
@@ -65,4 +69,15 @@ public abstract class PeerFilterActivity extends AbstractActivity
 	{
 		this.activityFactory = activityFactory;
 	}
+
+	public Message getMessage()
+	{
+		return msg;
+	}
+
+	public void setMessage(Message msg)
+	{
+		this.msg = msg;
+	}
+	
 }

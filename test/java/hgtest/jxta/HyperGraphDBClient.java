@@ -27,7 +27,7 @@ public class HyperGraphDBClient{
 		
 		PeerConfiguration conf = new PeerConfiguration(true, "", 
 				false, null, null, 
-				true, "org.hypergraphdb.peer.jxta.JXTAPeerForwarder", jxtaConf,
+				true, "org.hypergraphdb.peer.jxta.JXTAPeerInterface", jxtaConf,
 				"./DBs/" + peerName + "CacheDB");
 		
 		HyperGraphPeer peer = new HyperGraphPeer(conf, new DummyPolicy(false));
@@ -45,16 +45,16 @@ public class HyperGraphDBClient{
 		HGHandle handle1 = peer.add("Server1", "First atom to be sent to server1");
 		System.out.println("Client added handle: " + ((handle1 == null) ? "null" : handle1.toString()) + "to Server1");
 
-		HGHandle handle2 = peer.add("Server2", "First atom to be sent to server2");
-		System.out.println("Client added handle: " + ((handle2 == null) ? "null" : handle2.toString()) + "to Server2");
+//		HGHandle handle2 = peer.add("Server2", "First atom to be sent to server2");
+	//	System.out.println("Client added handle: " + ((handle2 == null) ? "null" : handle2.toString()) + "to Server2");
 
-		retrievedData = null;
-		if (handle1 != null) retrievedData = peer.get(handle1);
-		System.out.println("Client read: " + ((retrievedData == null) ? "null" : retrievedData.toString()));
+//		retrievedData = null;
+//		if (handle1 != null) retrievedData = peer.get(handle1);
+//		System.out.println("Client read: " + ((retrievedData == null) ? "null" : retrievedData.toString()));
 		
-		retrievedData = null;
-		if (handle2 != null) retrievedData = peer.get(handle2);
-		System.out.println("Client read: " + ((retrievedData == null) ? "null" : retrievedData.toString()));
+		//retrievedData = null;
+		//if (handle2 != null) retrievedData = peer.get(handle2);
+		//System.out.println("Client read: " + ((retrievedData == null) ? "null" : retrievedData.toString()));
 
 		/*
 		SimpleBean b = new SimpleBean("test");

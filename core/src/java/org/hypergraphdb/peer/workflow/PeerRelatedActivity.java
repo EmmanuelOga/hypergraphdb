@@ -3,10 +3,10 @@ package org.hypergraphdb.peer.workflow;
 import org.apache.servicemix.beanflow.AbstractActivity;
 import org.hypergraphdb.peer.protocol.Message;
 
-public abstract class SendActivity extends AbstractActivity
+public abstract class PeerRelatedActivity extends AbstractActivity
 {
 	protected Object target;
-	protected Message message;
+	protected Message msg;
 	
 	public Object getTarget()
 	{
@@ -20,12 +20,12 @@ public abstract class SendActivity extends AbstractActivity
 
 	public Message getMessage()
 	{
-		return message;
+		return msg;
 	}
 
-	public void setMessage(Message message)
+	public void setMessage(Message msg)
 	{
-		this.message = message;
+		this.msg = msg;
 	}
 	
 }

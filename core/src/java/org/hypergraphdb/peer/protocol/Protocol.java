@@ -26,23 +26,27 @@ public class Protocol {
 		
 	}
 	
+	
+	
 	/**
 	 * @param in
 	 * @param session 
 	 * @return
 	 * @throws IOException
 	 */
-	public Object handleRequest(InputStream in, Session session) throws IOException{
-		Object result = null;
+	public Message readMessage(InputStream in, Session session) throws IOException{
+		Message result = null;
 		
 		//get & verify signature
 		if (ProtocolUtils.verifySignature(in, SIGNATURE)){
-			//loop -> get message; dispatch message; write response;
-			Message msg = messageFactory.build(in);
+			ObjectSerializer serializer = new ObjectSerializer();
+			
+			result = (Message)serializer.deserialize(in);
+			
+			//			Message msg = messageFactory.build(in);
 				
 			//dispatch
-			result = msg.dispatch(in);
-			session.setSerializer(msg.getSerializer());
+			session.setSerializer(serializer);
 		}else{
 			System.out.println("ERROR: Signature does not match");
 		}
@@ -62,12 +66,15 @@ public class Protocol {
 	}
 
 	//TODO can send multiple messages?
-	public void createRequest(OutputStream out, Message msg, Session session) throws IOException{
+	public void writeMessage(OutputStream out, Message msg, Session session) throws IOException{
 		writeSignature(out);
+
+		//TODO serialization type should be configurable
+		ObjectSerializer serializer = new ObjectSerializer();
+		serializer.serialize(out, msg);
 		
-		msg.write(out);
-		
-		session.setSerializer(msg.getSerializer());
+		//TODO no longer needed
+		session.setSerializer(serializer);
 	}
 
 	public void createResponse(OutputStream out, Object response, Session session) throws IOException{

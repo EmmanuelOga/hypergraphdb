@@ -16,9 +16,9 @@ public class MessageFactory {
 	/**
 	 * all the templates that are used for exposed service types
 	 */
-	private static HashMap<ServiceType, Message> messageTemplates = new HashMap<ServiceType, Message>();
+	private static HashMap<ServiceType, OldMessage> messageTemplates = new HashMap<ServiceType, OldMessage>();
 	
-	public static void registerMessageTemplate(ServiceType serviceType, Message msg){
+	public static void registerMessageTemplate(ServiceType serviceType, OldMessage msg){
 		messageTemplates.put(serviceType, msg);
 	}
 	
@@ -29,12 +29,12 @@ public class MessageFactory {
 	 * 
 	 * This function just detects the message type and creates a message object from the appropriate template
 	 */
-	public Message build(InputStream in) throws IOException{
+	public OldMessage build(InputStream in) throws IOException{
 		//read message type
 		ServiceType serviceType = getServiceType(in);
 		//read encoding type
 
-		Message msg = getMessage(serviceType);
+		OldMessage msg = getMessage(serviceType);
 						
 		return msg;
 	}
@@ -46,9 +46,9 @@ public class MessageFactory {
 	 * 
 	 * Creates a message for a given service and a set of parameters. 
 	 */
-	public Message build(ServiceType serviceType, Object[] params){
+	public OldMessage build(ServiceType serviceType, Object[] params){
 		
-		Message msg = getMessage(serviceType);
+		OldMessage msg = getMessage(serviceType);
 
 		if (msg != null){
 			msg.setParams(params);
@@ -57,10 +57,10 @@ public class MessageFactory {
 		return msg;
 	}
 	
-	private Message getMessage(ServiceType serviceType){
+	private OldMessage getMessage(ServiceType serviceType){
 		//create message
-		Message msg = null;
-		Message msgTemplate = messageTemplates.get(serviceType);
+		OldMessage msg = null;
+		OldMessage msgTemplate = messageTemplates.get(serviceType);
 		if (msgTemplate != null){
 			msg = msgTemplate.clone();
 		}

@@ -204,7 +204,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
 
 		public void run()
 		{
-	        long waittime = 60 * 1000L;
+	        long waittime = 1000L;
 	        DiscoveryService discoveryService = hgdbGroup.getDiscoveryService();
 
 	        try {
@@ -213,6 +213,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	        	
 	        	while (true)
 	        	{
+	        		//System.out.println("Getting remote advertisements");
 		        	discoveryService.getRemoteAdvertisements(null,  DiscoveryService.ADV,  null, null, 100, null);
 
 	                try {
@@ -236,7 +237,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	        // let's get the responding peer's advertisement
 	        String peerName = ev.getSource().toString();
 	        	        
-	        System.out.println(" [  Got a Discovery Response [" + res.getResponseCount() + " elements]  from peer : " + peerName + "  ]");
+//	        System.out.println(" [  Got a Discovery Response [" + res.getResponseCount() + " elements]  from peer : " + peerName + "  ]");
 
 	        Advertisement adv;
 	        Enumeration<Advertisement> advs = res.getAdvertisements();
@@ -246,8 +247,11 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	                adv = (Advertisement) advs.nextElement();
 	                if (adv instanceof PipeAdvertisement)
 	                {
-		                peerAdvs.add(adv);
-		                System.out.println("Pipe from " + ((PipeAdvertisement)adv).getName() + " (" + ((PipeAdvertisement)adv).getPipeID() + ")");
+	                	
+		                if (peerAdvs.add(adv))
+		                {
+		                	System.out.println("New Pipe from " + peerName + " (" + ((PipeAdvertisement)adv).getPipeID() + ")");
+		                }
 		                
 	                }
 	            }

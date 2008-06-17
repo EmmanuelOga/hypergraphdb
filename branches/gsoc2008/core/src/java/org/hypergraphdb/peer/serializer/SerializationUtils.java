@@ -3,6 +3,7 @@ package org.hypergraphdb.peer.serializer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.UUID;
 
 public class SerializationUtils
 {
@@ -32,6 +33,84 @@ public class SerializationUtils
 		}catch(IOException ex){
 			ex.printStackTrace();
 		}
+	}
 
+	public static void serializeString(OutputStream out, String data)
+	{
+		byte[] byteData = data.getBytes();
+		
+		serializeInt(out, byteData.length);
+		try
+		{
+			out.write(byteData);
+		} catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}	
+	
+	public static String deserializeString(InputStream in)
+	{
+		byte[] byteData = new byte[deserializeInt(in)];
+		try
+		{
+			in.read(byteData);
+		} catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return new String(byteData);
+	}	
+	
+	public static void serializeUUID(OutputStream out, UUID id)
+	{
+		long msb = id.getMostSignificantBits();
+		long lsb = id.getLeastSignificantBits();
+
+		byte[] data = new byte[16];
+        data[0] = (byte) ((msb >>> 56)); 
+        data[1] = (byte) ((msb >>> 48));
+        data[2] = (byte) ((msb >>> 40)); 
+        data[3] = (byte) ((msb >>> 32));
+        data[4] = (byte) ((msb >>> 24)); 
+        data[5] = (byte) ((msb >>> 16));
+        data[6] = (byte) ((msb >>> 8)); 
+        data[7] = (byte) ((msb >>> 0));
+        data[8] = (byte) ((lsb >>> 56)); 
+        data[9] = (byte) ((lsb >>> 48));
+        data[10] = (byte) ((lsb >>> 40)); 
+        data[11] = (byte) ((lsb >>> 32));
+        data[12] = (byte) ((lsb >>> 24)); 
+        data[13] = (byte) ((lsb >>> 16));
+        data[14] = (byte) ((lsb >>> 8)); 
+        data[15] = (byte) ((lsb >>> 0));
+        
+        try
+		{
+			out.write(data);
+		} catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static UUID deserializeUUID(InputStream in)
+	{
+		byte[] data = new byte[16];
+		
+		try
+		{
+			in.read(data);
+		} catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return UUID.nameUUIDFromBytes(data);
+	}
 }

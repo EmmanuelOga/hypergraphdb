@@ -102,7 +102,7 @@ public class JXTAServerInterface implements ServerInterface{
                 Session session = new Session();
 
                 //get the data through the protocol
-                Object result = protocol.handleRequest(in, session);
+                Object result = protocol.readMessage(in, session);
                 //use protocol to define the response
                 protocol.createResponse(out, result, session);	
                 out.flush();

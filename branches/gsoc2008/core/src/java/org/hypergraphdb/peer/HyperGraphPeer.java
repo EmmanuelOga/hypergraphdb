@@ -8,9 +8,12 @@ import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HGStore;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.peer.protocol.Message;
+import org.hypergraphdb.peer.protocol.OldMessage;
 import org.hypergraphdb.peer.protocol.MessageFactory;
 import org.hypergraphdb.peer.protocol.MessageHandler;
-import org.hypergraphdb.peer.workflow.RememberClientActivity;
+import org.hypergraphdb.peer.protocol.Performative;
+import org.hypergraphdb.peer.workflow.RememberActivityClient;
+import org.hypergraphdb.peer.workflow.RememberActivityServer;
 import org.hypergraphdb.util.Pair;
 
 /**
@@ -28,11 +31,11 @@ public class HyperGraphPeer {
 	/**
 	 * the object starts the server interface of the peer. Messages are received by this object and forwarded to functions in this class.
 	 */
-	private ServerInterface serverInterface = null;
+	private PeerInterface serverInterface = null;
 	/**
 	 * object used for sending requests to peers
 	 */
-	private PeerForwarder peerForwarder = null;
+	private PeerInterface peerInterface = null;
 	/**
 	 * The factory is configured by the peer. The template messages are then use to send/receive communications to/from peers
 	 */
@@ -70,12 +73,14 @@ public class HyperGraphPeer {
 
 		if (configuration.getHasServerInterface()){
 			try{
-				serverInterface = (ServerInterface)Class.forName(configuration.getServerInterfaceType()).getConstructor().newInstance();				
+				serverInterface = (PeerInterface)Class.forName(configuration.getServerInterfaceType()).getConstructor().newInstance();				
 			}catch(Exception ex){
 				ex.printStackTrace();
 			}
 
 			if (serverInterface != null){
+				
+				serverInterface.registerActivity(Performative.CallForProposal, Message.REMEMBER_ACTION, new RememberActivityServer.ConvFactory(this));
 				
 				if(serverInterface.configure(configuration.getServerInterfaceConfiguration())){
 					Thread thread = new Thread(serverInterface, "ServerInterface");
@@ -86,21 +91,20 @@ public class HyperGraphPeer {
 	
 		if (configuration.getCanForwardRequests()){
 			try{
-				peerForwarder = (PeerForwarder)Class.forName(configuration.getPeerForwarderType()).getConstructor().newInstance();
-
+				peerInterface = (PeerInterface)Class.forName(configuration.getPeerForwarderType()).getConstructor().newInstance();
 			}catch(Exception ex){
 				ex.printStackTrace();
 			}
 			
-			if (peerForwarder != null){
+			if (peerInterface != null){
 				//create type system peer
 
-				peerForwarder.configure(configuration.getPeerForwarderConfiguration());
+				peerInterface.configure(configuration.getPeerForwarderConfiguration());
 
 			}
 		}
 		
-		typeSystem = new HGTypeSystemPeer(peerForwarder, (graph == null) ? null : graph.getTypeSystem());
+		typeSystem = new HGTypeSystemPeer(peerInterface, (graph == null) ? null : graph.getTypeSystem());
 
 		// TODO actually compute this
 		return true;
@@ -108,8 +112,8 @@ public class HyperGraphPeer {
 	
 	private void registerMessageTemplates() {
 		//set up message templates
-		MessageFactory.registerMessageTemplate(ServiceType.ADD, new Message(ServiceType.ADD, new AddMessageHandler()));
-		MessageFactory.registerMessageTemplate(ServiceType.GET, new Message(ServiceType.GET, new GetMessageHandler()));
+		MessageFactory.registerMessageTemplate(ServiceType.ADD, new OldMessage(ServiceType.ADD, new AddMessageHandler()));
+		MessageFactory.registerMessageTemplate(ServiceType.GET, new OldMessage(ServiceType.GET, new GetMessageHandler()));
 	}
 
 	void stop(){
@@ -137,13 +141,14 @@ public class HyperGraphPeer {
 			
 			Subgraph subGraph = new Subgraph(cacheGraph, cacheHandle);
 			
-			Message msg = messageFactory.build(ServiceType.ADD, new Object[]{subGraph});
+			//OldMessage msg = messageFactory.build(ServiceType.ADD, new Object[]{subGraph});
 			
-/*			RememberClientActivity activity = new RememberClientActivity(peerForwarder.newFilterActivity(), peerForwarder.newSendActivityFactory());
+			RememberActivityClient activity = new RememberActivityClient(peerInterface, storeOnPeer);
+			//activity.setMessage(msg);
 			ActivityHelper.start(activity);
-			activity.join();*/
+			activity.join();
 			
-			Object result = peerForwarder.forward(storeOnPeer, msg);
+			Object result = null;//peerInterface.forward(storeOnPeer, msg);
 
 			if (result instanceof HGHandle){
 				handle = (HGHandle)result;
@@ -207,8 +212,8 @@ public class HyperGraphPeer {
 		{
 			//TODO optimization - check cache, only get what we need from server
 			//get data from the other peer
-			Message msg = messageFactory.build(ServiceType.GET, new Object[]{handle});
-			Object peerResult = peerForwarder.forward(null, msg);
+			OldMessage msg = messageFactory.build(ServiceType.GET, new Object[]{handle});
+			Object peerResult = peerInterface.forward(null, msg);
 			if (peerResult != null)
 			{
 				Subgraph subgraph = (Subgraph)peerResult;
@@ -271,5 +276,4 @@ public class HyperGraphPeer {
 		}
 		
 	}
-
 }

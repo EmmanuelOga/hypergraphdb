@@ -23,7 +23,7 @@ public abstract class PeerFilterActivity extends AbstractActivity
 	{
 	}
 		
-	@Override
+
 	public void run()
 	{
 		filterTargets();
@@ -43,7 +43,7 @@ public abstract class PeerFilterActivity extends AbstractActivity
 		ActivityHelper.start(newActivity);
 	}
 	
-	@Override
+
 	public void startWithTimeout(Timer arg0, long arg1)
 	{
 		// TODO Auto-generated method stub

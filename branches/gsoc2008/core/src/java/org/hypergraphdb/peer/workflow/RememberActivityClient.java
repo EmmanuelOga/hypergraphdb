@@ -110,7 +110,7 @@ public class RememberActivityClient extends ConversationActivity<RememberActivit
 		return State.AcceptingProposal;
 	}
 	
-	@Override
+
 	public void startWithTimeout(Timer arg0, long arg1)
 	{
 		// TODO Auto-generated method stub

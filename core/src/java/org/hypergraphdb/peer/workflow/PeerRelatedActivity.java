@@ -1,12 +1,17 @@
 package org.hypergraphdb.peer.workflow;
 
 import org.apache.servicemix.beanflow.AbstractActivity;
+import org.apache.servicemix.beanflow.AsynchronousActivity;
 import org.hypergraphdb.peer.protocol.Message;
 
-public abstract class PeerRelatedActivity extends AbstractActivity
+public abstract class PeerRelatedActivity extends AbstractActivity 
 {
 	protected Object target;
 	protected Message msg;
+	
+	public PeerRelatedActivity()
+	{
+	}
 	
 	public Object getTarget()
 	{

@@ -29,10 +29,6 @@ public class HyperGraphPeer {
 	private PeerConfiguration configuration;
 	
 	/**
-	 * the object starts the server interface of the peer. Messages are received by this object and forwarded to functions in this class.
-	 */
-	private PeerInterface serverInterface = null;
-	/**
 	 * object used for sending requests to peers
 	 */
 	private PeerInterface peerInterface = null;
@@ -71,27 +67,10 @@ public class HyperGraphPeer {
 		
 		registerMessageTemplates();
 
-		if (configuration.getHasServerInterface()){
-			try{
-				serverInterface = (PeerInterface)Class.forName(configuration.getServerInterfaceType()).getConstructor().newInstance();				
-			}catch(Exception ex){
-				ex.printStackTrace();
-			}
-
-			if (serverInterface != null){
-				
-				serverInterface.registerActivity(Performative.CallForProposal, Message.REMEMBER_ACTION, new RememberActivityServer.ConvFactory(this));
-				
-				if(serverInterface.configure(configuration.getServerInterfaceConfiguration())){
-					Thread thread = new Thread(serverInterface, "ServerInterface");
-	                thread.start();
-				}
-			}
-		}
 	
-		if (configuration.getCanForwardRequests()){
+		if (configuration.getCanForwardRequests() || configuration.getHasServerInterface()){
 			try{
-				peerInterface = (PeerInterface)Class.forName(configuration.getPeerForwarderType()).getConstructor().newInstance();
+				peerInterface = (PeerInterface)Class.forName(configuration.getPeerInterfaceType()).getConstructor().newInstance();
 			}catch(Exception ex){
 				ex.printStackTrace();
 			}
@@ -99,11 +78,17 @@ public class HyperGraphPeer {
 			if (peerInterface != null){
 				//create type system peer
 
-				peerInterface.configure(configuration.getPeerForwarderConfiguration());
-
+				peerInterface.configure(configuration.getPeerInterfaceConfiguration());
+				
+				Thread thread = new Thread(peerInterface, "peerInterface");
+                thread.start();
 			}
 		}
-		
+
+		if (configuration.getHasServerInterface()){
+			peerInterface.registerActivity(Performative.CallForProposal, Message.REMEMBER_ACTION, new RememberActivityServer.ConvFactory(this));
+		}
+
 		typeSystem = new HGTypeSystemPeer(peerInterface, (graph == null) ? null : graph.getTypeSystem());
 
 		// TODO actually compute this
@@ -143,10 +128,12 @@ public class HyperGraphPeer {
 			
 			//OldMessage msg = messageFactory.build(ServiceType.ADD, new Object[]{subGraph});
 			
-			RememberActivityClient activity = new RememberActivityClient(peerInterface, storeOnPeer);
+			RememberActivityClient activity = new RememberActivityClient(peerInterface, storeOnPeer, subGraph);
 			//activity.setMessage(msg);
 			ActivityHelper.start(activity);
 			activity.join();
+			
+			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!SEND ACTIVITY ENDED");
 			
 			Object result = null;//peerInterface.forward(storeOnPeer, msg);
 

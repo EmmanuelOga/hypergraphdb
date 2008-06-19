@@ -22,9 +22,11 @@ import net.jxta.document.XMLDocument;
 import net.jxta.document.XMLElement;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.document.DOMXMLDocument;
+import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.pipe.PipeID;
 import net.jxta.pipe.PipeService;
+import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.socket.JxtaSocket;
 
@@ -33,6 +35,7 @@ import org.hypergraphdb.peer.protocol.OldMessage;
 import org.hypergraphdb.peer.protocol.Protocol;
 import org.hypergraphdb.peer.protocol.Session;
 import org.hypergraphdb.peer.workflow.PeerRelatedActivity;
+import org.hypergraphdb.util.Pair;
 
 public class JXTASendActivity extends PeerRelatedActivity
 {
@@ -51,19 +54,25 @@ public class JXTASendActivity extends PeerRelatedActivity
 	{
 		try
 		{
-			PipeAdvertisement adv = null;
-
+			PipeAdvertisement targetPipeAdv = null;
+			PeerID peerId = null;
+			
 			if (target instanceof String)
 			{
 				StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(target.toString()));
-		        adv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement((XMLElement)doc.getRoot());
+				targetPipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement((XMLElement)doc.getRoot());
+//				peerId = PeerID.create(new URI("urn:jxta:uuid-59616261646162614E50472050325033C953E85D810F44E9ADC7F848FBDAA0C403"));
 			}else{
-				adv = (PipeAdvertisement)target;
+				Pair<Advertisement, Advertisement> advPair = (Pair<Advertisement, Advertisement>)target;
+				
+//				peerId = PeerID.create(new URI("urn:jxta:uuid-59616261646162614E50472050325033982C6152F13A4B8AA781E4445BDFAE7103"));
+				//peerId =  null;//((PeerAdvertisement)advPair.getFirst()).getPeerID();
+				targetPipeAdv = (PipeAdvertisement)advPair.getSecond();
 			}
 			
-			System.out.println("Sending to adv: " + adv.toString());
+			System.out.println("Sending " + msg.toString() + " to adv: " + targetPipeAdv.toString());
 			
- 			JxtaSocket socket = new JxtaSocket(peerGroup, null, adv, 5000, true);
+ 			JxtaSocket socket = new JxtaSocket(peerGroup, peerId, targetPipeAdv, 5000, true);
 
 	        OutputStream out = socket.getOutputStream();
 	        InputStream in = socket.getInputStream();
@@ -84,8 +93,8 @@ public class JXTASendActivity extends PeerRelatedActivity
 	        result = null;//protocol.handleResponse(in, session);
 		} catch (IOException e)
 		{
-			fail("IOException", e);
 			e.printStackTrace();
+			//fail("IOException", e);
 		} 
 	}
 

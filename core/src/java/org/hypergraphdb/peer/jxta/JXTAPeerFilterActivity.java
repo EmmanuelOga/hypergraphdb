@@ -5,10 +5,10 @@ import java.util.Set;
 import net.jxta.document.Advertisement;
 import net.jxta.protocol.PipeAdvertisement;
 
-import org.hypergraphdb.peer.workflow.PeerFilterActivity;
+import org.hypergraphdb.peer.workflow.PeerFilter;
 import org.hypergraphdb.util.Pair;
 
-public class JXTAPeerFilterActivity extends PeerFilterActivity
+public class JXTAPeerFilterActivity extends PeerFilter
 {
 	private Set<Pair<Advertisement, Advertisement>> advs;
 	public JXTAPeerFilterActivity(Set<Pair<Advertisement, Advertisement>> advs)
@@ -17,7 +17,7 @@ public class JXTAPeerFilterActivity extends PeerFilterActivity
 	}
 
 	@Override
-	protected void filterTargets()
+	public void filterTargets()
 	{
 		synchronized (advs)
 		{

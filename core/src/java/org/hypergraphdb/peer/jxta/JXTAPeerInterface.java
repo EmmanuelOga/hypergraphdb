@@ -30,7 +30,7 @@ import org.hypergraphdb.peer.protocol.Session;
 import org.hypergraphdb.peer.workflow.ActivityFactory;
 import org.hypergraphdb.peer.workflow.ConversationActivity;
 import org.hypergraphdb.peer.workflow.ConversationFactory;
-import org.hypergraphdb.peer.workflow.PeerFilterActivity;
+import org.hypergraphdb.peer.workflow.PeerFilter;
 import org.hypergraphdb.peer.workflow.ReceiveActivity;
 import org.hypergraphdb.util.Pair;
 
@@ -172,7 +172,7 @@ public class JXTAPeerInterface implements PeerInterface, DiscoveryListener{
 	}
 
 	@Override
-	public PeerFilterActivity newFilterActivity()
+	public PeerFilter newFilterActivity()
 	{
 		return new JXTAPeerFilterActivity(jxtaNetwork.getAdvertisements());
 	}

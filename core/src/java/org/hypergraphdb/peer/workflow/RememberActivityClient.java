@@ -1,17 +1,12 @@
 package org.hypergraphdb.peer.workflow;
 
+import java.util.Iterator;
 import java.util.Timer;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.servicemix.beanflow.AbstractActivity;
-import org.apache.servicemix.beanflow.Activity;
-import org.apache.servicemix.beanflow.ActivityHelper;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.peer.PeerInterface;
 import org.hypergraphdb.peer.Subgraph;
 import org.hypergraphdb.peer.protocol.Message;
-import org.hypergraphdb.peer.protocol.OldMessage;
 import org.hypergraphdb.peer.protocol.Performative;
 
 public class RememberActivityClient extends ConversationActivity<RememberActivityClient.State>
@@ -40,16 +35,35 @@ public class RememberActivityClient extends ConversationActivity<RememberActivit
 		registerReceiveHook(Performative.Disconfirm, "handleDisconfirm", State.WaitingProposalState, State.HandlingProposalState);
 		
 	}
+	public void startActivity()
+	{
+		ActivityFactory activityFactory = getPeerInterface().newSendActivityFactory();
+		PeerFilter peerFilter = getPeerInterface().newFilterActivity();
+		peerFilter.setTargetDescription(targetDescription);
 
+		Iterator<Object> it = peerFilter.iterator();
+		while (it.hasNext())
+		{
+			Object target = it.next();
+		
+			Message msg = new Message(Performative.CallForProposal, Message.REMEMBER_ACTION);
+			
+			PeerRelatedActivity activity = (PeerRelatedActivity)activityFactory.createActivity();
+			activity.setTarget(target);
+			new Thread(activity).start();
+		}
+		
+	}
 	public void run()
 	{
 		startConversation();
 		init();
+		startActivity();
 		
-		PeerFilterActivity peerFilter = getPeerInterface().newFilterActivity();
-		peerFilter.setMessage(new Message(Performative.CallForProposal, Message.REMEMBER_ACTION, getConversationId()));
-		peerFilter.setTargetDescription(targetDescription);
-		peerFilter.setActivityFactory(getPeerInterface().newSendActivityFactory());
+		//PeerFilter peerFilter = getPeerInterface().newFilterActivity();
+///		peerFilter.setMessage(new Message(Performative.CallForProposal, Message.REMEMBER_ACTION, getConversationId()));
+		//peerFilter.setTargetDescription(targetDescription);
+		//peerFilter.setActivityFactory(getPeerInterface().newSendActivityFactory());
 		
 		
 //		msg.setConversationId(conversationId);

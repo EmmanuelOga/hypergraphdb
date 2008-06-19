@@ -45,6 +45,7 @@ public class RememberActivityServer extends ConversationActivity<RememberActivit
 	
 	public void run()
 	{
+		startConversation();
 		//get call for proposal
 		
 		
@@ -61,28 +62,36 @@ public class RememberActivityServer extends ConversationActivity<RememberActivit
 		if (true)
 		{
 			//TODO add target
-			Message reply = new Message(Performative.Proposal, msg.getAction(), msg.getConversationId());
+			Message reply = getReply(Performative.Proposal, msg);
 			
 			PeerRelatedActivity activity = (PeerRelatedActivity)getPeerInterface().newSendActivityFactory().createActivity();
 			
 			activity.setMessage(reply);
 			activity.setTarget(msg.getReplyTo());
-			ActivityHelper.start(activity);
+			new Thread(activity).start();
+			//ActivityHelper.start(activity);
 		}
 
 		
 		return State.WaitingProposalState;
 	}
+	
 	public State handleAccept(Message msg)
 	{		
-		//try to save
-		//TODO get param
-		//Subgraph subgraph = null;
-		//HGHandle handle = peer.addSubgraph(subgraph);
+		System.out.println("RememberActivityServer: acccepting");
 		
-		//send confirmation message
-		//TODO: create reply
+		HGHandle handle = peer.addSubgraph((Subgraph)msg.getContent());
 		
+		System.out.println("RememberActivityServer: added " + handle);
+		Message reply = getReply(Performative.Confirm, msg);
+		reply.setContent(handle);
+		PeerRelatedActivity activity = (PeerRelatedActivity)getPeerInterface().newSendActivityFactory().createActivity();
+		
+		activity.setMessage(reply);
+		activity.setTarget(msg.getReplyTo());
+
+		new Thread(activity).start();
+
 		return State.Done;
 	}
 	
@@ -105,9 +114,9 @@ public class RememberActivityServer extends ConversationActivity<RememberActivit
 		{
 			this.peer = peer;
 		}
-		public ConversationActivity<?> newConversation(PeerInterface peerInterface)
+		public ConversationActivity<?> newConversation(PeerInterface peerInterface, UUID conversationId)
 		{
-			return new RememberActivityServer(peerInterface, peer);
+			return new RememberActivityServer(peerInterface, peer, conversationId);
 		}
 		
 	}

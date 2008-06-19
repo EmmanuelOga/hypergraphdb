@@ -7,7 +7,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.servicemix.beanflow.AbstractActivity;
 import org.apache.servicemix.beanflow.Activity;
 import org.apache.servicemix.beanflow.ActivityHelper;
+import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.peer.PeerInterface;
+import org.hypergraphdb.peer.Subgraph;
 import org.hypergraphdb.peer.protocol.Message;
 import org.hypergraphdb.peer.protocol.OldMessage;
 import org.hypergraphdb.peer.protocol.Performative;
@@ -17,13 +19,14 @@ public class RememberActivityClient extends ConversationActivity<RememberActivit
 	private enum State {WaitingProposal, AcceptingProposal, HandlingInform, WaitingConfirm, WaitingProposalState, HandlingProposalState, Done};
 	
 	private Object targetDescription;
+	private Subgraph subgraph;
+	private HGHandle result;
 	
-	private OldMessage msg;
-	
-	public RememberActivityClient(PeerInterface peerInterface, Object targetDescription)
+	public RememberActivityClient(PeerInterface peerInterface, Object targetDescription, Subgraph subgraph)
 	{
 		super(peerInterface);
 		this.targetDescription = targetDescription;
+		this.subgraph = subgraph;
 		
 		setState(State.WaitingProposal);
 	}
@@ -40,10 +43,14 @@ public class RememberActivityClient extends ConversationActivity<RememberActivit
 
 	public void run()
 	{
+		startConversation();
+		init();
+		
 		PeerFilterActivity peerFilter = getPeerInterface().newFilterActivity();
 		peerFilter.setMessage(new Message(Performative.CallForProposal, Message.REMEMBER_ACTION, getConversationId()));
 		peerFilter.setTargetDescription(targetDescription);
 		peerFilter.setActivityFactory(getPeerInterface().newSendActivityFactory());
+		
 		
 //		msg.setConversationId(conversationId);
 		
@@ -53,17 +60,29 @@ public class RememberActivityClient extends ConversationActivity<RememberActivit
 */		
 		//ActivityHelper.start(receiveActivity);
 
-		ActivityHelper.start(peerFilter);
-		
+		System.out.println("!!!!!!!!!!!!Before filter");
+		new Thread(peerFilter).start();
+		//ActivityHelper.start(peerFilter);
+		System.out.println("!!!!!!!!!!!!After filter");		
 	}
 
-	public State handleProposal()
+	public State handleProposal(Message msg)
 	{
 		//TODO decide if accept or reject
 		//for the time being ... always accept
+		System.out.println("RememberActivityClient: deciding to accept or not");
 		if (true)
 		{
+			Message reply = getReply(Performative.Accept, msg);
 			
+			reply.setContent(subgraph);
+			PeerRelatedActivity activity = (PeerRelatedActivity)getPeerInterface().newSendActivityFactory().createActivity();
+			
+			activity.setMessage(reply);
+			activity.setTarget(msg.getReplyTo());
+			new Thread(activity).start();
+			//ActivityHelper.start(activity);
+
 			return State.WaitingConfirm;
 		}else{
 			//just wait for another proposal
@@ -71,19 +90,22 @@ public class RememberActivityClient extends ConversationActivity<RememberActivit
 		}
 	}
 	
-	public State handleInform()
+	public State handleInform(Message msg)
 	{
 		//TODO information about how the message is forwarded ... 
 		
 		return State.AcceptingProposal;
 	}
 	
-	public State handleConfirm()
+	public State handleConfirm(Message msg)
 	{
+		result = (HGHandle)msg.getContent();
+		
+		stop();
 		return State.Done;
 	}
 	
-	public State handleDisconfirm()
+	public State handleDisconfirm(Message msg)
 	{
 		return State.AcceptingProposal;
 	}
@@ -94,11 +116,9 @@ public class RememberActivityClient extends ConversationActivity<RememberActivit
 		// TODO Auto-generated method stub
 	}
 
-	public void setMessage(OldMessage msg)
+	public HGHandle getResult()
 	{
-		this.msg = msg;
+		return result;
 	}
-
-
 	
 }

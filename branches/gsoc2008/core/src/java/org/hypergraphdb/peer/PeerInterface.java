@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.hypergraphdb.peer.protocol.OldMessage;
 import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.peer.workflow.ActivityFactory;
+import org.hypergraphdb.peer.workflow.ConversationActivity;
 import org.hypergraphdb.peer.workflow.ConversationFactory;
 import org.hypergraphdb.peer.workflow.PeerFilterActivity;
 
@@ -20,4 +21,5 @@ public interface PeerInterface extends Runnable{
 
 	void registerActivity(Performative performative, String action, ConversationFactory convFactory);
 	void registerReceiveHook(UUID conversationId, Performative performative, String handleFunc);
+	void registerReceiveHook(UUID conversationId, ConversationActivity<?> convHandler);
 }

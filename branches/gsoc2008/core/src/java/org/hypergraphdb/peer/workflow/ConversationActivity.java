@@ -40,6 +40,11 @@ public abstract class ConversationActivity<StateType> extends AbstractActivity
 		state.set(newState);
 	}
 	
+	protected void startConversation()
+	{
+		peerInterface.registerReceiveHook(conversationId, this);
+	}
+	
 	protected void registerReceiveHook(Performative performative, String function, StateType startState, StateType runState)
 	{
 		try
@@ -96,6 +101,13 @@ public abstract class ConversationActivity<StateType> extends AbstractActivity
 		
 		//put in queue ... 
 		//call right function ... 
+	}
+	
+	protected Message getReply(Performative performative, Message msg)
+	{
+		Message reply = new Message(performative, msg.getAction(), msg.getConversationId());
+		
+		return reply;
 	}
 	public UUID getConversationId()
 	{

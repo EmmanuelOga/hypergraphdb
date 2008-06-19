@@ -8,6 +8,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
 
 import net.jxta.discovery.DiscoveryEvent;
 import net.jxta.discovery.DiscoveryListener;
@@ -43,7 +44,7 @@ import org.hypergraphdb.util.Pair;
 public class JXTAPeerInterface implements PeerInterface, DiscoveryListener{
 	private JXTAPeerConfiguration config;
 	PipeAdvertisement pipeAdv = null;
-
+	
 	/**
 	 * used to create the message
 	 */
@@ -53,6 +54,7 @@ public class JXTAPeerInterface implements PeerInterface, DiscoveryListener{
 
 	private HashMap<UUID, ReceiveActivity> receiveActivities = new HashMap<UUID, ReceiveActivity>();
 	private HashMap<Pair<Performative, String>, ConversationFactory> conversationFactories = new HashMap<Pair<Performative,String>, ConversationFactory>();
+	private HashMap<UUID, ConversationActivity<?>> conversationHandlers = new HashMap<UUID, ConversationActivity<?>>();
 	
 	public boolean configure(Object configuration) {
 		boolean result = false;
@@ -229,16 +231,20 @@ public class JXTAPeerInterface implements PeerInterface, DiscoveryListener{
 
                 //get the data through the protocol
                 Message msg = protocol.readMessage(in, session);
-                
-                Pair<Performative, String> key = new Pair<Performative, String>(msg.getPerformative(), msg.getAction());
-                if (conversationFactories.containsKey(key))
+                System.out.println("received: " + msg.toString());
+                if (conversationHandlers.containsKey(msg.getConversationId()))
                 {
-                	ConversationActivity<?> conversation = conversationFactories.get(key).newConversation(JXTAPeerInterface.this);
-                	conversation.init();
-                	ActivityHelper.start(conversation);
-                	conversation.handleMessage(msg);
+                	conversationHandlers.get(msg.getConversationId()).handleMessage(msg);
+                }else{
+	                Pair<Performative, String> key = new Pair<Performative, String>(msg.getPerformative(), msg.getAction());
+	                if (conversationFactories.containsKey(key))
+	                {
+	                	ConversationActivity<?> conversation = conversationFactories.get(key).newConversation(JXTAPeerInterface.this, msg.getConversationId());
+	                	conversation.init();
+	                	ActivityHelper.start(conversation);
+	                	conversation.handleMessage(msg);
+	                }
                 }
-                
                 //use protocol to define the response
                 //protocol.createResponse(out, result, session);	
                 //out.flush();
@@ -271,6 +277,13 @@ public class JXTAPeerInterface implements PeerInterface, DiscoveryListener{
 		Pair<Performative, String> key = new Pair<Performative, String>(performative, action);
 		
 		conversationFactories.put(key, convFactory);
+	}
+
+
+	public void registerReceiveHook(UUID conversationId, ConversationActivity<?> convHandler)
+	{
+		conversationHandlers.put(conversationId, convHandler);
+		
 	}
 
 

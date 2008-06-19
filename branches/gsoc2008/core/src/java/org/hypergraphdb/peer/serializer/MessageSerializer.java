@@ -27,9 +27,11 @@ public class MessageSerializer implements SerializerMapper, HGSerializer
 		String action = SerializationUtils.deserializeString(in);
 		UUID conversationID = SerializationUtils.deserializeUUID(in);
 		String replyTo = SerializationUtils.deserializeString(in);
+		Object content = SerializationUtils.deserializeObject(in);
 		
 		Message msg = new Message(performative, action, conversationID);
 		msg.setReplyTo(replyTo);
+		msg.setContent(content);
 		return msg;
 	}
 
@@ -42,7 +44,7 @@ public class MessageSerializer implements SerializerMapper, HGSerializer
 		SerializationUtils.serializeString(out, msg.getAction());
 		SerializationUtils.serializeUUID(out, msg.getConversationId());
 		SerializationUtils.serializeString(out, msg.getReplyTo());
-		
+		SerializationUtils.serializeObject(out, msg.getContent());
 		
 		
 	}

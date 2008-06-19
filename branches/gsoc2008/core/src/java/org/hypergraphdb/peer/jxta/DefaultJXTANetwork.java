@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import org.hypergraphdb.util.Pair;
+
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.discovery.DiscoveryEvent;
 import net.jxta.discovery.DiscoveryListener;
@@ -39,7 +41,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	private static PeerGroup hgdbGroup = null;
 	
 	private LinkedList<Advertisement> ownAdvs = new LinkedList<Advertisement>();
-	private Set<Advertisement> peerAdvs = Collections.synchronizedSet(new HashSet<Advertisement>());
+	private Set<Pair<Advertisement, Advertisement>> peerAdvs = Collections.synchronizedSet(new HashSet<Pair<Advertisement, Advertisement>>());
 	
 	public boolean init(JXTAPeerConfiguration config)
 	{
@@ -165,7 +167,11 @@ public class DefaultJXTANetwork implements JXTANetwork{
 		}
 		netPeerGroup.getDiscoveryService().remotePublish(adv);
 	}
-	public Set<Advertisement> getAdvertisements()
+	public Advertisement getPipeAdv()
+	{
+		return ownAdvs.getFirst();
+	}
+	public Set<Pair<Advertisement, Advertisement>> getAdvertisements()
 	{
 		return peerAdvs;
 	}
@@ -175,15 +181,15 @@ public class DefaultJXTANetwork implements JXTANetwork{
 		{
 	        DiscoveryService discoveryService = hgdbGroup.getDiscoveryService();
 
-	        long lifetime = 5 * 60 * 1000;//DiscoveryService.DEFAULT_LIFETIME;
-	        long expiration = 5 * 60 * 1000;//DiscoveryService.DEFAULT_EXPIRATION;
-	        long waittime = 5 * 60 * 1000;//DiscoveryService.DEFAULT_EXPIRATION;
+	        long lifetime = 5 * 1000;//DiscoveryService.DEFAULT_LIFETIME;
+	        long expiration = 5 * 1000;//DiscoveryService.DEFAULT_EXPIRATION;
+	        long waittime = 5 * 1000;//DiscoveryService.DEFAULT_EXPIRATION;
 	        
 	        try {
 	            while (true) {
 	            	for(Advertisement adv : ownAdvs)
 	            	{
-	            		System.out.println("publishing: " + adv.getID().toString());
+	            		//System.out.println("publishing: " + adv.getID().toString());
 	            		
 	            		discoveryService.publish(adv, lifetime, expiration);
 	            		discoveryService.remotePublish(adv, expiration);
@@ -238,7 +244,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	        String peerName = ev.getSource().toString();
 	        	        
 //	        System.out.println(" [  Got a Discovery Response [" + res.getResponseCount() + " elements]  from peer : " + peerName + "  ]");
-
+	        Advertisement peerAdv = res.getPeerAdvertisement();
 	        Advertisement adv;
 	        Enumeration<Advertisement> advs = res.getAdvertisements();
 
@@ -247,8 +253,8 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	                adv = (Advertisement) advs.nextElement();
 	                if (adv instanceof PipeAdvertisement)
 	                {
-	                	
-		                if (peerAdvs.add(adv))
+	                	Pair<Advertisement, Advertisement> key = new Pair<Advertisement, Advertisement>(peerAdv, adv);
+		                if (peerAdvs.add(key))
 		                {
 		                	System.out.println("New Pipe from " + peerName + " (" + ((PipeAdvertisement)adv).getPipeID() + ")");
 		                }

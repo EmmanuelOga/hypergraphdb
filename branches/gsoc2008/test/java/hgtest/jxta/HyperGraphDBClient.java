@@ -26,8 +26,7 @@ public class HyperGraphDBClient{
 		jxtaConf.setPeerGroupName(groupName);
 		
 		PeerConfiguration conf = new PeerConfiguration(true, "", 
-				false, null, null, 
-				true, "org.hypergraphdb.peer.jxta.JXTAPeerInterface", jxtaConf,
+				false, true, "org.hypergraphdb.peer.jxta.JXTAPeerInterface", jxtaConf,
 				"./DBs/" + peerName + "CacheDB");
 		
 		HyperGraphPeer peer = new HyperGraphPeer(conf, new DummyPolicy(false));

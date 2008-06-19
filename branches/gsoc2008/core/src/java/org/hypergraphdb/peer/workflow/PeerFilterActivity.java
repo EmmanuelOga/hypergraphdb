@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
+import net.jxta.document.Advertisement;
+
 import org.apache.servicemix.beanflow.AbstractActivity;
 import org.apache.servicemix.beanflow.Activity;
 import org.apache.servicemix.beanflow.ActivityHelper;
@@ -28,7 +30,7 @@ public abstract class PeerFilterActivity extends AbstractActivity
 		
 		//wait until at least one stops
 		
-		stop();		
+//		stop();		
 	}
 
 	protected void matchFound(Object target)

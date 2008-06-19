@@ -3,7 +3,12 @@ package org.hypergraphdb.peer.serializer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.UUID;
+
+import org.hypergraphdb.peer.protocol.Message;
+import org.hypergraphdb.peer.protocol.ObjectSerializer;
 
 public class SerializationUtils
 {
@@ -68,9 +73,8 @@ public class SerializationUtils
 	public static void serializeUUID(OutputStream out, UUID id)
 	{
 		long msb = id.getMostSignificantBits();
-		long lsb = id.getLeastSignificantBits();
-
-		byte[] data = new byte[16];
+    	long lsb = id.getLeastSignificantBits();
+    	byte [] data = new byte[16]; 
         data[0] = (byte) ((msb >>> 56)); 
         data[1] = (byte) ((msb >>> 48));
         data[2] = (byte) ((msb >>> 40)); 
@@ -87,8 +91,9 @@ public class SerializationUtils
         data[13] = (byte) ((lsb >>> 16));
         data[14] = (byte) ((lsb >>> 8)); 
         data[15] = (byte) ((lsb >>> 0));
-        
-        try
+		
+		
+		try
 		{
 			out.write(data);
 		} catch (IOException e)
@@ -110,7 +115,27 @@ public class SerializationUtils
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	    
+		long msb = 0;
+	    long lsb = 0;
+
+        for (int i=0; i < 8; i++)
+            msb = (msb << 8) | (data[i] & 0xff);
+        for (int i=8; i < 16; i++)
+            lsb = (lsb << 8) | (data[i] & 0xff);
+        return new UUID(msb, lsb);
 		
-		return UUID.nameUUIDFromBytes(data);
+	}
+	
+	public static void serializeObject(OutputStream out, Object data)
+	{
+		ObjectSerializer serializer = new ObjectSerializer();
+		serializer.serialize(out, data);
+	}
+	public static Object deserializeObject(InputStream in)
+	{
+		ObjectSerializer serializer = new ObjectSerializer();
+		
+		return serializer.deserialize(in);
 	}
 }

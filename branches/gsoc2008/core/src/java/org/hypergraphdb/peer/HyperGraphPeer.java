@@ -29,9 +29,10 @@ public class HyperGraphPeer {
 	private PeerConfiguration configuration;
 	
 	/**
-	 * object used for sending requests to peers
+	 * object used for communicating with other peers
 	 */
 	private PeerInterface peerInterface = null;
+	
 	/**
 	 * The factory is configured by the peer. The template messages are then use to send/receive communications to/from peers
 	 */
@@ -41,6 +42,9 @@ public class HyperGraphPeer {
 	 * The peer can be configured to store atoms in this local database
 	 */
 	private HyperGraph graph = null;
+	/**
+	 * this is used for serializing object that need to be sent to other peers
+	 */
 	private HyperGraph cacheGraph = null;
 	
 	private HGTypeSystemPeer typeSystem = null;
@@ -65,9 +69,6 @@ public class HyperGraphPeer {
 		//create cache database - this should eventually be an actual cache, not just another database
 		cacheGraph = new HyperGraph(configuration.getCacheDatabaseName()); 
 		
-		registerMessageTemplates();
-
-	
 		if (configuration.getCanForwardRequests() || configuration.getHasServerInterface()){
 			try{
 				peerInterface = (PeerInterface)Class.forName(configuration.getPeerInterfaceType()).getConstructor().newInstance();
@@ -95,11 +96,11 @@ public class HyperGraphPeer {
 		return true;
 	}
 	
-	private void registerMessageTemplates() {
+/*	private void registerMessageTemplates() {
 		//set up message templates
 		MessageFactory.registerMessageTemplate(ServiceType.ADD, new OldMessage(ServiceType.ADD, new AddMessageHandler()));
 		MessageFactory.registerMessageTemplate(ServiceType.GET, new OldMessage(ServiceType.GET, new GetMessageHandler()));
-	}
+	}*/
 
 	void stop(){
 		
@@ -241,7 +242,7 @@ public class HyperGraphPeer {
 		return typeSystem;
 	}
 	
-	private boolean shouldForward() {
+/*	private boolean shouldForward() {
 		// TODO add logic to see if the atom should be added here
 		return configuration.getCanForwardRequests();
 	}
@@ -263,4 +264,4 @@ public class HyperGraphPeer {
 		}
 		
 	}
-}
+*/}

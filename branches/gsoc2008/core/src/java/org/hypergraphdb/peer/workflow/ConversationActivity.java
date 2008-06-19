@@ -6,14 +6,13 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.servicemix.beanflow.AbstractActivity;
 import org.hypergraphdb.peer.PeerInterface;
 import org.hypergraphdb.peer.protocol.Message;
 import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.util.Pair;
 
 
-public abstract class ConversationActivity<StateType> extends AbstractActivity
+public abstract class ConversationActivity<StateType> extends AbstractActivity<StateType>
 {
 	private UUID conversationId;
 	private PeerInterface peerInterface;

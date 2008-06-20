@@ -9,6 +9,7 @@ public class Message
 	private Performative performative;
 	private String action;
 	private UUID conversationId;
+	private UUID taskId;
 	private String replyTo;
 	private Object content;
 	
@@ -16,10 +17,17 @@ public class Message
 	{
 		this.performative = performative;
 		this.action = action;
+		this.conversationId = new UUID(0L, 0L);
 	}
 	public Message(Performative performative, String action, UUID conversationId)
 	{
 		this.performative = performative;
+		this.action = action;
+		this.conversationId = conversationId;
+	}
+
+	public Message(String action, UUID conversationId)
+	{
 		this.action = action;
 		this.conversationId = conversationId;
 	}
@@ -64,7 +72,7 @@ public class Message
 	}
 	public String toString()
 	{
-		String result = "Perf: " + performative.toString() + "; Action: " + action + "; Conversation: " + conversationId.toString();
+		String result = "Perf: " + performative + "; Action: " + action + "; Conversation: " + conversationId + "; Task: " + taskId;
 		result += ";\nReplyTo: " + replyTo + "; Content: " + content;
 		
 		return result;
@@ -76,6 +84,14 @@ public class Message
 	public void setContent(Object content)
 	{
 		this.content = content;
+	}
+	public UUID getTaskId()
+	{
+		return taskId;
+	}
+	public void setTaskId(UUID taskId)
+	{
+		this.taskId = taskId;
 	}
 	
 }

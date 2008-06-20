@@ -26,10 +26,12 @@ public class MessageSerializer implements SerializerMapper, HGSerializer
 		Performative performative = Performative.values()[SerializationUtils.deserializeInt(in)];
 		String action = SerializationUtils.deserializeString(in);
 		UUID conversationID = SerializationUtils.deserializeUUID(in);
+		UUID taskID = SerializationUtils.deserializeUUID(in);
 		String replyTo = SerializationUtils.deserializeString(in);
 		Object content = SerializationUtils.deserializeObject(in);
 		
 		Message msg = new Message(performative, action, conversationID);
+		msg.setTaskId(taskID);
 		msg.setReplyTo(replyTo);
 		msg.setContent(content);
 		return msg;
@@ -43,6 +45,7 @@ public class MessageSerializer implements SerializerMapper, HGSerializer
 		SerializationUtils.serializeInt(out, msg.getPerformative().ordinal());
 		SerializationUtils.serializeString(out, msg.getAction());
 		SerializationUtils.serializeUUID(out, msg.getConversationId());
+		SerializationUtils.serializeUUID(out, msg.getTaskId());
 		SerializationUtils.serializeString(out, msg.getReplyTo());
 		SerializationUtils.serializeObject(out, msg.getContent());
 		

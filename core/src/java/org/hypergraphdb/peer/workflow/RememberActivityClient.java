@@ -115,7 +115,7 @@ public class RememberActivityClient extends ConversationActivity<RememberActivit
 	{
 		result = (HGHandle)msg.getContent();
 		
-		stop();
+		//stop();
 		return State.Done;
 	}
 	

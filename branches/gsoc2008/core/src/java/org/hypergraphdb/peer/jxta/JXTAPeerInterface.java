@@ -241,7 +241,8 @@ public class JXTAPeerInterface implements PeerInterface, DiscoveryListener{
 	                {
 	                	ConversationActivity<?> conversation = conversationFactories.get(key).newConversation(JXTAPeerInterface.this, msg.getConversationId());
 	                	conversation.init();
-	                	ActivityHelper.start(conversation);
+	                	//TODO start
+	                	//ActivityHelper.start(conversation);
 	                	conversation.handleMessage(msg);
 	                }
                 }

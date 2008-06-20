@@ -131,8 +131,8 @@ public class HyperGraphPeer {
 			
 			RememberActivityClient activity = new RememberActivityClient(peerInterface, storeOnPeer, subGraph);
 			//activity.setMessage(msg);
-			ActivityHelper.start(activity);
-			activity.join();
+			//ActivityHelper.start(activity);
+			//activity.join();
 			
 			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!SEND ACTIVITY ENDED");
 			

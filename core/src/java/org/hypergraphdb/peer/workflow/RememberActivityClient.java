@@ -75,7 +75,7 @@ public class RememberActivityClient extends ConversationActivity<RememberActivit
 		//ActivityHelper.start(receiveActivity);
 
 		System.out.println("!!!!!!!!!!!!Before filter");
-		new Thread(peerFilter).start();
+		//new Thread(peerFilter).start();
 		//ActivityHelper.start(peerFilter);
 		System.out.println("!!!!!!!!!!!!After filter");		
 	}

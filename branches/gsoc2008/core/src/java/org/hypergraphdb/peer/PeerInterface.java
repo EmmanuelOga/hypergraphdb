@@ -5,8 +5,9 @@ import java.util.UUID;
 import org.hypergraphdb.peer.protocol.OldMessage;
 import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.peer.workflow.ActivityFactory;
-import org.hypergraphdb.peer.workflow.ConversationActivity;
-import org.hypergraphdb.peer.workflow.ConversationFactory;
+import org.hypergraphdb.peer.workflow.PeerRelatedActivity;
+import org.hypergraphdb.peer.workflow.TaskActivity;
+import org.hypergraphdb.peer.workflow.TaskFactory;
 import org.hypergraphdb.peer.workflow.PeerFilter;
 
 
@@ -29,7 +30,7 @@ public interface PeerInterface extends Runnable{
 	 * @param action
 	 * @param convFactory
 	 */
-	void registerActivity(Performative performative, String action, ConversationFactory convFactory);
+	void registerTaskFactory(Performative performative, String action, TaskFactory convFactory);
 
 	/**
 	 * registers existing conversation handlers. The peer will route any incoming message to that conversation
@@ -37,5 +38,7 @@ public interface PeerInterface extends Runnable{
 	 * @param conversationId
 	 * @param convHandler
 	 */
-	void registerReceiveHook(UUID conversationId, ConversationActivity<?> convHandler);
+	void registerTask(UUID taskId, TaskActivity<?> task);
+	
+	void execute(PeerRelatedActivity activity);
 }

@@ -28,8 +28,9 @@ import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.peer.protocol.Protocol;
 import org.hypergraphdb.peer.protocol.Session;
 import org.hypergraphdb.peer.workflow.ActivityFactory;
-import org.hypergraphdb.peer.workflow.ConversationActivity;
-import org.hypergraphdb.peer.workflow.ConversationFactory;
+import org.hypergraphdb.peer.workflow.PeerRelatedActivity;
+import org.hypergraphdb.peer.workflow.TaskActivity;
+import org.hypergraphdb.peer.workflow.TaskFactory;
 import org.hypergraphdb.peer.workflow.PeerFilter;
 import org.hypergraphdb.peer.workflow.ReceiveActivity;
 import org.hypergraphdb.util.Pair;
@@ -53,10 +54,11 @@ public class JXTAPeerInterface implements PeerInterface, DiscoveryListener{
 	private JXTANetwork jxtaNetwork = new DefaultJXTANetwork();
 
 	private HashMap<UUID, ReceiveActivity> receiveActivities = new HashMap<UUID, ReceiveActivity>();
-	private HashMap<Pair<Performative, String>, ConversationFactory> conversationFactories = new HashMap<Pair<Performative,String>, ConversationFactory>();
-	private HashMap<UUID, ConversationActivity<?>> conversationHandlers = new HashMap<UUID, ConversationActivity<?>>();
+	private HashMap<Pair<Performative, String>, TaskFactory> taskFactories = new HashMap<Pair<Performative,String>, TaskFactory>();
+	private HashMap<UUID, TaskActivity<?>> tasks = new HashMap<UUID, TaskActivity<?>>();
 	
-	public boolean configure(Object configuration) {
+	public boolean configure(Object configuration) 
+	{
 		boolean result = false;
 		
 		if (configuration instanceof JXTAPeerConfiguration){
@@ -232,18 +234,21 @@ public class JXTAPeerInterface implements PeerInterface, DiscoveryListener{
                 //get the data through the protocol
                 Message msg = protocol.readMessage(in, session);
                 System.out.println("received: " + msg.toString());
-                if (conversationHandlers.containsKey(msg.getConversationId()))
+                if (tasks.containsKey(msg.getTaskId()))
                 {
-                	conversationHandlers.get(msg.getConversationId()).handleMessage(msg);
+                	tasks.get(msg.getTaskId()).handleMessage(msg);
+                	//conversationHandlers.get(msg.getConversationId()).handleMessage(msg);
                 }else{
 	                Pair<Performative, String> key = new Pair<Performative, String>(msg.getPerformative(), msg.getAction());
-	                if (conversationFactories.containsKey(key))
+	                if (taskFactories.containsKey(key))
 	                {
-	                	ConversationActivity<?> conversation = conversationFactories.get(key).newConversation(JXTAPeerInterface.this, msg.getConversationId());
-	                	conversation.init();
+	                	TaskActivity<?> task = taskFactories.get(key).newTask(JXTAPeerInterface.this, msg);
+
+	                	
+	                	//conversation.init();
 	                	//TODO start
 	                	//ActivityHelper.start(conversation);
-	                	conversation.handleMessage(msg);
+	                	//conversation.handleMessage(msg);
 	                }
                 }
                 //use protocol to define the response
@@ -273,17 +278,29 @@ public class JXTAPeerInterface implements PeerInterface, DiscoveryListener{
 	}
 
 
-	public void registerActivity(Performative performative, String action, ConversationFactory convFactory)
+	public void registerActivity(Performative performative, String action, TaskFactory convFactory)
 	{
-		Pair<Performative, String> key = new Pair<Performative, String>(performative, action);
-		
-		conversationFactories.put(key, convFactory);
+	}
+
+	public void registerTask(UUID taskId, TaskActivity<?> task)
+	{
+		tasks.put(taskId, task);
 	}
 
 
-	public void registerReceiveHook(UUID conversationId, ConversationActivity<?> convHandler)
+	public void execute(PeerRelatedActivity activity)
 	{
-		conversationHandlers.put(conversationId, convHandler);
+		activity.run();
+//		new Thread(activity).start();
+	
+	}
+
+
+	public void registerTaskFactory(Performative performative, String action, TaskFactory taskFactory)
+	{
+		Pair<Performative, String> key = new Pair<Performative, String>(performative, action);
+		
+		taskFactories.put(key, taskFactory);
 		
 	}
 

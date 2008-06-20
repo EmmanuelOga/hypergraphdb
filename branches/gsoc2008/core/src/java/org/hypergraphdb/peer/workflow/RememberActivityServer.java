@@ -1,22 +1,16 @@
 package org.hypergraphdb.peer.workflow;
 
 import java.util.Timer;
-import java.util.UUID;
 
-import org.apache.servicemix.beanflow.ActivityHelper;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.peer.HyperGraphPeer;
 import org.hypergraphdb.peer.PeerInterface;
 import org.hypergraphdb.peer.Subgraph;
 import org.hypergraphdb.peer.protocol.Message;
-import org.hypergraphdb.peer.protocol.OldMessage;
-import org.hypergraphdb.peer.protocol.Performative;
 
-import sun.misc.Perf.GetPerfAction;
-
-public class RememberActivityServer extends ConversationActivity<RememberActivityServer.State>
+public class RememberActivityServer extends TaskActivity<RememberActivityServer.State>
 {
-	private enum State {Waiting, Deciding, WaitingProposalState, Working, Done};
+	private enum State {Waiting, Deciding, WaitingProposalState, Working, Done, Started, HandleAccept, HandleAccepted, HandleRejected};
 	
 	private HyperGraphPeer peer;
 	
@@ -25,27 +19,46 @@ public class RememberActivityServer extends ConversationActivity<RememberActivit
 		super(peerInterface);
 		this.peer = peer;
 		
-		setState(State.Waiting);
+		setState(State.Started);
 	}
 	
-	public RememberActivityServer(PeerInterface peerInterface, HyperGraphPeer peer, UUID conversationId)
+	public RememberActivityServer(PeerInterface peerInterface, HyperGraphPeer peer, Message msg)
 	{
-		super(peerInterface, conversationId);
+		super(peerInterface, msg.getTaskId());
 		this.peer = peer;
 
-		setState(State.Waiting);
+		setState(State.Started);
+	
+		init();
+		PeerRelatedActivity activity = (PeerRelatedActivity)getPeerInterface().newSendActivityFactory().createActivity();
+		ProposalConversation conversation = new ProposalConversation(activity, getPeerInterface(), msg);
+		
+		Message reply = getReply(msg);
+		
+		registerConversation(conversation, reply.getConversationId());
+		conversation.propose(reply);
 	}
 
+	
+	
 	public void init()
 	{
- 		registerReceiveHook(Performative.CallForProposal, "decide", State.Waiting, State.Deciding);
+		registerConversationHandler(State.Started, ProposalConversation.State.Accepted, "handleAccept", State.HandleAccepted);
+		registerConversationHandler(State.Started, ProposalConversation.State.Rejected, "handleReject", State.HandleRejected);
+
+		
+/*		registerConversationTrigger(State.Accepted, ProposalConversation.State.Confirmed, "handleConfirm");
+		registerConversationTrigger(State.Accepted, ProposalConversation.State.Disconfirmed, "handleDisconfirm");
+*/		/**/
+		
+/* 		registerReceiveHook(Performative.CallForProposal, "decide", State.Waiting, State.Deciding);
  		registerReceiveHook(Performative.Accept, "handleAccept", State.WaitingProposalState, State.Working);
 		registerReceiveHook(Performative.RejectProposal, "handleReject", State.WaitingProposalState, State.Working);		
-	}
+*/	}
 	
 	public void run()
 	{
-		startConversation();
+//		startConversation();
 		//get call for proposal
 		
 		
@@ -57,7 +70,7 @@ public class RememberActivityServer extends ConversationActivity<RememberActivit
 	public State decide(Message msg)
 	{
 		System.out.println("RememberActivityServer: deciding");
-		
+		/*		
 		//TODO for now just accept anything
 		if (true)
 		{
@@ -71,31 +84,31 @@ public class RememberActivityServer extends ConversationActivity<RememberActivit
 			new Thread(activity).start();
 			//ActivityHelper.start(activity);
 		}
-
+*/
 		
 		return State.WaitingProposalState;
 	}
 	
-	public State handleAccept(Message msg)
+	public State handleAccept(AbstractActivity<?> conversation)
 	{		
 		System.out.println("RememberActivityServer: acccepting");
-		
-		HGHandle handle = peer.addSubgraph((Subgraph)msg.getContent());
+
+		ProposalConversation conv = (ProposalConversation)conversation;
+		Message msg = ((Conversation<?>)conversation).getMessage();
+		Subgraph subgraph = (Subgraph) msg.getContent();
+		HGHandle handle = peer.addSubgraph(subgraph);
 		
 		System.out.println("RememberActivityServer: added " + handle);
-		Message reply = getReply(Performative.Confirm, msg);
-		reply.setContent(handle);
-		PeerRelatedActivity activity = (PeerRelatedActivity)getPeerInterface().newSendActivityFactory().createActivity();
-		
-		activity.setMessage(reply);
-		activity.setTarget(msg.getReplyTo());
 
-		new Thread(activity).start();
+		Message reply = getReply(msg);		
+		reply.setContent(handle);
+		
+		conv.confirm(reply);
 
 		return State.Done;
 	}
 	
-	public State handleReject(Message msg)
+	public State handleReject(AbstractActivity<?> conversation)
 	{
 		//why?
 		
@@ -107,17 +120,23 @@ public class RememberActivityServer extends ConversationActivity<RememberActivit
 
 	}
 
-	public static class ConvFactory implements ConversationFactory
+	public static class RememberTaskServerFactory implements TaskFactory
 	{
 		private HyperGraphPeer peer;
-		public ConvFactory(HyperGraphPeer peer)
+		public RememberTaskServerFactory(HyperGraphPeer peer)
 		{
 			this.peer = peer;
 		}
-		public ConversationActivity<?> newConversation(PeerInterface peerInterface, UUID conversationId)
+		public TaskActivity<?> newTask(PeerInterface peerInterface, Message msg)
 		{
-			return new RememberActivityServer(peerInterface, peer, conversationId);
+			return new RememberActivityServer(peerInterface, peer, msg);
 		}
+		
+	}
+
+	protected void startTask()
+	{
+		// TODO Auto-generated method stub
 		
 	}
 

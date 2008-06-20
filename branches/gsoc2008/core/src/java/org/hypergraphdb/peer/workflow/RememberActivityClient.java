@@ -9,9 +9,9 @@ import org.hypergraphdb.peer.Subgraph;
 import org.hypergraphdb.peer.protocol.Message;
 import org.hypergraphdb.peer.protocol.Performative;
 
-public class RememberActivityClient extends ConversationActivity<RememberActivityClient.State>
+public class RememberActivityClient extends TaskActivity<RememberActivityClient.State>
 {
-	private enum State {WaitingProposal, AcceptingProposal, HandlingInform, WaitingConfirm, WaitingProposalState, HandlingProposalState, Done};
+	private enum State {Started, Accepted, HandleProposal, HandleProposalResponse, Done};
 	
 	private Object targetDescription;
 	private Subgraph subgraph;
@@ -23,116 +23,89 @@ public class RememberActivityClient extends ConversationActivity<RememberActivit
 		this.targetDescription = targetDescription;
 		this.subgraph = subgraph;
 		
-		setState(State.WaitingProposal);
+		setState(State.Started);
 	}
 
 	public void init()
 	{
-		// TODO Auto-generated method stub
-		registerReceiveHook(Performative.Proposal, "handleProposal", State.WaitingProposal, State.AcceptingProposal);
-		registerReceiveHook(Performative.Inform, "handleInform", State.WaitingProposal, State.HandlingInform);
-		registerReceiveHook(Performative.Confirm, "handleConfirm", State.WaitingProposalState, State.HandlingProposalState);
-		registerReceiveHook(Performative.Disconfirm, "handleDisconfirm", State.WaitingProposalState, State.HandlingProposalState);
+		registerConversationHandler(State.Started, ProposalConversation.State.Proposed, "handleProposal", State.HandleProposal);
 		
+		registerConversationHandler(State.Accepted, ProposalConversation.State.Confirmed, "handleConfirm", State.HandleProposalResponse);
+		registerConversationHandler(State.Accepted, ProposalConversation.State.Disconfirmed, "handleDisconfirm", State.HandleProposalResponse);		
 	}
-	public void startActivity()
-	{
+	
+	protected void startTask()
+	{		
+		init();
+		
 		ActivityFactory activityFactory = getPeerInterface().newSendActivityFactory();
 		PeerFilter peerFilter = getPeerInterface().newFilterActivity();
 		peerFilter.setTargetDescription(targetDescription);
 
+		peerFilter.filterTargets();
 		Iterator<Object> it = peerFilter.iterator();
 		while (it.hasNext())
 		{
 			Object target = it.next();
 		
 			Message msg = new Message(Performative.CallForProposal, Message.REMEMBER_ACTION);
+			msg.setTaskId(getTaskId());
 			
 			PeerRelatedActivity activity = (PeerRelatedActivity)activityFactory.createActivity();
 			activity.setTarget(target);
-			new Thread(activity).start();
+			activity.setMessage(msg);
+			
+			getPeerInterface().execute(activity);
 		}
 		
+		
 	}
-	public void run()
+	
+	/**
+	 * called when the task receives a proposal
+	 */
+	protected Conversation<?> createNewConversation(Message msg)
 	{
-		startConversation();
-		init();
-		startActivity();
-		
-		//PeerFilter peerFilter = getPeerInterface().newFilterActivity();
-///		peerFilter.setMessage(new Message(Performative.CallForProposal, Message.REMEMBER_ACTION, getConversationId()));
-		//peerFilter.setTargetDescription(targetDescription);
-		//peerFilter.setActivityFactory(getPeerInterface().newSendActivityFactory());
-		
-		
-//		msg.setConversationId(conversationId);
-		
-		
-/*		peerInterface.registerReceiveHook(conversationId, Performative.Proposal, "handleProposal");
-		peerInterface.registerReceiveHook(conversationId, Performative.Inform, "handleInform");
-*/		
-		//ActivityHelper.start(receiveActivity);
+		//TODO refactor
+		ActivityFactory activityFactory = getPeerInterface().newSendActivityFactory();
+		PeerRelatedActivity activity = (PeerRelatedActivity)activityFactory.createActivity();
 
-		System.out.println("!!!!!!!!!!!!Before filter");
-		//new Thread(peerFilter).start();
-		//ActivityHelper.start(peerFilter);
-		System.out.println("!!!!!!!!!!!!After filter");		
+		return new ProposalConversation(activity, getPeerInterface(), msg);
+
 	}
-
-	public State handleProposal(Message msg)
+	
+	public State handleProposal(AbstractActivity<?> fromActivity)
 	{
-		//TODO decide if accept or reject
-		//for the time being ... always accept
-		System.out.println("RememberActivityClient: deciding to accept or not");
+		System.out.println("RememeberTaskClient: handleProposal");
+		//there is a proposal, handle that
+		ProposalConversation conversation = (ProposalConversation)fromActivity;
+		
+		//decide to accept or not ... for now just accept
 		if (true)
 		{
-			Message reply = getReply(Performative.Accept, msg);
-			
+			Message reply = getReply(conversation.getMessage());
 			reply.setContent(subgraph);
-			PeerRelatedActivity activity = (PeerRelatedActivity)getPeerInterface().newSendActivityFactory().createActivity();
 			
-			activity.setMessage(reply);
-			activity.setTarget(msg.getReplyTo());
-			new Thread(activity).start();
-			//ActivityHelper.start(activity);
-
-			return State.WaitingConfirm;
-		}else{
-			//just wait for another proposal
-			return State.WaitingProposal;
+			conversation.accept(reply);
 		}
+		
+		//return appropriate state
+		return State.Accepted;
 	}
 	
-	public State handleInform(Message msg)
+	protected State handleConfirm(AbstractActivity<?> fromActivity)
 	{
-		//TODO information about how the message is forwarded ... 
-		
-		return State.AcceptingProposal;
-	}
-	
-	public State handleConfirm(Message msg)
-	{
-		result = (HGHandle)msg.getContent();
-		
-		//stop();
+		result = (HGHandle) ((ProposalConversation)fromActivity).getMessage().getContent();
+
 		return State.Done;
 	}
 	
-	public State handleDisconfirm(Message msg)
+	protected State handleDisconfirm(AbstractActivity<?> fromActivity)
 	{
-		return State.AcceptingProposal;
-	}
-	
-
-	public void startWithTimeout(Timer arg0, long arg1)
-	{
-		// TODO Auto-generated method stub
-	}
-
-	public HGHandle getResult()
-	{
-		return result;
+		//there is a disconfirm
+		
+		//back to get proposal ...
+		return State.Started;
 	}
 	
 }

@@ -87,7 +87,7 @@ public class HyperGraphPeer {
 		}
 
 		if (configuration.getHasServerInterface()){
-			peerInterface.registerActivity(Performative.CallForProposal, Message.REMEMBER_ACTION, new RememberActivityServer.ConvFactory(this));
+			peerInterface.registerTaskFactory(Performative.CallForProposal, Message.REMEMBER_ACTION, new RememberActivityServer.RememberTaskServerFactory(this));
 		}
 
 		typeSystem = new HGTypeSystemPeer(peerInterface, (graph == null) ? null : graph.getTypeSystem());
@@ -130,11 +130,13 @@ public class HyperGraphPeer {
 			//OldMessage msg = messageFactory.build(ServiceType.ADD, new Object[]{subGraph});
 			
 			RememberActivityClient activity = new RememberActivityClient(peerInterface, storeOnPeer, subGraph);
+			activity.run();
+			
 			//activity.setMessage(msg);
 			//ActivityHelper.start(activity);
 			//activity.join();
 			
-			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!SEND ACTIVITY ENDED");
+			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ACTIVITY ENDED");
 			
 			Object result = null;//peerInterface.forward(storeOnPeer, msg);
 

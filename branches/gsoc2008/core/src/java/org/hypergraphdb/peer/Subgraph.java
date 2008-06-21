@@ -10,6 +10,11 @@ import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.handle.UUIDPersistentHandle;
 import org.hypergraphdb.util.Pair;
 
+/**
+ * @author Cipri Costa
+ * Class that will expose a HGDB subgraph in an form that can be iterated. Used mainly for 
+ * serializing atoms to a byte array and sending them as part of a meessage.
+ */
 public class Subgraph
 {
 	private HyperGraph graph = null;

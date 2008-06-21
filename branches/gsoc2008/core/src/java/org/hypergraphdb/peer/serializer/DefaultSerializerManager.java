@@ -9,6 +9,12 @@ import org.hypergraphdb.handle.UUIDPersistentHandle;
 import org.hypergraphdb.peer.protocol.SerializerManager;
 import org.hypergraphdb.util.Pair;
 
+/**
+ * @author Cipri Costa
+ * 
+ * Records all information about available serializers and allows others to quey for the 
+ * appropriate serializer.
+ */
 public class DefaultSerializerManager implements SerializerManager
 {
 	public static final Integer NULL_SERIALIZER_ID = 0;

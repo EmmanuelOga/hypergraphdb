@@ -2,13 +2,10 @@ package org.hypergraphdb.peer.jxta;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
 
 import net.jxta.discovery.DiscoveryEvent;
 import net.jxta.discovery.DiscoveryListener;
@@ -18,31 +15,28 @@ import net.jxta.pipe.PipeID;
 import net.jxta.protocol.DiscoveryResponseMsg;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.socket.JxtaServerSocket;
-import net.jxta.socket.JxtaSocket;
 
-import org.apache.servicemix.beanflow.ActivityHelper;
+import org.hypergraphdb.peer.PeerFilter;
 import org.hypergraphdb.peer.PeerInterface;
+import org.hypergraphdb.peer.PeerRelatedActivity;
+import org.hypergraphdb.peer.PeerRelatedActivityFactory;
 import org.hypergraphdb.peer.protocol.Message;
-import org.hypergraphdb.peer.protocol.OldMessage;
 import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.peer.protocol.Protocol;
-import org.hypergraphdb.peer.protocol.Session;
-import org.hypergraphdb.peer.workflow.ActivityFactory;
-import org.hypergraphdb.peer.workflow.PeerRelatedActivity;
 import org.hypergraphdb.peer.workflow.TaskActivity;
 import org.hypergraphdb.peer.workflow.TaskFactory;
-import org.hypergraphdb.peer.workflow.PeerFilter;
-import org.hypergraphdb.peer.workflow.ReceiveActivity;
 import org.hypergraphdb.util.Pair;
+
+
 
 /**
  * @author Cipri Costa
- * 
- * <p>
- * Forwards calls using the JXTA framework.The actual creation of the message is handled by the <code>Protocol</code> class.
- * </p>
+ *
+ * Implements the PeerInterface interface and manages the communication with the other peers int he JXTA network.
+ * Also manages resources like task allocation and threads.
  */
-public class JXTAPeerInterface implements PeerInterface, DiscoveryListener{
+
+public class JXTAPeerInterface implements PeerInterface/*, DiscoveryListener*/{
 	private JXTAPeerConfiguration config;
 	PipeAdvertisement pipeAdv = null;
 	
@@ -53,7 +47,6 @@ public class JXTAPeerInterface implements PeerInterface, DiscoveryListener{
 	
 	private JXTANetwork jxtaNetwork = new DefaultJXTANetwork();
 
-	private HashMap<UUID, ReceiveActivity> receiveActivities = new HashMap<UUID, ReceiveActivity>();
 	private HashMap<Pair<Performative, String>, TaskFactory> taskFactories = new HashMap<Pair<Performative,String>, TaskFactory>();
 	private HashMap<UUID, TaskActivity<?>> tasks = new HashMap<UUID, TaskActivity<?>>();
 	
@@ -61,11 +54,12 @@ public class JXTAPeerInterface implements PeerInterface, DiscoveryListener{
 	{
 		boolean result = false;
 		
+		System.out.println("JXTAPeerInterface: configure");
+
 		if (configuration instanceof JXTAPeerConfiguration){
 			this.config = (JXTAPeerConfiguration)configuration;
 			result = true;
-		}
-		System.out.println("Initializing forwarder manager");
+		}		
 		
 		if (result)
 		{
@@ -83,105 +77,14 @@ public class JXTAPeerInterface implements PeerInterface, DiscoveryListener{
 
 		return result;		
 	}
-	
-	
-	public Object forward(Object peer, OldMessage msg) {
-		
-		Object result = null;
-		/*
-    	// TODO actually choose peers to forward to
-		Set<Advertisement> advs =  jxtaNetwork.getAdvertisements();
-		
-		synchronized (advs)
-		{
-			for(Advertisement adv : advs)
-			{
-				if (shouldSend(adv, peer))
-				{
-					try
-					{
-			            JxtaSocket socket = new JxtaSocket(jxtaNetwork.getPeerGroup(), null, (PipeAdvertisement)adv, 5000, true);
-			        	
-			            OutputStream out = socket.getOutputStream();
-			            InputStream in = socket.getInputStream();
-			            Session session = new Session();
-			            
-			            //send message
-			            protocol.createRequest(out, msg, session);
-			            out.flush();
-			            System.out.println("Client sent a command");
 
-			            //receive answer
-			            result = protocol.handleResponse(in, session);
-			            
-			            //TODO log
-			            if (result != null){
-			            	System.out.println("received result: " + result.toString());
-			            }else{
-			            	System.out.println("received result: null");            	
-			            }
-			            
-			            if (peer == null)
-			            {
-			            	//go until first match
-			            	if (result != null) break;
-			            }else{
-			            	//go until first connection to peer succeds
-			            	break;
-			            }
-			            	
-					}catch (IOException e) {
-			            System.out.println("Communication failure: " + adv.getID());
-			            e.printStackTrace();
-			        }
-				}
-			}
-			System.out.println("Finished sending");
-		}
-*/
-		return result;
-	}
-
-	private boolean shouldSend(Advertisement adv, Object peer)
-	{
-		//for the time being ... something very simple
-		if ((peer != null) && (adv instanceof PipeAdvertisement))
-		{
-			return peer.toString().equals(((PipeAdvertisement)adv).getName());
-		}
-		
-		return true;
-	}
-
-
-	public void discoveryEvent(DiscoveryEvent ev)
-	{
-	       DiscoveryResponseMsg res = ev.getResponse();
-
-	        // let's get the responding peer's advertisement
-	        System.out.println(" [  Got a Discovery Response [" + res.getResponseCount() + " elements]  from peer : " + ev.getSource() + "  ]");
-
-	        Advertisement adv;
-	        Enumeration en = res.getAdvertisements();
-
-	        if (en != null) {
-	            while (en.hasMoreElements()) {
-	                adv = (Advertisement) en.nextElement();
-	                System.out.println(adv);
-	            }
-	        }
-		
-	}
-
-	@Override
 	public PeerFilter newFilterActivity()
 	{
-		return new JXTAPeerFilterActivity(jxtaNetwork.getAdvertisements());
+		return new JXTAPeerFilter(jxtaNetwork.getAdvertisements());
 	}
 
 
-	@Override
-	public ActivityFactory newSendActivityFactory()
+	public PeerRelatedActivityFactory newSendActivityFactory()
 	{
 		return new JXTASendActivityFactory(jxtaNetwork.getPeerGroup(), pipeAdv);
 	}
@@ -228,34 +131,22 @@ public class JXTAPeerInterface implements PeerInterface, DiscoveryListener{
             	
             	InputStream in = socket.getInputStream();
             	//OutputStream out = socket.getOutputStream();
-            	//TODO remove
-                Session session = new Session();
 
                 //get the data through the protocol
-                Message msg = protocol.readMessage(in, session);
+                Message msg = protocol.readMessage(in);
                 System.out.println("received: " + msg.toString());
                 if (tasks.containsKey(msg.getTaskId()))
                 {
                 	tasks.get(msg.getTaskId()).handleMessage(msg);
-                	//conversationHandlers.get(msg.getConversationId()).handleMessage(msg);
                 }else{
 	                Pair<Performative, String> key = new Pair<Performative, String>(msg.getPerformative(), msg.getAction());
 	                if (taskFactories.containsKey(key))
 	                {
 	                	TaskActivity<?> task = taskFactories.get(key).newTask(JXTAPeerInterface.this, msg);
 
-	                	
-	                	//conversation.init();
-	                	//TODO start
-	                	//ActivityHelper.start(conversation);
-	                	//conversation.handleMessage(msg);
+	                	new Thread(task).start();
 	                }
                 }
-                //use protocol to define the response
-                //protocol.createResponse(out, result, session);	
-                //out.flush();
-
-                //out.close();
                 in.close();
 
                 socket.close();
@@ -269,17 +160,6 @@ public class JXTAPeerInterface implements PeerInterface, DiscoveryListener{
 		public void run() {
 			handleRequest(socket);
 		}
-	}
-
-	public void registerReceiveHook(UUID conversationId, Performative performative, String handleFunc)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	public void registerActivity(Performative performative, String action, TaskFactory convFactory)
-	{
 	}
 
 	public void registerTask(UUID taskId, TaskActivity<?> task)

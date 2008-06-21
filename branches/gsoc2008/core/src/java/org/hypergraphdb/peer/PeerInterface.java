@@ -2,43 +2,50 @@ package org.hypergraphdb.peer;
 
 import java.util.UUID;
 
-import org.hypergraphdb.peer.protocol.OldMessage;
 import org.hypergraphdb.peer.protocol.Performative;
-import org.hypergraphdb.peer.workflow.ActivityFactory;
-import org.hypergraphdb.peer.workflow.PeerRelatedActivity;
 import org.hypergraphdb.peer.workflow.TaskActivity;
 import org.hypergraphdb.peer.workflow.TaskFactory;
-import org.hypergraphdb.peer.workflow.PeerFilter;
 
 
+/**
+ * @author Cipri Costa
+ *
+ * This interface is implemented by classes that handle incoming and outgoing message
+ * traffic for the peer. 
+ * The interface has some factory methods that allow implementers to decide how to create
+ * and allocate objects. 
+ * TODO: manage threads from this object
+ *
+ */
 public interface PeerInterface extends Runnable{
+	/**
+	 * Because implementors can be of any type, the configuration is an Object, no constraints 
+	 * to impose here as there is no common set of configuration properties.
+	 * 
+	 * @param configuration
+	 * @return
+	 */
 	boolean configure(Object configuration);
 	
 	//factory methods to obtain activities that are specific to the peer implementation
+	//TODO redesign
 	PeerFilter newFilterActivity();
-	ActivityFactory newSendActivityFactory();
-
-	//TODO remove
-	Object forward(Object destination, OldMessage msg);
+	PeerRelatedActivityFactory newSendActivityFactory();
 
 
-	/**
-	 * Register a ConversationFactory that will be used to create conversations for messages 
-	 * that are not in a conversation that exist on the peer. 
-	 * 
-	 * @param performative
-	 * @param action
-	 * @param convFactory
-	 */
 	void registerTaskFactory(Performative performative, String action, TaskFactory convFactory);
 
+
 	/**
-	 * registers existing conversation handlers. The peer will route any incoming message to that conversation
+	 * Register a task. All subsequent messages that have this task id are redirected to the 
+	 * registered task. The task will have to decide if they are part of an existing conversation 
+	 * or if a conversation has to be created for the message.
 	 * 
-	 * @param conversationId
-	 * @param convHandler
+	 * @param taskId
+	 * @param task
 	 */
 	void registerTask(UUID taskId, TaskActivity<?> task);
 	
+	//TODO replace with an Executor approach
 	void execute(PeerRelatedActivity activity);
 }

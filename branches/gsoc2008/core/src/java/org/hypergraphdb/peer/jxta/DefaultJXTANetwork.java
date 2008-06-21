@@ -8,8 +8,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-import org.hypergraphdb.util.Pair;
-
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.discovery.DiscoveryEvent;
 import net.jxta.discovery.DiscoveryListener;
@@ -26,11 +24,13 @@ import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 
+import org.hypergraphdb.util.Pair;
+
 /**
  * @author Cipri Costa
  *
  * <p>
- * Handles problems related to the JXTA network : intialize, stop, etc
+ * Handles problems related to the JXTA network : intialize, stop, discovery, publishing, etc
  * </p>
  */
 public class DefaultJXTANetwork implements JXTANetwork{

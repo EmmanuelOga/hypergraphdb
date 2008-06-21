@@ -1,10 +1,12 @@
-package org.hypergraphdb.peer.workflow;
+package org.hypergraphdb.peer;
 
-import org.apache.servicemix.beanflow.AbstractActivity;
-import org.apache.servicemix.beanflow.AsynchronousActivity;
 import org.hypergraphdb.peer.protocol.Message;
 
-public abstract class PeerRelatedActivity extends AbstractActivity 
+/**
+ * @author Cipri Costa
+ * A runnable object that executes a task against a given peer 
+ */
+public abstract class PeerRelatedActivity implements Runnable
 {
 	protected Object target;
 	protected Message msg;

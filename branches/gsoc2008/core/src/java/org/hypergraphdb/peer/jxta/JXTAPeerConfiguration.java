@@ -2,6 +2,11 @@ package org.hypergraphdb.peer.jxta;
 
 import java.util.ArrayList;
 
+/**
+ * @author Cipri Costa
+ *
+ * Configuration parameters to be sent to the peer interface.
+ */
 public class JXTAPeerConfiguration {
 
 	private boolean needsRdvConn;

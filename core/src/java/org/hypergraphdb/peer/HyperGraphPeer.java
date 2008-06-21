@@ -2,18 +2,14 @@ package org.hypergraphdb.peer;
 
 import java.util.Iterator;
 
-import org.apache.servicemix.beanflow.ActivityHelper;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HGStore;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.peer.protocol.Message;
-import org.hypergraphdb.peer.protocol.OldMessage;
-import org.hypergraphdb.peer.protocol.MessageFactory;
-import org.hypergraphdb.peer.protocol.MessageHandler;
 import org.hypergraphdb.peer.protocol.Performative;
-import org.hypergraphdb.peer.workflow.RememberActivityClient;
-import org.hypergraphdb.peer.workflow.RememberActivityServer;
+import org.hypergraphdb.peer.workflow.RememberTaskClient;
+import org.hypergraphdb.peer.workflow.RememberTaskServer;
 import org.hypergraphdb.util.Pair;
 
 /**
@@ -32,12 +28,7 @@ public class HyperGraphPeer {
 	 * object used for communicating with other peers
 	 */
 	private PeerInterface peerInterface = null;
-	
-	/**
-	 * The factory is configured by the peer. The template messages are then use to send/receive communications to/from peers
-	 */
-	private MessageFactory messageFactory = new MessageFactory();
-	
+		
 	/**
 	 * The peer can be configured to store atoms in this local database
 	 */
@@ -87,7 +78,7 @@ public class HyperGraphPeer {
 		}
 
 		if (configuration.getHasServerInterface()){
-			peerInterface.registerTaskFactory(Performative.CallForProposal, Message.REMEMBER_ACTION, new RememberActivityServer.RememberTaskServerFactory(this));
+			peerInterface.registerTaskFactory(Performative.CallForProposal, Message.REMEMBER_ACTION, new RememberTaskServer.RememberTaskServerFactory(this));
 		}
 
 		typeSystem = new HGTypeSystemPeer(peerInterface, (graph == null) ? null : graph.getTypeSystem());
@@ -129,20 +120,9 @@ public class HyperGraphPeer {
 			
 			//OldMessage msg = messageFactory.build(ServiceType.ADD, new Object[]{subGraph});
 			
-			RememberActivityClient activity = new RememberActivityClient(peerInterface, storeOnPeer, subGraph);
+			RememberTaskClient activity = new RememberTaskClient(peerInterface, storeOnPeer, subGraph);
 			activity.run();
-			
-			//activity.setMessage(msg);
-			//ActivityHelper.start(activity);
-			//activity.join();
-			
-			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ACTIVITY ENDED");
-			
-			Object result = null;//peerInterface.forward(storeOnPeer, msg);
-
-			if (result instanceof HGHandle){
-				handle = (HGHandle)result;
-			}
+			handle = activity.getResult();
 		}
 
 		return handle;
@@ -202,8 +182,7 @@ public class HyperGraphPeer {
 		{
 			//TODO optimization - check cache, only get what we need from server
 			//get data from the other peer
-			OldMessage msg = messageFactory.build(ServiceType.GET, new Object[]{handle});
-			Object peerResult = peerInterface.forward(null, msg);
+			Object peerResult = null;//peerInterface.forward(null, msg);
 			if (peerResult != null)
 			{
 				Subgraph subgraph = (Subgraph)peerResult;

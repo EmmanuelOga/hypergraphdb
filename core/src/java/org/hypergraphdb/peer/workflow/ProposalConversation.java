@@ -1,16 +1,31 @@
 package org.hypergraphdb.peer.workflow;
 
 import org.hypergraphdb.peer.PeerInterface;
+import org.hypergraphdb.peer.PeerRelatedActivity;
 import org.hypergraphdb.peer.protocol.Message;
 import org.hypergraphdb.peer.protocol.Performative;
 
+/**
+ * @author Cipri Costa
+ * implementation of the "Proposal" conversation. This conversation is typically triggered by a previous
+ * "call for proposal" message. 
+ * The flows of the conversation are:
+ * Started 	
+ * 	Proposed 	
+ * 		Accepted
+ * 			Confirmed
+ * 			Disconfirmed
+ * 		Rejected
+ * 	
+ * 
+ */
 public class ProposalConversation extends Conversation<ProposalConversation.State>
 {
-	public enum State {Started, Proposed, Accepted, Rejected, Confirmed, Disconfirmed};
+	public enum State {Started, Proposed, Accepted, Rejected, Confirmed, Disconfirmed, Done};
 
 	public ProposalConversation(PeerRelatedActivity sendActivity, PeerInterface peerInterface, Message msg)
 	{
-		super(sendActivity, peerInterface, msg);
+		super(sendActivity, peerInterface, msg, State.Started, State.Done);
 		
 		//serverside flow
 		registerPerformativeTransition(State.Proposed, Performative.Accept, State.Accepted);
@@ -20,8 +35,7 @@ public class ProposalConversation extends Conversation<ProposalConversation.Stat
 		
 		registerPerformativeTransition(State.Accepted, Performative.Confirm, State.Confirmed);
 		registerPerformativeTransition(State.Accepted, Performative.Disconfirm, State.Disconfirmed);
-		
-		setState(State.Started);
+
 	}
 
 	/**

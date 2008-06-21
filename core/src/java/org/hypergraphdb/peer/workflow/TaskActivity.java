@@ -11,64 +11,136 @@ import org.hypergraphdb.peer.PeerInterface;
 import org.hypergraphdb.peer.protocol.Message;
 import org.hypergraphdb.util.Pair;
 
+/**
+ * @author Cipri Costa
+ *
+ * @param <StateType>
+ * 
+ * Base class for tasks. A task is an <code>AbstractActivity</code> that manages certain conversations and 
+ * uses the state changes in the conversations as triggers for transactions in own state. Unlike Conversation 
+ * activities, messages are accepted even if the task is not in a state where a transition is possible with that message.
+ * This class ensures implementors that those messages are saved and will trigger transformations when (if ever) the task 
+ * enters an appropriate state.
+ * 
+ * The task is also registered against the <code>PeerInterface</code> and routes all messages received through that 
+ * interface to the appropriate conversations.
+ * 
+ * 
+ */
 public abstract class TaskActivity<StateType> extends AbstractActivity<StateType> implements ActivityStateListener
 {
 	private UUID taskId;
 	private PeerInterface peerInterface;
 	
+	/**
+	 * map of active conversations
+	 */
 	private HashMap<UUID, Conversation<?>> conversations = new HashMap<UUID, Conversation<?>>();
+	/**
+	 * each state has a queue of messages. When the task reaches the state, the activity triggers a transaction.
+	 */
 	private HashMap<StateType, LinkedBlockingQueue<AbstractActivity<?>>> activityQueues = new HashMap<StateType, LinkedBlockingQueue<AbstractActivity<?>>>();
+	/**
+	 * Used to detrmine the queue of an activity based on the change in the activity state
+	 */
+	private HashMap<Object, StateType> conversationQueueMaping = new HashMap<Object, StateType>();
+	/**
+	 * map of registered transitions. Each transition also triggers a function that is implemented in the child classes
+	 */
 	private HashMap<Pair<StateType, Object>, Pair<StateType, Method>> transitions = new HashMap<Pair<StateType,Object>, Pair<StateType,Method>>();
 	
+	/**
+	 * Conversation states we are interested in
+	 */
 	private HashSet<Object> conversationStates = new HashSet<Object>(); 
 
-	public TaskActivity(PeerInterface peerInterface)
+	public TaskActivity(PeerInterface peerInterface, StateType start, StateType end)
 	{
-		this(peerInterface, UUID.randomUUID());
+		this(peerInterface, UUID.randomUUID(), start, end);
 	}
 	
-	public TaskActivity(PeerInterface peerInterface, UUID taskId)
+	public TaskActivity(PeerInterface peerInterface, UUID taskId, StateType start, StateType end)
 	{
+		super(start, end);
+		
 		this.peerInterface = peerInterface;
 		this.taskId = taskId;
 				
 		peerInterface.registerTask(taskId, this);
 	}
 
+	/**
+	 * Executes a transition
+	 * 
+	 * @param method
+	 * @param activity
+	 */
+	protected void handleActivity(Method method, AbstractActivity<?> activity)
+	{
+		try
+		{
+			StateType targetState = (StateType) method.invoke(this, activity);
+			setState(targetState);
+		
+		} catch (IllegalArgumentException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.hypergraphdb.peer.workflow.ActivityStateListener#stateChanged(java.lang.Object, org.hypergraphdb.peer.workflow.AbstractActivity)
+	 * 
+	 * Called by conversations when their state changes.
+	 */
 	public void stateChanged(Object newState, AbstractActivity<?> activity)
 	{
-		System.out.println("TaskActivity: stateChanged to " + newState + " while in " + getState() );
+		System.out.println("TaskActivity: conversation state changed to " + newState + " while in " + getState() );
 		
-		StateType currentState = getState();
-		Pair<StateType, Method> dest = transitions.get(new Pair<StateType, Object>(currentState, newState));
-		if (dest != null)
+		StateType interestedState = conversationQueueMaping.get(newState);
+		
+		LinkedBlockingQueue<AbstractActivity<?>> queue = activityQueues.get(interestedState);
+
+		if (queue != null)
 		{
-			if (compareAndSetState(currentState, dest.getFirst()))
+			try
 			{
-				try
-				{
-					StateType targetState = (StateType) dest.getSecond().invoke(this, activity);
-					setState(targetState);
-				
-				} catch (IllegalArgumentException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InvocationTargetException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}else{
-				//TODO add to queue
+				System.out.println("queueing message for " + interestedState);
+				queue.put(activity);
+			} catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
+		}else{
+			System.out.println("can not find queue for " + interestedState);
 		}
-			
-		//add activity to according queue
+	}
+
+	/**
+	 * @param msg
+	 * 
+	 * Called by the peer interface when a message arrives for this task.
+	 */
+	public void handleMessage(Message msg)
+	{
+		System.out.println("TaskActivity: handleMessage");
+		Conversation<?> conversation = conversations.get(msg.getConversationId());
+		if (conversation == null)
+		{
+			conversation = createNewConversation(msg);
+			registerConversation(conversation, msg.getConversationId());
+		}
+		conversation.handleIncomingMessage(msg);
 	}
 
 	protected abstract void startTask();
@@ -77,52 +149,39 @@ public abstract class TaskActivity<StateType> extends AbstractActivity<StateType
 	{
 		startTask();
 		
-
-		//get queue for current state
-		LinkedBlockingQueue<AbstractActivity<?>> queue = activityQueues.get(getState());
-
-		if (queue != null)
+		while (!isStopped())
+		{
+			//get queue for current state
+			LinkedBlockingQueue<AbstractActivity<?>> queue = activityQueues.get(getState());
+	
+			if (queue != null)
 			{
-			//wait for input on that
-			AbstractActivity<?> activity = null;
-			try
-			{
-				activity = queue.take();
-			} catch (InterruptedException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			if (activity != null)
-			{
-				//get step info
-				Pair<StateType, Method> dest = transitions.get(new Pair<StateType, Object>(getState(), activity.getState()));
-				
-				if (compareAndSetState(getState(), dest.getFirst()))
+				//wait for input on that
+				AbstractActivity<?> activity = null;
+				try
 				{
-					try
+					System.out.println("wating on queue for " + getState());
+					activity = queue.take();
+				} catch (InterruptedException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				if (activity != null)
+				{
+					//get step info
+					Pair<StateType, Method> dest = transitions.get(new Pair<StateType, Object>(getState(), activity.getState()));
+					
+					if (compareAndSetState(getState(), dest.getFirst()))
 					{
-						StateType newState = (StateType)(dest.getSecond().invoke(this, activity));
-						setState(newState);
-						
-					} catch (IllegalArgumentException e)
-					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IllegalAccessException e)
-					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (InvocationTargetException e)
-					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						handleActivity(dest.getSecond(), activity);
 					}
 				}
+			}else{
+				System.out.println("No queue found for " + getState());
 			}
 		}
-		//handle it until done
 	}
 
 	protected void registerConversation(Conversation<?> conversation, UUID conversationId)
@@ -139,19 +198,7 @@ public abstract class TaskActivity<StateType> extends AbstractActivity<StateType
 		}
 		
 	}
-	public void handleMessage(Message msg)
-	{
-		System.out.println("TaskActivity: handleMessage");
-		Conversation<?> conversation = conversations.get(msg.getConversationId());
-		if (conversation == null)
-		{
-			conversation = createNewConversation(msg);
-			registerConversation(conversation, msg.getConversationId());
-		}
-		conversation.handleIncomingMessage(msg);
-	}
 
-	
 	protected Conversation<?> createNewConversation(Message msg)
 	{
 		return null;
@@ -182,6 +229,7 @@ public abstract class TaskActivity<StateType> extends AbstractActivity<StateType
 			e.printStackTrace();
 		}
 		
+		conversationQueueMaping.put(conversationState, fromState);
 		//remember conversation state
 		conversationStates.add(conversationState);
 	}
@@ -214,129 +262,4 @@ public abstract class TaskActivity<StateType> extends AbstractActivity<StateType
 	{
 		this.peerInterface = peerInterface;
 	}
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-/*	
-	
-	public void handleMessage(Message msg)
-	{
-		System.out.println("TaskActivity: received " + msg.toString() + "while in " + getState().toString());
-	
-		//see if part of an existing conversation
-		Conversation<?> conversation = conversations.get(msg.getConversationId());
-		if (conversation == null)
-		{
-			conversation = makeNewConversation(msg);
-			//add listners for states we are interested in
-			
-			//create a new conversation
-		}
-		
-		conversation.handleMessage(msg);
-		
-		//try to go directly to the state
-		Pair<Performative, StateType> key = new Pair<Performative, StateType>(msg.getPerformative(), state.get());
-		
-		if (steps.containsKey(key))
-		{
-			Pair<Method, StateType> value = steps.get(key);
-			
-			if (state.compareAndSet(key.getSecond(), value.getSecond()))
-			{
-				try
-				{
-					StateType newState = (StateType)value.getFirst().invoke(this, msg);
-					state.set(newState);
-				} catch (IllegalArgumentException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InvocationTargetException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			//TODO else enqueue
-		}
-		
-		//put in queue ... 
-		//call right function ... 
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	private HashMap<Pair<Performative, StateType>, Pair<Method, StateType>> steps = new HashMap<Pair<Performative,StateType>, Pair<Method,StateType>>();
-	
-	
-	public abstract void init();
-		
-	protected void startConversation()
-	{
-		peerInterface.registerReceiveHook(conversationId, this);
-	}
-	
-	protected void registerReceiveHook(Performative performative, String function, StateType startState, StateType runState)
-	{
-		try
-		{
-			Method method = this.getClass().getMethod(function, Message.class);
-			
-			steps.put(new Pair<Performative, StateType>(performative, startState), new Pair<Method, StateType>(method, runState));
-		} catch (SecurityException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchMethodException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		//put in queue
-	}
-	
-
-	
-
-	public UUID getConversationId()
-	{
-		return conversationId;
-	}
-	public void setConversationId(UUID conversationId)
-	{
-		this.conversationId = conversationId;
-	}
-*/
-	
-	
 }

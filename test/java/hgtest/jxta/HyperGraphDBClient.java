@@ -42,7 +42,7 @@ public class HyperGraphDBClient{
 		Object retrievedData = null;
 		
 		HGHandle handle1 = peer.add("Server1", "First atom to be sent to server1");
-		System.out.println("Client added handle: " + ((handle1 == null) ? "null" : handle1.toString()) + "to Server1");
+		System.out.println("Client added handle: " + handle1 + " to Server1");
 
 //		HGHandle handle2 = peer.add("Server2", "First atom to be sent to server2");
 	//	System.out.println("Client added handle: " + ((handle2 == null) ? "null" : handle2.toString()) + "to Server2");

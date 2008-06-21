@@ -2,13 +2,17 @@ package org.hypergraphdb.peer.jxta;
 
 import net.jxta.document.Advertisement;
 import net.jxta.peergroup.PeerGroup;
-import net.jxta.pipe.PipeID;
 import net.jxta.protocol.PipeAdvertisement;
 
-import org.apache.servicemix.beanflow.Activity;
-import org.hypergraphdb.peer.workflow.ActivityFactory;
+import org.hypergraphdb.peer.PeerRelatedActivity;
+import org.hypergraphdb.peer.PeerRelatedActivityFactory;
 
-public class JXTASendActivityFactory implements ActivityFactory
+/**
+ * @author Cipri Costa
+ *
+ * Simple factory for JXTASendActivities
+ */
+public class JXTASendActivityFactory implements PeerRelatedActivityFactory
 {
 	private PeerGroup peerGroup;
 	private Advertisement pipeAdv;
@@ -20,7 +24,7 @@ public class JXTASendActivityFactory implements ActivityFactory
 	}
 	
 	@Override
-	public Activity createActivity()
+	public PeerRelatedActivity createActivity()
 	{
 		return new JXTASendActivity(peerGroup, pipeAdv);
 	}

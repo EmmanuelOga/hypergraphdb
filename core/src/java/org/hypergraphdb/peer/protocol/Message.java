@@ -2,13 +2,25 @@ package org.hypergraphdb.peer.protocol;
 
 import java.util.UUID;
 
+/**
+ * @author Cipri Costa
+ *
+ * This class is used to have conversations between peers. 
+ */
 public class Message
 {
 	public static final String REMEMBER_ACTION = "remeber";
 	
 	private Performative performative;
 	private String action;
+	/**
+	 * Messages can be part of a conversation. If they are not, this property is set to UIID(0,0)
+	 */
 	private UUID conversationId;
+	/**
+	 * Messages are always related to a task, So this property is always set to a valid ID. Peers may not know of the
+	 * task (when they receive the first message for example). 
+	 */
 	private UUID taskId;
 	private String replyTo;
 	private Object content;

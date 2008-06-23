@@ -8,6 +8,32 @@ The general principles the communication is built upon are:
   # All communication is done asynchronously.
   # Peers do not control each other, but each peer should be implemented so that it maximizes the output of the system. Workers should actually compete for jobs instead of clients competing for resources
 
+= Consistency =
+
+It is possible for an action to affect atoms on more than one peer and, as such, the problem of consistency is of actuality. Lets call all actions that affect the state of the atoms in a database "write actions". Given the design of our system we have the following requirements for the consistency implementations:
+
+  # Must be asynchronous. In database terminology we distinguish between _eager_ and _lasy_ propagation of write actions (_eager_ propagates write actions within the scope of the transaction while _lasy_ allows a transaction to commit locally and then the change is propagated in the system). HGDB should use _lasy_ propagation.
+  # Must make a compromise between consistency and assumptions on the delivery order of the messages. We can not rely on the fact that group communication ensures a total ordering on all messages (that is if e,,1,, happens before e,,2,,, it is not guaranteed that all peers will observe e,,1,, before they observe e,,2,,)
+  # Must allow _selective_ replication. That means that only a part of the atoms in the peer database are replicated to another peer (non-disjunctive sets of atoms can be replicated to different peers). Ideally the sets should be defined in a declarative manner by each peer (ex. peer A will inform peer B that it is interested of all atoms stored with peer B for which a certain expression evaluates to true).
+  # Assume that no peer is designated as holding the primary copy of an atom.
+
+A good paradigm to are the _epidemic algorithms for database replication_ (see http://csdl2.computer.org/persagen/DLAbsToc.jsp?resourcePath=/dl/trans/tk/&toc=comp/trans/tk/2003/05/k5toc.xml&DOI=10.1109/TKDE.2003.1232274) and http://www.cs.umd.edu/~keleher/papers/monet99.pdf .
+
+It is important to define what ordering can be imposed on the messages that are exchanged between peers. An important order is the causality relation between transactions (if transaction B was executed after observing transaction A, all peers must execute transaction B after transaction A). While this is important, there are systems that might require a more optimistic approach and might not be willing to pay the price of constant election mechanisms (elections assume independence of peer failures and not all systems have this property). 
+
+As a first implementation we can ignore the causality order guarantee, and go with a very optimistic approach (assume that the probability of the same atom being updated on two peers before the second peer observes the update made by the first is zero). On the medium term a _currency_ approach would be interesting. It basically attaches a currency of 1 to an atom and then split it according to some algorithm when new replicas are created. By requiring that voters with a certain amount of currency need to agree before committing a transaction, one can control the type and magnitude of the elections).
+
+Another thing to consider (and probably of greater immediate importance) is a mechanism by which peers can catch up with modifications after being disconnected. The choice is between a _push_ technique (where updates are constantly pushed to peers until they come back online) and a _pull_ technique (where the peer queries for updates when it comes back online).
+
+It is proven that pull techniques have a higher convergence rate (stale peers get up to date faster). The solution is to have each peer, on start-up, present its state to the other peers and then receive all updates. 
+
+The main issue here is how will peer B, based on the description of the state of peer A, figure out what to send to peer A and in which order. Since we allow for partial replication, we can not assume that peer B has all the data that peer A need to come up to date with. Another use case here is load balancing - a snapshot of a peer database can be copied to another node, started up, and should automatically come up to date and participate in the group operations.
+
+*TODO* Need to decide what is easier to do here...
+
+
+
+
 = Use cases =
 
 ==Peer i wants to save an atom (main flow)==

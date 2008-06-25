@@ -78,7 +78,7 @@ public class HyperGraphPeer {
 		}
 
 		if (configuration.getHasServerInterface()){
-			peerInterface.registerTaskFactory(Performative.CallForProposal, Message.REMEMBER_ACTION, new RememberTaskServer.RememberTaskServerFactory(this));
+			peerInterface.registerTaskFactory(Performative.CallForProposal, HGDBOntology.REMEMBER_ACTION, new RememberTaskServer.RememberTaskServerFactory(this));
 		}
 
 		typeSystem = new HGTypeSystemPeer(peerInterface, (graph == null) ? null : graph.getTypeSystem());

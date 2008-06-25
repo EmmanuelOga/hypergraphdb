@@ -237,7 +237,9 @@ public abstract class TaskActivity<StateType> extends AbstractActivity<StateType
 	
 	protected Message getReply(Message msg)
 	{
-		Message reply = new Message(msg.getAction(), msg.getConversationId());
+		Message reply = getPeerInterface().getMessageFactory().createMessage();
+		reply.setAction(msg.getAction());
+		reply.setConversationId(msg.getConversationId());
 		reply.setTaskId(msg.getTaskId());
 		
 		return reply;

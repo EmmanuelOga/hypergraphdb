@@ -1,10 +1,8 @@
 package org.hypergraphdb.peer.jxta;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
-import java.util.Timer;
 
 import net.jxta.document.Advertisement;
 import net.jxta.document.AdvertisementFactory;
@@ -49,10 +47,9 @@ public class JXTASendActivity extends PeerRelatedActivity
 			PeerID peerId = null;
 			
 			//recreate destination advertisement based on the type of the target attribute
-			if (target instanceof String)
+			if (target instanceof PipeAdvertisement)
 			{
-				StructuredDocument doc = StructuredDocumentFactory.newStructuredDocument(MimeMediaType.XMLUTF8, new StringReader(target.toString()));
-				targetPipeAdv = (PipeAdvertisement) AdvertisementFactory.newAdvertisement((XMLElement)doc.getRoot());
+				targetPipeAdv = (PipeAdvertisement)target;
 			}else{
 				Pair<Advertisement, Advertisement> advPair = (Pair<Advertisement, Advertisement>)target;
 				
@@ -72,7 +69,7 @@ public class JXTASendActivity extends PeerRelatedActivity
 	        //set our self as replyTo if that was not already set.
 	        if (msg.getReplyTo() == null)
 	        {
-	        	msg.setReplyTo(pipeAdv.toString());
+	        	msg.setReplyTo(pipeAdv);
 	        }
 	        
 	        //

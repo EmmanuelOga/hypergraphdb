@@ -39,7 +39,6 @@ public class DefaultSerializerManager implements SerializerManager
 		addWellknownSerializer(UUIDPersistentHandle.class.getName(), new PersistentHandlerSerializer(), PERSISTENT_HANDLE_SERIALIZER_ID);
 		
 		addSerializerMapper(new SubgraphSerializer(), SUBGRAPH_SERIALIZER_ID, null);
-		addSerializerMapper(new MessageSerializer(), MESSAGE_SERIALIZER_ID, null);
 	}
 	
 	public static void addWellknownSerializer(String name, HGSerializer serializer, Integer id)

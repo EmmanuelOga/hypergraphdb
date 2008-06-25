@@ -2,6 +2,7 @@ package org.hypergraphdb.peer.jxta;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import org.hypergraphdb.peer.PeerInterface;
 import org.hypergraphdb.peer.PeerRelatedActivity;
 import org.hypergraphdb.peer.PeerRelatedActivityFactory;
 import org.hypergraphdb.peer.protocol.Message;
+import org.hypergraphdb.peer.protocol.MessageFactory;
 import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.peer.protocol.Protocol;
 import org.hypergraphdb.peer.workflow.TaskActivity;
@@ -49,6 +51,7 @@ public class JXTAPeerInterface implements PeerInterface/*, DiscoveryListener*/{
 
 	private HashMap<Pair<Performative, String>, TaskFactory> taskFactories = new HashMap<Pair<Performative,String>, TaskFactory>();
 	private HashMap<UUID, TaskActivity<?>> tasks = new HashMap<UUID, TaskActivity<?>>();
+	private MessageFactory messageFactory;
 	
 	public boolean configure(Object configuration) 
 	{
@@ -64,6 +67,44 @@ public class JXTAPeerInterface implements PeerInterface/*, DiscoveryListener*/{
 		if (result)
 		{
 			result = jxtaNetwork.init(this.config);
+		}
+		
+		if (result)
+		{
+			try
+			{
+				result = false;
+				messageFactory = (MessageFactory) Class.forName(this.config.getMessageFactory()).getConstructor(HashMap.class).newInstance(config.getMessageFactoryParams());
+				result = true;
+			} catch (IllegalArgumentException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SecurityException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InstantiationException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchMethodException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		if (result)
@@ -182,6 +223,11 @@ public class JXTAPeerInterface implements PeerInterface/*, DiscoveryListener*/{
 		
 		taskFactories.put(key, taskFactory);
 		
+	}
+
+	public MessageFactory getMessageFactory()
+	{
+		return messageFactory;
 	}
 
 

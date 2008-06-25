@@ -1,6 +1,7 @@
 package org.hypergraphdb.peer.jxta;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * @author Cipri Costa
@@ -13,9 +14,11 @@ public class JXTAPeerConfiguration {
 	
 	private String peerName;
 	private String peerId;
-	
 	private String peerGroupName;
-	
+
+	private String messageFactory;
+	private HashMap<String, Object> messageFactoryParams;
+
 	private ArrayList<String> peers = new ArrayList<String>();
 	
 	public JXTAPeerConfiguration()
@@ -75,6 +78,20 @@ public class JXTAPeerConfiguration {
 	{
 		this.needsRdvConn = needsRdvConn;
 	}
-	
-	
+	public String getMessageFactory()
+	{
+		return messageFactory;
+	}
+	public void setMessageFactory(String messageFactory)
+	{
+		this.messageFactory = messageFactory;
+	}
+	public HashMap<String, Object> getMessageFactoryParams()
+	{
+		return messageFactoryParams;
+	}
+	public void setMessageFactoryParams(HashMap<String, Object> messageFactoryParams)
+	{
+		this.messageFactoryParams = messageFactoryParams;
+	}
 }

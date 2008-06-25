@@ -2,6 +2,7 @@ package org.hypergraphdb.peer;
 
 import java.util.UUID;
 
+import org.hypergraphdb.peer.protocol.MessageFactory;
 import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.peer.workflow.TaskActivity;
 import org.hypergraphdb.peer.workflow.TaskFactory;
@@ -29,6 +30,7 @@ public interface PeerInterface extends Runnable{
 	
 	//factory methods to obtain activities that are specific to the peer implementation
 	//TODO redesign
+	MessageFactory getMessageFactory();
 	PeerFilter newFilterActivity();
 	PeerRelatedActivityFactory newSendActivityFactory();
 

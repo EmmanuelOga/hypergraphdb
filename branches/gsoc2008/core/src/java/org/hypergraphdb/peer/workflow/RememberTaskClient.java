@@ -3,6 +3,7 @@ package org.hypergraphdb.peer.workflow;
 import java.util.Iterator;
 
 import org.hypergraphdb.HGHandle;
+import org.hypergraphdb.peer.HGDBOntology;
 import org.hypergraphdb.peer.PeerFilter;
 import org.hypergraphdb.peer.PeerInterface;
 import org.hypergraphdb.peer.PeerRelatedActivity;
@@ -56,7 +57,9 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 		{
 			Object target = it.next();
 		
-			Message msg = new Message(Performative.CallForProposal, Message.REMEMBER_ACTION);
+			Message msg = getPeerInterface().getMessageFactory().createMessage();
+			msg.setPerformative(Performative.CallForProposal);
+			msg.setAction(HGDBOntology.REMEMBER_ACTION);
 			msg.setTaskId(getTaskId());
 			
 			PeerRelatedActivity activity = (PeerRelatedActivity)activityFactory.createActivity();

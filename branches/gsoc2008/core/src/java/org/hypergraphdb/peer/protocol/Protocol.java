@@ -18,8 +18,6 @@ public class Protocol {
 		
 	}
 	
-	
-	
 	/**
 	 * @param in
 	 * @param session 

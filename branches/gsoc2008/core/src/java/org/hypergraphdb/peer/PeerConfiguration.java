@@ -1,5 +1,13 @@
 package org.hypergraphdb.peer;
 
+/**
+ * @author ciprian.costa
+ *
+ */
+/**
+ * @author ciprian.costa
+ *
+ */
 public class PeerConfiguration {
 	
 	private String cacheDatabaseName;
@@ -12,6 +20,7 @@ public class PeerConfiguration {
 
 	private String peerInterfaceType;
 	private Object peerInterfaceConfiguration;
+	
 	
 	public PeerConfiguration(boolean hasLocalHGDB, String databaseName, 
 			boolean hasServerInterface, boolean canForwardRequests, 
@@ -95,5 +104,5 @@ public class PeerConfiguration {
 	{
 		this.cacheDatabaseName = cacheDatabaseName;
 	}
-	
+
 }

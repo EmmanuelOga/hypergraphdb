@@ -1,5 +1,7 @@
 package hgtest.jxta;
 
+import java.util.HashMap;
+
 import org.hypergraphdb.peer.DummyPolicy;
 import org.hypergraphdb.peer.HyperGraphPeer;
 import org.hypergraphdb.peer.PeerConfiguration;
@@ -21,7 +23,11 @@ public class HyperGraphDBServer {
 		JXTAPeerConfiguration jxtaConf = new JXTAPeerConfiguration();
 		jxtaConf.setPeerName(peerName);
 		jxtaConf.setPeerGroupName(groupName);
-		
+		jxtaConf.setMessageFactory("org.hypergraphdb.peer.protocol.json.JSONMessageFactory");
+		HashMap<String, Object> messageConfig = new HashMap<String, Object>();
+		messageConfig.put("ForceTextOnly", false);
+		jxtaConf.setMessageFactoryParams(messageConfig);
+
 		PeerConfiguration conf = new PeerConfiguration(true, "./DBs/" + peerName + "DB", 
 				true, false, "org.hypergraphdb.peer.jxta.JXTAPeerInterface", jxtaConf, 
 				"./DBs/" + peerName + "CacheDb");

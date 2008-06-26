@@ -25,7 +25,7 @@ import org.hypergraphdb.peer.protocol.Performative;
  */
 public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 {
-	private enum State {Started, Accepted, HandleProposal, HandleProposalResponse, Done};
+	protected enum State {Started, Accepted, HandleProposal, HandleProposalResponse, Done};
 	
 	private Object targetDescription;
 	private Subgraph subgraph;

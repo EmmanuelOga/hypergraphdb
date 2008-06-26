@@ -16,7 +16,7 @@ import org.hypergraphdb.peer.protocol.Message;
  */
 public class RememberTaskServer extends TaskActivity<RememberTaskServer.State>
 {
-	private enum State {Started, HandleAccepted, HandleRejected, Done};
+	protected enum State {Started, HandleAccepted, HandleRejected, Done};
 	
 	private HyperGraphPeer peer;
 	ProposalConversation conversation;

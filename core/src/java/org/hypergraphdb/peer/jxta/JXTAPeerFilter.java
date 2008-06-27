@@ -3,10 +3,8 @@ package org.hypergraphdb.peer.jxta;
 import java.util.Set;
 
 import net.jxta.document.Advertisement;
-import net.jxta.protocol.PipeAdvertisement;
 
 import org.hypergraphdb.peer.PeerFilter;
-import org.hypergraphdb.util.Pair;
 
 /**
  * @author Cipri Costa
@@ -17,8 +15,9 @@ import org.hypergraphdb.util.Pair;
  */
 public class JXTAPeerFilter extends PeerFilter
 {
-	private Set<Pair<Advertisement, Advertisement>> advs;
-	public JXTAPeerFilter(Set<Pair<Advertisement, Advertisement>> advs)
+	private Set<Advertisement> advs;
+	
+	public JXTAPeerFilter(Set<Advertisement> advs)
 	{
 		this.advs = advs;
 	}
@@ -28,11 +27,11 @@ public class JXTAPeerFilter extends PeerFilter
 	{
 		synchronized (advs)
 		{
-			for(Pair<Advertisement, Advertisement> advPair : advs)
+			for(Advertisement adv : advs)
 			{
-				if (shouldSend(advPair.getFirst(), advPair.getSecond()))
+				if (getEvaluator().shouldSend(adv))
 				{
-					matchFound(advPair);
+					matchFound(adv);
 				}
 			}
 		}
@@ -40,16 +39,4 @@ public class JXTAPeerFilter extends PeerFilter
 		// TODO Auto-generated method stub
 		
 	}
-	
-	private boolean shouldSend(Advertisement peerAdv, Advertisement pipeAdv)
-	{
-		//for the time being ... something very simple
-		if ((targetDescription != null) && (pipeAdv instanceof PipeAdvertisement))
-		{
-			return targetDescription.toString().equals(((PipeAdvertisement)pipeAdv).getName());
-		}
-		
-		return false;
-	}
-
 }

@@ -6,6 +6,7 @@ import org.hypergraphdb.peer.DummyPolicy;
 import org.hypergraphdb.peer.HyperGraphPeer;
 import org.hypergraphdb.peer.PeerConfiguration;
 import org.hypergraphdb.peer.jxta.JXTAPeerConfiguration;
+import org.hypergraphdb.query.AnyAtomCondition;
 
 public class HyperGraphDBServer {
 	public static void main(String[] args){
@@ -35,5 +36,12 @@ public class HyperGraphDBServer {
 		HyperGraphPeer server = new HyperGraphPeer(conf, new DummyPolicy(true));
 		
 		server.start();
+		
+		try
+		{
+			Thread.sleep(3000);
+		} catch (InterruptedException e){}
+
+		server.setAtomInterests(new AnyAtomCondition());
 	}
 }

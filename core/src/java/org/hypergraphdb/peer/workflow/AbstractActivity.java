@@ -33,6 +33,7 @@ public abstract class AbstractActivity<StateType> implements Runnable
 	private StateType endState;
 	
 	private CountDownLatch latch;
+	protected CountDownLatch stateChangedLatch; 
 	
 	public AbstractActivity()
 	{
@@ -52,6 +53,7 @@ public abstract class AbstractActivity<StateType> implements Runnable
 	public void run()
 	{
 		latch = new CountDownLatch(1);
+		stateChangedLatch = new CountDownLatch(1);
 		if (startState != null) setState(startState);
 		doRun();
 		
@@ -77,14 +79,19 @@ public abstract class AbstractActivity<StateType> implements Runnable
 		else return false;
 	}
 	
-	private void afterStateChanged(StateType newValue)
+	protected void afterStateChanged(StateType newValue)
 	{
 		if ((endState != null) && (latch != null) && endState.equals(newValue))
 		{
 			System.out.println("latch released");
 			latch.countDown();
-		}
+		}	
 		
+		if (stateChangedLatch != null)
+		{
+			stateChangedLatch.countDown();
+			stateChangedLatch = new CountDownLatch(1);
+		}
 	}
 	
 	/**

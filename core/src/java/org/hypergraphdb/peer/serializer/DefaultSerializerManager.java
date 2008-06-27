@@ -18,6 +18,7 @@ import org.hypergraphdb.util.Pair;
 public class DefaultSerializerManager implements SerializerManager
 {
 	public static final Integer NULL_SERIALIZER_ID = 0;
+	public static final Integer GENERIC_SERIALIZER_ID = 1;
 	
 	public static final Integer PERSISTENT_HANDLE_SERIALIZER_ID = 100;
 
@@ -35,7 +36,7 @@ public class DefaultSerializerManager implements SerializerManager
 	public DefaultSerializerManager() 
 	{
 		addWellknownSerializer("nullSerializer", new NullSerializer(), NULL_SERIALIZER_ID);
-		
+		addWellknownSerializer("generic", new GenericSerializer(), GENERIC_SERIALIZER_ID);
 		addWellknownSerializer(UUIDPersistentHandle.class.getName(), new PersistentHandlerSerializer(), PERSISTENT_HANDLE_SERIALIZER_ID);
 		
 		addSerializerMapper(new SubgraphSerializer(), SUBGRAPH_SERIALIZER_ID, null);
@@ -92,6 +93,9 @@ public class DefaultSerializerManager implements SerializerManager
 				serializer = iterator.next().getFirst().accept(clazz);
 			}
 		}
+
+		//return generic serializer
+		if (serializer == null) serializer = getSerializerById(GENERIC_SERIALIZER_ID);
 
 		//should be worry about this being null?
 		return serializer;

@@ -7,6 +7,7 @@ import net.jxta.document.AdvertisementFactory;
 import net.jxta.id.IDFactory;
 import net.jxta.protocol.PipeAdvertisement;
 
+import org.hypergraphdb.query.AnyAtomCondition;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,15 +22,32 @@ public class JSONObjectMapper
 	
 	public static boolean accept(Object value)
 	{
-		return (value instanceof PipeAdvertisement);
+		return (value instanceof PipeAdvertisement) || (value instanceof AnyAtomCondition);
 	}
 
 	public static JSONObject getJSONObject(Object value)
 	{
 		if (value instanceof PipeAdvertisement)
 			return getFromPipeAdvertisement((PipeAdvertisement)value);
-			
+		else if (value instanceof AnyAtomCondition)
+			return getFromAnyAtomCondition((AnyAtomCondition)value);
 		return null;
+	}
+
+	public static JSONObject getFromAnyAtomCondition(AnyAtomCondition value)
+	{
+		JSONObject json = new JSONObject();
+		
+		try
+		{
+			json.put("class", "query:any_atom");
+		} catch (JSONException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return json;
 	}
 
 	public static Object getObject(JSONObject value)
@@ -40,11 +58,19 @@ public class JSONObjectMapper
 		{
 			if (className.equals(PIPE_CLASS))
 				return getPipeAdvertisement(value);
+			else if (className.equals("query:any_atom"))
+				return getAnyAtomCondition(value);
 		}
 		
 		return null;
 	}
 	
+	public static AnyAtomCondition getAnyAtomCondition(JSONObject value)
+	{
+		// TODO Auto-generated method stub
+		return new AnyAtomCondition();
+	}
+
 	public static Object getPipeAdvertisement(JSONObject value)
 	{
 		PipeAdvertisement adv = (PipeAdvertisement)AdvertisementFactory.newAdvertisement(PipeAdvertisement.getAdvertisementType());

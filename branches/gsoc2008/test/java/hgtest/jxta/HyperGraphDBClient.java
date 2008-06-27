@@ -45,14 +45,18 @@ public class HyperGraphDBClient{
 			Thread.sleep(3000);
 		} catch (InterruptedException e){}
 		
+		peer.updateNetworkProperties();
+		
+		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		
 		HGHandle handle = null;
 		Object retrievedData = null;
 		
-		HGHandle handle1 = peer.add("Server1", "First atom to be sent to server1");
-		System.out.println("Client added handle: " + handle1 + " to Server1");
+		HGHandle handle1 = peer.add("First atom to be sent");
+		System.out.println("Client added handle: " + handle1);
 
-//		HGHandle handle2 = peer.add("Server2", "First atom to be sent to server2");
-	//	System.out.println("Client added handle: " + ((handle2 == null) ? "null" : handle2.toString()) + "to Server2");
+		HGHandle handle2 = peer.add("Second atom to be sent");
+		System.out.println("Client added handle: " + handle2);
 
 //		retrievedData = null;
 //		if (handle1 != null) retrievedData = peer.get(handle1);
@@ -79,6 +83,4 @@ public class HyperGraphDBClient{
 		System.out.println("Handle for type simple: " + ((handle == null) ? "null" : handle.toString()));
 		*/		
 	}
-
-    
 }

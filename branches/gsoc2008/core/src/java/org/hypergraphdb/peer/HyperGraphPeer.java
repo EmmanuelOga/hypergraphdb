@@ -8,8 +8,13 @@ import org.hypergraphdb.HGStore;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.peer.protocol.Message;
 import org.hypergraphdb.peer.protocol.Performative;
+import org.hypergraphdb.peer.serializer.GenericSerializer;
+import org.hypergraphdb.peer.workflow.GetInterestsTask;
+import org.hypergraphdb.peer.workflow.PublishInterestsTask;
 import org.hypergraphdb.peer.workflow.RememberTaskClient;
 import org.hypergraphdb.peer.workflow.RememberTaskServer;
+import org.hypergraphdb.query.AtomTypeCondition;
+import org.hypergraphdb.query.HGAtomPredicate;
 import org.hypergraphdb.util.Pair;
 
 /**
@@ -60,6 +65,8 @@ public class HyperGraphPeer {
 		//create cache database - this should eventually be an actual cache, not just another database
 		cacheGraph = new HyperGraph(configuration.getCacheDatabaseName()); 
 		
+		GenericSerializer.setTempDB(cacheGraph);
+		
 		if (configuration.getCanForwardRequests() || configuration.getHasServerInterface()){
 			try{
 				peerInterface = (PeerInterface)Class.forName(configuration.getPeerInterfaceType()).getConstructor().newInstance();
@@ -79,7 +86,11 @@ public class HyperGraphPeer {
 
 		if (configuration.getHasServerInterface()){
 			peerInterface.registerTaskFactory(Performative.CallForProposal, HGDBOntology.REMEMBER_ACTION, new RememberTaskServer.RememberTaskServerFactory(this));
+			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.ATOM_INTEREST, new PublishInterestsTask.PublishInterestsFactory());
+
 		}
+
+		peerInterface.registerTaskFactory(Performative.Inform, HGDBOntology.ATOM_INTEREST, new GetInterestsTask.GetInterestsFactory());
 
 		typeSystem = new HGTypeSystemPeer(peerInterface, (graph == null) ? null : graph.getTypeSystem());
 
@@ -87,11 +98,14 @@ public class HyperGraphPeer {
 		return true;
 	}
 	
-/*	private void registerMessageTemplates() {
-		//set up message templates
-		MessageFactory.registerMessageTemplate(ServiceType.ADD, new OldMessage(ServiceType.ADD, new AddMessageHandler()));
-		MessageFactory.registerMessageTemplate(ServiceType.GET, new OldMessage(ServiceType.GET, new GetMessageHandler()));
-	}*/
+	public void setAtomInterests(HGAtomPredicate pred)
+	{
+		peerInterface.setAtomInterests(pred);
+		
+		PublishInterestsTask publishTask = new PublishInterestsTask(peerInterface, pred);
+		publishTask.run();
+	}
+	
 
 	void stop(){
 		
@@ -104,7 +118,7 @@ public class HyperGraphPeer {
 	 * @param atom
 	 * @return
 	 */
-	public HGHandle add(String storeOnPeer, Object atom){		
+	public HGHandle add(Object atom){		
 		System.out.println("adding atom: " + atom.toString());
 		
 		HGHandle handle = null;
@@ -118,9 +132,14 @@ public class HyperGraphPeer {
 			
 			Subgraph subGraph = new Subgraph(cacheGraph, cacheHandle);
 			
-			//OldMessage msg = messageFactory.build(ServiceType.ADD, new Object[]{subGraph});
-			
-			RememberTaskClient activity = new RememberTaskClient(peerInterface, storeOnPeer, subGraph);
+/*			if (new AtomTypeCondition(Integer.class).satisfies(cacheGraph, cacheHandle))
+			{
+				System.out.println("Condition satisfied");
+			}else{
+				System.out.println("Condition not satisfied");
+			}
+*/
+			RememberTaskClient activity = new RememberTaskClient(peerInterface, subGraph, cacheGraph, cacheHandle);
 			activity.run();
 			handle = activity.getResult();
 		}
@@ -145,26 +164,7 @@ public class HyperGraphPeer {
 
 	private HGHandle storeSubgraph(Subgraph subGraph, HGStore store)
 	{
-		HGHandle handle = null;
-		
-		Iterator<Pair<HGPersistentHandle, Object>> iter = subGraph.iterator();
-		while(iter.hasNext())
-		{
-			Pair<HGPersistentHandle, Object> item = iter.next();
-
-			//return the first handle 
-			if (handle == null) handle = item.getFirst();
-			
-			//TODO should make sure the handle is not already in there? 
-			if (item.getSecond() instanceof byte[])
-			{
-				store.store(item.getFirst(), (byte[])item.getSecond());
-			}else{
-				store.store(item.getFirst(), (HGPersistentHandle[])item.getSecond());
-			}
-		}
-		
-		return handle;
+		return SubgraphManager.store(subGraph, store);
 	}
 	
 	public Object get(HGHandle handle){
@@ -221,6 +221,16 @@ public class HyperGraphPeer {
 	 */
 	public HGTypeSystemPeer getTypeSystem(){
 		return typeSystem;
+	}
+
+	/**
+	 * will broadcast messages and update the peers knowledge of the neighbouring peers
+	 */
+	public void updateNetworkProperties()
+	{
+		GetInterestsTask task = new GetInterestsTask(peerInterface);
+		
+		task.run();
 	}
 	
 /*	private boolean shouldForward() {

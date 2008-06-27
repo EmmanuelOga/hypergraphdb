@@ -18,7 +18,9 @@ import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.socket.JxtaServerSocket;
 
 import org.hypergraphdb.peer.PeerFilter;
+import org.hypergraphdb.peer.PeerFilterEvaluator;
 import org.hypergraphdb.peer.PeerInterface;
+import org.hypergraphdb.peer.PeerNetwork;
 import org.hypergraphdb.peer.PeerRelatedActivity;
 import org.hypergraphdb.peer.PeerRelatedActivityFactory;
 import org.hypergraphdb.peer.protocol.Message;
@@ -27,6 +29,7 @@ import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.peer.protocol.Protocol;
 import org.hypergraphdb.peer.workflow.TaskActivity;
 import org.hypergraphdb.peer.workflow.TaskFactory;
+import org.hypergraphdb.query.HGAtomPredicate;
 import org.hypergraphdb.util.Pair;
 
 
@@ -52,6 +55,7 @@ public class JXTAPeerInterface implements PeerInterface/*, DiscoveryListener*/{
 	private HashMap<Pair<Performative, String>, TaskFactory> taskFactories = new HashMap<Pair<Performative,String>, TaskFactory>();
 	private HashMap<UUID, TaskActivity<?>> tasks = new HashMap<UUID, TaskActivity<?>>();
 	private MessageFactory messageFactory;
+	private HGAtomPredicate atomInterests;
 	
 	public boolean configure(Object configuration) 
 	{
@@ -112,16 +116,25 @@ public class JXTAPeerInterface implements PeerInterface/*, DiscoveryListener*/{
 			PipeID pipeID = IDFactory.newPipeID(jxtaNetwork.getPeerGroup().getPeerGroupID());
 			System.out.println("created pipe: " + pipeID.toString());
 			pipeAdv = HGAdvertisementsFactory.newPipeAdvertisement(pipeID, this.config.getPeerName());
+			
+			jxtaNetwork.addOwnPipe(pipeID);
 			jxtaNetwork.publishAdv(pipeAdv);
 			jxtaNetwork.start();
+			
+			
 		}
 
 		return result;		
 	}
 
-	public PeerFilter newFilterActivity()
+	public PeerFilter newFilterActivity(PeerFilterEvaluator evaluator)
 	{
-		return new JXTAPeerFilter(jxtaNetwork.getAdvertisements());
+		JXTAPeerFilter result = new JXTAPeerFilter(jxtaNetwork.getAdvertisements());
+		
+		if (evaluator == null) evaluator = new DefaultPeerFilterEvaluator(null);
+		result.setEvaluator(evaluator);
+		
+		return result;
 	}
 
 
@@ -228,6 +241,22 @@ public class JXTAPeerInterface implements PeerInterface/*, DiscoveryListener*/{
 	public MessageFactory getMessageFactory()
 	{
 		return messageFactory;
+	}
+
+	public void setAtomInterests(HGAtomPredicate pred)
+	{
+		atomInterests = pred;
+		
+	}
+
+	public HGAtomPredicate getAtomInterests()
+	{
+		return atomInterests;
+	}
+
+	public PeerNetwork getPeerNetwork()
+	{
+		return jxtaNetwork;
 	}
 
 

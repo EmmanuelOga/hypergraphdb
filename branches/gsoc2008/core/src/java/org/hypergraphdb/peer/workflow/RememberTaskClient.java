@@ -1,9 +1,13 @@
 package org.hypergraphdb.peer.workflow;
 
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hypergraphdb.HGHandle;
+import org.hypergraphdb.HGPersistentHandle;
+import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.peer.HGDBOntology;
+import org.hypergraphdb.peer.InterestsPeerFilterEvaluator;
 import org.hypergraphdb.peer.PeerFilter;
 import org.hypergraphdb.peer.PeerInterface;
 import org.hypergraphdb.peer.PeerRelatedActivity;
@@ -27,15 +31,19 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 {
 	protected enum State {Started, Accepted, HandleProposal, HandleProposalResponse, Done};
 	
-	private Object targetDescription;
 	private Subgraph subgraph;
 	private HGHandle result;
+	private InterestsPeerFilterEvaluator evaluator;
 	
-	public RememberTaskClient(PeerInterface peerInterface, Object targetDescription, Subgraph subgraph)
+	//TODO replace. for now just assumming everyone is online 
+	private AtomicInteger count = new AtomicInteger(1);
+	
+	public RememberTaskClient(PeerInterface peerInterface, Subgraph subgraph, HyperGraph hg, HGPersistentHandle handle)
 	{
 		super(peerInterface, State.Started, State.Done);
-		this.targetDescription = targetDescription;
 		this.subgraph = subgraph;
+		
+		evaluator = new InterestsPeerFilterEvaluator(peerInterface, hg, handle);
 	}
 	
 	protected void startTask()
@@ -48,13 +56,15 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 
 		//do startup tasks - filter peers and send messages
 		PeerRelatedActivityFactory activityFactory = getPeerInterface().newSendActivityFactory();
-		PeerFilter peerFilter = getPeerInterface().newFilterActivity();
-		peerFilter.setTargetDescription(targetDescription);
+
+		PeerFilter peerFilter = getPeerInterface().newFilterActivity(evaluator);
+
 
 		peerFilter.filterTargets();
 		Iterator<Object> it = peerFilter.iterator();
 		while (it.hasNext())
 		{
+			count.incrementAndGet();
 			Object target = it.next();
 		
 			Message msg = getPeerInterface().getMessageFactory().createMessage();
@@ -68,7 +78,7 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 			
 			getPeerInterface().execute(activity);
 		}
-		
+		if (count.decrementAndGet() == 0) setState(State.Done);
 		
 	}
 	
@@ -124,7 +134,8 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 	{
 		result = (HGHandle) ((ProposalConversation)fromActivity).getMessage().getContent();
 
-		return State.Done;
+		if (count.decrementAndGet() == 0) return State.Done;
+		else return State.Started;
 	}
 	
 	public State handleDisconfirm(AbstractActivity<?> fromActivity)

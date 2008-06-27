@@ -2,14 +2,8 @@ package org.hypergraphdb.peer.jxta;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.StringReader;
 
 import net.jxta.document.Advertisement;
-import net.jxta.document.AdvertisementFactory;
-import net.jxta.document.MimeMediaType;
-import net.jxta.document.StructuredDocument;
-import net.jxta.document.StructuredDocumentFactory;
-import net.jxta.document.XMLElement;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.protocol.PipeAdvertisement;
@@ -18,7 +12,6 @@ import net.jxta.socket.JxtaSocket;
 import org.hypergraphdb.peer.PeerRelatedActivity;
 import org.hypergraphdb.peer.protocol.Message;
 import org.hypergraphdb.peer.protocol.Protocol;
-import org.hypergraphdb.util.Pair;
 
 /**
  * @author Cipri Costa
@@ -50,10 +43,6 @@ public class JXTASendActivity extends PeerRelatedActivity
 			if (target instanceof PipeAdvertisement)
 			{
 				targetPipeAdv = (PipeAdvertisement)target;
-			}else{
-				Pair<Advertisement, Advertisement> advPair = (Pair<Advertisement, Advertisement>)target;
-				
-				targetPipeAdv = (PipeAdvertisement)advPair.getSecond();
 			}
 			
 			System.out.println("Sending " + msg + " to adv: " + targetPipeAdv.getName());

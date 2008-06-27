@@ -4,8 +4,10 @@ import java.io.File;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 
 import net.jxta.credential.AuthenticationCredential;
@@ -17,13 +19,16 @@ import net.jxta.id.IDFactory;
 import net.jxta.membership.Authenticator;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
+import net.jxta.pipe.PipeID;
 import net.jxta.platform.NetworkConfigurator;
 import net.jxta.platform.NetworkManager;
 import net.jxta.protocol.DiscoveryResponseMsg;
 import net.jxta.protocol.ModuleImplAdvertisement;
+import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 
+import org.hypergraphdb.query.HGAtomPredicate;
 import org.hypergraphdb.util.Pair;
 
 /**
@@ -41,7 +46,8 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	private static PeerGroup hgdbGroup = null;
 	
 	private LinkedList<Advertisement> ownAdvs = new LinkedList<Advertisement>();
-	private Set<Pair<Advertisement, Advertisement>> peerAdvs = Collections.synchronizedSet(new HashSet<Pair<Advertisement, Advertisement>>());
+	private Map<Advertisement, HGAtomPredicate> peerAdvs = Collections.synchronizedMap(new HashMap<Advertisement, HGAtomPredicate>());
+	private Set<PipeID> ownPipes = new HashSet<PipeID>();
 	
 	public boolean init(JXTAPeerConfiguration config)
 	{
@@ -88,7 +94,6 @@ public class DefaultJXTANetwork implements JXTANetwork{
 			}
 	    	
 	    }
-		
 		
 		System.out.println("Finished initializing");
 
@@ -171,9 +176,9 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	{
 		return ownAdvs.getFirst();
 	}
-	public Set<Pair<Advertisement, Advertisement>> getAdvertisements()
+	public Set<Advertisement> getAdvertisements()
 	{
-		return peerAdvs;
+		return peerAdvs.keySet();
 	}
 	private class AdvPublisher implements Runnable
 	{
@@ -243,8 +248,10 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	        // let's get the responding peer's advertisement
 	        String peerName = ev.getSource().toString();
 	        	        
-//	        System.out.println(" [  Got a Discovery Response [" + res.getResponseCount() + " elements]  from peer : " + peerName + "  ]");
-	        Advertisement peerAdv = res.getPeerAdvertisement();
+/*	        System.out.println(" [  Got a Discovery Response [" + res.getResponseCount() + " elements]  from peer : " + peerName + "  ]");
+	        PeerAdvertisement peerAdv = res.getPeerAdvertisement();
+*/	        
+	        //not interested in selfs advertisements
 	        Advertisement adv;
 	        Enumeration<Advertisement> advs = res.getAdvertisements();
 
@@ -253,16 +260,19 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	                adv = (Advertisement) advs.nextElement();
 	                if (adv instanceof PipeAdvertisement)
 	                {
-	                	Pair<Advertisement, Advertisement> key = new Pair<Advertisement, Advertisement>(peerAdv, adv);
-		                if (peerAdvs.add(key))
-		                {
-		                	System.out.println("New Pipe from " + peerName + " (" + ((PipeAdvertisement)adv).getPipeID() + ")");
-		                }
-		                
+	                	if (!peerAdvs.containsKey(adv))
+	                	{
+	                		PipeID pipeId = (PipeID) ((PipeAdvertisement)adv).getPipeID();
+	                		if (!ownPipes.contains(pipeId))
+	                		{
+		                		peerAdvs.put(adv, null);
+		                		System.out.println("New Pipe from " + peerName + " (" + pipeId + ")");	                			
+	                		}
+	                		
+	                	}
 	                }
 	            }
 	        }
-
 		}
 		
 	}
@@ -275,5 +285,21 @@ public class DefaultJXTANetwork implements JXTANetwork{
 		
 		//System.out.println(configurator.getPlatformConfig().toString());
 		
+	}
+
+	public void addOwnPipe(PipeID pipeId)
+	{
+		ownPipes.add(pipeId);
+	}
+
+	public HGAtomPredicate getAtomInterests(Object peerId)
+	{
+		return peerAdvs.get(peerId);
+	}
+
+	public void setAtomInterests(Object peerId, HGAtomPredicate interest)
+	{
+		System.out.println("Peer " + ((PipeAdvertisement)peerId).getName() + " is interested in " + interest);
+		peerAdvs.put((Advertisement)peerId, interest);
 	}
 }

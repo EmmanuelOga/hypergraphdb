@@ -12,7 +12,7 @@ import java.util.List;
  */
 public abstract class PeerFilter 
 {
-	protected Object targetDescription;
+	protected PeerFilterEvaluator evaluator;
 	
 	private List<Object> targets = new ArrayList<Object>();
 
@@ -31,16 +31,15 @@ public abstract class PeerFilter
 	{
 		targets.add(target);
 	}
-	
-	
-	public Object getTargetDescription()
+
+	public PeerFilterEvaluator getEvaluator()
 	{
-		return targetDescription;
+		return evaluator;
 	}
 
-	public void setTargetDescription(Object targetDescription)
+	public void setEvaluator(PeerFilterEvaluator evaluator)
 	{
-		this.targetDescription = targetDescription;
+		this.evaluator = evaluator;
 	}
 
 }

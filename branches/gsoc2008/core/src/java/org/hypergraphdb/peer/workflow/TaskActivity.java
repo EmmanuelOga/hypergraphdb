@@ -133,14 +133,16 @@ public abstract class TaskActivity<StateType> extends AbstractActivity<StateType
 	 */
 	public void handleMessage(Message msg)
 	{
-		System.out.println("TaskActivity: handleMessage");
+		System.out.println("TaskActivity: handleMessage ");
 		Conversation<?> conversation = conversations.get(msg.getConversationId());
 		if (conversation == null)
 		{
 			conversation = createNewConversation(msg);
-			registerConversation(conversation, msg.getConversationId());
+			
+			if (conversation != null) registerConversation(conversation, msg.getConversationId());
 		}
-		conversation.handleIncomingMessage(msg);
+		
+		if (conversation != null) conversation.handleIncomingMessage(msg);
 	}
 
 	protected abstract void startTask();
@@ -179,7 +181,17 @@ public abstract class TaskActivity<StateType> extends AbstractActivity<StateType
 					}
 				}
 			}else{
-				System.out.println("No queue found for " + getState());
+				//wait for state changes
+				System.out.println("No queue found for " + getState() + " in " + this.getClass());
+
+				try
+				{
+					stateChangedLatch.await();
+				} catch (InterruptedException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 	}

@@ -15,11 +15,10 @@ public class InterestsPeerFilterEvaluator implements PeerFilterEvaluator
 	private HyperGraph hg;
 	private HGHandle handle;
 	
-	public InterestsPeerFilterEvaluator(PeerInterface peerInterface, HyperGraph hg, HGHandle handle)
+	public InterestsPeerFilterEvaluator(PeerInterface peerInterface, HyperGraph hg)
 	{
 		this.peerInterface = peerInterface;
 		this.hg = hg;
-		this.handle = handle;
 	}
 	
 	public boolean shouldSend(Object target)
@@ -28,6 +27,36 @@ public class InterestsPeerFilterEvaluator implements PeerFilterEvaluator
 		
 		HGAtomPredicate pred = peerInterface.getPeerNetwork().getAtomInterests(target);
 		return pred.satisfies(hg, handle);
+	}
+
+	public PeerInterface getPeerInterface()
+	{
+		return peerInterface;
+	}
+
+	public void setPeerInterface(PeerInterface peerInterface)
+	{
+		this.peerInterface = peerInterface;
+	}
+
+	public HyperGraph getHg()
+	{
+		return hg;
+	}
+
+	public void setHg(HyperGraph hg)
+	{
+		this.hg = hg;
+	}
+
+	public HGHandle getHandle()
+	{
+		return handle;
+	}
+
+	public void setHandle(HGHandle handle)
+	{
+		this.handle = handle;
 	}
 	
 }

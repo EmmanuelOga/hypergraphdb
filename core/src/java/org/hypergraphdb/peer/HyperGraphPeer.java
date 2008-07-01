@@ -1,21 +1,17 @@
 package org.hypergraphdb.peer;
 
-import java.util.Iterator;
-
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HGStore;
 import org.hypergraphdb.HyperGraph;
-import org.hypergraphdb.peer.protocol.Message;
+import org.hypergraphdb.peer.log.Log;
 import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.peer.serializer.GenericSerializer;
 import org.hypergraphdb.peer.workflow.GetInterestsTask;
 import org.hypergraphdb.peer.workflow.PublishInterestsTask;
 import org.hypergraphdb.peer.workflow.RememberTaskClient;
 import org.hypergraphdb.peer.workflow.RememberTaskServer;
-import org.hypergraphdb.query.AtomTypeCondition;
 import org.hypergraphdb.query.HGAtomPredicate;
-import org.hypergraphdb.util.Pair;
 
 /**
  * @author Cipri Costa
@@ -47,6 +43,7 @@ public class HyperGraphPeer {
 
 	private PeerPolicy policy;
 	
+	private Log log;
 	/**
 	 * @param configuration
 	 */
@@ -64,6 +61,7 @@ public class HyperGraphPeer {
 		
 		//create cache database - this should eventually be an actual cache, not just another database
 		cacheGraph = new HyperGraph(configuration.getCacheDatabaseName()); 
+		log = new Log(cacheGraph);
 		
 		GenericSerializer.setTempDB(cacheGraph);
 		
@@ -115,31 +113,20 @@ public class HyperGraphPeer {
 	/**
 	 * This is where objects "enter" the system. The peer might decide to store them locally or forward them to other peers. 
 	 * 
-	 * @param atom
+	 * @param value
 	 * @return
 	 */
-	public HGHandle add(Object atom){		
-		System.out.println("adding atom: " + atom.toString());
+	public HGHandle add(Object value){		
+		System.out.println("adding atom: " + value.toString());
 		
 		HGHandle handle = null;
 		
-		if (policy.shouldStore(atom))
+		if (policy.shouldStore(value))
 		{
 			//add to local store and return handle
-			handle = graph.getPersistentHandle(graph.add(atom));
+			handle = graph.getPersistentHandle(graph.add(value));
 		}else{
-			HGPersistentHandle cacheHandle = cacheGraph.getPersistentHandle(cacheGraph.add(atom));
-			
-			Subgraph subGraph = new Subgraph(cacheGraph, cacheHandle);
-			
-/*			if (new AtomTypeCondition(Integer.class).satisfies(cacheGraph, cacheHandle))
-			{
-				System.out.println("Condition satisfied");
-			}else{
-				System.out.println("Condition not satisfied");
-			}
-*/
-			RememberTaskClient activity = new RememberTaskClient(peerInterface, subGraph, cacheGraph, cacheHandle);
+			RememberTaskClient activity = new RememberTaskClient(peerInterface, value, log, cacheGraph);
 			activity.run();
 			handle = activity.getResult();
 		}

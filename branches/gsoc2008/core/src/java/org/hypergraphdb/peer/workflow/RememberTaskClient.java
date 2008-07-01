@@ -13,6 +13,8 @@ import org.hypergraphdb.peer.PeerInterface;
 import org.hypergraphdb.peer.PeerRelatedActivity;
 import org.hypergraphdb.peer.PeerRelatedActivityFactory;
 import org.hypergraphdb.peer.Subgraph;
+import org.hypergraphdb.peer.log.Log;
+import org.hypergraphdb.peer.log.LogEntry;
 import org.hypergraphdb.peer.protocol.Message;
 import org.hypergraphdb.peer.protocol.Performative;
 
@@ -30,20 +32,23 @@ import org.hypergraphdb.peer.protocol.Performative;
 public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 {
 	protected enum State {Started, Accepted, HandleProposal, HandleProposalResponse, Done};
-	
-	private Subgraph subgraph;
+
 	private HGHandle result;
 	private InterestsPeerFilterEvaluator evaluator;
+	private Object value;
+	private Log log;
+	private LogEntry entry;
 	
 	//TODO replace. for now just assumming everyone is online 
 	private AtomicInteger count = new AtomicInteger(1);
 	
-	public RememberTaskClient(PeerInterface peerInterface, Subgraph subgraph, HyperGraph hg, HGPersistentHandle handle)
+	public RememberTaskClient(PeerInterface peerInterface, Object value, Log log, HyperGraph hg)
 	{
 		super(peerInterface, State.Started, State.Done);
-		this.subgraph = subgraph;
+		this.value = value;
+		this.log = log;
 		
-		evaluator = new InterestsPeerFilterEvaluator(peerInterface, hg, handle);
+		evaluator = new InterestsPeerFilterEvaluator(peerInterface, hg);
 	}
 	
 	protected void startTask()
@@ -59,8 +64,10 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 
 		PeerFilter peerFilter = getPeerInterface().newFilterActivity(evaluator);
 
+		entry = log.createLogEntry(value);
+		evaluator.setHandle(entry.getLogEntryHandle());
+		log.addEntry(entry, peerFilter);
 
-		peerFilter.filterTargets();
 		Iterator<Object> it = peerFilter.iterator();
 		while (it.hasNext())
 		{
@@ -113,7 +120,7 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 		if (true)
 		{
 			Message reply = getReply(conversation.getMessage());
-			reply.setContent(subgraph);
+			reply.setContent(entry.getData());
 			
 			//set the conversation in the Accepted state
 			conversation.accept(reply);

@@ -3,6 +3,7 @@ package org.hypergraphdb.peer.jxta;
 import java.util.Set;
 
 import net.jxta.document.Advertisement;
+import net.jxta.protocol.PipeAdvertisement;
 
 import org.hypergraphdb.peer.PeerFilter;
 
@@ -34,9 +35,17 @@ public class JXTAPeerFilter extends PeerFilter
 					matchFound(adv);
 				}
 			}
-		}
-		
-		// TODO Auto-generated method stub
-		
+		}		
 	}
+
+	@Override
+	public Object getTargetId(Object target)
+	{
+		if (target instanceof PipeAdvertisement)
+		{
+			return ((PipeAdvertisement)target).getPipeID().toString();
+		}else return null;
+	}
+	
+	
 }

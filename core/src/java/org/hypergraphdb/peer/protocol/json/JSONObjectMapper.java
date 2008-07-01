@@ -7,6 +7,7 @@ import net.jxta.document.AdvertisementFactory;
 import net.jxta.id.IDFactory;
 import net.jxta.protocol.PipeAdvertisement;
 
+import org.hypergraphdb.peer.log.Timestamp;
 import org.hypergraphdb.query.AnyAtomCondition;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,7 +23,7 @@ public class JSONObjectMapper
 	
 	public static boolean accept(Object value)
 	{
-		return (value instanceof PipeAdvertisement) || (value instanceof AnyAtomCondition);
+		return (value instanceof PipeAdvertisement) || (value instanceof AnyAtomCondition) || (value instanceof Timestamp);
 	}
 
 	public static JSONObject getJSONObject(Object value)
@@ -31,7 +32,26 @@ public class JSONObjectMapper
 			return getFromPipeAdvertisement((PipeAdvertisement)value);
 		else if (value instanceof AnyAtomCondition)
 			return getFromAnyAtomCondition((AnyAtomCondition)value);
+		else if (value instanceof Timestamp)
+			return getFromTimestamp((Timestamp)value);
 		return null;
+	}
+
+	private static JSONObject getFromTimestamp(Timestamp value)
+	{
+		JSONObject json = new JSONObject();
+		
+		try
+		{
+			json.put("class", "timestamp");
+			json.put("counter", value.getCounter());
+		} catch (JSONException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return json;
 	}
 
 	public static JSONObject getFromAnyAtomCondition(AnyAtomCondition value)
@@ -60,11 +80,19 @@ public class JSONObjectMapper
 				return getPipeAdvertisement(value);
 			else if (className.equals("query:any_atom"))
 				return getAnyAtomCondition(value);
+			else if (className.equals("timestamp"))
+				return getTimestamp(value);
+			
 		}
 		
 		return null;
 	}
 	
+	private static Object getTimestamp(JSONObject value)
+	{
+		return new Timestamp(value.optInt("counter"));
+	}
+
 	public static AnyAtomCondition getAnyAtomCondition(JSONObject value)
 	{
 		// TODO Auto-generated method stub

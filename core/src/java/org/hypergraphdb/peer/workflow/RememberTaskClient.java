@@ -15,6 +15,7 @@ import org.hypergraphdb.peer.PeerRelatedActivityFactory;
 import org.hypergraphdb.peer.Subgraph;
 import org.hypergraphdb.peer.log.Log;
 import org.hypergraphdb.peer.log.LogEntry;
+import org.hypergraphdb.peer.protocol.Document;
 import org.hypergraphdb.peer.protocol.Message;
 import org.hypergraphdb.peer.protocol.Performative;
 
@@ -79,6 +80,8 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 			msg.setAction(HGDBOntology.REMEMBER_ACTION);
 			msg.setTaskId(getTaskId());
 			
+			((Document)msg).put("last_version", entry.getLastTimestamp(peerFilter.getTargetId(target)));
+			
 			PeerRelatedActivity activity = (PeerRelatedActivity)activityFactory.createActivity();
 			activity.setTarget(target);
 			activity.setMessage(msg);
@@ -86,7 +89,6 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 			getPeerInterface().execute(activity);
 		}
 		if (count.decrementAndGet() == 0) setState(State.Done);
-		
 	}
 	
 	/* (non-Javadoc)

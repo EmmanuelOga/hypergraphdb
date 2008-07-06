@@ -26,11 +26,8 @@ public class HyperGraphDBClient{
 		JXTAPeerConfiguration jxtaConf = new JXTAPeerConfiguration("");
 		jxtaConf.setPeerName(peerName);
 		jxtaConf.setPeerGroupName(groupName);
-		jxtaConf.setMessageFactory("org.hypergraphdb.peer.protocol.json.JSONMessageFactory");
+		jxtaConf.setAdvTimeToLive(1*5*1000);//set to 5 minutes
 
-		HashMap<String, Object> messageConfig = new HashMap<String, Object>();
-		messageConfig.put("ForceTextOnly", false);
-		jxtaConf.setMessageFactoryParams(messageConfig);
 		
 		PeerConfiguration conf = new PeerConfiguration(true, "", 
 				false, true, "org.hypergraphdb.peer.jxta.JXTAPeerInterface", jxtaConf,

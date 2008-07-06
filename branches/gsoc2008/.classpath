@@ -32,6 +32,5 @@
 	<classpathentry kind="lib" path="core/jars/jxta.jar"/>
 	<classpathentry kind="lib" path="core/jars/servicemix-beanflow-3.2.1.jar"/>
 	<classpathentry kind="lib" path="core/jars/jxtashell.jar"/>
-	<classpathentry kind="lib" path="core/jars/json.jar"/>
 	<classpathentry kind="output" path="core/build"/>
 </classpath>

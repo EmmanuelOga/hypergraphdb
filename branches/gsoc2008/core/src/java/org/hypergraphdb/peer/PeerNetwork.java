@@ -13,6 +13,8 @@ public interface PeerNetwork
 	void start();
 
 	//get/set atom interests for known peers
-	void setAtomInterests(Object peerId, HGAtomPredicate interest);
-	HGAtomPredicate getAtomInterests(Object peerId);
+	void setAtomInterests(Object peer, HGAtomPredicate interest);
+	HGAtomPredicate getAtomInterests(Object peer);
+	
+	Object getPeerId(Object peer);
 }

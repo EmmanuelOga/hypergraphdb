@@ -16,10 +16,9 @@ public class JXTAPeerConfiguration {
 	private String peerId;
 	private String peerGroupName;
 
-	private String messageFactory;
-	private HashMap<String, Object> messageFactoryParams;
-
 	private ArrayList<String> peers = new ArrayList<String>();
+
+	private int advTimeToLive = 5000;
 	
 	public JXTAPeerConfiguration()
 	{
@@ -78,20 +77,14 @@ public class JXTAPeerConfiguration {
 	{
 		this.needsRdvConn = needsRdvConn;
 	}
-	public String getMessageFactory()
+
+	public int getAdvTimeToLive()
 	{
-		return messageFactory;
+		return advTimeToLive;
 	}
-	public void setMessageFactory(String messageFactory)
+	public void setAdvTimeToLive(int advTimeToLive)
 	{
-		this.messageFactory = messageFactory;
+		this.advTimeToLive = advTimeToLive;
 	}
-	public HashMap<String, Object> getMessageFactoryParams()
-	{
-		return messageFactoryParams;
-	}
-	public void setMessageFactoryParams(HashMap<String, Object> messageFactoryParams)
-	{
-		this.messageFactoryParams = messageFactoryParams;
-	}
+	
 }

@@ -2,11 +2,12 @@ package org.hypergraphdb.peer.log;
 
 import java.util.HashMap;
 
+import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.peer.Subgraph;
 
-public class LogEntry
+public class LogEntry implements Comparable<LogEntry>
 {
 	private Subgraph data;
 	private HGPersistentHandle logEntryHandle;
@@ -16,6 +17,14 @@ public class LogEntry
 	public LogEntry(Object value, HyperGraph logDb)
 	{
 		logEntryHandle = logDb.getPersistentHandle(logDb.add(value));
+		
+		data = new Subgraph(logDb, logEntryHandle);
+	}
+	
+	public LogEntry(HGHandle handle, HyperGraph logDb, Timestamp timestamp)
+	{
+		logEntryHandle = logDb.getPersistentHandle(handle);
+		this.timestamp = timestamp;
 		
 		data = new Subgraph(logDb, logEntryHandle);
 	}
@@ -39,11 +48,15 @@ public class LogEntry
 		this.logEntryHandle = logEntryHandle;
 	}
 
-	public void setTime(Timestamp timestamp)
+	public void setTimestamp(Timestamp timestamp)
 	{
 		this.timestamp = timestamp;
 	}
-
+	public Timestamp getTimestamp()
+	{
+		return timestamp;
+	}
+	
 	public void setLastTimestamp(Object targetId, Timestamp timestamp)
 	{
 		lastTimestamps.put(targetId, timestamp);
@@ -51,5 +64,11 @@ public class LogEntry
 	public Timestamp getLastTimestamp(Object targetId)
 	{
 		return lastTimestamps.get(targetId);
+	}
+
+	public int compareTo(LogEntry value)
+	{
+		if (value == null) return 1;
+		else return timestamp.compareTo(value.getTimestamp());
 	}
 }

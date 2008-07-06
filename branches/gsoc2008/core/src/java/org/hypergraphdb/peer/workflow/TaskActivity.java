@@ -8,8 +8,10 @@ import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.hypergraphdb.peer.PeerInterface;
-import org.hypergraphdb.peer.protocol.Message;
 import org.hypergraphdb.util.Pair;
+import static org.hypergraphdb.peer.HGDBOntology.*;
+import static org.hypergraphdb.peer.Structs.*;
+
 
 /**
  * @author Cipri Costa
@@ -131,15 +133,15 @@ public abstract class TaskActivity<StateType> extends AbstractActivity<StateType
 	 * 
 	 * Called by the peer interface when a message arrives for this task.
 	 */
-	public void handleMessage(Message msg)
+	public void handleMessage(Object msg)
 	{
 		System.out.println("TaskActivity: handleMessage ");
-		Conversation<?> conversation = conversations.get(msg.getConversationId());
+		Conversation<?> conversation = conversations.get(getPart(msg, CONVERSATION_ID));//.getConversationId());
 		if (conversation == null)
 		{
 			conversation = createNewConversation(msg);
 			
-			if (conversation != null) registerConversation(conversation, msg.getConversationId());
+			if (conversation != null) registerConversation(conversation, (UUID)getPart(msg, CONVERSATION_ID));
 		}
 		
 		if (conversation != null) conversation.handleIncomingMessage(msg);
@@ -211,7 +213,7 @@ public abstract class TaskActivity<StateType> extends AbstractActivity<StateType
 		
 	}
 
-	protected Conversation<?> createNewConversation(Message msg)
+	protected Conversation<?> createNewConversation(Object msg)
 	{
 		return null;
 	}
@@ -245,18 +247,6 @@ public abstract class TaskActivity<StateType> extends AbstractActivity<StateType
 		//remember conversation state
 		conversationStates.add(conversationState);
 	}
-
-	
-	protected Message getReply(Message msg)
-	{
-		Message reply = getPeerInterface().getMessageFactory().createMessage();
-		reply.setAction(msg.getAction());
-		reply.setConversationId(msg.getConversationId());
-		reply.setTaskId(msg.getTaskId());
-		
-		return reply;
-	}
-	
 	
 	public UUID getTaskId()
 	{

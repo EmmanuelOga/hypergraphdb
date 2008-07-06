@@ -24,10 +24,7 @@ public class HyperGraphDBServer {
 		JXTAPeerConfiguration jxtaConf = new JXTAPeerConfiguration();
 		jxtaConf.setPeerName(peerName);
 		jxtaConf.setPeerGroupName(groupName);
-		jxtaConf.setMessageFactory("org.hypergraphdb.peer.protocol.json.JSONMessageFactory");
-		HashMap<String, Object> messageConfig = new HashMap<String, Object>();
-		messageConfig.put("ForceTextOnly", false);
-		jxtaConf.setMessageFactoryParams(messageConfig);
+		jxtaConf.setAdvTimeToLive(1*5*1000);
 
 		PeerConfiguration conf = new PeerConfiguration(true, "./DBs/" + peerName + "DB", 
 				true, false, "org.hypergraphdb.peer.jxta.JXTAPeerInterface", jxtaConf, 
@@ -43,5 +40,6 @@ public class HyperGraphDBServer {
 		} catch (InterruptedException e){}
 
 		server.setAtomInterests(new AnyAtomCondition());
+		server.catchUp();
 	}
 }

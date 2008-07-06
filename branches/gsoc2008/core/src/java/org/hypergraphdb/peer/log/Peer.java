@@ -3,8 +3,10 @@ package org.hypergraphdb.peer.log;
 
 public class Peer
 {
-	Object peerId;
-	Timestamp timestamp = new Timestamp();
+	private Object peerId;
+	private Timestamp timestamp = new Timestamp();
+	private Timestamp lastConfirmedTimestamp =  new Timestamp();
+	private Timestamp lastFrom = new Timestamp();
 	
 	public Peer()
 	{
@@ -32,10 +34,26 @@ public class Peer
 	{
 		this.timestamp = timestamp;
 	}
+	public Timestamp getLastConfirmedTimestamp()
+	{
+		return lastConfirmedTimestamp;
+	}
+	public void setLastConfirmedTimestamp(Timestamp lastConfirmedTimestamp)
+	{
+		this.lastConfirmedTimestamp = lastConfirmedTimestamp;
+	}
+	public Timestamp getLastFrom()
+	{
+		return lastFrom;
+	}
+	public void setLastFrom(Timestamp lastFrom)
+	{
+		this.lastFrom = lastFrom;
+	}
 	
 	public String toString()
 	{
-		return "Peer: " + peerId + "; " + timestamp;
+		return "Peer: " + peerId + "; timestamp: " + timestamp + "; last confirmed: " + lastConfirmedTimestamp + "; last from: " + lastFrom;
 	}
 	
 }

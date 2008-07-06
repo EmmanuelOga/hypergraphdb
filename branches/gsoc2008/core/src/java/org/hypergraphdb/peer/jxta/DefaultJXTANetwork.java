@@ -47,7 +47,10 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	
 	private LinkedList<Advertisement> ownAdvs = new LinkedList<Advertisement>();
 	private Map<Advertisement, HGAtomPredicate> peerAdvs = Collections.synchronizedMap(new HashMap<Advertisement, HGAtomPredicate>());
+	private Map<Advertisement, String> peerAdvIds = new HashMap<Advertisement, String>();
 	private Set<PipeID> ownPipes = new HashSet<PipeID>();
+	
+	private int advTimetoLive;
 	
 	public boolean init(JXTAPeerConfiguration config)
 	{
@@ -77,6 +80,8 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	    		}
 	    	}
 
+	    	this.advTimetoLive = config.getAdvTimeToLive();
+	    	
 	    } catch (Exception e) {
 	    	e.printStackTrace();
 	    }
@@ -186,7 +191,6 @@ public class DefaultJXTANetwork implements JXTANetwork{
 		{
 	        DiscoveryService discoveryService = hgdbGroup.getDiscoveryService();
 
-	        long lifetime = 5 * 1000;//DiscoveryService.DEFAULT_LIFETIME;
 	        long expiration = 5 * 1000;//DiscoveryService.DEFAULT_EXPIRATION;
 	        long waittime = 5 * 1000;//DiscoveryService.DEFAULT_EXPIRATION;
 	        
@@ -196,7 +200,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	            	{
 	            		//System.out.println("publishing: " + adv.getID().toString());
 	            		
-	            		discoveryService.publish(adv, lifetime, expiration);
+	            		discoveryService.publish(adv, advTimetoLive, expiration);
 	            		discoveryService.remotePublish(adv, expiration);
 	            	}
 	                try {
@@ -263,9 +267,11 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	                	if (!peerAdvs.containsKey(adv))
 	                	{
 	                		PipeID pipeId = (PipeID) ((PipeAdvertisement)adv).getPipeID();
+	                		
 	                		if (!ownPipes.contains(pipeId))
 	                		{
 		                		peerAdvs.put(adv, null);
+		                		peerAdvIds.put(adv, peerName);
 		                		System.out.println("New Pipe from " + peerName + " (" + pipeId + ")");	                			
 	                		}
 	                		
@@ -301,5 +307,13 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	{
 		System.out.println("Peer " + ((PipeAdvertisement)peerId).getName() + " is interested in " + interest);
 		peerAdvs.put((Advertisement)peerId, interest);
+	}
+
+
+
+	@Override
+	public Object getPeerId(Object peer)
+	{
+		return peerAdvIds.get(peer);
 	}
 }

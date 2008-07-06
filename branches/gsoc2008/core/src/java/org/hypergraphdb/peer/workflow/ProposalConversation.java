@@ -1,8 +1,10 @@
 package org.hypergraphdb.peer.workflow;
 
+import static org.hypergraphdb.peer.HGDBOntology.*;
+import static org.hypergraphdb.peer.Structs.*;
+
 import org.hypergraphdb.peer.PeerInterface;
 import org.hypergraphdb.peer.PeerRelatedActivity;
-import org.hypergraphdb.peer.protocol.Message;
 import org.hypergraphdb.peer.protocol.Performative;
 
 /**
@@ -23,7 +25,7 @@ public class ProposalConversation extends Conversation<ProposalConversation.Stat
 {
 	public enum State {Started, Proposed, Accepted, Rejected, Confirmed, Disconfirmed, Done};
 
-	public ProposalConversation(PeerRelatedActivity sendActivity, PeerInterface peerInterface, Message msg)
+	public ProposalConversation(PeerRelatedActivity sendActivity, PeerInterface peerInterface, Object msg)
 	{
 		super(sendActivity, peerInterface, msg, State.Started, State.Done);
 		
@@ -43,11 +45,12 @@ public class ProposalConversation extends Conversation<ProposalConversation.Stat
 	 * @param msg
 	 * @return
 	 */
-	public boolean propose(Message msg)
+	public boolean propose(Object msg)
 	{		
 		if (compareAndSetState(State.Started, State.Proposed))
 		{
-			msg.setPerformative(Performative.Proposal);
+			combine(msg, struct(PERFORMATIVE, Performative.Proposal));
+
 			setMessage(msg);
 			sendMessage();
 			return true;
@@ -59,11 +62,12 @@ public class ProposalConversation extends Conversation<ProposalConversation.Stat
 	 * called by client task when accepting
 	 * @param msg
 	 */
-	public boolean accept(Message msg)
+	public boolean accept(Object msg)
 	{
 		if (compareAndSetState(State.Proposed, State.Accepted))
 		{
-			msg.setPerformative(Performative.Accept);
+			combine(msg, struct(PERFORMATIVE, Performative.Accept));
+
 			setMessage(msg);
 			sendMessage();
 			
@@ -77,7 +81,7 @@ public class ProposalConversation extends Conversation<ProposalConversation.Stat
 	 * called by client when rejecting
 	 * @param msg
 	 */
-	public void reject(Message msg)
+	public void reject(Object msg)
 	{
 		if (compareAndSetState(State.Proposed, State.Rejected))
 		{
@@ -90,12 +94,13 @@ public class ProposalConversation extends Conversation<ProposalConversation.Stat
 	 * called by server when confirming
 	 * @param msg
 	 */
-	public boolean confirm(Message msg)
+	public boolean confirm(Object msg)
 	{
 		System.out.println("ProposalConversation: confirm");
 		if (compareAndSetState(State.Accepted, State.Confirmed))
 		{
-			msg.setPerformative(Performative.Confirm);
+			combine(msg, struct(PERFORMATIVE, Performative.Confirm));
+
 			setMessage(msg);
 			sendMessage();
 
@@ -108,7 +113,7 @@ public class ProposalConversation extends Conversation<ProposalConversation.Stat
 	 * called by server when disconfirming
 	 * @param msg
 	 */
-	public void disconfirm(Message msg)
+	public void disconfirm(Object msg)
 	{
 		if (compareAndSetState(State.Accepted, State.Disconfirmed))
 		{

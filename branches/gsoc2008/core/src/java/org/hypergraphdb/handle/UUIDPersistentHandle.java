@@ -29,9 +29,8 @@ public final class UUIDPersistentHandle implements HGPersistentHandle
     /**
      * <p>Default constructor create a new UUID.</p>
      */
-    private UUIDPersistentHandle()
+    public UUIDPersistentHandle()
     {
-    	uuid = UUID.randomUUID();
     }
     
     private UUIDPersistentHandle(UUID uuid)
@@ -80,7 +79,7 @@ public final class UUIDPersistentHandle implements HGPersistentHandle
      */
     public static UUIDPersistentHandle makeHandle()
     {
-        return new UUIDPersistentHandle();
+        return new UUIDPersistentHandle(UUID.randomUUID());
     }
     
     /**
@@ -147,7 +146,17 @@ public final class UUIDPersistentHandle implements HGPersistentHandle
         return data;
     }
     
-    public boolean equals(Object other)
+    public long[] getData()
+	{
+		return new long[] {uuid.getMostSignificantBits(), uuid.getLeastSignificantBits()};
+	}
+
+	public void setData(long[] data)
+	{
+		uuid = new UUID(data[0], data[1]);
+	}
+
+	public boolean equals(Object other)
     {
         if (other == this)
         	return true;

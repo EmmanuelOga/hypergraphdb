@@ -10,8 +10,11 @@ import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.socket.JxtaSocket;
 
 import org.hypergraphdb.peer.PeerRelatedActivity;
-import org.hypergraphdb.peer.protocol.Message;
 import org.hypergraphdb.peer.protocol.Protocol;
+
+import static org.hypergraphdb.peer.HGDBOntology.*;
+import static org.hypergraphdb.peer.Structs.*;
+
 
 /**
  * @author Cipri Costa
@@ -53,12 +56,12 @@ public class JXTASendActivity extends PeerRelatedActivity
 
 	        Protocol protocol = new Protocol();
 	        //send message
-	        Message msg = getMessage();
+	        Object msg = getMessage();
 	        
 	        //set our self as replyTo if that was not already set.
-	        if (msg.getReplyTo() == null)
+	        if (getPart(msg, REPLY_TO) == null)
 	        {
-	        	msg.setReplyTo(pipeAdv);
+	        	combine(msg, struct(REPLY_TO, pipeAdv));
 	        }
 	        
 	        //

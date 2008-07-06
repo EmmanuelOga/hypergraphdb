@@ -7,6 +7,8 @@ import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.peer.log.Log;
 import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.peer.serializer.GenericSerializer;
+import org.hypergraphdb.peer.workflow.CatchUpTaskClient;
+import org.hypergraphdb.peer.workflow.CatchUpTaskServer;
 import org.hypergraphdb.peer.workflow.GetInterestsTask;
 import org.hypergraphdb.peer.workflow.PublishInterestsTask;
 import org.hypergraphdb.peer.workflow.RememberTaskClient;
@@ -61,7 +63,6 @@ public class HyperGraphPeer {
 		
 		//create cache database - this should eventually be an actual cache, not just another database
 		cacheGraph = new HyperGraph(configuration.getCacheDatabaseName()); 
-		log = new Log(cacheGraph);
 		
 		GenericSerializer.setTempDB(cacheGraph);
 		
@@ -85,17 +86,26 @@ public class HyperGraphPeer {
 		if (configuration.getHasServerInterface()){
 			peerInterface.registerTaskFactory(Performative.CallForProposal, HGDBOntology.REMEMBER_ACTION, new RememberTaskServer.RememberTaskServerFactory(this));
 			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.ATOM_INTEREST, new PublishInterestsTask.PublishInterestsFactory());
-
+		}else{
+			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.CATCHUP, new CatchUpTaskServer.CatchUpTaskServerFactory(this));
 		}
 
 		peerInterface.registerTaskFactory(Performative.Inform, HGDBOntology.ATOM_INTEREST, new GetInterestsTask.GetInterestsFactory());
-
+		
 		typeSystem = new HGTypeSystemPeer(peerInterface, (graph == null) ? null : graph.getTypeSystem());
+		log = new Log(cacheGraph, peerInterface);
 
+		
+		
 		// TODO actually compute this
 		return true;
 	}
 	
+	public void catchUp()
+	{
+		CatchUpTaskClient catchUpTask = new CatchUpTaskClient(peerInterface, null, this);
+		catchUpTask.run();
+	}
 	public void setAtomInterests(HGAtomPredicate pred)
 	{
 		peerInterface.setAtomInterests(pred);
@@ -144,9 +154,12 @@ public class HyperGraphPeer {
 	 */
 	public HGHandle addSubgraph(Subgraph subGraph)
 	{
-		HGStore store = graph.getStore();
-		return storeSubgraph(subGraph, store);
+		//TODO remake to add directly to store and INDEX
+		HGStore store = cacheGraph.getStore();
+		HGHandle handle = storeSubgraph(subGraph, store);
 		
+		graph.add((HGPersistentHandle)handle, cacheGraph.get(handle));
+		return handle;
 	}
 
 	private HGHandle storeSubgraph(Subgraph subGraph, HGStore store)
@@ -219,6 +232,17 @@ public class HyperGraphPeer {
 		
 		task.run();
 	}
+
+	public Log getLog()
+	{
+		return log;
+	}
+
+	public void setLog(Log log)
+	{
+		this.log = log;
+	}
+	
 	
 /*	private boolean shouldForward() {
 		// TODO add logic to see if the atom should be added here

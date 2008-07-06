@@ -25,11 +25,10 @@ public class TypedValueCondition extends AtomValueCondition
 	private Class<?> javaClass;
 	private HGHandle typeHandle;
 
-	protected boolean satisfies(HyperGraph hg, HGHandle atomHandle, Object atom, HGHandle type)
-	{		
-		return type.equals(typeHandle) && super.satisfies(hg, atomHandle, atom, type);
+	public TypedValueCondition()
+	{
+		
 	}
-
 	public TypedValueCondition(HGHandle typeHandle, Object value)
 	{
 		this(typeHandle, value, ComparisonOperator.EQ);
@@ -52,6 +51,11 @@ public class TypedValueCondition extends AtomValueCondition
 		this.javaClass = javaClass;
 	}
 	
+	protected boolean satisfies(HyperGraph hg, HGHandle atomHandle, Object atom, HGHandle type)
+	{		
+		return type.equals(typeHandle) && super.satisfies(hg, atomHandle, atom, type);
+	}
+
 	public void setTypeHandle(HGHandle typeHandle)
 	{
 		this.typeHandle = typeHandle;

@@ -1,6 +1,7 @@
 package org.hypergraphdb.peer.workflow;
 
 import java.util.Iterator;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hypergraphdb.peer.HGDBOntology;
@@ -8,9 +9,12 @@ import org.hypergraphdb.peer.PeerFilter;
 import org.hypergraphdb.peer.PeerInterface;
 import org.hypergraphdb.peer.PeerRelatedActivity;
 import org.hypergraphdb.peer.PeerRelatedActivityFactory;
-import org.hypergraphdb.peer.protocol.Message;
 import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.query.HGAtomPredicate;
+import static org.hypergraphdb.peer.Structs.*;
+import static org.hypergraphdb.peer.Messages.*;
+import static org.hypergraphdb.peer.HGDBOntology.*;
+
 
 /**
  * @author ciprian.costa
@@ -22,7 +26,8 @@ public class GetInterestsTask extends TaskActivity<GetInterestsTask.State>
 {
 	protected enum State {Started, Done}
 	
-	private Message msg = null;
+	private Object msg = null;
+	
 	//TODO: temporary
 	private AtomicInteger count = new AtomicInteger();
 	
@@ -31,9 +36,9 @@ public class GetInterestsTask extends TaskActivity<GetInterestsTask.State>
 		super(peerInterface, State.Started, State.Done);
 	}
 
-	public GetInterestsTask(PeerInterface peerInterface, Message msg)
+	public GetInterestsTask(PeerInterface peerInterface, Object msg)
 	{
-		super(peerInterface, msg.getTaskId(), State.Started, State.Done);
+		super(peerInterface, (UUID)getPart(msg, SEND_TASK_ID), State.Started, State.Done);
 		
 		this.msg = msg;
 	}
@@ -43,7 +48,8 @@ public class GetInterestsTask extends TaskActivity<GetInterestsTask.State>
 		if (msg != null)
 		{
 			//task was created because someone else is publishing
-			getPeerInterface().getPeerNetwork().setAtomInterests(msg.getReplyTo(), (HGAtomPredicate)msg.getContent());
+			getPeerInterface().getPeerNetwork().setAtomInterests(getPart(msg, REPLY_TO), 
+					(HGAtomPredicate)getPart(msg, CONTENT));
 			setState(State.Done);
 		}else{
 			//task is intended for retrieving information from other peers
@@ -69,17 +75,20 @@ public class GetInterestsTask extends TaskActivity<GetInterestsTask.State>
 
 	private void sendMessage(PeerRelatedActivityFactory activityFactory, Object target)
 	{
-		Message msg = getPeerInterface().getMessageFactory().createMessage();
-		msg.setPerformative(Performative.Request);
-		msg.setAction(HGDBOntology.ATOM_INTEREST);
-		msg.setTaskId(getTaskId());
+		Object msg = createMessage(Performative.Request, ATOM_INTEREST, getTaskId());
+		combine(msg, struct(RECEIVED_TASK_ID, getTaskId()));
 		
 		PeerRelatedActivity activity = (PeerRelatedActivity)activityFactory.createActivity();
 		activity.setTarget(target);
 		activity.setMessage(msg);
 		
-		getPeerInterface().execute(activity);
-		
+		try
+		{
+			getPeerInterface().execute(activity);
+		}catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
 	}
 
 	/* (non-Javadoc)
@@ -87,9 +96,9 @@ public class GetInterestsTask extends TaskActivity<GetInterestsTask.State>
 	 * 
 	 * TODO: for now just overriding it, need to change when more complex conversations are implemented.
 	 */
-	public void handleMessage(Message msg)
+	public void handleMessage(Object msg)
 	{
-		getPeerInterface().getPeerNetwork().setAtomInterests(msg.getReplyTo(), (HGAtomPredicate)msg.getContent());
+		getPeerInterface().getPeerNetwork().setAtomInterests(getPart(msg, REPLY_TO), (HGAtomPredicate)getPart(msg, CONTENT));
 
 		if (count.decrementAndGet() == 0)
 		{
@@ -102,7 +111,7 @@ public class GetInterestsTask extends TaskActivity<GetInterestsTask.State>
 		public GetInterestsFactory()
 		{
 		}
-		public TaskActivity<?> newTask(PeerInterface peerInterface, Message msg)
+		public TaskActivity<?> newTask(PeerInterface peerInterface, Object msg)
 		{
 			return new GetInterestsTask(peerInterface, msg);
 		}

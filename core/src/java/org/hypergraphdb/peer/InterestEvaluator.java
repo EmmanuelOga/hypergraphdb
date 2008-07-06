@@ -9,13 +9,13 @@ import org.hypergraphdb.query.HGAtomPredicate;
  * Evaluates if a peer passes the filtering process based on the interests it 
  * announced previously.
  */
-public class InterestsPeerFilterEvaluator implements PeerFilterEvaluator
+public class InterestEvaluator implements PeerFilterEvaluator
 {
 	private PeerInterface peerInterface;
 	private HyperGraph hg;
 	private HGHandle handle;
 	
-	public InterestsPeerFilterEvaluator(PeerInterface peerInterface, HyperGraph hg)
+	public InterestEvaluator(PeerInterface peerInterface, HyperGraph hg)
 	{
 		this.peerInterface = peerInterface;
 		this.hg = hg;

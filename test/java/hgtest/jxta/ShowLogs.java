@@ -1,6 +1,7 @@
 package hgtest.jxta;
 
 import org.hypergraphdb.HGHandle;
+import org.hypergraphdb.HGPlainLink;
 import org.hypergraphdb.HGSearchResult;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.peer.log.Log;
@@ -16,7 +17,15 @@ public class ShowLogs
 	 */
 	public static void main(String[] args)
 	{
-		HyperGraph hg = new HyperGraph("./DBs/Client1CacheDB");
+		showLog("./DBs/Client1CacheDB");
+		showLog("./DBs/Server1CacheDB");
+	}
+
+	private static void showLog(String db)
+	{
+		System.out.println("Logs for: " + db);
+		
+		HyperGraph hg = new HyperGraph(db);
 		
 		//Log log  = new Log(hg);
 		
@@ -30,7 +39,8 @@ public class ShowLogs
 			
 			for(HGHandle neighbourHandle : hg.getIncidenceSet(handle))
 			{
-				System.out.println("   reference: " + hg.get(neighbourHandle));
+				HGPlainLink link = hg.get(neighbourHandle);
+				System.out.println("   reference: " + hg.get(link.getTargetAt(1)));
 			}
 		}
 
@@ -49,7 +59,7 @@ public class ShowLogs
 		}
 
 		hg.close();
+		
 		System.out.println("done");
 	}
-
 }

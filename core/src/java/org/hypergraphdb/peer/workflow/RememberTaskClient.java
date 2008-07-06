@@ -6,8 +6,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
-import org.hypergraphdb.peer.HGDBOntology;
-import org.hypergraphdb.peer.InterestsPeerFilterEvaluator;
+import static org.hypergraphdb.peer.HGDBOntology.*;
+import org.hypergraphdb.peer.InterestEvaluator;
 import org.hypergraphdb.peer.PeerFilter;
 import org.hypergraphdb.peer.PeerInterface;
 import org.hypergraphdb.peer.PeerRelatedActivity;
@@ -15,8 +15,9 @@ import org.hypergraphdb.peer.PeerRelatedActivityFactory;
 import org.hypergraphdb.peer.Subgraph;
 import org.hypergraphdb.peer.log.Log;
 import org.hypergraphdb.peer.log.LogEntry;
-import org.hypergraphdb.peer.protocol.Document;
-import org.hypergraphdb.peer.protocol.Message;
+import org.hypergraphdb.peer.log.Timestamp;
+import static org.hypergraphdb.peer.Structs.*;
+import static org.hypergraphdb.peer.Messages.*;
 import org.hypergraphdb.peer.protocol.Performative;
 
 /**
@@ -35,13 +36,15 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 	protected enum State {Started, Accepted, HandleProposal, HandleProposalResponse, Done};
 
 	private HGHandle result;
-	private InterestsPeerFilterEvaluator evaluator;
+	private InterestEvaluator evaluator;
 	private Object value;
 	private Log log;
 	private LogEntry entry;
 	
 	//TODO replace. for now just assumming everyone is online 
 	private AtomicInteger count = new AtomicInteger(1);
+	PeerFilter peerFilter;
+	private Object targetPeer;
 	
 	public RememberTaskClient(PeerInterface peerInterface, Object value, Log log, HyperGraph hg)
 	{
@@ -49,9 +52,18 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 		this.value = value;
 		this.log = log;
 		
-		evaluator = new InterestsPeerFilterEvaluator(peerInterface, hg);
+		evaluator = new InterestEvaluator(peerInterface, hg);
 	}
 	
+	public RememberTaskClient(PeerInterface peerInterface, LogEntry entry, Object targetPeer, Log log)
+	{
+		super(peerInterface, State.Started, State.Done);
+		
+		this.entry = entry;
+		this.targetPeer = targetPeer;
+		this.log = log;
+	}
+
 	protected void startTask()
 	{		
 		//initialize
@@ -63,40 +75,65 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 		//do startup tasks - filter peers and send messages
 		PeerRelatedActivityFactory activityFactory = getPeerInterface().newSendActivityFactory();
 
-		PeerFilter peerFilter = getPeerInterface().newFilterActivity(evaluator);
-
-		entry = log.createLogEntry(value);
-		evaluator.setHandle(entry.getLogEntryHandle());
-		log.addEntry(entry, peerFilter);
-
-		Iterator<Object> it = peerFilter.iterator();
-		while (it.hasNext())
+		if (targetPeer == null)
 		{
-			count.incrementAndGet();
-			Object target = it.next();
-		
-			Message msg = getPeerInterface().getMessageFactory().createMessage();
-			msg.setPerformative(Performative.CallForProposal);
-			msg.setAction(HGDBOntology.REMEMBER_ACTION);
-			msg.setTaskId(getTaskId());
-			
-			((Document)msg).put("last_version", entry.getLastTimestamp(peerFilter.getTargetId(target)));
-			
-			PeerRelatedActivity activity = (PeerRelatedActivity)activityFactory.createActivity();
-			activity.setTarget(target);
-			activity.setMessage(msg);
-			
-			getPeerInterface().execute(activity);
+			peerFilter = getPeerInterface().newFilterActivity(evaluator);
 		}
+		
+		if (entry == null)
+		{
+			entry = log.createLogEntry(value);
+			evaluator.setHandle(entry.getLogEntryHandle());
+			log.addEntry(entry, peerFilter);
+		}
+		
+		if (peerFilter != null)
+		{
+			Iterator<Object> it = peerFilter.iterator();
+			while (it.hasNext())
+			{
+				Object target = it.next();
+				sendCallForProposal(target, activityFactory);
+			}
+		}else{
+			sendCallForProposal(targetPeer, activityFactory);
+		}
+		
 		if (count.decrementAndGet() == 0) setState(State.Done);
 	}
-	
+	private void sendCallForProposal(Object target, PeerRelatedActivityFactory activityFactory)
+	{
+		count.incrementAndGet();
+		
+		Object msg = createMessage(Performative.CallForProposal, REMEMBER_ACTION, getTaskId());
+		combine(msg, struct(
+				CONTENT, struct(
+						SLOT_LAST_VERSION, entry.getLastTimestamp(getPeerInterface().getPeerNetwork().getPeerId(target)),
+						SLOT_CURRENT_VERSION, entry.getTimestamp()
+					))
+		);
+		
+/*		Message msg = getPeerInterface().getMessageFactory().createMessage();
+		msg.setPerformative(Performative.CallForProposal);
+		msg.setAction(HGDBOntology.REMEMBER_ACTION);
+		msg.setTaskId(getTaskId());
+		
+		((Document)msg).put("last_version", entry.getLastTimestamp(getPeerInterface().getPeerNetwork().getPeerId(target)));
+		((Document)msg).put("curent_version", entry.getTimestamp());
+*/		
+		PeerRelatedActivity activity = (PeerRelatedActivity)activityFactory.createActivity();
+		activity.setTarget(target);
+		activity.setMessage(msg);
+		
+		getPeerInterface().execute(activity);
+
+	}
 	/* (non-Javadoc)
 	 * @see org.hypergraphdb.peer.workflow.TaskActivity#createNewConversation(org.hypergraphdb.peer.protocol.Message)
 	 * 
 	 * This function is called when the server started a conversation and the conversation has to be started on the cleint too.
 	 */
-	protected Conversation<?> createNewConversation(Message msg)
+	protected Conversation<?> createNewConversation(Object msg)
 	{
 		//TODO refactor
 		PeerRelatedActivityFactory activityFactory = getPeerInterface().newSendActivityFactory();
@@ -121,8 +158,9 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 		//decide to accept or not ... for now just accept
 		if (true)
 		{
-			Message reply = getReply(conversation.getMessage());
-			reply.setContent(entry.getData());
+			Object reply = getReply(conversation.getMessage());
+			combine(reply, struct(CONTENT, object(entry.getData())));
+//			reply.setContent(entry.getData());
 			
 			//set the conversation in the Accepted state
 			conversation.accept(reply);
@@ -141,8 +179,15 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 	 */
 	public State handleConfirm(AbstractActivity<?> fromActivity)
 	{
-		result = (HGHandle) ((ProposalConversation)fromActivity).getMessage().getContent();
+		Object msg = ((ProposalConversation)fromActivity).getMessage();		
+		result = (HGHandle)getPart(msg, CONTENT);
+		//result = (HGHandle) msg.getContent();
 
+		//record the message in the log
+		//Object peerId = getPeerInterface().getPeerNetwork().getPeerId(msg.getReplyTo());
+		Object peerId = getPeerInterface().getPeerNetwork().getPeerId(getPart(msg, REPLY_TO));
+		log.confirmFromPeer(peerId, entry.getTimestamp());
+		
 		if (count.decrementAndGet() == 0) return State.Done;
 		else return State.Started;
 	}

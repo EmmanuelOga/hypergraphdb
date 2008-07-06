@@ -8,6 +8,7 @@ public class IndexCondition<Key,Value> implements HGQueryCondition
 	private Key key = null;
 	private ComparisonOperator operator = ComparisonOperator.EQ;
 	
+	
 /*
  * 
  * an 'idx' only constructor would yield a query that scans an index (either its keys

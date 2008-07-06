@@ -30,6 +30,10 @@ public class LinkCondition implements HGQueryCondition, HGAtomPredicate
 {
 	private HashSet<HGHandle> targetSet = null;
 	
+	public LinkCondition()
+	{
+		
+	}
 	public LinkCondition(HGHandle [] targets)
 	{
 		this.targetSet = new HashSet<HGHandle>();
@@ -43,6 +47,7 @@ public class LinkCondition implements HGQueryCondition, HGAtomPredicate
 	{
 		return targetSet;
 	}
+	
 	
 	/**
 	 * <p>Return <code>true</code> if <code>handle</code> points to a link whose

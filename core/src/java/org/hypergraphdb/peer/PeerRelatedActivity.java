@@ -1,7 +1,5 @@
 package org.hypergraphdb.peer;
 
-import org.hypergraphdb.peer.protocol.Message;
-
 /**
  * @author Cipri Costa
  * A runnable object that executes a task against a given peer 
@@ -9,7 +7,7 @@ import org.hypergraphdb.peer.protocol.Message;
 public abstract class PeerRelatedActivity implements Runnable
 {
 	protected Object target;
-	protected Message msg;
+	protected Object msg;
 	
 	public PeerRelatedActivity()
 	{
@@ -25,12 +23,12 @@ public abstract class PeerRelatedActivity implements Runnable
 		this.target = target;
 	}
 
-	public Message getMessage()
+	public Object getMessage()
 	{
 		return msg;
 	}
 
-	public void setMessage(Message msg)
+	public void setMessage(Object msg)
 	{
 		this.msg = msg;
 	}

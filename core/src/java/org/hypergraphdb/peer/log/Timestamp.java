@@ -1,6 +1,6 @@
 package org.hypergraphdb.peer.log;
 
-public class Timestamp
+public class Timestamp implements Comparable<Timestamp>
 {
 	private int counter;
 	
@@ -40,6 +40,13 @@ public class Timestamp
 	public Timestamp clone()
 	{
 		return new Timestamp(counter);
+	}
+
+	public int compareTo(Timestamp o)
+	{
+		if ((o == null) || (counter > o.counter)) return 1;
+		else if (counter == o.counter) return 0;
+		else return -1;
 	}
 	
 }

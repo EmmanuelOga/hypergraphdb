@@ -1,5 +1,6 @@
 package org.hypergraphdb.peer.serializer;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -32,28 +33,65 @@ public class GenericSerializer implements HGSerializer
 	public Object readData(InputStream in)
 	{
 		Subgraph result = null;
-		
-		int nSerializerID = SerializationUtils.deserializeInt(in);
-		if (nSerializerID == DefaultSerializerManager.SUBGRAPH_SERIALIZER_ID)
+		int getSubgraphContent = 0;
+		try
 		{
-			result = (Subgraph) serializer.readData(in);
+			getSubgraphContent = in.read();
+		} catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
-		HGHandle handle = SubgraphManager.store(result, tempDB.getStore());
-
-		return tempDB.get(handle);
+		if (getSubgraphContent == 0)
+		{
+			result = (Subgraph) serializer.readData(in);
+			return result;
+		}else
+		{
+			result = (Subgraph) serializer.readData(in);
+	
+			HGHandle handle = SubgraphManager.store(result, tempDB.getStore());
+		
+			return tempDB.get(handle);
+		}
 	}
 
 	public void writeData(OutputStream out, Object data)
 	{
-		SerializationUtils.serializeInt(out, DefaultSerializerManager.GENERIC_SERIALIZER_ID);
-
-		HGPersistentHandle tempHandle = tempDB.getPersistentHandle(tempDB.add(data));
+		Subgraph subGraph;
+		HGPersistentHandle tempHandle = null;
 		
-		Subgraph subGraph = new Subgraph(tempDB, tempHandle);
+		if (data instanceof Subgraph) 
+		{
+			try
+			{
+				out.write(0);
+			} catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			subGraph = (Subgraph)data;
+		}else{
+			try
+			{
+				out.write(1);
+			} catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			tempHandle = tempDB.getPersistentHandle(tempDB.add(data));
+			
+			subGraph = new Subgraph(tempDB, tempHandle);
+		}
+		
 		serializer.writeData(out, subGraph);
-		
-		tempDB.remove(tempHandle);
+		if (tempHandle != null)
+		{
+			tempDB.remove(tempHandle);
+		}
 	}
 	
 

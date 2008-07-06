@@ -70,8 +70,6 @@ public class SubgraphSerializer implements SerializerMapper, HGSerializer
 
 	public void writeData(OutputStream out, Object data)
 	{
-		SerializationUtils.serializeInt(out, DefaultSerializerManager.SUBGRAPH_SERIALIZER_ID);
-
 		Subgraph subgraph = (Subgraph)data;
 		Iterator<Pair<HGPersistentHandle, Object>> iter = subgraph.iterator();
 		

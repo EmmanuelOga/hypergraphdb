@@ -5,9 +5,11 @@ import java.util.UUID;
 
 import org.hypergraphdb.peer.PeerInterface;
 import org.hypergraphdb.peer.PeerRelatedActivity;
-import org.hypergraphdb.peer.protocol.Message;
 import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.util.Pair;
+import static org.hypergraphdb.peer.HGDBOntology.*;
+import static org.hypergraphdb.peer.Structs.*;
+import static org.hypergraphdb.peer.Messages.*;
 
 /**
  * @author Cipri Costa
@@ -30,21 +32,22 @@ public class Conversation<StateType> extends AbstractActivity<StateType>
 	
 	private PeerRelatedActivity sendActivity;
 	private PeerInterface peerInterface;
-	private Message msg;
+	private Object msg;
 
 	private HashMap<Pair<StateType, Performative>, StateType> performativeTransitions = new HashMap<Pair<StateType,Performative>, StateType>();
 	
-	public Conversation(PeerRelatedActivity sendActivity, PeerInterface peerInterface, Message msg, StateType start, StateType end)
+	public Conversation(PeerRelatedActivity sendActivity, PeerInterface peerInterface, Object msg, StateType start, StateType end)
 	{
-		if (msg.getConversationId().equals(NULL_UUID))
+		Object conversationId = getPart(msg, CONVERSATION_ID);
+		if ((conversationId == null) || conversationId.equals(NULL_UUID))
 		{
-			msg.setConversationId(UUID.randomUUID());
+			combine(msg, struct(CONVERSATION_ID, UUID.randomUUID()));
 		}
 		this.sendActivity = sendActivity;
 		this.msg = msg;
 		this.peerInterface = peerInterface;
 		
-		this.sendActivity.setTarget(msg.getReplyTo());
+		this.sendActivity.setTarget(getPart(msg, REPLY_TO));
 		
 		setState(start);
 	}
@@ -60,11 +63,11 @@ public class Conversation<StateType> extends AbstractActivity<StateType>
 		performativeTransitions.put(new Pair<StateType, Performative>(fromState, performative), toState);
 	}
 
-	public void handleIncomingMessage(Message msg)
+	public void handleIncomingMessage(Object msg)
 	{
 		StateType state = getState();
 		
-		Pair<StateType, Performative> key = new Pair<StateType, Performative>(state, msg.getPerformative());
+		Pair<StateType, Performative> key = new Pair<StateType, Performative>(state, Performative.valueOf(getPart(msg, PERFORMATIVE).toString()));
 		StateType newState = performativeTransitions.get(key);
 
 		if ((newState != null) && compareAndSetState(state, newState))
@@ -84,12 +87,12 @@ public class Conversation<StateType> extends AbstractActivity<StateType>
 		peerInterface.execute(sendActivity);
 	}
 	
-	public Message getMessage()
+	public Object getMessage()
 	{
 		return msg;
 	}
 
-	public void setMessage(Message msg)
+	public void setMessage(Object msg)
 	{
 		this.msg = msg;
 	}

@@ -1,19 +1,18 @@
 package org.hypergraphdb.peer.jxta;
 
+import static org.hypergraphdb.peer.HGDBOntology.ACTION;
+import static org.hypergraphdb.peer.HGDBOntology.PERFORMATIVE;
+import static org.hypergraphdb.peer.HGDBOntology.SEND_TASK_ID;
+import static org.hypergraphdb.peer.Structs.getPart;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.UUID;
 
-import net.jxta.discovery.DiscoveryEvent;
-import net.jxta.discovery.DiscoveryListener;
-import net.jxta.document.Advertisement;
 import net.jxta.id.IDFactory;
 import net.jxta.pipe.PipeID;
-import net.jxta.protocol.DiscoveryResponseMsg;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.socket.JxtaServerSocket;
 
@@ -23,16 +22,12 @@ import org.hypergraphdb.peer.PeerInterface;
 import org.hypergraphdb.peer.PeerNetwork;
 import org.hypergraphdb.peer.PeerRelatedActivity;
 import org.hypergraphdb.peer.PeerRelatedActivityFactory;
-import org.hypergraphdb.peer.protocol.Message;
-import org.hypergraphdb.peer.protocol.MessageFactory;
 import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.peer.protocol.Protocol;
 import org.hypergraphdb.peer.workflow.TaskActivity;
 import org.hypergraphdb.peer.workflow.TaskFactory;
 import org.hypergraphdb.query.HGAtomPredicate;
 import org.hypergraphdb.util.Pair;
-
-
 
 /**
  * @author Cipri Costa
@@ -54,7 +49,6 @@ public class JXTAPeerInterface implements PeerInterface/*, DiscoveryListener*/{
 
 	private HashMap<Pair<Performative, String>, TaskFactory> taskFactories = new HashMap<Pair<Performative,String>, TaskFactory>();
 	private HashMap<UUID, TaskActivity<?>> tasks = new HashMap<UUID, TaskActivity<?>>();
-	private MessageFactory messageFactory;
 	private HGAtomPredicate atomInterests;
 	
 	public boolean configure(Object configuration) 
@@ -78,33 +72,12 @@ public class JXTAPeerInterface implements PeerInterface/*, DiscoveryListener*/{
 			try
 			{
 				result = false;
-				messageFactory = (MessageFactory) Class.forName(this.config.getMessageFactory()).getConstructor(HashMap.class).newInstance(config.getMessageFactoryParams());
 				result = true;
 			} catch (IllegalArgumentException e)
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (SecurityException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InstantiationException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvocationTargetException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchMethodException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ClassNotFoundException e)
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -187,13 +160,19 @@ public class JXTAPeerInterface implements PeerInterface/*, DiscoveryListener*/{
             	//OutputStream out = socket.getOutputStream();
 
                 //get the data through the protocol
-                Message msg = protocol.readMessage(in);
-                System.out.println("received: " + msg.toString());
-                if (tasks.containsKey(msg.getTaskId()))
+            	Object msg = null;
+            	try{
+            		msg = protocol.readMessage(in);
+            	}catch(Exception ex)
                 {
-                	tasks.get(msg.getTaskId()).handleMessage(msg);
+                	ex.printStackTrace();
+                }
+                System.out.println("received: " + msg.toString());
+                if (tasks.containsKey(getPart(msg, SEND_TASK_ID)))
+                {
+                	tasks.get(getPart(msg, SEND_TASK_ID)).handleMessage(msg);
                 }else{
-	                Pair<Performative, String> key = new Pair<Performative, String>(msg.getPerformative(), msg.getAction());
+	                Pair<Performative, String> key = new Pair<Performative, String>(Performative.valueOf(getPart(msg, PERFORMATIVE).toString()), (String)getPart(msg, ACTION));
 	                if (taskFactories.containsKey(key))
 	                {
 	                	TaskActivity<?> task = taskFactories.get(key).newTask(JXTAPeerInterface.this, msg);
@@ -236,11 +215,6 @@ public class JXTAPeerInterface implements PeerInterface/*, DiscoveryListener*/{
 		
 		taskFactories.put(key, taskFactory);
 		
-	}
-
-	public MessageFactory getMessageFactory()
-	{
-		return messageFactory;
 	}
 
 	public void setAtomInterests(HGAtomPredicate pred)

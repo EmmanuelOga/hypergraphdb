@@ -1,15 +1,18 @@
 package org.hypergraphdb.peer.workflow;
 
 import java.util.Iterator;
+import java.util.UUID;
 
 import org.hypergraphdb.peer.HGDBOntology;
 import org.hypergraphdb.peer.PeerFilter;
 import org.hypergraphdb.peer.PeerInterface;
 import org.hypergraphdb.peer.PeerRelatedActivity;
 import org.hypergraphdb.peer.PeerRelatedActivityFactory;
-import org.hypergraphdb.peer.protocol.Message;
 import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.query.HGAtomPredicate;
+import static org.hypergraphdb.peer.Structs.*;
+import static org.hypergraphdb.peer.Messages.*;
+import static org.hypergraphdb.peer.HGDBOntology.*;
 
 /**
  * @author ciprian.costa
@@ -41,13 +44,13 @@ public class PublishInterestsTask extends TaskActivity<PublishInterestsTask.Stat
 	 * @param peer
 	 * @param msg
 	 */
-	public PublishInterestsTask(PeerInterface peerInterface, Message msg)
+	public PublishInterestsTask(PeerInterface peerInterface, Object msg)
 	{
-		super(peerInterface, msg.getTaskId(), State.Started, State.Done);
+		super(peerInterface, (UUID)getPart(msg, SEND_TASK_ID), State.Started, State.Done);
 
 		//start the conversation
 		pred = peerInterface.getAtomInterests();
-		sendToTarget = msg.getReplyTo();
+		sendToTarget = getPart(msg, REPLY_TO);
 	}
 
 	protected void startTask()
@@ -68,15 +71,14 @@ public class PublishInterestsTask extends TaskActivity<PublishInterestsTask.Stat
 				sendMessage(activityFactory, target);
 			}			
 		}
+		
+		setState(State.Done);
 	}
 	
 	private void sendMessage(PeerRelatedActivityFactory activityFactory, Object target)
 	{
-		Message msg = getPeerInterface().getMessageFactory().createMessage();
-		msg.setPerformative(Performative.Inform);
-		msg.setAction(HGDBOntology.ATOM_INTEREST);
-		msg.setTaskId(getTaskId());
-		msg.setContent(pred);
+		Object msg = createMessage(Performative.Inform, ATOM_INTEREST, getTaskId());
+		combine(msg, struct(CONTENT, pred));
 		
 		PeerRelatedActivity activity = (PeerRelatedActivity)activityFactory.createActivity();
 		activity.setTarget(target);
@@ -90,7 +92,7 @@ public class PublishInterestsTask extends TaskActivity<PublishInterestsTask.Stat
 		public PublishInterestsFactory()
 		{
 		}
-		public TaskActivity<?> newTask(PeerInterface peerInterface, Message msg)
+		public TaskActivity<?> newTask(PeerInterface peerInterface, Object msg)
 		{
 			return new PublishInterestsTask(peerInterface, msg);
 		}

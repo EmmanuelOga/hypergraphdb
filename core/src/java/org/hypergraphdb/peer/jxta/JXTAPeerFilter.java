@@ -36,16 +36,6 @@ public class JXTAPeerFilter extends PeerFilter
 				}
 			}
 		}		
-	}
-
-	@Override
-	public Object getTargetId(Object target)
-	{
-		if (target instanceof PipeAdvertisement)
-		{
-			return ((PipeAdvertisement)target).getPipeID().toString();
-		}else return null;
-	}
-	
+	}	
 	
 }

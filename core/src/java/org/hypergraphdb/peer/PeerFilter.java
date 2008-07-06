@@ -21,7 +21,7 @@ public abstract class PeerFilter
 	}
 		
 	public abstract void filterTargets();
-	public abstract Object getTargetId(Object target);
+
 	
 	public Iterator<Object> iterator()
 	{

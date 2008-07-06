@@ -3,11 +3,8 @@ package org.hypergraphdb.peer.serializer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.UUID;
 
-import org.hypergraphdb.peer.protocol.Message;
 import org.hypergraphdb.peer.protocol.ObjectSerializer;
 
 public class SerializationUtils
@@ -127,7 +124,7 @@ public class SerializationUtils
 		
 	}
 	
-	public static void serializeObject(OutputStream out, Object data)
+/*	public static void serializeObject(OutputStream out, Object data)
 	{
 		ObjectSerializer serializer = new ObjectSerializer();
 		serializer.serialize(out, data);
@@ -138,4 +135,5 @@ public class SerializationUtils
 		
 		return serializer.deserialize(in);
 	}
+*/
 }

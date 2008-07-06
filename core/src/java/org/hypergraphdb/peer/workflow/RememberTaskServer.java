@@ -1,11 +1,17 @@
 package org.hypergraphdb.peer.workflow;
 
+
+import java.util.UUID;
+
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.peer.HyperGraphPeer;
 import org.hypergraphdb.peer.PeerInterface;
 import org.hypergraphdb.peer.PeerRelatedActivity;
 import org.hypergraphdb.peer.Subgraph;
-import org.hypergraphdb.peer.protocol.Message;
+import org.hypergraphdb.peer.log.Timestamp;
+import static org.hypergraphdb.peer.HGDBOntology.*;
+import static org.hypergraphdb.peer.Structs.*;
+import static org.hypergraphdb.peer.Messages.*;
 
 /**
  * @author Cipri Costa
@@ -19,8 +25,10 @@ public class RememberTaskServer extends TaskActivity<RememberTaskServer.State>
 	protected enum State {Started, HandleAccepted, HandleRejected, Done};
 	
 	private HyperGraphPeer peer;
-	ProposalConversation conversation;
-	
+	private ProposalConversation conversation;
+	private Timestamp last_version;
+	private Timestamp current_version;
+
 	public RememberTaskServer(PeerInterface peerInterface, HyperGraphPeer peer)
 	{
 		super(peerInterface, State.Started, State.Done);
@@ -29,14 +37,18 @@ public class RememberTaskServer extends TaskActivity<RememberTaskServer.State>
 		setState(State.Started);
 	}
 	
-	public RememberTaskServer(PeerInterface peerInterface, HyperGraphPeer peer, Message msg)
+	public RememberTaskServer(PeerInterface peerInterface, HyperGraphPeer peer, Object msg)
 	{
-		super(peerInterface, msg.getTaskId(), State.Started, State.Done);
+		//super(peerInterface, msg.getTaskId(), State.Started, State.Done);
+		super(peerInterface, (UUID)getPart(msg, SEND_TASK_ID), State.Started, State.Done);
 		this.peer = peer;
 
 		//start the conversation
 		PeerRelatedActivity activity = (PeerRelatedActivity)getPeerInterface().newSendActivityFactory().createActivity();
 		conversation = new ProposalConversation(activity, getPeerInterface(), msg);	
+		
+		last_version = (Timestamp) getPart(msg, CONTENT, SLOT_LAST_VERSION);//(Timestamp) ((Document)msg).get("last_version");
+		current_version = (Timestamp) getPart(msg, CONTENT, SLOT_CURRENT_VERSION);//((Document)msg).get("curent_version");
 	}
 
 	protected void startTask()
@@ -46,10 +58,10 @@ public class RememberTaskServer extends TaskActivity<RememberTaskServer.State>
 		registerConversationHandler(State.Started, ProposalConversation.State.Rejected, "handleReject", State.HandleRejected);
 
 		//do startup task (propose)
-		Message reply = getReply(conversation.getMessage());
-		registerConversation(conversation, reply.getConversationId());
+		Object reply = getReply(conversation.getMessage());
+		//registerConversation(conversation, reply.getConversationId());
+		registerConversation(conversation, (UUID)getPart(reply, CONVERSATION_ID));
 		conversation.propose(reply);
-		
 	}
 	
 	/**
@@ -63,16 +75,27 @@ public class RememberTaskServer extends TaskActivity<RememberTaskServer.State>
 		System.out.println("RememberActivityServer: acccepting");
 
 		ProposalConversation conv = (ProposalConversation)conversation;
-		Message msg = ((Conversation<?>)conversation).getMessage();
-		Subgraph subgraph = (Subgraph) msg.getContent();
-		HGHandle handle = peer.addSubgraph(subgraph);
+		Object msg = ((Conversation<?>)conversation).getMessage();
+		Subgraph subgraph = (Subgraph) getPart(msg, CONTENT);//.getContent();
 		
-		System.out.println("RememberActivityServer: added " + handle);
+		
+		HGHandle handle = null;
+		Object peerId = getPeerInterface().getPeerNetwork().getPeerId(getPart(msg, REPLY_TO));//.getReplyTo());
+		if (peer.getLog().registerRequest(peerId, last_version, current_version))
+		{
+			handle = peer.addSubgraph(subgraph);
+			peer.getLog().finishRequest(peerId, last_version, current_version);
+			System.out.println("RememberActivityServer: added " + handle);
+			
+			Object reply = getReply(msg);
+			combine(reply, struct(CONTENT, handle));
 
-		Message reply = getReply(msg);		
-		reply.setContent(handle);
-		
-		conv.confirm(reply);
+			conv.confirm(reply);
+		}else{
+			Object reply = getReply(msg);		
+			
+			conv.disconfirm(reply);
+		}
 
 		return State.Done;
 	}
@@ -91,7 +114,7 @@ public class RememberTaskServer extends TaskActivity<RememberTaskServer.State>
 		{
 			this.peer = peer;
 		}
-		public TaskActivity<?> newTask(PeerInterface peerInterface, Message msg)
+		public TaskActivity<?> newTask(PeerInterface peerInterface, Object msg)
 		{
 			return new RememberTaskServer(peerInterface, peer, msg);
 		}

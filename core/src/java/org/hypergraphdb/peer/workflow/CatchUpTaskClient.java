@@ -16,7 +16,9 @@ import static org.hypergraphdb.peer.HGDBOntology.*;
 
 /**
  * @author Cipri Costa
- * TODO : stop task
+ * Starts a catch up action with a given peer or with all known peers. It will send CatchUp requests to other peers 
+ * with the current state and the interests of the peer. The other peers will initiate conversations to help this peer come up to
+ * date. 
  */
 public class CatchUpTaskClient extends TaskActivity<CatchUpTaskClient.State>
 {

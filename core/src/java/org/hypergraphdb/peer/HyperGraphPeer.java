@@ -95,8 +95,6 @@ public class HyperGraphPeer {
 		typeSystem = new HGTypeSystemPeer(peerInterface, (graph == null) ? null : graph.getTypeSystem());
 		log = new Log(cacheGraph, peerInterface);
 
-		
-		
 		// TODO actually compute this
 		return true;
 	}

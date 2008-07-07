@@ -1,5 +1,9 @@
 package org.hypergraphdb.peer.log;
 
+/**
+ * @author ciprian.costa
+ * Ensures ordering on events originated for the current peer.
+ */
 public class Timestamp implements Comparable<Timestamp>
 {
 	private int counter;

@@ -17,6 +17,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
+/**
+ * @author ciprian.costa
+ * Class taken from the stringtree library and modified to support CustomSerialized values.
+ */
 public class JSONWriter
 {
     private StringBuffer buf = new StringBuffer();

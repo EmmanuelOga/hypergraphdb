@@ -16,6 +16,11 @@ import static org.hypergraphdb.peer.Messages.*;
 import static org.hypergraphdb.peer.HGDBOntology.*;
 
 
+/**
+ * @author ciprian.costa
+ *
+ * This task manages a catchup request from another peer. It will determine the required Remember tasks and execute them.
+ */
 public class CatchUpTaskServer extends TaskActivity<CatchUpTaskServer.State>
 {
 	protected enum State {Started, Working, Done}

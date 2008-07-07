@@ -7,6 +7,10 @@ import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.peer.Subgraph;
 
+/**
+ * @author ciprian.costa
+ * Simple class that holds a log entry and its relations with the other peers.
+ */
 public class LogEntry implements Comparable<LogEntry>
 {
 	private Subgraph data;

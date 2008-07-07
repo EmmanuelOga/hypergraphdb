@@ -18,7 +18,7 @@ import static org.hypergraphdb.peer.HGDBOntology.*;
 
 /**
  * @author ciprian.costa
- * The task is used both to get the interests of all peers and to responde 
+ * The task is used both to get the interests of all peers and to respond 
  * to publish interest messages.
  *
  */

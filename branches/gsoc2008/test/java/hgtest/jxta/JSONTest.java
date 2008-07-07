@@ -3,10 +3,14 @@ package hgtest.jxta;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 
+import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.handle.UUIDPersistentHandle;
 import org.hypergraphdb.peer.Structs;
@@ -23,15 +27,19 @@ import org.hypergraphdb.query.AtomProjectionCondition;
 import org.hypergraphdb.query.ComparisonOperator;
 import org.hypergraphdb.query.HGAtomPredicate;
 import org.hypergraphdb.query.HGQueryCondition;
+import org.hypergraphdb.query.MapCondition;
+import org.hypergraphdb.query.Nothing;
 import org.hypergraphdb.query.SubsumedCondition;
 import org.hypergraphdb.query.SubsumesCondition;
 import org.hypergraphdb.query.TypedValueCondition;
+import org.hypergraphdb.query.impl.LinkProjectionMapping;
+import org.hypergraphdb.util.Mapping;
 
 public class JSONTest
 {
 	public static void main(String[] args)
 	{	
-		doValue(struct("test", new Timestamp(100)));
+/*		doValue(struct("test", new Timestamp(100)));
 
 		
 		Object value = struct(PERFORMATIVE, Performative.CallForProposal, ACTION, REMEMBER_ACTION, 
@@ -40,7 +48,8 @@ public class JSONTest
 				
 		System.out.println(getPart(value, SEND_TASK_ID));	
 		System.out.println(getPart(value, PERFORMATIVE));	
-		//testQueries();
+*/		
+		testQueries();
 
 		//testCustomObjects();
 		
@@ -90,6 +99,9 @@ public class JSONTest
 
 	public static void testQueries()
 	{	
+		/*
+		doValue(Nothing.Instance);
+		
 		//all
 		doValue(hg.all());
 
@@ -152,7 +164,10 @@ public class JSONTest
 		doValue(hg.or());
 		doValue(hg.or(hg.arity(100), hg.arity(1)));	
 		
-/**/
+		doValue(new MapCondition(hg.all(), new LinkProjectionMapping(1)));
+		*/		
+		doValue(hg.link(UUIDPersistentHandle.makeHandle(), UUIDPersistentHandle.makeHandle(), UUIDPersistentHandle.makeHandle()));
+
 		
 	}
 	

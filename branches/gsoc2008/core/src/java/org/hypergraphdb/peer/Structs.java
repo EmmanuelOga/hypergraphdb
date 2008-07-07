@@ -31,7 +31,10 @@ import org.hypergraphdb.query.DFSCondition;
 import org.hypergraphdb.query.HGAtomPredicate;
 import org.hypergraphdb.query.HGQueryCondition;
 import org.hypergraphdb.query.IncidentCondition;
+import org.hypergraphdb.query.LinkCondition;
+import org.hypergraphdb.query.MapCondition;
 import org.hypergraphdb.query.Not;
+import org.hypergraphdb.query.Nothing;
 import org.hypergraphdb.query.Or;
 import org.hypergraphdb.query.OrderedLinkCondition;
 import org.hypergraphdb.query.SubsumedCondition;
@@ -39,6 +42,7 @@ import org.hypergraphdb.query.SubsumesCondition;
 import org.hypergraphdb.query.TargetCondition;
 import org.hypergraphdb.query.TypePlusCondition;
 import org.hypergraphdb.query.TypedValueCondition;
+import org.hypergraphdb.query.impl.LinkProjectionMapping;
 import org.hypergraphdb.type.BonesOfBeans;
 import org.hypergraphdb.util.Pair;
 import org.hypergraphdb.util.TwoWayMap;
@@ -128,6 +132,7 @@ public class Structs
 
 	private static Object svalue(Object x, boolean skipSpecialClasses, boolean addClassName)
 	{
+		// skipSpecialClasses is set to true when the content of the HGQueryCondition/HGAtomPredicate should be rendered
 		if ((!skipSpecialClasses) && (x instanceof HGQueryCondition || x instanceof HGAtomPredicate))
 			return hgQueryOrPredicate(x);
 		else if (x instanceof CustomSerializedValue) return x;
@@ -139,10 +144,12 @@ public class Structs
 			return x;
 		else if (hgMappers.containsKey(x.getClass()))
 		{
+			//certain objects do not expose bean like interfaces but still need to be serialized.
 			Pair<StructsMapper, String> mapper = hgMappers.get(x.getClass());
 			return list(mapper.getSecond(), mapper.getFirst().getStruct(x));
 		}else if (hgClassNames.containsKey(x.getClass()))
 		{
+			//beans with short names for their type
 			if (!addClassName) 
 			{
 				if (x instanceof List) return x;
@@ -240,9 +247,15 @@ public class Structs
 		hgClassNames.put(TargetCondition.class, "target");	
 		hgClassNames.put(TypedValueCondition.class, "typedValue");	
 		hgClassNames.put(TypePlusCondition.class, "typePlus");
+		hgClassNames.put(Nothing.class, "nothing");
+		
+		hgClassNames.put(MapCondition.class, "mapCond");
+		hgClassNames.put(LinkProjectionMapping.class, "linkProj");
 		
 		hgClassNames.put(UUIDPersistentHandle.class, "uuidHandle");
 		hgClassNames.put(Timestamp.class, "time");
+		
+		hgClassNames.put(LinkCondition.class, "link");
 		
 		for(Entry<Class<?>, String> entry : hgClassNames.entrySet())
 		{
@@ -254,6 +267,13 @@ public class Structs
 		
 	}
 	
+	/**
+	 * Adds a StructsMapper for a specific class. Mappers are capable of creating a struct from an 
+	 * object of the given class.
+	 * @param clazz
+	 * @param mapper
+	 * @param name
+	 */
 	public static void addMapper(Class<?> clazz, StructsMapper mapper, String name)
 	{
 		hgMappers.put(clazz, new Pair<StructsMapper, String>(mapper, name));
@@ -273,6 +293,15 @@ public class Structs
 		else return null;
 	}
 	
+	/**
+	 * Gets a part of the struct. The path to the element to be retrieved is given as a sequence of 
+	 * objects (int for lists, strings for maps). If at the end of the path we have a representation of 
+	 * a bean we recreate the bean, if not we just return the object.
+	 * 
+	 * @param source
+	 * @param args
+	 * @return
+	 */
 	public static Object getPart(Object source, Object...args)
 	{
 		if (args == null) return null;
@@ -315,6 +344,12 @@ public class Structs
 		}else return createObject(source);
 	}
 	
+	/**
+	 * Tries to create an object from a source. Assumes source is a CustomSerializedValue or a list of two elements
+	 * first being the type name and the second the content of the object.
+	 * @param source
+	 * @return
+	 */
 	private static Object createObject(Object source)
 	{
 		if (source == null) return null;
@@ -433,11 +468,16 @@ public class Structs
 					}
 				}
 			}
-
 			BonesOfBeans.setProperty(bean, entry.getKey(), value);
 		}
 	}
 	
+	/**
+	 * Casts the value of the second parameter to the type of the property.
+	 * @param propertyClass
+	 * @param number
+	 * @return
+	 */
 	private static Object getValueForProperty(Class<?> propertyClass, Long number)
 	{
 		if (propertyClass.equals(Long.class) || propertyClass.equals(long.class))
@@ -457,6 +497,13 @@ public class Structs
 		return number;
 	}
 	
+	/**
+	 * Casts the value of the second parameter to the type of the property.
+	 * 
+	 * @param propertyClass
+	 * @param list
+	 * @return
+	 */
 	private static Object getValueForProperty(Class<?> propertyClass, ArrayList list)
 	{
 		if(propertyClass.isArray()){
@@ -467,6 +514,26 @@ public class Structs
 				Array.set(array, i, elem);
 			}
 			return array;
+		}else if (Collection.class.isAssignableFrom(propertyClass)){
+			if (propertyClass.isAssignableFrom(ArrayList.class)) return list;
+			else
+			{
+				Collection col = null;
+				try
+				{
+					col = (Collection) propertyClass.newInstance();
+					for(Object x:list) col.add(createObject(x));
+				} catch (InstantiationException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return col;
+			}
 		}else{
 			return createObject(list);
 		}
@@ -539,12 +606,22 @@ public class Structs
 
 	}
 	
+	/**
+	 * @author ciprian.costa
+	 * Implementors provide functions to create a struct from an object and an object from a struct.
+	 *
+	 */
 	public static interface StructsMapper
 	{
 		Object getStruct(Object value);
 		Object getObject(Object struct);
 	}
 	
+	/**
+	 * @author ciprian.costa
+	 *
+	 * Mapper for UUID
+	 */
 	public static class UUIDStructsMapper implements StructsMapper
 	{
 		public Object getObject(Object struct)
@@ -561,6 +638,11 @@ public class Structs
 		
 	}
 	
+	/**
+	 * @author ciprian.costa
+	 *
+	 * Mapper for pipe advertisements.
+	 */
 	public static class PipeAdvStructsMapper implements StructsMapper
 	{
 		public Object getObject(Object struct)

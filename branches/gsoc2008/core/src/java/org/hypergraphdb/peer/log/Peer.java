@@ -1,6 +1,10 @@
 package org.hypergraphdb.peer.log;
 
 
+/**
+ * @author ciprian.costa
+ * Simple bean that stores all the required information about a peer.
+ */
 public class Peer
 {
 	private Object peerId;

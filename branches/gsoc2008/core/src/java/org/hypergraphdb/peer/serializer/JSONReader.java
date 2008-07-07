@@ -9,6 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author ciprian.costa
+ * 
+ * Class taken from the stringtree library and modified to support CustomSerialized values.
+ */
 public class JSONReader {
 
     private static final Object OBJECT_END = new Object();

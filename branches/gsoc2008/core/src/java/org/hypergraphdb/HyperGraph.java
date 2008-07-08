@@ -551,8 +551,14 @@ public /*final*/ class HyperGraph
      */
     public HGHandle add(Object atom, HGHandle type)
     {
-    	return add(atom, type, 0);
+    	return add(null, atom, type, 0);
     }
+    
+    public HGHandle add(HGPersistentHandle handle, Object atom, HGHandle type)
+    {
+    	return add(handle, atom, type, 0);
+    }
+    
     /**
      * <p>Add a new atom with a specified type and system flags to the database.</p>
      * 
@@ -565,6 +571,10 @@ public /*final*/ class HyperGraph
      */
     public HGHandle add(Object atom, HGHandle type, int flags)
     {
+    	return add(null, atom, type, flags);
+    }
+    public HGHandle add(HGPersistentHandle handle, Object atom, HGHandle type, int flags)
+    {
     	HGHandle result;
         if (atom instanceof HGLink)
         {
@@ -575,7 +585,7 @@ public /*final*/ class HyperGraph
             result = addLink(value, type, link, (byte)flags);
         }
         else
-            result = addNode(atom, type, (byte)flags);
+            result = addNode(handle, atom, type, (byte)flags);
         eventManager.dispatch(this, new HGAtomAddedEvent(result));
         return result;
     }

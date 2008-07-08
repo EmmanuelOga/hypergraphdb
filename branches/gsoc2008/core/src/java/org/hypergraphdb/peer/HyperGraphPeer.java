@@ -1,9 +1,13 @@
 package org.hypergraphdb.peer;
 
+import java.util.ArrayList;
+
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
+import org.hypergraphdb.HGSearchResult;
 import org.hypergraphdb.HGStore;
 import org.hypergraphdb.HyperGraph;
+import org.hypergraphdb.peer.jxta.DefaultPeerFilterEvaluator;
 import org.hypergraphdb.peer.log.Log;
 import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.peer.serializer.GenericSerializer;
@@ -11,9 +15,13 @@ import org.hypergraphdb.peer.workflow.CatchUpTaskClient;
 import org.hypergraphdb.peer.workflow.CatchUpTaskServer;
 import org.hypergraphdb.peer.workflow.GetInterestsTask;
 import org.hypergraphdb.peer.workflow.PublishInterestsTask;
+import org.hypergraphdb.peer.workflow.QueryTaskClient;
+import org.hypergraphdb.peer.workflow.QueryTaskServer;
 import org.hypergraphdb.peer.workflow.RememberTaskClient;
 import org.hypergraphdb.peer.workflow.RememberTaskServer;
+import org.hypergraphdb.query.AtomTypeCondition;
 import org.hypergraphdb.query.HGAtomPredicate;
+import org.hypergraphdb.query.HGQueryCondition;
 
 /**
  * @author Cipri Costa
@@ -86,6 +94,7 @@ public class HyperGraphPeer {
 		if (configuration.getHasServerInterface()){
 			peerInterface.registerTaskFactory(Performative.CallForProposal, HGDBOntology.REMEMBER_ACTION, new RememberTaskServer.RememberTaskServerFactory(this));
 			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.ATOM_INTEREST, new PublishInterestsTask.PublishInterestsFactory());
+			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.QUERY, new QueryTaskServer.QueryTaskFactory(this));
 		}else{
 			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.CATCHUP, new CatchUpTaskServer.CatchUpTaskServerFactory(this));
 		}
@@ -240,8 +249,49 @@ public class HyperGraphPeer {
 	{
 		this.log = log;
 	}
-	
-	
+
+	public void registerType(HGPersistentHandle handle, Class<?> clazz)
+	{
+		if(graph.getStore().getLink(handle) == null)
+		{
+			graph.getTypeSystem().defineTypeAtom(handle, clazz);
+		}
+		
+		if(cacheGraph.getStore().getLink(handle) == null)
+		{
+			cacheGraph.getTypeSystem().defineTypeAtom(handle, clazz);
+		}
+	}
+
+	public HGSearchResult<HGHandle> find(HGQueryCondition query)
+	{
+		return graph.find(query);
+	}
+
+	public HGPersistentHandle getPersistentHandle(HGHandle handle)
+	{
+		return graph.getPersistentHandle(handle);
+	}
+
+	public ArrayList<?> query(PeerFilterEvaluator evaluator, HGQueryCondition condition, boolean getObjects)
+	{
+		QueryTaskClient queryTask = new QueryTaskClient(peerInterface, cacheGraph, evaluator, condition, getObjects);
+		queryTask.run();
+		
+		return queryTask.getResult();
+	}
+
+	public Object query(PeerFilterEvaluator evaluator, HGHandle handle)
+	{
+		QueryTaskClient queryTask = new QueryTaskClient(peerInterface, cacheGraph, evaluator, handle);
+		queryTask.run();
+		
+		ArrayList<?> result = queryTask.getResult();
+
+		if (result.size() > 0) return result.get(0);
+		else return null;
+	}
+
 /*	private boolean shouldForward() {
 		// TODO add logic to see if the atom should be added here
 		return configuration.getCanForwardRequests();

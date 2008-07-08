@@ -5,6 +5,7 @@ import java.util.Iterator;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HGStore;
+import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.util.Pair;
 
 /**
@@ -37,5 +38,17 @@ public class SubgraphManager
 		}
 		
 		return handle;
+	}
+	
+	public static Object get(Subgraph subgraph, HyperGraph graph)
+	{
+		HGHandle handle = store(subgraph, graph.getStore());
+		
+		Object result = graph.get(handle);
+		
+		graph.remove(handle);
+		
+		return result;
+		
 	}
 }

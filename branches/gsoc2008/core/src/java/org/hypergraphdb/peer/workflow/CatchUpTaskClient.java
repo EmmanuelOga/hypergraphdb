@@ -10,6 +10,8 @@ import org.hypergraphdb.peer.PeerInterface;
 import org.hypergraphdb.peer.PeerRelatedActivity;
 import org.hypergraphdb.peer.PeerRelatedActivityFactory;
 import org.hypergraphdb.peer.protocol.Performative;
+import org.hypergraphdb.query.HGQueryCondition;
+
 import static org.hypergraphdb.peer.Structs.*;
 import static org.hypergraphdb.peer.Messages.*;
 import static org.hypergraphdb.peer.HGDBOntology.*;

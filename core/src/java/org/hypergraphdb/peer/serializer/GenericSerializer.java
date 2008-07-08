@@ -53,7 +53,9 @@ public class GenericSerializer implements HGSerializer
 	
 			HGHandle handle = SubgraphManager.store(result, tempDB.getStore());
 		
-			return tempDB.get(handle);
+			Object resultObj = tempDB.get(handle);
+			tempDB.remove(handle);
+			return resultObj;
 		}
 	}
 

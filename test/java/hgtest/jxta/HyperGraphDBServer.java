@@ -1,12 +1,16 @@
 package hgtest.jxta;
 
 import java.util.HashMap;
+import java.util.UUID;
 
+import org.hypergraphdb.HGPersistentHandle;
+import org.hypergraphdb.handle.UUIDPersistentHandle;
 import org.hypergraphdb.peer.DummyPolicy;
 import org.hypergraphdb.peer.HyperGraphPeer;
 import org.hypergraphdb.peer.PeerConfiguration;
 import org.hypergraphdb.peer.jxta.JXTAPeerConfiguration;
 import org.hypergraphdb.query.AnyAtomCondition;
+import org.hypergraphdb.query.AtomValueCondition;
 
 public class HyperGraphDBServer {
 	public static void main(String[] args){
@@ -32,6 +36,7 @@ public class HyperGraphDBServer {
 		
 		HyperGraphPeer server = new HyperGraphPeer(conf, new DummyPolicy(true));
 		
+		
 		server.start();
 		
 		try
@@ -39,6 +44,11 @@ public class HyperGraphDBServer {
 			Thread.sleep(3000);
 		} catch (InterruptedException e){}
 
+
+		HGPersistentHandle typeHandle = UUIDPersistentHandle.makeHandle("e917bda6-0932-4a66-9aeb-3fc84f04ce57");
+		server.registerType(typeHandle, User.class);
+		System.out.println("Types registered...");
+		
 		server.setAtomInterests(new AnyAtomCondition());
 		server.catchUp();
 	}

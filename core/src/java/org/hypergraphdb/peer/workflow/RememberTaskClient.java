@@ -112,15 +112,7 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 						SLOT_CURRENT_VERSION, entry.getTimestamp()
 					))
 		);
-		
-/*		Message msg = getPeerInterface().getMessageFactory().createMessage();
-		msg.setPerformative(Performative.CallForProposal);
-		msg.setAction(HGDBOntology.REMEMBER_ACTION);
-		msg.setTaskId(getTaskId());
-		
-		((Document)msg).put("last_version", entry.getLastTimestamp(getPeerInterface().getPeerNetwork().getPeerId(target)));
-		((Document)msg).put("curent_version", entry.getTimestamp());
-*/		
+
 		PeerRelatedActivity activity = (PeerRelatedActivity)activityFactory.createActivity();
 		activity.setTarget(target);
 		activity.setMessage(msg);

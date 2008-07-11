@@ -59,6 +59,12 @@ public class HyperGraphDBClient{
 		peer.updateNetworkProperties();
 		
 		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+	
+		for(int i=1;i<=30;i++)
+		{
+			HGHandle handle = peer.add(new User(i, "user" + i));
+	    	System.out.println("Client added handle: " + handle);
+		}
 		
 		//getting users from Server1
 		ArrayList<?> result;

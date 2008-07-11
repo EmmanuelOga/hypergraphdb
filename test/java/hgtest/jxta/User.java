@@ -32,5 +32,17 @@ public class User
 		this.name = name;
 	}
 	
+	public String toString()
+	{
+		return "User(id=" + userId + ", name=" + name + ")";
+	}
 	
+	public String getPart()
+	{
+		return Integer.toString(userId).substring(0, 1);
+	}
+	public void setPart(String part)
+	{
+		
+	}
 }

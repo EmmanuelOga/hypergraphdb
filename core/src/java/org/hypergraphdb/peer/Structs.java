@@ -70,7 +70,7 @@ public class Structs
 	 */
 	public static Object svalue(Object x)
 	{
-		return svalue(x, false, true);
+		return svalue(x, false, true, null);
 
 	}
 	/**
@@ -101,7 +101,7 @@ public class Structs
 		{
 			if (! (args[i] instanceof String) )
 				throw new IllegalArgumentException("An argument at the even position " + i + " is not a string.");
-			m.put((String)args[i], svalue(args[i+1], false, true));
+			m.put((String)args[i], svalue(args[i+1], false, true, null));
 		}
 		return m;
 	}
@@ -130,18 +130,27 @@ public class Structs
 		return new CustomSerializedValue(value);
 	}
 
-	private static Object svalue(Object x, boolean skipSpecialClasses, boolean addClassName)
+	private static Object svalue(Object x, boolean skipSpecialClasses, boolean addClassName, Class<?> propertyType)
 	{
 		// skipSpecialClasses is set to true when the content of the HGQueryCondition/HGAtomPredicate should be rendered
 		if ((!skipSpecialClasses) && (x instanceof HGQueryCondition || x instanceof HGAtomPredicate))
 			return hgQueryOrPredicate(x);
 		else if (x instanceof CustomSerializedValue) return x;
 		else if (x == null || 
-			x instanceof Number || 
 			x instanceof Boolean || 
 			x instanceof String ||
 			x instanceof Map)
 			return x;
+		else if (x instanceof Number)
+		{
+			//might be a property that gives no information on what needs to be created.
+			if ((propertyType != null) && (!x.getClass().isAssignableFrom(propertyType)))
+			{
+				String typeName = getNumberType(x.getClass());
+				if (typeName == null) return x;
+				else return list(getNumberType(x.getClass()), x);
+			}else return x;
+		}
 		else if (hgMappers.containsKey(x.getClass()))
 		{
 			//certain objects do not expose bean like interfaces but still need to be serialized.
@@ -162,7 +171,7 @@ public class Structs
 					ArrayList<Object> l = new ArrayList<Object>();
 					for(Object i:(List<?>)x)
 					{
-						l.add(svalue(i, false, addClassName));
+						l.add(svalue(i, false, addClassName, null));
 					}
 					return list(hgClassNames.get(x.getClass()), l);
 				}
@@ -174,7 +183,7 @@ public class Structs
 			ArrayList<Object> l = new ArrayList<Object>();
 			for(int i=0;i<Array.getLength(x);i++)
 			{
-				l.add(svalue(Array.get(x, i), false, addClassName));
+				l.add(svalue(Array.get(x, i), false, addClassName, null));
 			}
 			return l;
 		}
@@ -185,7 +194,7 @@ public class Structs
 			ArrayList<Object> l = new ArrayList<Object>();
 			for(Object i:(List<?>)x)
 			{
-				l.add(svalue(i, false, addClassName));
+				l.add(svalue(i, false, addClassName, null));
 			}
 			return l;
 		}
@@ -194,7 +203,7 @@ public class Structs
 			ArrayList<Object> l = new ArrayList<Object>();
 			for(Object i:(Collection<?>)x)
 			{
-				l.add(svalue(i, false, addClassName));
+				l.add(svalue(i, false, addClassName, null));
 			}
 			return l;
 		}
@@ -206,6 +215,23 @@ public class Structs
 			
 	}
 
+	private static String getNumberType(Class<?> numberClass)
+	{
+		if (numberClass.equals(int.class) || numberClass.equals(Integer.class)) return "int";
+		else if (numberClass.equals(short.class) || numberClass.equals(Short.class)) return "short";
+		else if (numberClass.equals(byte.class) || numberClass.equals(Byte.class)) return "byte";
+
+		return null;
+	}
+	private static Number getNumber(List<?> list)
+	{
+		String typeName = list.get(0).toString();
+		
+		if ("int".equals(typeName)) return ((Long)list.get(1)).intValue();
+		else if ("short".equals(typeName)) return ((Long)list.get(1)).shortValue();
+		else if ("byte".equals(typeName)) return ((Long)list.get(1)).byteValue();
+		else return null;
+	}
 	private static Map<String, Object> struct(Object bean, boolean addClassName)
 	{
 		if (bean == null)
@@ -214,7 +240,7 @@ public class Structs
 		for (PropertyDescriptor desc : BonesOfBeans.getAllPropertyDescriptors(bean.getClass()).values())
 		{
 			if (desc.getReadMethod() != null && desc.getWriteMethod() != null)
-				m.put(desc.getName(), svalue(BonesOfBeans.getProperty(bean, desc), false, addClassName));
+				m.put(desc.getName(), svalue(BonesOfBeans.getProperty(bean, desc), false, addClassName, desc.getPropertyType()));
 		}
 		return m;
 	}	
@@ -226,7 +252,7 @@ public class Structs
 	private static Map<String, Class<?>> hgInvertedClassNames = new HashMap<String, Class<?>>();
 	private static Map<Class<?>, Pair<StructsMapper, String>> hgMappers = new HashMap<Class<?>, Pair<StructsMapper, String>>();
 	private static Map<String, StructsMapper> hgInvertedMappers = new HashMap<String, StructsMapper>();
-	
+
 	static
 	{
 		hgClassNames.put(And.class, "and");
@@ -369,10 +395,14 @@ public class Structs
 				if (hgInvertedMappers.containsKey(className))
 				{
 					return hgInvertedMappers.get(className).getObject(data.get(1));
-				}else{
-					Class<?> clazz = getBeanClass(className);
-					if (clazz == null) return source;
-					else return createObject(data, clazz);
+				}else {
+					Number num = getNumber(data);
+					if (num != null) return num;
+					else{
+						Class<?> clazz = getBeanClass(className);
+						if (clazz == null) return source;
+						else return createObject(data, clazz);
+					}
 				}
 			}else return source;
 			
@@ -448,7 +478,7 @@ public class Structs
 			PropertyDescriptor descriptor = BonesOfBeans.getPropertyDescriptor(bean, entry.getKey());
 			Class propertyClass = descriptor.getPropertyType();
 
-			Object value = entry.getValue();
+			Object value = createObject(entry.getValue());
 			if (value instanceof Long) value = getValueForProperty(propertyClass, (Long)value);
 			else if ((value instanceof ArrayList) && (!propertyClass.isAssignableFrom(value.getClass())))
 					value = getValueForProperty(propertyClass, (ArrayList)value);
@@ -553,7 +583,7 @@ public class Structs
 				"Unknown HyperGraph query condition or atom predicate type '" + x.getClass().getName() + "'");
 		
 		//return list(name, svalue(x, true, true));
-		return (List<Object>) svalue(x, true, true);
+		return (List<Object>) svalue(x, true, true, null);
 	}
 	
 	public static List<Object> hgQuery(HGQueryCondition condition)

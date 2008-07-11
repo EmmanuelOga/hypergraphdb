@@ -10,7 +10,9 @@ import org.hypergraphdb.peer.HyperGraphPeer;
 import org.hypergraphdb.peer.PeerConfiguration;
 import org.hypergraphdb.peer.jxta.JXTAPeerConfiguration;
 import org.hypergraphdb.query.AnyAtomCondition;
+import org.hypergraphdb.query.AtomPartCondition;
 import org.hypergraphdb.query.AtomValueCondition;
+import org.hypergraphdb.query.ComparisonOperator;
 
 public class HyperGraphDBServer {
 	public static void main(String[] args){
@@ -49,7 +51,8 @@ public class HyperGraphDBServer {
 		server.registerType(typeHandle, User.class);
 		System.out.println("Types registered...");
 		
-		server.setAtomInterests(new AnyAtomCondition());
+		server.setAtomInterests(new AtomPartCondition(new String[] {"part"}, "5", ComparisonOperator.LT));
+//		server.setAtomInterests(new AnyAtomCondition());
 		server.catchUp();
 	}
 }

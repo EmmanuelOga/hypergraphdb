@@ -23,6 +23,7 @@ import org.hypergraphdb.peer.protocol.ObjectSerializer;
 import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.peer.serializer.JSONReader;
 import org.hypergraphdb.peer.serializer.JSONWriter;
+import org.hypergraphdb.query.AtomPartCondition;
 import org.hypergraphdb.query.AtomProjectionCondition;
 import org.hypergraphdb.query.ComparisonOperator;
 import org.hypergraphdb.query.HGAtomPredicate;
@@ -39,6 +40,8 @@ public class JSONTest
 {
 	public static void main(String[] args)
 	{	
+		testTypePerserved();
+		
 /*		doValue(struct("test", new Timestamp(100)));
 
 		
@@ -55,7 +58,18 @@ public class JSONTest
 		
 		//testMessages();
 	}
-	
+	private static void testTypePerserved()
+	{
+		AtomPartCondition cond = hg.part("a", 1, ComparisonOperator.EQ);
+		
+		Object result = doValue(cond);
+		
+		if (result.getClass().equals(AtomPartCondition.class))
+		{
+			System.out.println(((AtomPartCondition)result).getValue().getClass());
+		}
+		
+	}
 	private static void testCustomObjects()
 	{
 		doSerialize(struct("custom", object("test"), "standard", hg.arity(100)));
@@ -99,7 +113,7 @@ public class JSONTest
 
 	public static void testQueries()
 	{	
-		/*
+		
 		doValue(Nothing.Instance);
 		
 		//all
@@ -165,13 +179,13 @@ public class JSONTest
 		doValue(hg.or(hg.arity(100), hg.arity(1)));	
 		
 		doValue(new MapCondition(hg.all(), new LinkProjectionMapping(1)));
-		*/		
+			
 		doValue(hg.link(UUIDPersistentHandle.makeHandle(), UUIDPersistentHandle.makeHandle(), UUIDPersistentHandle.makeHandle()));
 
 		
 	}
 	
-	public static void doValue(Object x)
+	public static Object doValue(Object x)
 	{
 		JSONWriter writer = new JSONWriter(false);
 	
@@ -188,5 +202,6 @@ public class JSONTest
 	
 		System.out.println("read: " + result);
 		
+		return result;
 	}
 }

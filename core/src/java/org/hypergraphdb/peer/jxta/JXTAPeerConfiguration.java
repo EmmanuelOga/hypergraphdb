@@ -26,6 +26,7 @@ public class JXTAPeerConfiguration {
 	}
 	public JXTAPeerConfiguration(String peerId){
 		this.peerId = peerId;
+		needsRdvConn = true;
 	}
 
 	public String getPeerId() {

@@ -1,10 +1,7 @@
 package hgtest.jxta;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
@@ -16,7 +13,6 @@ import org.hypergraphdb.peer.PeerConfiguration;
 import org.hypergraphdb.peer.PeerFilterEvaluator;
 import org.hypergraphdb.peer.jxta.DefaultPeerFilterEvaluator;
 import org.hypergraphdb.peer.jxta.JXTAPeerConfiguration;
-import org.hypergraphdb.peer.workflow.QueryTaskClient;
 
 
 public class HyperGraphDBClient{
@@ -33,7 +29,7 @@ public class HyperGraphDBClient{
 
 		System.out.println("Starting a HGDB client ...");
 
-		JXTAPeerConfiguration jxtaConf = new JXTAPeerConfiguration("");
+		JXTAPeerConfiguration jxtaConf = new JXTAPeerConfiguration();
 		jxtaConf.setPeerName(peerName);
 		jxtaConf.setPeerGroupName(groupName);
 		jxtaConf.setAdvTimeToLive(1*5*1000);//set to 5 minutes
@@ -43,6 +39,7 @@ public class HyperGraphDBClient{
 				false, true, "org.hypergraphdb.peer.jxta.JXTAPeerInterface", jxtaConf,
 				"./DBs/" + peerName + "CacheDB");
 		
+		conf.setWaitForRemotePipe(true);
 		HyperGraphPeer peer = new HyperGraphPeer(conf, new DummyPolicy(false));
 		
 		peer.start();

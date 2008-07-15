@@ -17,4 +17,6 @@ public interface PeerNetwork
 	HGAtomPredicate getAtomInterests(Object peer);
 	
 	Object getPeerId(Object peer);
+	
+	void waitForRemotePipe();
 }

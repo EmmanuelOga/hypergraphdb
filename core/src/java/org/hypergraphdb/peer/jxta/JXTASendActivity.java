@@ -50,7 +50,7 @@ public class JXTASendActivity extends PeerRelatedActivity
 			
 			System.out.println("Sending " + msg + " to adv: " + targetPipeAdv.getName());
 			
- 			JxtaSocket socket = new JxtaSocket(peerGroup, peerId, targetPipeAdv, 5000, true);
+ 			JxtaSocket socket = new JxtaSocket(peerGroup, peerId, targetPipeAdv, 50000, true);
 
 	        OutputStream out = socket.getOutputStream();
 

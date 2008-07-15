@@ -15,6 +15,7 @@ import net.jxta.discovery.DiscoveryEvent;
 import net.jxta.discovery.DiscoveryListener;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
+import net.jxta.exception.PeerGroupException;
 import net.jxta.id.IDFactory;
 import net.jxta.membership.Authenticator;
 import net.jxta.peergroup.PeerGroup;
@@ -67,6 +68,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	    	peerManager.startNetwork();
 	    	
 	    	//wait for rendezvous if needed
+	    	System.out.println("Waiting for rendezvous: " + config.getNeedsRdvConn());
 	    	if (config.getNeedsRdvConn())
 	    	{
 	    		boolean rdvFound = false;
@@ -105,8 +107,6 @@ public class DefaultJXTANetwork implements JXTANetwork{
 		return (netPeerGroup != null);
 	}
 	
-
-
 	private void joinCustomGroup(JXTAPeerConfiguration config) throws Exception
 	{
 		System.out.println("Joining group " + config.getPeerGroupName());
@@ -127,6 +127,37 @@ public class DefaultJXTANetwork implements JXTANetwork{
 					hgdbGroup = netPeerGroup.newGroup(adv);				
 				}
 			}
+		}
+
+		if (hgdbGroup == null)
+		{
+			DiscoveryListener listener = new DiscoveryListener()
+			{
+				public void discoveryEvent(DiscoveryEvent evnt)
+				{
+					Advertisement adv = evnt.getSearchResults().nextElement();
+					
+					System.out.println("Remote group: " + adv);
+					System.out.println("Found remote group advertisement... ");
+					try
+					{
+						hgdbGroup = netPeerGroup.newGroup(adv);
+					} catch (PeerGroupException e)
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}		
+				}
+			};
+			
+			netPeerGroup.getDiscoveryService().getRemoteAdvertisements(null, DiscoveryService.GROUP, null, null, 100, listener);
+			
+			try
+			{
+				Thread.sleep(3000);
+			}catch(InterruptedException ex){}
+	
+			netPeerGroup.getDiscoveryService().removeDiscoveryListener(listener);
 		}
 		
 		if (hgdbGroup == null)
@@ -223,14 +254,16 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	        DiscoveryService discoveryService = hgdbGroup.getDiscoveryService();
 
 	        try {
-	            // Add ourselves as a DiscoveryListener for DiscoveryResponse events
+	        	Enumeration<Advertisement> localAdvs = discoveryService.getLocalAdvertisements(DiscoveryService.ADV, null, null);
+	        	loadAdvs(localAdvs, "local");
+	        	
+	        	// Add ourselves as a DiscoveryListener for DiscoveryResponse events
 	        	discoveryService.addDiscoveryListener(this);
 	        	
 	        	while (true)
 	        	{
 	        		//System.out.println("Getting remote advertisements");
 		        	discoveryService.getRemoteAdvertisements(null,  DiscoveryService.ADV,  null, null, 100, null);
-
 	                try {
 	                    Thread.sleep(waittime);
 	                } catch (Exception e) {
@@ -252,13 +285,20 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	        // let's get the responding peer's advertisement
 	        String peerName = ev.getSource().toString();
 	        	        
-/*	        System.out.println(" [  Got a Discovery Response [" + res.getResponseCount() + " elements]  from peer : " + peerName + "  ]");
-	        PeerAdvertisement peerAdv = res.getPeerAdvertisement();
-*/	        
+	        System.out.println(" [  Got a Discovery Response [" + res.getResponseCount() + " elements]  from peer : " + peerName + "  ]");
+	        /*PeerAdvertisement peerAdv = res.getPeerAdvertisement();
+	       */	        
 	        //not interested in selfs advertisements
-	        Advertisement adv;
+
 	        Enumeration<Advertisement> advs = res.getAdvertisements();
 
+	        loadAdvs(advs, peerName);
+		}
+		
+		private void loadAdvs(Enumeration<Advertisement> advs, String peerName)
+		{
+	        Advertisement adv;
+	        
 	        if (advs != null) {
 	            while (advs.hasMoreElements()) {
 	                adv = (Advertisement) advs.nextElement();
@@ -279,10 +319,14 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	                }
 	            }
 	        }
+
 		}
 		
 	}
-	
+	public boolean hasRemotePipes()
+	{
+		return !peerAdvs.isEmpty();
+	}
 	private void dumpNetworkConfig(NetworkConfigurator configurator)
 	{
 		System.out.println("Configuration: ");
@@ -315,5 +359,21 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	public Object getPeerId(Object peer)
 	{
 		return peerAdvIds.get(peer);
+	}
+
+	public void waitForRemotePipe()
+	{
+		while (peerAdvs.isEmpty())
+		{
+			System.out.println("DefaultJXTANetwork: waiting for remote pipe advertisement");
+			try
+			{
+				Thread.sleep(1000);
+			} catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 }

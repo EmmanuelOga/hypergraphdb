@@ -31,7 +31,7 @@ public class HyperGraphDBServer {
 		jxtaConf.setPeerName(peerName);
 		jxtaConf.setPeerGroupName(groupName);
 		jxtaConf.setAdvTimeToLive(1*5*1000);
-
+		
 		PeerConfiguration conf = new PeerConfiguration(true, "./DBs/" + peerName + "DB", 
 				true, false, "org.hypergraphdb.peer.jxta.JXTAPeerInterface", jxtaConf, 
 				"./DBs/" + peerName + "CacheDb");

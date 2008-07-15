@@ -53,4 +53,5 @@ public interface PeerInterface extends Runnable{
 
 	void setAtomInterests(HGAtomPredicate pred);
 	HGAtomPredicate getAtomInterests();
+
 }

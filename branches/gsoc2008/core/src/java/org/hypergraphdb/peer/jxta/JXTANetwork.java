@@ -16,4 +16,5 @@ public interface JXTANetwork extends PeerNetwork
 	void addOwnPipe(PipeID pipeId);
 	Set<Advertisement> getAdvertisements();
 	Advertisement getPipeAdv();
+	
 }

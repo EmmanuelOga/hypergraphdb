@@ -21,6 +21,7 @@ public class PeerConfiguration {
 	private String peerInterfaceType;
 	private Object peerInterfaceConfiguration;
 	
+	private boolean waitForRemotePipe;
 	
 	public PeerConfiguration(boolean hasLocalHGDB, String databaseName, 
 			boolean hasServerInterface, boolean canForwardRequests, 
@@ -37,6 +38,8 @@ public class PeerConfiguration {
 		this.peerInterfaceConfiguration = peerInterfaceConfiguration;
 		
 		this.cacheDatabaseName = cacheDatabaseName;
+		
+		this.waitForRemotePipe = false;
 	}
 
 	
@@ -104,5 +107,18 @@ public class PeerConfiguration {
 	{
 		this.cacheDatabaseName = cacheDatabaseName;
 	}
+
+
+	public boolean getWaitForRemotePipe()
+	{
+		return waitForRemotePipe;
+	}
+
+
+	public void setWaitForRemotePipe(boolean waitForRemotePipe)
+	{
+		this.waitForRemotePipe = waitForRemotePipe;
+	}
+
 
 }

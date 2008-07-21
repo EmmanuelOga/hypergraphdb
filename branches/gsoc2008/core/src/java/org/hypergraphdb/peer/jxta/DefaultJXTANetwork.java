@@ -1,6 +1,7 @@
 package org.hypergraphdb.peer.jxta;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -20,8 +21,11 @@ import net.jxta.document.Advertisement;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.MessageTransport;
 import net.jxta.exception.PeerGroupException;
+import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.endpoint.relay.RelayClient;
+import net.jxta.impl.rendezvous.RendezVousServiceInterface;
+import net.jxta.impl.rendezvous.rpv.PeerView;
 import net.jxta.membership.Authenticator;
 import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
@@ -35,6 +39,7 @@ import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
 import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
+import net.jxta.rendezvous.RendezVousService;
 
 import org.hypergraphdb.query.HGAtomPredicate;
 import org.hypergraphdb.util.Pair;
@@ -102,10 +107,14 @@ public class DefaultJXTANetwork implements JXTANetwork{
     		while (!rdvFound)
     		{
 	    		System.out.println("start waiting for rendezvous...");
-	    		rdvFound = peerManager.waitForRendezvousConnection(3000);
+	    		rdvFound = waitForRendezVous(hgdbGroup);//peerManager.waitForRendezvousConnection(0);
     			
-	    		if (rdvFound) System.out.println("Rendevous found!");
-	    		else System.out.println("No rendevous found...");
+    			try
+				{
+					Thread.sleep(3000);
+				} catch (InterruptedException e)
+				{
+				}
     		}
     	}
 
@@ -134,36 +143,92 @@ public class DefaultJXTANetwork implements JXTANetwork{
     		}
     	}
 	    	
-	   this.advTimetoLive = config.getAdvTimeToLive();
+    	this.advTimetoLive = config.getAdvTimeToLive();
 	    			
 		System.out.println("Finished initializing");
 
 		return (netPeerGroup != null);
 	}
-	
+
+	private boolean waitForRendezVous(PeerGroup group)
+	{
+		boolean rdvFound = false;
+		
+		RendezVousService rdv = group.getRendezVousService();
+		Enumeration<ID> rdvs = rdv.getConnectedRendezVous();
+
+		if (rdvs.hasMoreElements()) 
+		{
+			rdvFound = true;
+			System.out.println("Rendezvous Connections :");
+			RendezVousServiceInterface stdRdv;
+			net.jxta.impl.rendezvous.StdRendezVousService stdRdvProvider = null;
+			while (rdvs.hasMoreElements()) 
+	    	{
+	        	try 
+	        	{
+	            	ID connection = (PeerID) rdvs.nextElement();
+	        
+	            	if (rdv instanceof net.jxta.impl.rendezvous.RendezVousServiceInterface) 
+	            	{
+	                    stdRdv = (RendezVousServiceInterface) rdv;
+	                    PeerView rpv = null;
+
+	                    System.out.print("\t" + connection);
+		                if (null != stdRdv) 
+		                {
+		                    net.jxta.impl.rendezvous.RendezVousServiceProvider provider = stdRdv.getRendezvousProvider();
+	                    
+		                    if (provider instanceof net.jxta.impl.rendezvous.StdRendezVousService) 
+		                    {
+		                    	stdRdvProvider = (net.jxta.impl.rendezvous.StdRendezVousService) provider;
+		                    }
+	                    
+		                    rpv = stdRdv.getPeerView();
+		                }
+
+		                if (null != stdRdvProvider) 
+		                {
+		                	System.out.println("\t" + stdRdvProvider.getPeerConnection(connection));
+	                    } else {
+	                    	String peerName = idToName(group.getDiscoveryService(), connection);
+	                        System.out.println("\t" + peerName);
+	                    }
+	            	}
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+	        }
+	    }
+		
+		return rdvFound;
+	}
+		
 	private boolean waitForRelay()
 	{
 		boolean hasRelay = false;
 		
-        EndpointService endpoint = netPeerGroup.getEndpointService();
+        EndpointService endpoint = hgdbGroup.getEndpointService();
 
         Iterator it = endpoint.getAllMessageTransports();
 
         while (it.hasNext()) {
             MessageTransport mt = (MessageTransport) it.next();
 
-            try {
-                if (mt instanceof RelayClient) {
+            try 
+            {
+                if (mt instanceof RelayClient) 
+                {
                     RelayClient er = (RelayClient) mt;
-                    System.out.println("Active Relay Servers for '" + mt.getProtocolName() + "' : ");
-
+ 
                     List allRelays = er.getActiveRelays(null);
 
-                    if ((null == allRelays) || allRelays.isEmpty()) {
-                    	System.out.println("\t(none)");
-                    } else {
+                    if ((null != allRelays) && !allRelays.isEmpty()) 
+                    {
                     	hasRelay = true;
-                        for (Object allRelay : allRelays) {
+                        System.out.println("Active Relay Servers : ");
+                        for (Object allRelay : allRelays) 
+                        {
                             AccessPointAdvertisement ap = (AccessPointAdvertisement) allRelay;
                             System.out.println("\t" + getPeerName(mt, ap) + " [" + ap.getPeerID() + "]");
                         }
@@ -178,35 +243,49 @@ public class DefaultJXTANetwork implements JXTANetwork{
         return hasRelay;
 	}
 
+	
     private String getPeerName(MessageTransport mt, AccessPointAdvertisement adv) {
 
         EndpointService endpoint = mt.getEndpointService();
         DiscoveryService discovery = endpoint.getGroup().getDiscoveryService();
 
         PeerID id = adv.getPeerID();
-        String res = id.toString();
 
-        Enumeration advs;
-
-        try {
-            advs = discovery.getLocalAdvertisements(DiscoveryService.PEER, "PID", id.toString());
-        } catch (Exception ez) {
-            return res;
-        }
-
-        while (advs.hasMoreElements()) {
-            try {
-                PeerAdvertisement padv = (PeerAdvertisement) advs.nextElement();
-                return padv.getName();
-            } catch (Exception ez) {
-                System.out.println("failed with " + ez);
-
-            }
-        }
-
-        return res;
+        return idToName(discovery, id);
     }
 
+    private String idToName(DiscoveryService discovery, ID id) {
+        
+        String idstring = id.toString();
+        String name = null;
+        
+        try 
+        {
+            Enumeration<Advertisement> res;
+            
+            if (id instanceof PeerID) 
+            {
+                res = discovery.getLocalAdvertisements(DiscoveryService.PEER, "PID", idstring);
+                
+                if (res.hasMoreElements()) 
+                {
+                    name = ((PeerAdvertisement) res.nextElement()).getName();
+                }
+            } else if (id instanceof PeerGroupID) {
+                res = discovery.getLocalAdvertisements(DiscoveryService.GROUP, "GID", idstring);
+                
+                if (res.hasMoreElements()) 
+                {
+                    name = ((PeerGroupAdvertisement) res.nextElement()).getName();
+                }
+            }
+        } catch (IOException failed) {
+        	failed.printStackTrace();	
+        }
+                
+        return name;
+    }
+    
 	private void joinCustomGroup(JXTAPeerConfiguration config) throws Exception
 	{
 		System.out.println("Joining group " + config.getPeerGroupName());
@@ -276,9 +355,6 @@ public class DefaultJXTANetwork implements JXTANetwork{
 			System.out.println("Group published successfully.");
 		}
 		
-		System.out.println("Relay id: " + hgdbGroup.relayProtoClassID);
-		System.out.println("Group adv:" + hgdbGroup.getImplAdvertisement());
-		System.out.println("NetGroup adv:" + netPeerGroup.getImplAdvertisement());
 		System.out.println("Joining group...");
 		AuthenticationCredential cred = new AuthenticationCredential(hgdbGroup, null, null);
 		Authenticator auth = hgdbGroup.getMembershipService().apply(cred);
@@ -416,7 +492,8 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	                		{
 		                		peerAdvs.put(adv, null);
 		                		peerAdvIds.put(adv, peerName);
-		                		System.out.println("New Pipe from " + peerName + " (" + pipeId + ")");	                			
+		                		System.out.println("New Pipe from " + peerName + " (" + pipeId + ")");	
+		                		System.out.println(adv);
 	                		}
 	                		
 	                	}

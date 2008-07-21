@@ -6,7 +6,9 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,14 +17,19 @@ import net.jxta.discovery.DiscoveryEvent;
 import net.jxta.discovery.DiscoveryListener;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
+import net.jxta.endpoint.EndpointService;
+import net.jxta.endpoint.MessageTransport;
 import net.jxta.exception.PeerGroupException;
 import net.jxta.id.IDFactory;
+import net.jxta.impl.endpoint.relay.RelayClient;
 import net.jxta.membership.Authenticator;
+import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.pipe.PipeID;
 import net.jxta.platform.NetworkConfigurator;
 import net.jxta.platform.NetworkManager;
+import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.DiscoveryResponseMsg;
 import net.jxta.protocol.ModuleImplAdvertisement;
 import net.jxta.protocol.PeerAdvertisement;
@@ -56,40 +63,25 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	public boolean init(JXTAPeerConfiguration config)
 	{
 		
-	    try {
+		//Start network
+	    try 
+	    {
 	    	System.out.println("Initializing instance " + config.getPeerName() + " ...");   	
 	    	URI configURI = new File(new File(".jxta"), config.getPeerName()).toURI();
 	    	
 	    	System.out.println("Using config file: " + configURI.toString());
-	    	peerManager = new NetworkManager(NetworkManager.ConfigMode.ADHOC, config.getPeerName(), configURI);
+	    	peerManager = new NetworkManager(NetworkManager.ConfigMode.EDGE, config.getPeerName(), configURI);
 	    	
 	    	dumpNetworkConfig(peerManager.getConfigurator());
 	    	
 	    	peerManager.startNetwork();
-	    	
-	    	//wait for rendezvous if needed
-	    	System.out.println("Waiting for rendezvous: " + config.getNeedsRdvConn());
-	    	if (config.getNeedsRdvConn())
-	    	{
-	    		boolean rdvFound = false;
-	    		while (!rdvFound)
-	    		{
-		    		System.out.println("start waiting for rendezvous...");
-		    		rdvFound = peerManager.waitForRendezvousConnection(3000);
-	    			
-		    		if (rdvFound) System.out.println("Rendevous found!");
-		    		else System.out.println("No rendevous found...");
-	    		}
-	    	}
-
-	    	this.advTimetoLive = config.getAdvTimeToLive();
-	    	
 	    } catch (Exception e) {
 	    	e.printStackTrace();
 	    }
 	    
-	    if (peerManager != null){
-	    	
+	    //Join custom group
+	    if (peerManager != null)
+	    {
 	    	netPeerGroup = peerManager.getNetPeerGroup();
 	    	try
 			{
@@ -99,19 +91,127 @@ public class DefaultJXTANetwork implements JXTANetwork{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	    	
 	    }
-		
+	    
+	    
+	    //wait for rendezvous if needed
+	    System.out.println("Waiting for rendezvous: " + config.getNeedsRdvConn());
+	    if (config.getNeedsRdvConn())
+    	{
+    		boolean rdvFound = false;
+    		while (!rdvFound)
+    		{
+	    		System.out.println("start waiting for rendezvous...");
+	    		rdvFound = peerManager.waitForRendezvousConnection(3000);
+    			
+	    		if (rdvFound) System.out.println("Rendevous found!");
+	    		else System.out.println("No rendevous found...");
+    		}
+    	}
+
+	    //wait for realy
+	    System.out.println("Waiting for realy: " + config.getNeedsRelayConn());
+    	if (config.getNeedsRelayConn())
+    	{
+    		boolean relayFound = false;
+    		while (!relayFound)
+    		{
+    			System.out.println("start waiting for relays...");
+    			relayFound = waitForRelay();
+    			
+	    		if (relayFound) System.out.println("Relay found!");
+	    		else 
+	    		{
+	    			System.out.println("No relays found...");
+	    			
+	    			try
+					{
+						Thread.sleep(3000);
+					} catch (InterruptedException e)
+					{
+					}
+	    		}
+    		}
+    	}
+	    	
+	   this.advTimetoLive = config.getAdvTimeToLive();
+	    			
 		System.out.println("Finished initializing");
 
 		return (netPeerGroup != null);
 	}
 	
+	private boolean waitForRelay()
+	{
+		boolean hasRelay = false;
+		
+        EndpointService endpoint = netPeerGroup.getEndpointService();
+
+        Iterator it = endpoint.getAllMessageTransports();
+
+        while (it.hasNext()) {
+            MessageTransport mt = (MessageTransport) it.next();
+
+            try {
+                if (mt instanceof RelayClient) {
+                    RelayClient er = (RelayClient) mt;
+                    System.out.println("Active Relay Servers for '" + mt.getProtocolName() + "' : ");
+
+                    List allRelays = er.getActiveRelays(null);
+
+                    if ((null == allRelays) || allRelays.isEmpty()) {
+                    	System.out.println("\t(none)");
+                    } else {
+                    	hasRelay = true;
+                        for (Object allRelay : allRelays) {
+                            AccessPointAdvertisement ap = (AccessPointAdvertisement) allRelay;
+                            System.out.println("\t" + getPeerName(mt, ap) + " [" + ap.getPeerID() + "]");
+                        }
+                    }
+                }
+            } catch (Exception ex) 
+            {
+                ex.printStackTrace();
+            }
+        }
+        
+        return hasRelay;
+	}
+
+    private String getPeerName(MessageTransport mt, AccessPointAdvertisement adv) {
+
+        EndpointService endpoint = mt.getEndpointService();
+        DiscoveryService discovery = endpoint.getGroup().getDiscoveryService();
+
+        PeerID id = adv.getPeerID();
+        String res = id.toString();
+
+        Enumeration advs;
+
+        try {
+            advs = discovery.getLocalAdvertisements(DiscoveryService.PEER, "PID", id.toString());
+        } catch (Exception ez) {
+            return res;
+        }
+
+        while (advs.hasMoreElements()) {
+            try {
+                PeerAdvertisement padv = (PeerAdvertisement) advs.nextElement();
+                return padv.getName();
+            } catch (Exception ez) {
+                System.out.println("failed with " + ez);
+
+            }
+        }
+
+        return res;
+    }
+
 	private void joinCustomGroup(JXTAPeerConfiguration config) throws Exception
 	{
 		System.out.println("Joining group " + config.getPeerGroupName());
 		PeerGroupID groupId = IDFactory.newPeerGroupID(netPeerGroup.getPeerGroupID(), config.getPeerGroupName().getBytes());
-				
+		
 		//try to find it, if not, publish it
 		Enumeration<Advertisement> advs;
 		
@@ -165,7 +265,8 @@ public class DefaultJXTANetwork implements JXTANetwork{
 			System.out.println("Can not find local group advertisements. Creating a new group ... ");
 
 			ModuleImplAdvertisement implAdv = netPeerGroup.getAllPurposePeerGroupImplAdvertisement();
-			hgdbGroup = netPeerGroup.newGroup(groupId, implAdv, config.getPeerGroupName(), ""); 
+			hgdbGroup = netPeerGroup.newGroup(groupId, implAdv, config.getPeerGroupName(), "");
+			
 
 			System.out.println("publishing group...");
 			
@@ -175,6 +276,9 @@ public class DefaultJXTANetwork implements JXTANetwork{
 			System.out.println("Group published successfully.");
 		}
 		
+		System.out.println("Relay id: " + hgdbGroup.relayProtoClassID);
+		System.out.println("Group adv:" + hgdbGroup.getImplAdvertisement());
+		System.out.println("NetGroup adv:" + netPeerGroup.getImplAdvertisement());
 		System.out.println("Joining group...");
 		AuthenticationCredential cred = new AuthenticationCredential(hgdbGroup, null, null);
 		Authenticator auth = hgdbGroup.getMembershipService().apply(cred);
@@ -285,7 +389,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	        // let's get the responding peer's advertisement
 	        String peerName = ev.getSource().toString();
 	        	        
-	        System.out.println(" [  Got a Discovery Response [" + res.getResponseCount() + " elements]  from peer : " + peerName + "  ]");
+	        //System.out.println(" [  Got a Discovery Response [" + res.getResponseCount() + " elements]  from peer : " + peerName + "  ]");
 	        /*PeerAdvertisement peerAdv = res.getPeerAdvertisement();
 	       */	        
 	        //not interested in selfs advertisements

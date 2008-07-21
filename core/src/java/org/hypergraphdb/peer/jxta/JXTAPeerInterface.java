@@ -66,24 +66,7 @@ public class JXTAPeerInterface implements PeerInterface/*, DiscoveryListener*/{
 		{
 			result = jxtaNetwork.init(this.config);
 		}
-		
-		if (result)
-		{
-			try
-			{
-				result = false;
-				result = true;
-			} catch (IllegalArgumentException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SecurityException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
+				
 		if (result)
 		{
 			PipeID pipeID = IDFactory.newPipeID(jxtaNetwork.getPeerGroup().getPeerGroupID());

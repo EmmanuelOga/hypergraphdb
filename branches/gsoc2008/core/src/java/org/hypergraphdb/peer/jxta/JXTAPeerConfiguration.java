@@ -11,6 +11,7 @@ import java.util.HashMap;
 public class JXTAPeerConfiguration {
 
 	private boolean needsRdvConn;
+	private boolean needsRelayConn;
 	
 	private String peerName;
 	private String peerId;
@@ -87,5 +88,13 @@ public class JXTAPeerConfiguration {
 	{
 		this.advTimeToLive = advTimeToLive;
 	}
-	
+	public boolean getNeedsRelayConn()
+	{
+		return needsRelayConn;
+	}
+	public void setNeedsRelayConn(boolean needsRelayConn)
+	{
+		this.needsRelayConn = needsRelayConn;
+	}
+
 }

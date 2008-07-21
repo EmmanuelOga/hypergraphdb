@@ -33,7 +33,8 @@ public class HyperGraphDBClient{
 		jxtaConf.setPeerName(peerName);
 		jxtaConf.setPeerGroupName(groupName);
 		jxtaConf.setAdvTimeToLive(1*5*1000);//set to 5 minutes
-
+		jxtaConf.setNeedsRdvConn(true);
+		jxtaConf.setNeedsRelayConn(true);
 		
 		PeerConfiguration conf = new PeerConfiguration(true, "", 
 				false, true, "org.hypergraphdb.peer.jxta.JXTAPeerInterface", jxtaConf,

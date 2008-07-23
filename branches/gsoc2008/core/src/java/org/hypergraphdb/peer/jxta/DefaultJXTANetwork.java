@@ -1,5 +1,7 @@
 package org.hypergraphdb.peer.jxta;
 
+import static org.hypergraphdb.peer.Structs.getPart;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -65,22 +67,29 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	
 	private int advTimetoLive;
 	
-	public boolean init(JXTAPeerConfiguration config)
+	public boolean init(Object config)
 	{
+		boolean result = true;
 		
 		//Start network
 	    try 
 	    {
-	    	System.out.println("Initializing instance " + config.getPeerName() + " ...");   	
-	    	URI configURI = new File(new File(".jxta"), config.getPeerName()).toURI();
+	    	String peerName = (String)getPart(config, JXTAConfig.PEER_NAME);
+	    	String mode = (String)getPart(config, JXTAConfig.MODE);
+	    	String jxtaDir = (String)getPart(config, JXTAConfig.JXTA_DIR);
+	    	
+	    	System.out.println("Initializing instance " + peerName + " ...");   	
+	    	URI configURI = new File(jxtaDir).toURI();
 	    	
 	    	System.out.println("Using config file: " + configURI.toString());
-	    	peerManager = new NetworkManager(NetworkManager.ConfigMode.EDGE, config.getPeerName(), configURI);
+	    
+	    	peerManager = new NetworkManager(NetworkManager.ConfigMode.valueOf(NetworkManager.ConfigMode.class, mode), peerName, configURI);
 	    	
 	    	dumpNetworkConfig(peerManager.getConfigurator());
 	    	
 	    	peerManager.startNetwork();
 	    } catch (Exception e) {
+	    	result = false;
 	    	e.printStackTrace();
 	    }
 	    
@@ -96,31 +105,30 @@ public class DefaultJXTANetwork implements JXTANetwork{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+	    }else{
+	    	result = false;
+	    	System.out.println("PeerManager can not be instantiated");
 	    }
 	    
-	    
 	    //wait for rendezvous if needed
-	    System.out.println("Waiting for rendezvous: " + config.getNeedsRdvConn());
-	    if (config.getNeedsRdvConn())
+	    Boolean needsRendezVous = (Boolean)getPart(config, JXTAConfig.NEEDS_RENDEZ_VOUS);
+	    System.out.println("Waiting for rendezvous: " + needsRendezVous);
+	    if (needsRendezVous)
     	{
     		boolean rdvFound = false;
     		while (!rdvFound)
     		{
 	    		System.out.println("start waiting for rendezvous...");
-	    		rdvFound = waitForRendezVous(hgdbGroup);//peerManager.waitForRendezvousConnection(0);
+	    		rdvFound = waitForRendezVous(hgdbGroup);
     			
-    			try
-				{
-					Thread.sleep(3000);
-				} catch (InterruptedException e)
-				{
-				}
+    			try{Thread.sleep(3000);} catch (InterruptedException e){}
     		}
     	}
 
 	    //wait for realy
-	    System.out.println("Waiting for realy: " + config.getNeedsRelayConn());
-    	if (config.getNeedsRelayConn())
+	    Boolean needsRelay = (Boolean)getPart(config, JXTAConfig.NEEDS_RELAY);
+	    System.out.println("Waiting for realy: " + needsRelay);
+    	if (needsRelay)
     	{
     		boolean relayFound = false;
     		while (!relayFound)
@@ -143,7 +151,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
     		}
     	}
 	    	
-    	this.advTimetoLive = config.getAdvTimeToLive();
+    	this.advTimetoLive = ((Long)getPart(config, JXTAConfig.ADVERTISEMENT_TTL)).intValue();
 	    			
 		System.out.println("Finished initializing");
 
@@ -243,7 +251,6 @@ public class DefaultJXTANetwork implements JXTANetwork{
         return hasRelay;
 	}
 
-	
     private String getPeerName(MessageTransport mt, AccessPointAdvertisement adv) {
 
         EndpointService endpoint = mt.getEndpointService();
@@ -286,10 +293,12 @@ public class DefaultJXTANetwork implements JXTANetwork{
         return name;
     }
     
-	private void joinCustomGroup(JXTAPeerConfiguration config) throws Exception
+	private void joinCustomGroup(Object config) throws Exception
 	{
-		System.out.println("Joining group " + config.getPeerGroupName());
-		PeerGroupID groupId = IDFactory.newPeerGroupID(netPeerGroup.getPeerGroupID(), config.getPeerGroupName().getBytes());
+		String groupName = (String)getPart(config, JXTAConfig.GROUP_NAME);
+		
+		System.out.println("Joining group " + groupName);
+		PeerGroupID groupId = IDFactory.newPeerGroupID(netPeerGroup.getPeerGroupID(), groupName.getBytes());
 		
 		//try to find it, if not, publish it
 		Enumeration<Advertisement> advs;
@@ -344,7 +353,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
 			System.out.println("Can not find local group advertisements. Creating a new group ... ");
 
 			ModuleImplAdvertisement implAdv = netPeerGroup.getAllPurposePeerGroupImplAdvertisement();
-			hgdbGroup = netPeerGroup.newGroup(groupId, implAdv, config.getPeerGroupName(), "");
+			hgdbGroup = netPeerGroup.newGroup(groupId, implAdv, groupName, "");
 			
 
 			System.out.println("publishing group...");

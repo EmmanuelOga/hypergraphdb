@@ -1,5 +1,11 @@
 package org.hypergraphdb.peer;
 
+import static org.hypergraphdb.peer.Structs.getPart;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.hypergraphdb.HGHandle;
@@ -11,6 +17,7 @@ import org.hypergraphdb.peer.jxta.DefaultPeerFilterEvaluator;
 import org.hypergraphdb.peer.log.Log;
 import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.peer.serializer.GenericSerializer;
+import org.hypergraphdb.peer.serializer.JSONReader;
 import org.hypergraphdb.peer.workflow.CatchUpTaskClient;
 import org.hypergraphdb.peer.workflow.CatchUpTaskServer;
 import org.hypergraphdb.peer.workflow.GetInterestsTask;
@@ -33,7 +40,7 @@ import org.hypergraphdb.query.HGQueryCondition;
  */
 public class HyperGraphPeer {
 	
-	private PeerConfiguration configuration;
+	private Object configuration;
 	
 	/**
 	 * object used for communicating with other peers
@@ -45,7 +52,7 @@ public class HyperGraphPeer {
 	 */
 	private HyperGraph graph = null;
 	/**
-	 * this is used for serializing object that need to be sent to other peers
+	 * this is used for serializing object that need to be sent to other peers (TODO: rename to tempDB)
 	 */
 	private HyperGraph cacheGraph = null;
 	
@@ -54,63 +61,124 @@ public class HyperGraphPeer {
 	private PeerPolicy policy;
 	
 	private Log log;
-	/**
-	 * @param configuration
-	 */
-	public HyperGraphPeer(PeerConfiguration configuration, PeerPolicy policy){
+	
+	public HyperGraphPeer(PeerPolicy policy)
+	{
+		this.policy = policy;
+	}
+	
+	public HyperGraphPeer(Object configuration, PeerPolicy policy)
+	{
 		this.configuration = configuration;
 		this.policy = policy;
 	}
 	
-	public boolean start(){
-		
-		//create the local database
-		if (configuration.getHasLocalHGDB()){
-			graph = new HyperGraph(configuration.getDatabaseName());
-		}
-		
-		//create cache database - this should eventually be an actual cache, not just another database
-		cacheGraph = new HyperGraph(configuration.getCacheDatabaseName()); 
-		
-		GenericSerializer.setTempDB(cacheGraph);
-		
-		if (configuration.getCanForwardRequests() || configuration.getHasServerInterface()){
-			try{
-				peerInterface = (PeerInterface)Class.forName(configuration.getPeerInterfaceType()).getConstructor().newInstance();
-			}catch(Exception ex){
-				ex.printStackTrace();
-			}
+	public HyperGraphPeer(File configFile, PeerPolicy policy)
+	{
+		loadConfig(configFile);
+		this.policy = policy;
+	}
+	
+	public void loadConfig(File configFile)
+	{
+		JSONReader reader = new JSONReader();
+
+		try
+		{
+			configuration = getPart(reader.read(getContents(configFile)));
 			
-			if (peerInterface != null){
-				//create type system peer
-
-				peerInterface.configure(configuration.getPeerInterfaceConfiguration());
-				
-				Thread thread = new Thread(peerInterface, "peerInterface");
-                thread.start();
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	private String getContents(File file) throws IOException
+	{
+		StringBuilder contents = new StringBuilder();
+	
+		BufferedReader input =  new BufferedReader(new FileReader(file));
+		try 
+		{
+			String line = null; 
+			while (( line = input.readLine()) != null)
+			{
+				contents.append(line);
+				contents.append(System.getProperty("line.separator"));
 			}
 		}
+	    finally 
+	    {
+	    	input.close();
+	    }
 
-		if (configuration.getHasServerInterface()){
-			peerInterface.registerTaskFactory(Performative.CallForProposal, HGDBOntology.REMEMBER_ACTION, new RememberTaskServer.RememberTaskServerFactory(this));
-			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.ATOM_INTEREST, new PublishInterestsTask.PublishInterestsFactory());
-			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.QUERY, new QueryTaskServer.QueryTaskFactory(this));
-		}else{
-			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.CATCHUP, new CatchUpTaskServer.CatchUpTaskServerFactory(this));
+	    return contents.toString();
+	}
+	
+	public boolean start()
+	{
+		boolean status = true;
+		if (configuration != null)
+		{
+			//get required objects
+			try
+			{
+				//create the local database
+				boolean hasLocalStorage = (Boolean)getPart(configuration, PeerConfig.HAS_LOCAL_STORAGE);
+				if (hasLocalStorage)
+				{
+					graph = new HyperGraph((String)getPart(configuration, PeerConfig.LOCAL_DB));
+				}
+				
+				//create cache database - this should eventually be an actual cache, not just another database
+				cacheGraph = new HyperGraph((String)getPart(configuration, PeerConfig.TEMP_DB)); 
+				GenericSerializer.setTempDB(cacheGraph);
+
+				//load and start interface
+				String peerInterfaceType = (String)getPart(configuration, PeerConfig.INTERFACE_TYPE);
+				peerInterface = (PeerInterface)Class.forName(peerInterfaceType).getConstructor().newInstance();
+				
+				if (peerInterface != null){
+					peerInterface.configure(configuration);
+					
+					Thread thread = new Thread(peerInterface, "peerInterface");
+	                thread.start();
+	                
+	                //configure services
+	                if (hasLocalStorage)
+	                {
+	        			peerInterface.registerTaskFactory(Performative.CallForProposal, HGDBOntology.REMEMBER_ACTION, new RememberTaskServer.RememberTaskServerFactory(this));
+	        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.ATOM_INTEREST, new PublishInterestsTask.PublishInterestsFactory());
+	        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.QUERY, new QueryTaskServer.QueryTaskFactory(this));
+	                }else{
+	        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.CATCHUP, new CatchUpTaskServer.CatchUpTaskServerFactory(this));
+	                }
+	        		peerInterface.registerTaskFactory(Performative.Inform, HGDBOntology.ATOM_INTEREST, new GetInterestsTask.GetInterestsFactory());
+
+	        		typeSystem = new HGTypeSystemPeer(peerInterface, (graph == null) ? null : graph.getTypeSystem());
+	        		log = new Log(cacheGraph, peerInterface);
+
+	        		//TODO: this should not be an indefinite wait ... 
+	        		if (!hasLocalStorage)
+	        		{
+	                	peerInterface.getPeerNetwork().waitForRemotePipe();
+	                }
+
+				}else{
+					status = false;
+					System.out.println("Can not start HGBD: peer interface could not be instantiated");
+				}
+
+			}catch(Exception ex){
+				status = false;
+				System.out.println("Can not start HGBD: " + ex);
+			}
+		}else {
+			status = false;
+			System.out.println("Can not start HGBD: configuration not loaded");
 		}
-
-		peerInterface.registerTaskFactory(Performative.Inform, HGDBOntology.ATOM_INTEREST, new GetInterestsTask.GetInterestsFactory());
 		
-		typeSystem = new HGTypeSystemPeer(peerInterface, (graph == null) ? null : graph.getTypeSystem());
-		log = new Log(cacheGraph, peerInterface);
-
-        if (configuration.getWaitForRemotePipe())
-        {
-        	peerInterface.getPeerNetwork().waitForRemotePipe();
-        }
-        
-		// TODO actually compute this
-		return true;
+		return status;
 	}
 	
 	public void catchUp()
@@ -257,7 +325,7 @@ public class HyperGraphPeer {
 
 	public void registerType(HGPersistentHandle handle, Class<?> clazz)
 	{
-		if(graph.getStore().getLink(handle) == null)
+		if ((graph!= null) && (graph.getStore().getLink(handle) == null))
 		{
 			graph.getTypeSystem().defineTypeAtom(handle, clazz);
 		}
@@ -297,26 +365,4 @@ public class HyperGraphPeer {
 		else return null;
 	}
 
-/*	private boolean shouldForward() {
-		// TODO add logic to see if the atom should be added here
-		return configuration.getCanForwardRequests();
-	}
-
-	private class AddMessageHandler implements MessageHandler{
-		public Object handleRequest(Object params[])
-		{
-			return addSubgraph((Subgraph)params[0]);
-		}
-
-		
-	}
-	private class GetMessageHandler implements MessageHandler{
-
-		public Object handleRequest(Object[] params) {
-			if (params[0] instanceof HGHandle){
-				return getSubgraph((HGHandle)params[0]);
-			}else return null;
-		}
-		
-	}
-*/}
+}

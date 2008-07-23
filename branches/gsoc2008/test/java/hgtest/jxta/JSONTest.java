@@ -1,26 +1,27 @@
 package hgtest.jxta;
 
+import static org.hypergraphdb.peer.Structs.getHGAtomPredicate;
+import static org.hypergraphdb.peer.Structs.getHGQueryCondition;
+import static org.hypergraphdb.peer.Structs.getPart;
+import static org.hypergraphdb.peer.Structs.hgPredicate;
+import static org.hypergraphdb.peer.Structs.list;
+import static org.hypergraphdb.peer.Structs.object;
+import static org.hypergraphdb.peer.Structs.struct;
+import static org.hypergraphdb.peer.Structs.svalue;
+
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
+import net.jxta.platform.NetworkManager;
 
-import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.handle.UUIDPersistentHandle;
 import org.hypergraphdb.peer.Structs;
-
-import static org.hypergraphdb.peer.HGDBOntology.*;
-import static org.hypergraphdb.peer.Structs.*;
-
-import org.hypergraphdb.peer.log.Timestamp;
 import org.hypergraphdb.peer.protocol.ObjectSerializer;
-import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.peer.serializer.JSONReader;
 import org.hypergraphdb.peer.serializer.JSONWriter;
 import org.hypergraphdb.query.AtomPartCondition;
@@ -34,13 +35,13 @@ import org.hypergraphdb.query.SubsumedCondition;
 import org.hypergraphdb.query.SubsumesCondition;
 import org.hypergraphdb.query.TypedValueCondition;
 import org.hypergraphdb.query.impl.LinkProjectionMapping;
-import org.hypergraphdb.util.Mapping;
 
 public class JSONTest
 {
 	public static void main(String[] args)
 	{	
-		testTypePerserved();
+		testJXTAConfig();
+//		testTypePerserved();
 		
 /*		doValue(struct("test", new Timestamp(100)));
 
@@ -52,12 +53,78 @@ public class JSONTest
 		System.out.println(getPart(value, SEND_TASK_ID));	
 		System.out.println(getPart(value, PERFORMATIVE));	
 */		
-		testQueries();
+//		testQueries();
 
 		//testCustomObjects();
 		
 		//testMessages();
 	}
+	private static void testJXTAConfig()
+	{
+		Object jxtaConf = Structs.struct("peerName", "nameOfPeer", 
+				"peerGroup", "nameOfGroup", 
+				"jxta", Structs.struct(
+					"advTimeToLive", 1*10*1000,
+					"needsRendezVous", false,
+					"needsRelay", false,
+					"mode", NetworkManager.ConfigMode.ADHOC
+				));
+
+		doValue(jxtaConf);
+		
+		String jxtaConfString = getContents("./jxtaConfig");
+		System.out.println(jxtaConfString);
+		
+		JSONReader reader = new JSONReader();
+
+		Object result = null;
+		result = getPart(reader.read(jxtaConfString));
+	
+		System.out.println("read: " + result);
+
+		
+		/*		JXTAPeerConfiguration jxtaConf = new JXTAPeerConfiguration();
+		jxtaConf.setPeerName("peerName");
+		jxtaConf.setPeerGroupName("groupName");
+		jxtaConf.setAdvTimeToLive(1*5*1000);//set to 5 minutes
+		//jxtaConf.setNeedsRdvConn(true);
+		jxtaConf.setNeedsRdvConn(false);
+		//jxtaConf.setNeedsRelayConn(true);
+		jxtaConf.setNeedsRelayConn(false);
+		jxtaConf.setMode(NetworkManager.ConfigMode.ADHOC);
+*/
+		
+	}
+	
+	private static String getContents(String fileName) 
+	{
+		StringBuilder contents = new StringBuilder();
+	
+		try 
+		{
+			BufferedReader input =  new BufferedReader(new FileReader(new File(fileName)));
+			try 
+			{
+				String line = null; 
+				while (( line = input.readLine()) != null)
+				{
+					contents.append(line);
+					contents.append(System.getProperty("line.separator"));
+				}
+			}
+		    finally 
+		    {
+		    	input.close();
+		    }
+	    }
+	    catch (IOException ex)
+	    {
+	      ex.printStackTrace();
+	    }
+	    
+	    return contents.toString();
+	}
+	
 	private static void testTypePerserved()
 	{
 		AtomPartCondition cond = hg.part("a", 1, ComparisonOperator.EQ);
@@ -181,8 +248,6 @@ public class JSONTest
 		doValue(new MapCondition(hg.all(), new LinkProjectionMapping(1)));
 			
 		doValue(hg.link(UUIDPersistentHandle.makeHandle(), UUIDPersistentHandle.makeHandle(), UUIDPersistentHandle.makeHandle()));
-
-		
 	}
 	
 	public static Object doValue(Object x)

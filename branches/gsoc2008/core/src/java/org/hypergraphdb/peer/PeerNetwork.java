@@ -1,6 +1,5 @@
 package org.hypergraphdb.peer;
 
-import org.hypergraphdb.peer.jxta.JXTAPeerConfiguration;
 import org.hypergraphdb.query.HGAtomPredicate;
 
 /**
@@ -9,7 +8,7 @@ import org.hypergraphdb.query.HGAtomPredicate;
  */
 public interface PeerNetwork
 {
-	boolean init(JXTAPeerConfiguration config);
+	boolean init(Object config);
 	void start();
 
 	//get/set atom interests for known peers

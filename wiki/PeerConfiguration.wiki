@@ -1,0 +1,62 @@
+#summary Documents various aspects of peer configuration.
+
+= HGDB Peer Configuration =
+
+Each peer can be configured before start by using a file with the settings in JSON format or by creating a map with the properties (see the Structs helper class). 
+
+|| *Property* || *Description* ||
+|| hasLocalStorage || true if the peer will store atoms locally, false if not (will only forward to other peers||
+|| localDB || if hasLocalStorage=true then the path to the local HGDB database, otherwise ignored ||
+|| tempDB || the path to the temporary HGDB database. This is used to store logs and atoms that were not yet delivered to interested peers||
+|| interfaceType || The class that provides the peers interface. For the current JXTA implementation it is org.hypergraphdb.peer.jxta.JXTAPeerInterface||
+|| jxta || JXTA related configuration that is not introduced in the JXTA PlatformConfig file ||
+
+
+The jxta element has the following elements:
+|| *Property* || *Description* ||
+|| peerName || A logical name for the peer ||
+|| peerGroup || The group to which this peer belongs ||
+|| jxtaDir || The directory where the jxta PlatformConfig file is stored || 
+|| advertisementTTL || The time-to-live property for advertisements created by the peer ||
+|| needsRelay || True if the peer is required to establish a connection with a relay before starting ||
+|| needsRendezVous || True if the peer is required to establish a connection with a rendezvous before starting ||
+|| mode || The mode in which the peer will start. Can be one of the following: _ADHOC_ (peers are part of an ad-hoc network), _EDGE_ (the peer will use relays if they are configured), _RELAY_ (the peer will act as a relay), _RENDEZVOUS_ (the peer will act as a rendezvous), _RENDEZVOUS_RELAY_ (peer will be both a rendezvous and a relay) ||
+
+An example of an adhoc peer configuration:
+
+{{{
+{
+"hasLocalStorage": true,
+"localDB"	: "./DBs/Server1DB",
+"tempDB"	: "./DBs/Server1TempDB",
+
+"interfaceType"	: "org.hypergraphdb.peer.jxta.JXTAPeerInterface",
+"jxta"		:
+	{
+		"peerName"		: "Server1",
+		"peerGroup"		: "TestHGDBGroup",
+		"jxtaDir"		: "./.jxta/Server1",
+		"advertisementTTL" 	: 10000,
+		"needsRelay" 		: false,
+		"needsRendezVous"	: false,
+		"mode"			: "RENDEZVOUS_RELAY"
+	}
+}
+}}}
+
+= JXTA Configuration =
+
+If a peer is started without a PlatformConfig file, one will be generated based on the _mode_ property. The file can be further modified in order to tune various settings available in JXTA. Here are a few PlatformConfig files that can be used as starting points to configure your peer (replace the PeerID and Name with your own values):
+
+|| Relay || http://hypergraphdb.googlecode.com/files/Relay || ||
+|| Edge using relay & rendezvous || http://hypergraphdb.googlecode.com/files/RelayClient || Make sure you replace the IP address and port number with the address and port of the relay/rendezvous you are using ||
+
+
+= HOWTO ... =
+
+
+== Set up a HGDB peer as relay & rendezvous ==
+
+
+
+== Set up a HGDB peer in an ADHOC network ==

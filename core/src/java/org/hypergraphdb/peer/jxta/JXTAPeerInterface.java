@@ -29,6 +29,8 @@ import org.hypergraphdb.peer.workflow.TaskFactory;
 import org.hypergraphdb.query.HGAtomPredicate;
 import org.hypergraphdb.util.Pair;
 
+import static org.hypergraphdb.peer.Structs.*;
+
 /**
  * @author Cipri Costa
  *
@@ -36,8 +38,8 @@ import org.hypergraphdb.util.Pair;
  * Also manages resources like task allocation and threads.
  */
 
-public class JXTAPeerInterface implements PeerInterface/*, DiscoveryListener*/{
-	private JXTAPeerConfiguration config;
+public class JXTAPeerInterface implements PeerInterface{
+	private Object config;
 	PipeAdvertisement pipeAdv = null;
 	
 	/**
@@ -53,33 +55,32 @@ public class JXTAPeerInterface implements PeerInterface/*, DiscoveryListener*/{
 	
 	public boolean configure(Object configuration) 
 	{
-		boolean result = false;
+		boolean result = true;
 		
 		System.out.println("JXTAPeerInterface: configure");
 
-		if (configuration instanceof JXTAPeerConfiguration){
-			this.config = (JXTAPeerConfiguration)configuration;
-			result = true;
-		}		
-		
-		if (result)
+		//get the part we are interested in
+		config = getPart(configuration, JXTAConfig.CONFIG_NAME);
+		if (config != null)
 		{
-			result = jxtaNetwork.init(this.config);
-		}
+			result = jxtaNetwork.init(config);
+			if (result)
+			{
+				String peerName = (String)getPart(config, JXTAConfig.PEER_NAME);
 				
-		if (result)
-		{
-			PipeID pipeID = IDFactory.newPipeID(jxtaNetwork.getPeerGroup().getPeerGroupID());
-			System.out.println("created pipe: " + pipeID.toString());
-			pipeAdv = HGAdvertisementsFactory.newPipeAdvertisement(pipeID, this.config.getPeerName());
-			
-			jxtaNetwork.addOwnPipe(pipeID);
-			jxtaNetwork.publishAdv(pipeAdv);
-			jxtaNetwork.start();
-			
-			
+				PipeID pipeID = IDFactory.newPipeID(jxtaNetwork.getPeerGroup().getPeerGroupID());
+				System.out.println("created pipe: " + pipeID.toString());
+				pipeAdv = HGAdvertisementsFactory.newPipeAdvertisement(pipeID, peerName);
+				
+				jxtaNetwork.addOwnPipe(pipeID);
+				jxtaNetwork.publishAdv(pipeAdv);
+				jxtaNetwork.start();
+			}
+		}else{
+			result = false;
+			System.out.println("JXTA configuration not found");
 		}
-
+		
 		return result;		
 	}
 

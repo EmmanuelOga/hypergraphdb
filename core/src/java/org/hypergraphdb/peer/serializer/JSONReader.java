@@ -75,7 +75,6 @@ public class JSONReader {
     }
 
     public Object read(String string) {
-    	System.out.println("JSONREader:" + string);
         return read(new StringCharacterIterator(string), FIRST);
     }
 

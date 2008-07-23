@@ -1,17 +1,14 @@
 package hgtest.jxta;
 
-import java.util.HashMap;
-import java.util.UUID;
+import java.io.File;
+
+import net.jxta.platform.NetworkManager;
 
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.handle.UUIDPersistentHandle;
 import org.hypergraphdb.peer.DummyPolicy;
 import org.hypergraphdb.peer.HyperGraphPeer;
-import org.hypergraphdb.peer.PeerConfiguration;
-import org.hypergraphdb.peer.jxta.JXTAPeerConfiguration;
-import org.hypergraphdb.query.AnyAtomCondition;
 import org.hypergraphdb.query.AtomPartCondition;
-import org.hypergraphdb.query.AtomValueCondition;
 import org.hypergraphdb.query.ComparisonOperator;
 
 public class HyperGraphDBServer {
@@ -27,19 +24,21 @@ public class HyperGraphDBServer {
 		
 		System.out.println("Starting HGDB peer " + peerName + " ...");
 
-		JXTAPeerConfiguration jxtaConf = new JXTAPeerConfiguration();
+/*		JXTAPeerConfiguration jxtaConf = new JXTAPeerConfiguration();
 		jxtaConf.setPeerName(peerName);
 		jxtaConf.setPeerGroupName(groupName);
 		jxtaConf.setAdvTimeToLive(1*10*1000);
-		jxtaConf.setNeedsRdvConn(true);
-		jxtaConf.setNeedsRelayConn(true);
-		
-		PeerConfiguration conf = new PeerConfiguration(true, "./DBs/" + peerName + "DB", 
+		//jxtaConf.setNeedsRdvConn(true);
+		jxtaConf.setNeedsRdvConn(false);
+		//jxtaConf.setNeedsRelayConn(true);
+		jxtaConf.setNeedsRelayConn(false);
+		jxtaConf.setMode(NetworkManager.ConfigMode.ADHOC);
+*/
+/*		PeerConfiguration conf = new PeerConfiguration(true, "./DBs/" + peerName + "DB", 
 				true, false, "org.hypergraphdb.peer.jxta.JXTAPeerInterface", jxtaConf, 
 				"./DBs/" + peerName + "CacheDb");
-		
-		HyperGraphPeer server = new HyperGraphPeer(conf, new DummyPolicy(true));
-		
+*/		
+		HyperGraphPeer server = new HyperGraphPeer(new File("./server1Config"), new DummyPolicy(true));
 		
 		server.start();
 		

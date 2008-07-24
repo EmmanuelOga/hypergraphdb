@@ -50,13 +50,3 @@ If a peer is started without a PlatformConfig file, one will be generated based 
 
 || Relay || http://hypergraphdb.googlecode.com/files/Relay || ||
 || Edge using relay & rendezvous || http://hypergraphdb.googlecode.com/files/RelayClient || Make sure you replace the IP address and port number with the address and port of the relay/rendezvous you are using ||
-
-
-= HOWTO ... =
-
-
-== Set up a HGDB peer as relay & rendezvous ==
-
-
-
-== Set up a HGDB peer in an ADHOC network ==

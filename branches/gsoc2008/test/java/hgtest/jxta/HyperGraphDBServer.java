@@ -38,7 +38,13 @@ public class HyperGraphDBServer {
 				true, false, "org.hypergraphdb.peer.jxta.JXTAPeerInterface", jxtaConf, 
 				"./DBs/" + peerName + "CacheDb");
 */		
-		HyperGraphPeer server = new HyperGraphPeer(new File("./server1Config"), new DummyPolicy(true));
+		//HyperGraphPeer server = new HyperGraphPeer(new File("./server1Config"), new DummyPolicy(true));
+		//HyperGraphPeer server = new HyperGraphPeer(new File("./config/minimalConfig"), new DummyPolicy(true));
+		//HyperGraphPeer server = new HyperGraphPeer(new File("./config/namedPeerConfig"), new DummyPolicy(true));
+		//HyperGraphPeer server = new HyperGraphPeer(new File("./config/dirPeerConfig"), new DummyPolicy(true));
+		//HyperGraphPeer server = new HyperGraphPeer(new File("./config/transportPeerConfig"), new DummyPolicy(true));
+		HyperGraphPeer server = new HyperGraphPeer(new File("./config/relayPeerConfig"), new DummyPolicy(true));
+		
 		
 		server.start();
 		

@@ -343,6 +343,43 @@ public class Structs
 		}
 	}
 
+	public static boolean hasPart(Object source, Object...args)
+	{
+		if ((args == null) || (source == null)) return false;
+		
+		if (args.length == 0) return true;
+		if (args.length == 1) return hasStructPart(source, args[0]);
+		else 
+		{
+			List<Object> l = new ArrayList<Object>();
+			for (Object x : args) l.add(x);
+	
+			return hasStructPart(source, l, 0);
+		}
+	}
+	public static Object getOptPart(Object source, Object defaultValue, Object...args)
+	{
+		if (source == null) return defaultValue;
+		if (hasPart(source, args)) return getPart(source, args);
+		else return defaultValue;
+	}
+	private static boolean hasStructPart(Object source, Object path, int pos)
+	{
+		if (!(path instanceof List))
+		{
+			return hasStructPart(source, path);
+		}else{
+			List<Object> list = (List<Object>)path;
+			if ((list.size() < pos) || (pos < 0)) return false;
+			
+			boolean hasPart = hasStructPart(source, list.get(pos));
+			if (hasPart)
+			{
+				if (pos == list.size()) return true;
+				else return hasStructPart(getStructPart(source, list.get(pos)), path, pos + 1);
+			}else return false;
+		}
+	}
 	private static Object getStructPart(Object source, Object path, int pos)
 	{
 		if (!(path instanceof List))
@@ -360,6 +397,17 @@ public class Structs
 		}
 	}
 	
+	private static boolean hasStructPart(Object source, Object position)
+	{
+		if (source instanceof Map){
+			return ((Map)source).containsKey(position.toString());
+		}else if (source instanceof List)
+		{
+			Integer listPos = (Integer)position;
+			return (listPos >= 0) && (listPos < ((List)source).size());
+		}else return false;
+		
+	}
 	private static Object getStructPart(Object source, Object position)
 	{
 		if (source instanceof Map){

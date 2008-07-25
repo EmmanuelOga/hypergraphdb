@@ -25,26 +25,8 @@ public class HyperGraphDBClient{
 			System.exit(0);
 		}
 
-		String peerName = args[0];
-		String groupName = args[1];
-
 		System.out.println("Starting a HGDB client ...");
 
-/*		JXTAPeerConfiguration jxtaConf = new JXTAPeerConfiguration();
-		jxtaConf.setPeerName(peerName);
-		jxtaConf.setPeerGroupName(groupName);
-		jxtaConf.setAdvTimeToLive(1*5*1000);//set to 5 minutes
-		//jxtaConf.setNeedsRdvConn(true);
-		jxtaConf.setNeedsRdvConn(false);
-		//jxtaConf.setNeedsRelayConn(true);
-		jxtaConf.setNeedsRelayConn(false);
-		jxtaConf.setMode(NetworkManager.ConfigMode.ADHOC);
-*/		
-/*		PeerConfiguration conf = new PeerConfiguration(true, "", 
-				false, true, "org.hypergraphdb.peer.jxta.JXTAPeerInterface", jxtaConf,
-				"./DBs/" + peerName + "CacheDB");
-*/		
-//		conf.setWaitForRemotePipe(true);
 		HyperGraphPeer peer = new HyperGraphPeer(new File("./client1Config"), new DummyPolicy(false));
 		
 		peer.start();

@@ -61,24 +61,19 @@ public class JXTAPeerInterface implements PeerInterface{
 
 		//get the part we are interested in
 		config = getPart(configuration, JXTAConfig.CONFIG_NAME);
-		if (config != null)
+		result = jxtaNetwork.init(config);
+
+		if (result)
 		{
-			result = jxtaNetwork.init(config);
-			if (result)
-			{
-				String peerName = (String)getPart(config, JXTAConfig.PEER_NAME);
-				
-				PipeID pipeID = IDFactory.newPipeID(jxtaNetwork.getPeerGroup().getPeerGroupID());
-				System.out.println("created pipe: " + pipeID.toString());
-				pipeAdv = HGAdvertisementsFactory.newPipeAdvertisement(pipeID, peerName);
-				
-				jxtaNetwork.addOwnPipe(pipeID);
-				jxtaNetwork.publishAdv(pipeAdv);
-				jxtaNetwork.start();
-			}
-		}else{
-			result = false;
-			System.out.println("JXTA configuration not found");
+			String peerName = (String)getOptPart(config, "HGDBPeer", JXTAConfig.PEER_NAME);
+			
+			PipeID pipeID = IDFactory.newPipeID(jxtaNetwork.getPeerGroup().getPeerGroupID());
+			System.out.println("created pipe: " + pipeID.toString());
+			pipeAdv = HGAdvertisementsFactory.newPipeAdvertisement(pipeID, peerName);
+			
+			jxtaNetwork.addOwnPipe(pipeID);
+			jxtaNetwork.publishAdv(pipeAdv);
+			jxtaNetwork.start();
 		}
 		
 		return result;		

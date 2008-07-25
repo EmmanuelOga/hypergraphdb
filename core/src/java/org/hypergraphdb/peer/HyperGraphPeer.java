@@ -1,6 +1,7 @@
 package org.hypergraphdb.peer;
 
 import static org.hypergraphdb.peer.Structs.getPart;
+import static org.hypergraphdb.peer.Structs.getOptPart;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -127,11 +128,11 @@ public class HyperGraphPeer {
 				boolean hasLocalStorage = (Boolean)getPart(configuration, PeerConfig.HAS_LOCAL_STORAGE);
 				if (hasLocalStorage)
 				{
-					graph = new HyperGraph((String)getPart(configuration, PeerConfig.LOCAL_DB));
+					graph = new HyperGraph((String)getOptPart(configuration, ".hgdb", PeerConfig.LOCAL_DB));
 				}
 				
 				//create cache database - this should eventually be an actual cache, not just another database
-				cacheGraph = new HyperGraph((String)getPart(configuration, PeerConfig.TEMP_DB)); 
+				cacheGraph = new HyperGraph((String)getOptPart(configuration, ".tempdb", PeerConfig.TEMP_DB)); 
 				GenericSerializer.setTempDB(cacheGraph);
 
 				//load and start interface

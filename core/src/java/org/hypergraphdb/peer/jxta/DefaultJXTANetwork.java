@@ -1,6 +1,8 @@
 package org.hypergraphdb.peer.jxta;
 
 import static org.hypergraphdb.peer.Structs.getPart;
+import static org.hypergraphdb.peer.Structs.getOptPart;
+import static org.hypergraphdb.peer.Structs.hasPart;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,9 +76,9 @@ public class DefaultJXTANetwork implements JXTANetwork{
 		//Start network
 	    try 
 	    {
-	    	String peerName = (String)getPart(config, JXTAConfig.PEER_NAME);
-	    	String mode = (String)getPart(config, JXTAConfig.MODE);
-	    	String jxtaDir = (String)getPart(config, JXTAConfig.JXTA_DIR);
+	    	String peerName = (String)getOptPart(config, "HGDBPeer", JXTAConfig.PEER_NAME);
+	    	String mode = (String)getOptPart(config, "ADHOC", JXTAConfig.MODE);
+	    	String jxtaDir = (String)getOptPart(config, ".jxta", JXTAConfig.JXTA_DIR);
 	    	
 	    	System.out.println("Initializing instance " + peerName + " ...");   	
 	    	URI configURI = new File(jxtaDir).toURI();
@@ -85,7 +87,10 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	    
 	    	peerManager = new NetworkManager(NetworkManager.ConfigMode.valueOf(NetworkManager.ConfigMode.class, mode), peerName, configURI);
 	    	
-	    	dumpNetworkConfig(peerManager.getConfigurator());
+	    	NetworkConfigurator configurator = peerManager.getConfigurator(); 
+	    	configureNetwork(configurator, config);
+	    	
+	    	dumpNetworkConfig(configurator);
 	    	
 	    	peerManager.startNetwork();
 	    } catch (Exception e) {
@@ -111,7 +116,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	    }
 	    
 	    //wait for rendezvous if needed
-	    Boolean needsRendezVous = (Boolean)getPart(config, JXTAConfig.NEEDS_RENDEZ_VOUS);
+	    Boolean needsRendezVous = (Boolean)getOptPart(config, false, JXTAConfig.NEEDS_RENDEZ_VOUS);
 	    System.out.println("Waiting for rendezvous: " + needsRendezVous);
 	    if (needsRendezVous)
     	{
@@ -126,7 +131,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
     	}
 
 	    //wait for realy
-	    Boolean needsRelay = (Boolean)getPart(config, JXTAConfig.NEEDS_RELAY);
+	    Boolean needsRelay = (Boolean)getOptPart(config, false, JXTAConfig.NEEDS_RELAY);
 	    System.out.println("Waiting for realy: " + needsRelay);
     	if (needsRelay)
     	{
@@ -150,12 +155,86 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	    		}
     		}
     	}
-	    	
-    	this.advTimetoLive = ((Long)getPart(config, JXTAConfig.ADVERTISEMENT_TTL)).intValue();
+
+    	this.advTimetoLive = ((Long)getOptPart(config, 10000L, JXTAConfig.ADVERTISEMENT_TTL)).intValue();
 	    			
 		System.out.println("Finished initializing");
 
 		return (netPeerGroup != null);
+	}
+
+	private void configureNetwork(NetworkConfigurator configurator, Object config)
+	{
+		//peerid?
+		
+		//name
+		configurator.setName((String)getOptPart(config, "HGDBPeer", JXTAConfig.PEER_NAME));
+		
+		//tcp transport
+		if (hasPart(config, JXTAConfig.TCP))
+		{
+			Object tcpConfig = getPart(config, JXTAConfig.TCP);
+			if (hasPart(tcpConfig, JXTAConfig.ENABLED))
+				configurator.setTcpEnabled((Boolean)getPart(tcpConfig, JXTAConfig.ENABLED));
+			if (hasPart(tcpConfig, JXTAConfig.INCOMING))
+				configurator.setTcpIncoming((Boolean)getPart(tcpConfig, JXTAConfig.INCOMING));
+			if (hasPart(tcpConfig, JXTAConfig.OUTGOING))
+				configurator.setTcpOutgoing((Boolean)getPart(tcpConfig, JXTAConfig.ENABLED));
+			
+			if (hasPart(tcpConfig, JXTAConfig.PORT))
+				configurator.setTcpPort(((Long)getPart(tcpConfig, JXTAConfig.PORT)).intValue());
+			if (hasPart(tcpConfig, JXTAConfig.START_PORT))
+				configurator.setTcpStartPort(((Long)getPart(tcpConfig, JXTAConfig.START_PORT)).intValue());
+			if (hasPart(tcpConfig, JXTAConfig.END_PORT))
+				configurator.setTcpEndPort(((Long)getPart(tcpConfig, JXTAConfig.END_PORT)).intValue());
+		}
+
+		//http transport
+		if (hasPart(config, JXTAConfig.HTTP))
+		{
+			Object httpConfig = getPart(config, JXTAConfig.HTTP);
+			if (hasPart(httpConfig, JXTAConfig.ENABLED))
+				configurator.setHttpEnabled((Boolean)getPart(httpConfig, JXTAConfig.ENABLED));
+			if (hasPart(httpConfig, JXTAConfig.INCOMING))
+				configurator.setHttpIncoming((Boolean)getPart(httpConfig, JXTAConfig.INCOMING));
+			if (hasPart(httpConfig, JXTAConfig.OUTGOING))
+				configurator.setHttpOutgoing((Boolean)getPart(httpConfig, JXTAConfig.ENABLED));
+			
+			if (hasPart(httpConfig, JXTAConfig.PORT))
+				configurator.setHttpPort(((Long)getPart(httpConfig, JXTAConfig.PORT)).intValue());
+		}
+		
+		//rdv config - which rdvs to use
+		if (hasPart(config, JXTAConfig.RELAYS))
+		{
+			configurator.clearRelaySeeds();
+			List<Object> relays = (List<Object>)getPart(config, JXTAConfig.RELAYS);
+			
+			for(Object relay:relays)
+			{
+				if (relay instanceof String)
+				{
+					configurator.addSeedRelay(URI.create((String)relay));
+				}
+			}
+		}
+		
+		//relay config - which relays to use
+		if (hasPart(config, JXTAConfig.RENDEZVOUS))
+		{
+			configurator.clearRendezvousSeeds();
+			List<Object> rdvs = (List<Object>)getPart(config, JXTAConfig.RELAYS);
+			
+			for(Object rdv:rdvs)
+			{
+				if (rdv instanceof String)
+				{
+					configurator.addSeedRendezvous(URI.create((String)rdv));
+				}
+			}
+		}
+		
+		//pse (authentification)?
 	}
 
 	private boolean waitForRendezVous(PeerGroup group)
@@ -295,7 +374,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
     
 	private void joinCustomGroup(Object config) throws Exception
 	{
-		String groupName = (String)getPart(config, JXTAConfig.GROUP_NAME);
+		String groupName = (String)getOptPart(config, "HGDBGroup", JXTAConfig.GROUP_NAME);
 		
 		System.out.println("Joining group " + groupName);
 		PeerGroupID groupId = IDFactory.newPeerGroupID(netPeerGroup.getPeerGroupID(), groupName.getBytes());
@@ -523,8 +602,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
 		System.out.println("	PeerID = " + configurator.getPeerID().toString());
 		System.out.println("	Name = " + configurator.getName());
 		
-		//System.out.println(configurator.getPlatformConfig().toString());
-		
+		System.out.println("	PlatformConfig = " + configurator.getPlatformConfig());
 	}
 
 	public void addOwnPipe(PipeID pipeId)

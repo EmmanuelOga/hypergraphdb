@@ -6,6 +6,7 @@ import static org.hypergraphdb.peer.Structs.hasPart;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -18,16 +19,30 @@ import java.util.Map;
 import java.util.Set;
 
 import net.jxta.credential.AuthenticationCredential;
+import net.jxta.credential.Credential;
 import net.jxta.discovery.DiscoveryEvent;
 import net.jxta.discovery.DiscoveryListener;
 import net.jxta.discovery.DiscoveryService;
 import net.jxta.document.Advertisement;
+import net.jxta.document.AdvertisementFactory;
+import net.jxta.document.Document;
+import net.jxta.document.Element;
+import net.jxta.document.ExtendableAdvertisement;
+import net.jxta.document.MimeMediaType;
+import net.jxta.document.StructuredDocument;
+import net.jxta.document.StructuredDocumentFactory;
+import net.jxta.document.StructuredTextDocument;
+import net.jxta.document.TextElement;
+import net.jxta.document.XMLElement;
 import net.jxta.endpoint.EndpointService;
 import net.jxta.endpoint.MessageTransport;
 import net.jxta.exception.PeerGroupException;
+import net.jxta.exception.ProtocolNotSupportedException;
 import net.jxta.id.ID;
 import net.jxta.id.IDFactory;
 import net.jxta.impl.endpoint.relay.RelayClient;
+import net.jxta.impl.membership.passwd.PasswdMembershipService;
+import net.jxta.impl.peergroup.StdPeerGroupParamAdv;
 import net.jxta.impl.rendezvous.RendezVousServiceInterface;
 import net.jxta.impl.rendezvous.rpv.PeerView;
 import net.jxta.membership.Authenticator;
@@ -35,6 +50,7 @@ import net.jxta.peer.PeerID;
 import net.jxta.peergroup.PeerGroup;
 import net.jxta.peergroup.PeerGroupID;
 import net.jxta.pipe.PipeID;
+import net.jxta.platform.ModuleSpecID;
 import net.jxta.platform.NetworkConfigurator;
 import net.jxta.platform.NetworkManager;
 import net.jxta.protocol.AccessPointAdvertisement;
@@ -69,9 +85,13 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	
 	private int advTimetoLive;
 	
-	public boolean init(Object config)
+    private final static ModuleSpecID PROTECTED_GROUP_MSID = (ModuleSpecID) ID.create(
+            URI.create("urn:jxta:uuid-DEADBEEFDEAFBABAFEEDBABE0000000133BF5414AC624CC8AD3AF6AEC2C8264306"));
+
+	
+	public boolean init(Object config, String username, String passwd)
 	{
-		boolean result = true;
+		boolean result = false;
 		
 		//Start network
 	    try 
@@ -94,7 +114,6 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	    	
 	    	peerManager.startNetwork();
 	    } catch (Exception e) {
-	    	result = false;
 	    	e.printStackTrace();
 	    }
 	    
@@ -104,14 +123,18 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	    	netPeerGroup = peerManager.getNetPeerGroup();
 	    	try
 			{
-				joinCustomGroup(config);
+				createCustomGroup(config, username, passwd);
+				if (hgdbGroup != null)
+				{
+					System.out.println("Trying to join the group ... ");
+					result = joinCustomGroup(username, passwd);
+				}
+				
 			} catch (Exception e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 	    }else{
-	    	result = false;
 	    	System.out.println("PeerManager can not be instantiated");
 	    }
 	    
@@ -160,7 +183,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	    			
 		System.out.println("Finished initializing");
 
-		return (netPeerGroup != null);
+		return result;
 	}
 
 	private void configureNetwork(NetworkConfigurator configurator, Object config)
@@ -372,7 +395,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
         return name;
     }
     
-	private void joinCustomGroup(Object config) throws Exception
+	private void createCustomGroup(Object config, String username, String passwd) throws Exception
 	{
 		String groupName = (String)getOptPart(config, "HGDBGroup", JXTAConfig.GROUP_NAME);
 		
@@ -431,32 +454,128 @@ public class DefaultJXTANetwork implements JXTANetwork{
 		{
 			System.out.println("Can not find local group advertisements. Creating a new group ... ");
 
-			ModuleImplAdvertisement implAdv = netPeerGroup.getAllPurposePeerGroupImplAdvertisement();
-			hgdbGroup = netPeerGroup.newGroup(groupId, implAdv, groupName, "");
+			ModuleImplAdvertisement implAdv = null; 
+				
+			try
+			{
+				implAdv = createGroupAdv();
+			}catch(Exception ex)
+			{
+				ex.printStackTrace();
+			}
 			
+			netPeerGroup.getDiscoveryService().publish(implAdv);
+			netPeerGroup.getDiscoveryService().remotePublish(implAdv);
+			
+			PeerGroupAdvertisement groupAdv = (PeerGroupAdvertisement) AdvertisementFactory.newAdvertisement(PeerGroupAdvertisement.getAdvertisementType());
+		    groupAdv.setPeerGroupID(groupId);
+		    groupAdv.setModuleSpecID(implAdv.getModuleSpecID()); 
+		    groupAdv.setName(groupName);
+		    groupAdv.setDescription("HGDB Group");
 
+			StructuredTextDocument loginInfo = (StructuredTextDocument)StructuredDocumentFactory.newStructuredDocument(new MimeMediaType("text/xml"), "Parm");
+			String loginString = username + ":" + PasswdMembershipService.makePsswd(passwd) + ":";
+			TextElement loginElement = loginInfo.createElement("login", loginString);
+			loginInfo.appendChild(loginElement);
+			groupAdv.putServiceParam(PeerGroup.membershipClassID, loginInfo);
+
+			
+			hgdbGroup = netPeerGroup.newGroup(groupAdv);
+			
 			System.out.println("publishing group...");
-			
-			PeerGroupAdvertisement adv = hgdbGroup.getPeerGroupAdvertisement();
-			netPeerGroup.getDiscoveryService().remotePublish(adv);
-			
+			netPeerGroup.getDiscoveryService().remotePublish(groupAdv);
 			System.out.println("Group published successfully.");
 		}
+	}
+	
+	private boolean joinCustomGroup(String user, String passwd) throws Exception
+	{
+		boolean isJoined = false;
 		
-		System.out.println("Joining group...");
-		AuthenticationCredential cred = new AuthenticationCredential(hgdbGroup, null, null);
+		StructuredDocument myCredentials = null;
+		
+		AuthenticationCredential cred = new AuthenticationCredential(hgdbGroup, null, myCredentials);
 		Authenticator auth = hgdbGroup.getMembershipService().apply(cred);
 	
 		if (auth != null)
 		{
+			authenticateMe(auth, user, passwd);
+			
 			if (auth.isReadyForJoin())
 			{
-				hgdbGroup.getMembershipService().join(auth);
-				System.out.println("group joined");
-			}
-		}
+				try
+				{
+					Credential myCred = hgdbGroup.getMembershipService().join(auth);
+					isJoined = true;
+					System.out.println("Group joined");
+				}catch(PeerGroupException ex)
+				{
+					System.out.println("incorrect password");
+				}
+			} else System.out.println("group not joined 1");
+		} else System.out.println("group not joined 2");
+		
+		return isJoined;
 	}
+	
+    void authenticateMe(Authenticator auth, String login, String password) 
+    {
+        Method[] methods = auth.getClass().getMethods();
 
+        try 
+        {
+        	for (int meth=0; meth<methods.length; meth++) 
+        	{
+        		if (methods[meth].getName().equals("setAuth1Identity")) 
+        		{
+        			Object [] authLogin = {login};
+        			methods[meth].invoke(auth, authLogin);
+        		}
+        		else if (methods[meth].getName().equals("setAuth2_Password")) 
+        		{
+        			Object [] authPassword = {password};
+        			methods[meth].invoke(auth, authPassword);
+        		}
+        	}
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+	
+	private ModuleImplAdvertisement createGroupAdv() throws Exception
+	{
+        ModuleImplAdvertisement newGroupImpl;
+
+        newGroupImpl = netPeerGroup.getAllPurposePeerGroupImplAdvertisement();
+
+        newGroupImpl.setModuleSpecID(PROTECTED_GROUP_MSID);
+        newGroupImpl.setDescription("HGDB Protected Group");
+		
+        StdPeerGroupParamAdv params = new StdPeerGroupParamAdv(newGroupImpl.getParam());
+
+        Map services = params.getServices();
+
+        ModuleImplAdvertisement membershipAdv = (ModuleImplAdvertisement) services.get(PeerGroup.membershipClassID);
+      
+        services.remove(PeerGroup.membershipClassID);
+
+        ModuleImplAdvertisement implAdv = (ModuleImplAdvertisement) AdvertisementFactory.newAdvertisement(
+                ModuleImplAdvertisement.getAdvertisementType());
+
+		implAdv.setModuleSpecID(PasswdMembershipService.passwordMembershipSpecID);
+		implAdv.setCode(PasswdMembershipService.class.getName());
+		
+		implAdv.setCompat(membershipAdv.getCompat());
+		implAdv.setUri(membershipAdv.getUri());
+		implAdv.setProvider(membershipAdv.getProvider());
+		implAdv.setDescription("Password Membership Service");
+		
+		services.put(PeerGroup.membershipClassID, implAdv);
+		newGroupImpl.setParam((Element) params.getDocument(MimeMediaType.XMLUTF8));
+
+		return newGroupImpl;
+	}
+	
 	public void start()
 	{
     	new Thread(new AdvPublisher()).start();
@@ -569,7 +688,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	        
 	        if (advs != null) {
 	            while (advs.hasMoreElements()) {
-	                adv = (Advertisement) advs.nextElement();
+	                adv = advs.nextElement();
 	                if (adv instanceof PipeAdvertisement)
 	                {
 	                	if (!peerAdvs.containsKey(adv))
@@ -602,7 +721,6 @@ public class DefaultJXTANetwork implements JXTANetwork{
 		System.out.println("	PeerID = " + configurator.getPeerID().toString());
 		System.out.println("	Name = " + configurator.getName());
 		
-		System.out.println("	PlatformConfig = " + configurator.getPlatformConfig());
 	}
 
 	public void addOwnPipe(PipeID pipeId)

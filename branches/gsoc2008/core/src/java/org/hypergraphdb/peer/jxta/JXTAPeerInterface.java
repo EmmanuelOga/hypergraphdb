@@ -53,7 +53,7 @@ public class JXTAPeerInterface implements PeerInterface{
 	private HashMap<UUID, TaskActivity<?>> tasks = new HashMap<UUID, TaskActivity<?>>();
 	private HGAtomPredicate atomInterests;
 	
-	public boolean configure(Object configuration) 
+	public boolean configure(Object configuration, String user, String passwd) 
 	{
 		boolean result = true;
 		
@@ -61,7 +61,7 @@ public class JXTAPeerInterface implements PeerInterface{
 
 		//get the part we are interested in
 		config = getPart(configuration, JXTAConfig.CONFIG_NAME);
-		result = jxtaNetwork.init(config);
+		result = jxtaNetwork.init(config, user, passwd);
 
 		if (result)
 		{

@@ -31,7 +31,7 @@ public class QueryClient
 
 		HyperGraphPeer peer = new HyperGraphPeer(new File("./client1Config"), new DummyPolicy(false));
 		
-		peer.start();
+		peer.start("user", "pwd");
 
 		try
 		{

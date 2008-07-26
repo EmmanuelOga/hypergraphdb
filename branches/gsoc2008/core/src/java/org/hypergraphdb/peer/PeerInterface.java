@@ -26,7 +26,7 @@ public interface PeerInterface extends Runnable{
 	 * @param configuration
 	 * @return
 	 */
-	boolean configure(Object configuration);
+	boolean configure(Object configuration, String user, String passwd);
 	
 	//factory methods to obtain activities that are specific to the peer implementation
 	//TODO redesign

@@ -8,7 +8,7 @@ import org.hypergraphdb.query.HGAtomPredicate;
  */
 public interface PeerNetwork
 {
-	boolean init(Object config);
+	boolean init(Object config, String username, String passwd);
 	void start();
 
 	//get/set atom interests for known peers

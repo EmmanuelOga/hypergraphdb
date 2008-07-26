@@ -27,43 +27,48 @@ public class HyperGraphDBClient{
 
 		System.out.println("Starting a HGDB client ...");
 
-		HyperGraphPeer peer = new HyperGraphPeer(new File("./client1Config"), new DummyPolicy(false));
+		HyperGraphPeer peer = new HyperGraphPeer(new File("./config/client1Config"), new DummyPolicy(false));
 		
-		peer.start();
-
-		try
+		if (peer.start("user", "pwd"))
 		{
-			Thread.sleep(3000);
-		} catch (InterruptedException e){}
 	
-		HGPersistentHandle typeHandle = UUIDPersistentHandle.makeHandle("e917bda6-0932-4a66-9aeb-3fc84f04ce57");
-		peer.registerType(typeHandle, User.class);
-		System.out.println("Types registered...");
-
-		peer.updateNetworkProperties();
+			try
+			{
+				Thread.sleep(3000);
+			} catch (InterruptedException e){}
 		
-		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			HGPersistentHandle typeHandle = UUIDPersistentHandle.makeHandle("e917bda6-0932-4a66-9aeb-3fc84f04ce57");
+			peer.registerType(typeHandle, User.class);
+			System.out.println("Types registered...");
 	
-		for(int i=1;i<=30;i++)
-		{
-			HGHandle handle = peer.add(new User(i, "user" + i));
-	    	System.out.println("Client added handle: " + handle);
+			peer.updateNetworkProperties();
+			
+			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		
+			for(int i=1;i<=30;i++)
+			{
+				HGHandle handle = peer.add(new User(i, "user" + i));
+		    	System.out.println("Client added handle: " + handle);
+			}
+			
+			//getting users from Server1
+			ArrayList<?> result;
+			PeerFilterEvaluator evaluator = new DefaultPeerFilterEvaluator("Server1");
+			result = peer.query(evaluator, hg.type(User.class), false);
+			System.out.println("the client received: " + result);		
+			
+			for(Object elem:result)
+			{
+				HGHandle handle = (HGHandle)elem;
+				System.out.println(elem + " -> " + peer.query(evaluator, handle));
+			}
+			
+			result = peer.query(new DefaultPeerFilterEvaluator("Server1"), hg.type(User.class), true);
+			System.out.println("the client received: " + result);
+		}else{
+			System.out.println("Can not start peer");
 		}
-		
-		//getting users from Server1
-		ArrayList<?> result;
-		PeerFilterEvaluator evaluator = new DefaultPeerFilterEvaluator("Server1");
-		result = peer.query(evaluator, hg.type(User.class), false);
-		System.out.println("the client received: " + result);		
-		
-		for(Object elem:result)
-		{
-			HGHandle handle = (HGHandle)elem;
-			System.out.println(elem + " -> " + peer.query(evaluator, handle));
-		}
-		
-		result = peer.query(new DefaultPeerFilterEvaluator("Server1"), hg.type(User.class), true);
-		System.out.println("the client received: " + result);
+			
 		
 /*		HGHandle handle = null;
 		Object retrievedData = null;

@@ -116,9 +116,10 @@ public class HyperGraphPeer {
 	    return contents.toString();
 	}
 	
-	public boolean start()
+	public boolean start(String user, String passwd)
 	{
-		boolean status = true;
+		boolean status = false;
+		
 		if (configuration != null)
 		{
 			//get required objects
@@ -140,42 +141,41 @@ public class HyperGraphPeer {
 				peerInterface = (PeerInterface)Class.forName(peerInterfaceType).getConstructor().newInstance();
 				
 				if (peerInterface != null){
-					peerInterface.configure(configuration);
+					if (peerInterface.configure(configuration, user, passwd))
+					{
+						status = true;
 					
-					Thread thread = new Thread(peerInterface, "peerInterface");
-	                thread.start();
-	                
-	                //configure services
-	                if (hasLocalStorage)
-	                {
-	        			peerInterface.registerTaskFactory(Performative.CallForProposal, HGDBOntology.REMEMBER_ACTION, new RememberTaskServer.RememberTaskServerFactory(this));
-	        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.ATOM_INTEREST, new PublishInterestsTask.PublishInterestsFactory());
-	        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.QUERY, new QueryTaskServer.QueryTaskFactory(this));
-	                }else{
-	        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.CATCHUP, new CatchUpTaskServer.CatchUpTaskServerFactory(this));
-	                }
-	        		peerInterface.registerTaskFactory(Performative.Inform, HGDBOntology.ATOM_INTEREST, new GetInterestsTask.GetInterestsFactory());
-
-	        		typeSystem = new HGTypeSystemPeer(peerInterface, (graph == null) ? null : graph.getTypeSystem());
-	        		log = new Log(cacheGraph, peerInterface);
-
-	        		//TODO: this should not be an indefinite wait ... 
-	        		if (!hasLocalStorage)
-	        		{
-	                	peerInterface.getPeerNetwork().waitForRemotePipe();
-	                }
-
+						Thread thread = new Thread(peerInterface, "peerInterface");
+		                thread.start();
+		                
+		                //configure services
+		                if (hasLocalStorage)
+		                {
+		        			peerInterface.registerTaskFactory(Performative.CallForProposal, HGDBOntology.REMEMBER_ACTION, new RememberTaskServer.RememberTaskServerFactory(this));
+		        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.ATOM_INTEREST, new PublishInterestsTask.PublishInterestsFactory());
+		        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.QUERY, new QueryTaskServer.QueryTaskFactory(this));
+		                }else{
+		        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.CATCHUP, new CatchUpTaskServer.CatchUpTaskServerFactory(this));
+		                }
+		        		peerInterface.registerTaskFactory(Performative.Inform, HGDBOntology.ATOM_INTEREST, new GetInterestsTask.GetInterestsFactory());
+	
+		        		typeSystem = new HGTypeSystemPeer(peerInterface, (graph == null) ? null : graph.getTypeSystem());
+		        		log = new Log(cacheGraph, peerInterface);
+	
+		        		//TODO: this should not be an indefinite wait ... 
+		        		if (!hasLocalStorage)
+		        		{
+		                	peerInterface.getPeerNetwork().waitForRemotePipe();
+		                }
+					}
 				}else{
-					status = false;
 					System.out.println("Can not start HGBD: peer interface could not be instantiated");
 				}
 
 			}catch(Exception ex){
-				status = false;
 				System.out.println("Can not start HGBD: " + ex);
 			}
 		}else {
-			status = false;
 			System.out.println("Can not start HGBD: configuration not loaded");
 		}
 		

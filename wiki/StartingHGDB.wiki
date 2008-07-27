@@ -1,0 +1,56 @@
+#summary Short tutorial on how to start HGDB peers
+
+
+== Main elements of a HHDB peer ==
+
+ # The configuration file - see PeerConfiguration page
+ # The policy - this refers to how the calls to the HyperGraphPeer functions are implemented. For the time being only a DummyPolicy class is implemented that will force calls to be forwarded or resolved locally (this is subject to change in the near future)
+ # The type system - for the time being, all types are supposed to be known at all peers. This means that if you need to register all used types.
+ # Atom interests and replication - if a peer is interested to store objects from other peers, it will have to announce the interests in the network and start a catchUp phase in order to get up to date with the content from other peers.
+
+== Examples ==
+
+=== The main function for a "client" peer ===
+
+{{{
+public static void main(String[] args)
+{
+	HyperGraphPeer peer = new HyperGraphPeer(new File("./config/client1Config"), new DummyPolicy(false));
+		
+	if (peer.start("user", "pwd"))
+	{
+		//peer is started ... 
+	}
+}
+
+}}}
+
+=== The main function for a "server" peer ===
+
+{{{
+public static void main(String[] args)
+{
+	HyperGraphPeer server = new HyperGraphPeer(new File("./config/server1Config"), new DummyPolicy(true));
+	
+	if (server.start("user", "pwd"))
+	{
+		//peer is started ...
+
+		//set atom interests ...
+		server.setAtomInterests(new AnyAtomCondition());
+
+		//catch up ...
+		server.catchUp();
+	}		
+}
+
+}}}
+
+=== Registering user types ===
+
+In order to use objects of a give type on any peer, the peer will have to know its type. See below the code to register the _User_ class.
+
+{{{
+	HGPersistentHandle typeHandle = UUIDPersistentHandle.makeHandle("e917bda6-0932-4a66-9aeb-3fc84f04ce57");
+	peer.registerType(typeHandle, User.class);
+}}}

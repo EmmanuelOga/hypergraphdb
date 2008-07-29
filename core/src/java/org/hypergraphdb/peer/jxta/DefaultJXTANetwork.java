@@ -246,7 +246,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
 		if (hasPart(config, JXTAConfig.RENDEZVOUS))
 		{
 			configurator.clearRendezvousSeeds();
-			List<Object> rdvs = (List<Object>)getPart(config, JXTAConfig.RELAYS);
+			List<Object> rdvs = (List<Object>)getPart(config, JXTAConfig.RENDEZVOUS);
 			
 			for(Object rdv:rdvs)
 			{

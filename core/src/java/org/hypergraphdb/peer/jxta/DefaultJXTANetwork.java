@@ -53,6 +53,7 @@ import net.jxta.pipe.PipeID;
 import net.jxta.platform.ModuleSpecID;
 import net.jxta.platform.NetworkConfigurator;
 import net.jxta.platform.NetworkManager;
+import net.jxta.platform.NetworkManager.ConfigMode;
 import net.jxta.protocol.AccessPointAdvertisement;
 import net.jxta.protocol.DiscoveryResponseMsg;
 import net.jxta.protocol.ModuleImplAdvertisement;
@@ -93,20 +94,23 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	{
 		boolean result = false;
 		
+		NetworkManager.ConfigMode configMode = ConfigMode.ADHOC;
 		//Start network
 	    try 
 	    {
 	    	String peerName = (String)getOptPart(config, "HGDBPeer", JXTAConfig.PEER_NAME);
 	    	String mode = (String)getOptPart(config, "ADHOC", JXTAConfig.MODE);
 	    	String jxtaDir = (String)getOptPart(config, ".jxta", JXTAConfig.JXTA_DIR);
+
+	    	configMode = NetworkManager.ConfigMode.valueOf(NetworkManager.ConfigMode.class, mode);
 	    	
 	    	System.out.println("Initializing instance " + peerName + " ...");   	
 	    	URI configURI = new File(jxtaDir).toURI();
 	    	
 	    	System.out.println("Using config file: " + configURI.toString());
 	    
-	    	peerManager = new NetworkManager(NetworkManager.ConfigMode.valueOf(NetworkManager.ConfigMode.class, mode), peerName, configURI);
-	    	
+	    	peerManager = new NetworkManager(configMode, peerName, configURI);
+
 	    	NetworkConfigurator configurator = peerManager.getConfigurator(); 
 	    	configureNetwork(configurator, config);
 	    	
@@ -127,7 +131,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
 				if (hgdbGroup != null)
 				{
 					System.out.println("Trying to join the group ... ");
-					result = joinCustomGroup(username, passwd);
+					result = joinCustomGroup(username, passwd, (configMode == ConfigMode.RENDEZVOUS || configMode == ConfigMode.RENDEZVOUS_RELAY));
 				}
 				
 			} catch (Exception e)
@@ -189,7 +193,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	private void configureNetwork(NetworkConfigurator configurator, Object config)
 	{
 		//peerid?
-		
+				
 		//name
 		configurator.setName((String)getOptPart(config, "HGDBPeer", JXTAConfig.PEER_NAME));
 		
@@ -488,7 +492,7 @@ public class DefaultJXTANetwork implements JXTANetwork{
 		}
 	}
 	
-	private boolean joinCustomGroup(String user, String passwd) throws Exception
+	private boolean joinCustomGroup(String user, String passwd, boolean beRendevous) throws Exception
 	{
 		boolean isJoined = false;
 		
@@ -508,12 +512,19 @@ public class DefaultJXTANetwork implements JXTANetwork{
 					Credential myCred = hgdbGroup.getMembershipService().join(auth);
 					isJoined = true;
 					System.out.println("Group joined");
+					
+					if (beRendevous)
+					{
+						System.out.println("Starting group rendezvous...");
+						hgdbGroup.getRendezVousService().startRendezVous();
+					}
 				}catch(PeerGroupException ex)
 				{
 					System.out.println("incorrect password");
 				}
 			} else System.out.println("group not joined 1");
 		} else System.out.println("group not joined 2");
+		
 		
 		return isJoined;
 	}

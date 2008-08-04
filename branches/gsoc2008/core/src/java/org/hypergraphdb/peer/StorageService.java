@@ -10,6 +10,8 @@ import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HGStore;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.event.HGAtomAddedEvent;
+import org.hypergraphdb.event.HGAtomRemovedEvent;
+import org.hypergraphdb.event.HGAtomReplacedEvent;
 import org.hypergraphdb.event.HGEvent;
 import org.hypergraphdb.event.HGListener;
 import org.hypergraphdb.peer.log.Log;
@@ -22,10 +24,15 @@ import org.hypergraphdb.peer.workflow.RememberTaskClient;
  */
 public class StorageService
 {
+	public enum Operation {Create, Update, Remove};
+
 	private HyperGraph graph;
 	private HyperGraph logGraph;
 
 	Set<HGHandle> ownAddedHandles = new HashSet<HGHandle>();
+	Set<HGHandle> ownUpdatedHandles = new HashSet<HGHandle>();
+	Set<HGHandle> ownRemovedHandles = new HashSet<HGHandle>();
+
 	private PeerInterface peerInterface;
 	private Log log;
 	
@@ -43,7 +50,9 @@ public class StorageService
 		this.peerInterface = peerInterface;
 		this.log = log;
 		
-		graph.getEventManager().addListener(HGAtomAddedEvent.class, new AtomAddedListner());
+		graph.getEventManager().addListener(HGAtomAddedEvent.class, new AtomAddedListener());
+		graph.getEventManager().addListener(HGAtomRemovedEvent.class, new AtomRemovedListener());
+		graph.getEventManager().addListener(HGAtomReplacedEvent.class, new AtomReplacedListener());
 	}
 	
 	private HGHandle storeSubgraph(Subgraph subGraph, HGStore store)
@@ -51,22 +60,44 @@ public class StorageService
 		return SubgraphManager.store(subGraph, store);
 	}
 	
-	public HGHandle addSubgraph(Subgraph subGraph)
+	public HGHandle addSubgraph(Subgraph subgraph)
 	{
 		//TODO remake to add directly to store and INDEX
 		HGStore store = logGraph.getStore();
-		HGHandle handle = storeSubgraph(subGraph, store);
+		HGHandle handle = storeSubgraph(subgraph, store);
+		Object value = logGraph.get(handle);
+		logGraph.remove(handle, false);
 		
-		ownAddedHandles.add(handle);
 		
-		graph.add((HGPersistentHandle)handle, logGraph.get(handle));
+		ownAddedHandles.add(handle);	
+		graph.add((HGPersistentHandle)handle, value);
 		
 		return handle;
 		
 	}
 
+	public HGHandle updateSubgraph(Subgraph subgraph)
+	{
+		HGStore store = logGraph.getStore();
+		HGHandle handle = storeSubgraph(subgraph, store);
+		Object value = logGraph.get(handle);
+		logGraph.remove(handle, false);
+
+		ownUpdatedHandles.add(handle);	
+		graph.replace((HGPersistentHandle)handle, value);
+		
+		return handle;
+	}
+
+	public void remove(HGHandle handle)
+	{
+		ownRemovedHandles.add(handle);
+		
+		graph.remove(handle);
+			
+	}
 	
-	private class AtomAddedListner implements HGListener
+	private class AtomAddedListener implements HGListener
 	{
 
 		public Result handle(HyperGraph hg, HGEvent event)
@@ -83,7 +114,7 @@ public class StorageService
 				//someone else added ... propagate ... 
 				System.out.println("Add to propagate: " + handle);
 
-				RememberTaskClient client = new RememberTaskClient(peerInterface, hg.get(handle), log, hg, hg.getPersistentHandle(handle));
+				RememberTaskClient client = new RememberTaskClient(peerInterface, hg.get(handle), log, hg, hg.getPersistentHandle(handle), Operation.Create);
 				client.run();
 			}
 			
@@ -92,7 +123,49 @@ public class StorageService
 		
 	}
 
-
+	private class AtomRemovedListener implements HGListener
+	{
+		public Result handle(HyperGraph hg, HGEvent event)
+		{
+			HGAtomRemovedEvent removedEvent = (HGAtomRemovedEvent)event;
+			HGHandle handle =  removedEvent.getAtomHandle();
+			
+			if (autoSkip || ownRemovedHandles.contains(handle))
+			{
+				System.out.println("own remove detected: " + handle);
+				ownRemovedHandles.remove(handle);
+			}else{
+				System.out.println("Remove to propagate: " + handle);
+				
+				RememberTaskClient client = new RememberTaskClient(peerInterface, null, log, hg, hg.getPersistentHandle(handle), Operation.Remove);
+				client.run();
+			}
+			
+			return Result.ok;
+		}
+	}
+	private class AtomReplacedListener implements HGListener
+	{
+		public Result handle(HyperGraph hg, HGEvent event)
+		{
+			HGAtomReplacedEvent replacedEvent = (HGAtomReplacedEvent)event;
+			HGHandle handle =  replacedEvent.getAtomHandle();
+			
+			if (autoSkip || ownUpdatedHandles.contains(handle))
+			{
+				System.out.println("Own replace detected: " + handle);
+				ownUpdatedHandles.remove(handle);
+			}else{
+				System.out.println("Replace to propagate: " + handle);
+				
+				RememberTaskClient client = new RememberTaskClient(peerInterface, hg.get(handle), log, hg, hg.getPersistentHandle(handle), Operation.Update);
+				client.run();
+			}
+			
+			return Result.ok;
+		}
+		
+	}
 	public void registerType(HGPersistentHandle handle, Class<?> clazz)
 	{
 		if ((graph!= null) && (graph.getStore().getLink(handle) == null))
@@ -108,4 +181,8 @@ public class StorageService
 		}
 		
 	}
+
+
+
+
 }

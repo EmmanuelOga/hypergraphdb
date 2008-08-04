@@ -1,5 +1,7 @@
 package org.hypergraphdb.peer.log;
 
+import org.hypergraphdb.peer.StorageService;
+
 /**
  * @author ciprian.costa
  * Ensures ordering on events originated for the current peer.
@@ -7,7 +9,7 @@ package org.hypergraphdb.peer.log;
 public class Timestamp implements Comparable<Timestamp>
 {
 	private int counter;
-	
+
 	public Timestamp()
 	{
 		counter = 0;

@@ -4,6 +4,7 @@ import java.io.File;
 
 import net.jxta.platform.NetworkManager;
 
+import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.handle.UUIDPersistentHandle;
@@ -28,12 +29,6 @@ public class HyperGraphDBServer {
 		
 		System.out.println("Starting HGDB peer " + configFile + " ...");
 
-		//HyperGraphPeer server = new HyperGraphPeer(new File("./server1Config"), new DummyPolicy(true));
-		//HyperGraphPeer server = new HyperGraphPeer(new File("./config/minimalConfig"), new DummyPolicy(true));
-		//HyperGraphPeer server = new HyperGraphPeer(new File("./config/namedPeerConfig"), new DummyPolicy(true));
-		//HyperGraphPeer server = new HyperGraphPeer(new File("./config/dirPeerConfig"), new DummyPolicy(true));
-		//HyperGraphPeer server = new HyperGraphPeer(new File("./config/transportPeerConfig"), new DummyPolicy(true));
-		//HyperGraphPeer server = new HyperGraphPeer(new File("./config/relayPeerConfig"), new DummyPolicy(true));
 		HyperGraphPeer server = new HyperGraphPeer(new File(configFile), new DummyPolicy(true));
 		
 		
@@ -44,22 +39,33 @@ public class HyperGraphDBServer {
 				Thread.sleep(3000);
 			} catch (InterruptedException e){}
 	
-			
+	
 			HGPersistentHandle typeHandle = UUIDPersistentHandle.makeHandle("e917bda6-0932-4a66-9aeb-3fc84f04ce57");
 			server.registerType(typeHandle, User.class);
 			System.out.println("Types registered...");
+
+			//server.setAtomInterests(new AtomPartCondition(new String[] {"part"}, "5", ComparisonOperator.LT));
+			server.setAtomInterests(new AnyAtomCondition());
 			
 			//server.setAtomInterests(new AtomPartCondition(new String[] {"part"}, "5", ComparisonOperator.LT));
 			server.updateNetworkProperties();
 			server.setAtomInterests(new AnyAtomCondition());
 			server.catchUp();
 			
-			HyperGraph graph =server.getHGDB();
+			HyperGraph graph = server.getHGDB();
 			for(int i=0;i<count;i++)
 			{
 				User user = new User(startId + i, "user " + Integer.toString(startId + i));
-				graph.add(user);
+				HGHandle handle = graph.add(user);
 				System.out.println("object added");
+				
+				User user1 = new User(startId + i, "new user " + Integer.toString(startId + i));
+				graph.replace(handle, user1);
+				System.out.println("object updated");
+				
+				graph.remove(handle);
+				System.out.println("object removed");
+				
 			}
 			
 		}else{

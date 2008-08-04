@@ -20,7 +20,12 @@ public class LogEntry implements Comparable<LogEntry>
 	
 	public LogEntry(Object value, HyperGraph logDb)
 	{
-		logEntryHandle = logDb.getPersistentHandle(logDb.add(value));
+		this(value, logDb, null);
+	}
+
+	public LogEntry(Object value, HyperGraph logDb, HGPersistentHandle handle)
+	{
+		logEntryHandle = logDb.getPersistentHandle(logDb.add(handle, value));
 		
 		data = new Subgraph(logDb, logEntryHandle);
 	}

@@ -27,7 +27,7 @@ public class HyperGraphDBClient{
 
 		System.out.println("Starting a HGDB client ...");
 
-		HyperGraphPeer peer = new HyperGraphPeer(new File("./config/client1Config"), new DummyPolicy(false));
+		HyperGraphPeer peer = new HyperGraphPeer(new File("./config/client1ConfigCalin"), new DummyPolicy(false));
 		
 		if (peer.start("user", "pwd"))
 		{

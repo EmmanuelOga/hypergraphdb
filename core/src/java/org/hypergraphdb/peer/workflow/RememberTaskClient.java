@@ -40,17 +40,19 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 	private Object value;
 	private Log log;
 	private LogEntry entry;
+	private HGPersistentHandle handle;
 	
 	//TODO replace. for now just assumming everyone is online 
 	private AtomicInteger count = new AtomicInteger(1);
 	PeerFilter peerFilter;
 	private Object targetPeer;
 	
-	public RememberTaskClient(PeerInterface peerInterface, Object value, Log log, HyperGraph hg)
+	public RememberTaskClient(PeerInterface peerInterface, Object value, Log log, HyperGraph hg, HGPersistentHandle handle)
 	{
 		super(peerInterface, State.Started, State.Done);
 		this.value = value;
 		this.log = log;
+		this.handle = handle; 
 		
 		evaluator = new InterestEvaluator(peerInterface, hg);
 	}
@@ -82,7 +84,7 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 		
 		if (entry == null)
 		{
-			entry = log.createLogEntry(value);
+			entry = log.createLogEntry(handle, value);
 			evaluator.setHandle(entry.getLogEntryHandle());
 			log.addEntry(entry, peerFilter);
 		}

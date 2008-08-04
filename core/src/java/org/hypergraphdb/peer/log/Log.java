@@ -14,6 +14,7 @@ import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.handle.UUIDPersistentHandle;
 import org.hypergraphdb.peer.PeerFilter;
 import org.hypergraphdb.peer.PeerInterface;
+import org.hypergraphdb.peer.StorageService;
 import org.hypergraphdb.query.And;
 import org.hypergraphdb.query.AtomPartCondition;
 import org.hypergraphdb.query.AtomTypeCondition;
@@ -62,9 +63,9 @@ public class Log
 
 	}
 
-	public LogEntry createLogEntry(HGPersistentHandle handle, Object value)
+	public LogEntry createLogEntry(HGPersistentHandle handle, Object value, StorageService.Operation operation)
 	{
-		LogEntry entry = new LogEntry(value, logDb, handle);
+		LogEntry entry = new LogEntry(value, logDb, handle, operation);
 		
 		return entry;
 	}
@@ -90,7 +91,8 @@ public class Log
 			HGHandle timestampHandle = logDb.add(entryTimestamp);
 			
 			logDb.getStore().store(LATEST_VERSION_HANDLE, (logDb.getPersistentHandle(timestampHandle)).toByteArray());
-			logDb.add(new HGPlainLink(timestampHandle, entry.getLogEntryHandle()));
+			HGHandle opHandle = logDb.add(entry.operation);
+			logDb.add(new HGPlainLink(timestampHandle, entry.getLogEntryHandle(), opHandle));
 			
 			//get timestamp, save, 
 			while (it.hasNext())
@@ -255,6 +257,8 @@ public class Log
 					{
 						Timestamp ts = logDb.get(handle);
 						LogEntry entry = new LogEntry(link.getTargetAt(1), logDb, ts);
+						entry.setOperation((StorageService.Operation)logDb.get(link.getTargetAt(2)));
+						
 						result.add(entry);
 					}
 				}

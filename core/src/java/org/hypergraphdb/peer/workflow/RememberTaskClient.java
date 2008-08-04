@@ -12,6 +12,7 @@ import org.hypergraphdb.peer.PeerFilter;
 import org.hypergraphdb.peer.PeerInterface;
 import org.hypergraphdb.peer.PeerRelatedActivity;
 import org.hypergraphdb.peer.PeerRelatedActivityFactory;
+import org.hypergraphdb.peer.StorageService;
 import org.hypergraphdb.peer.Subgraph;
 import org.hypergraphdb.peer.log.Log;
 import org.hypergraphdb.peer.log.LogEntry;
@@ -47,14 +48,18 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 	PeerFilter peerFilter;
 	private Object targetPeer;
 	
-	public RememberTaskClient(PeerInterface peerInterface, Object value, Log log, HyperGraph hg, HGPersistentHandle handle)
+	private StorageService.Operation operation;
+	
+	public RememberTaskClient(PeerInterface peerInterface, Object value, Log log, HyperGraph hg, HGPersistentHandle handle, StorageService.Operation operation)
 	{
 		super(peerInterface, State.Started, State.Done);
 		this.value = value;
 		this.log = log;
 		this.handle = handle; 
+		this.operation = operation;
 		
 		evaluator = new InterestEvaluator(peerInterface, hg);
+		
 	}
 	
 	public RememberTaskClient(PeerInterface peerInterface, LogEntry entry, Object targetPeer, Log log)
@@ -64,6 +69,8 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 		this.entry = entry;
 		this.targetPeer = targetPeer;
 		this.log = log;
+		
+		this.operation = entry.getOperation();
 	}
 
 	protected void startTask()
@@ -84,7 +91,7 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 		
 		if (entry == null)
 		{
-			entry = log.createLogEntry(handle, value);
+			entry = log.createLogEntry(handle, value, operation);
 			evaluator.setHandle(entry.getLogEntryHandle());
 			log.addEntry(entry, peerFilter);
 		}
@@ -112,7 +119,8 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 				CONTENT, struct(
 						SLOT_LAST_VERSION, entry.getLastTimestamp(getPeerInterface().getPeerNetwork().getPeerId(target)),
 						SLOT_CURRENT_VERSION, entry.getTimestamp()
-					))
+					),
+				OPERATION, operation)
 		);
 
 		PeerRelatedActivity activity = (PeerRelatedActivity)activityFactory.createActivity();
@@ -153,9 +161,13 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 		if (true)
 		{
 			Object reply = getReply(conversation.getMessage());
-			combine(reply, struct(CONTENT, object(entry.getData())));
-//			reply.setContent(entry.getData());
-			
+			if ((operation == StorageService.Operation.Create) || (operation == StorageService.Operation.Update))
+			{
+				combine(reply, struct(CONTENT, object(entry.getData())));
+			}else{
+				combine(reply, struct(CONTENT, handle));
+			}
+						
 			//set the conversation in the Accepted state
 			conversation.accept(reply);
 		}

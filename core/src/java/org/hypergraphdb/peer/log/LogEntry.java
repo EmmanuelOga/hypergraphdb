@@ -5,7 +5,9 @@ import java.util.HashMap;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
+import org.hypergraphdb.peer.StorageService;
 import org.hypergraphdb.peer.Subgraph;
+import org.hypergraphdb.peer.workflow.RememberTaskClient;
 
 /**
  * @author ciprian.costa
@@ -17,17 +19,33 @@ public class LogEntry implements Comparable<LogEntry>
 	private HGPersistentHandle logEntryHandle;
 	private HashMap<Object, Timestamp> lastTimestamps = new HashMap<Object, Timestamp>();
 	Timestamp timestamp;
+	StorageService.Operation operation;
 	
-	public LogEntry(Object value, HyperGraph logDb)
+	public LogEntry(Object value, HyperGraph logDb, StorageService.Operation operation)
 	{
-		this(value, logDb, null);
+		this(value, logDb, null, operation);
 	}
 
-	public LogEntry(Object value, HyperGraph logDb, HGPersistentHandle handle)
+	public LogEntry(Object value, HyperGraph logDb, HGPersistentHandle handle, StorageService.Operation operation)
 	{
-		logEntryHandle = logDb.getPersistentHandle(logDb.add(handle, value));
+		if (operation != StorageService.Operation.Remove)
+		{
+			if (logDb.getStore().containsLink(handle))
+			{
+				logDb.replace(handle, value);
+			}else{
+				logDb.add(handle, value);
+			}
+
+			logEntryHandle = logDb.getPersistentHandle(handle);
+			data = new Subgraph(logDb, logEntryHandle);
+		}else
+		{
+			logEntryHandle = logDb.getPersistentHandle(handle);
+		}
+
+		this.operation = operation;
 		
-		data = new Subgraph(logDb, logEntryHandle);
 	}
 	
 	public LogEntry(HGHandle handle, HyperGraph logDb, Timestamp timestamp)
@@ -73,6 +91,16 @@ public class LogEntry implements Comparable<LogEntry>
 	public Timestamp getLastTimestamp(Object targetId)
 	{
 		return lastTimestamps.get(targetId);
+	}
+
+	public StorageService.Operation getOperation()
+	{
+		return operation;
+	}
+
+	public void setOperation(StorageService.Operation operation)
+	{
+		this.operation = operation;
 	}
 
 	public int compareTo(LogEntry value)

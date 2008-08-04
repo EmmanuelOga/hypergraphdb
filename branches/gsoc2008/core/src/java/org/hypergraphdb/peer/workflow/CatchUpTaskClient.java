@@ -60,7 +60,8 @@ public class CatchUpTaskClient extends TaskActivity<CatchUpTaskClient.State>
 			}				
 		}
 		
-		if (count.decrementAndGet() == 0) setState(State.Done);
+		//to do ... wait for conversations
+		setState(State.Done);
 
 	}
 

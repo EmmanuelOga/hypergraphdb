@@ -10,10 +10,8 @@ import org.hypergraphdb.query.HGQueryCondition;
 
 public class DumpDatabaseContent {
 	public static void main(String[] args){
-		dumpDb("./DBs/Client1CacheDB", new AtomTypeCondition(User.class));
-		//dumpDb("./DBs/Server1CacheDb", new AnyAtomCondition());
-
-		dumpDb("./DBs/Server1DB", new AtomTypeCondition(User.class));
+		dumpDb("./hgdb/Server1/mainDb", new AtomTypeCondition(User.class));
+		dumpDb("./hgdb/Server2/mainDb", new AtomTypeCondition(User.class));
 	}
 
 	

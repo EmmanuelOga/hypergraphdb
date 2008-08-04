@@ -83,7 +83,8 @@ public class RememberTaskServer extends TaskActivity<RememberTaskServer.State>
 		Object peerId = getPeerInterface().getPeerNetwork().getPeerId(getPart(msg, REPLY_TO));//.getReplyTo());
 		if (peer.getLog().registerRequest(peerId, last_version, current_version))
 		{
-			handle = peer.addSubgraph(subgraph);
+			handle = peer.getStorage().addSubgraph(subgraph);
+			
 			peer.getLog().finishRequest(peerId, last_version, current_version);
 			System.out.println("RememberActivityServer: added " + handle);
 			

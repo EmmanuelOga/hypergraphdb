@@ -14,6 +14,9 @@ import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HGSearchResult;
 import org.hypergraphdb.HGStore;
 import org.hypergraphdb.HyperGraph;
+import org.hypergraphdb.event.HGAtomAddedEvent;
+import org.hypergraphdb.event.HGEvent;
+import org.hypergraphdb.event.HGListener;
 import org.hypergraphdb.peer.jxta.DefaultPeerFilterEvaluator;
 import org.hypergraphdb.peer.log.Log;
 import org.hypergraphdb.peer.protocol.Performative;
@@ -62,6 +65,8 @@ public class HyperGraphPeer {
 	private PeerPolicy policy;
 	
 	private Log log;
+	
+	private StorageService storage;
 	
 	public HyperGraphPeer(PeerPolicy policy)
 	{
@@ -125,6 +130,10 @@ public class HyperGraphPeer {
 			//get required objects
 			try
 			{
+				//create cache database - this should eventually be an actual cache, not just another database
+				cacheGraph = new HyperGraph((String)getOptPart(configuration, ".tempdb", PeerConfig.TEMP_DB)); 
+				GenericSerializer.setTempDB(cacheGraph);
+
 				//create the local database
 				boolean hasLocalStorage = (Boolean)getPart(configuration, PeerConfig.HAS_LOCAL_STORAGE);
 				if (hasLocalStorage)
@@ -132,9 +141,6 @@ public class HyperGraphPeer {
 					graph = new HyperGraph((String)getOptPart(configuration, ".hgdb", PeerConfig.LOCAL_DB));
 				}
 				
-				//create cache database - this should eventually be an actual cache, not just another database
-				cacheGraph = new HyperGraph((String)getOptPart(configuration, ".tempdb", PeerConfig.TEMP_DB)); 
-				GenericSerializer.setTempDB(cacheGraph);
 
 				//load and start interface
 				String peerInterfaceType = (String)getPart(configuration, PeerConfig.INTERFACE_TYPE);
@@ -149,14 +155,10 @@ public class HyperGraphPeer {
 		                thread.start();
 		                
 		                //configure services
-		                if (hasLocalStorage)
-		                {
-		        			peerInterface.registerTaskFactory(Performative.CallForProposal, HGDBOntology.REMEMBER_ACTION, new RememberTaskServer.RememberTaskServerFactory(this));
-		        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.ATOM_INTEREST, new PublishInterestsTask.PublishInterestsFactory());
-		        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.QUERY, new QueryTaskServer.QueryTaskFactory(this));
-		                }else{
-		        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.CATCHUP, new CatchUpTaskServer.CatchUpTaskServerFactory(this));
-		                }
+	        			peerInterface.registerTaskFactory(Performative.CallForProposal, HGDBOntology.REMEMBER_ACTION, new RememberTaskServer.RememberTaskServerFactory(this));
+	        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.ATOM_INTEREST, new PublishInterestsTask.PublishInterestsFactory());
+	        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.QUERY, new QueryTaskServer.QueryTaskFactory(this));
+	        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.CATCHUP, new CatchUpTaskServer.CatchUpTaskServerFactory(this));
 		        		peerInterface.registerTaskFactory(Performative.Inform, HGDBOntology.ATOM_INTEREST, new GetInterestsTask.GetInterestsFactory());
 	
 		        		typeSystem = new HGTypeSystemPeer(peerInterface, (graph == null) ? null : graph.getTypeSystem());
@@ -167,6 +169,9 @@ public class HyperGraphPeer {
 		        		{
 		                	peerInterface.getPeerNetwork().waitForRemotePipe();
 		                }
+		        		
+						storage = new StorageService(graph, cacheGraph, peerInterface, log);
+
 					}
 				}else{
 					System.out.println("Can not start HGBD: peer interface could not be instantiated");
@@ -217,29 +222,11 @@ public class HyperGraphPeer {
 			//add to local store and return handle
 			handle = graph.getPersistentHandle(graph.add(value));
 		}else{
-			RememberTaskClient activity = new RememberTaskClient(peerInterface, value, log, cacheGraph);
+			RememberTaskClient activity = new RememberTaskClient(peerInterface, value, log, cacheGraph, null);
 			activity.run();
 			handle = activity.getResult();
 		}
 
-		return handle;
-	}
-
-		
-	/**
-	 * This is where serialized atoms reach the peer. They have been previously serialized by another entry peer.
-	 * The function will get info out of the subgraph and decide what to store and eventually what to forward (not yet implemented).
-	 * 
-	 * @param graph
-	 * @return
-	 */
-	public HGHandle addSubgraph(Subgraph subGraph)
-	{
-		//TODO remake to add directly to store and INDEX
-		HGStore store = cacheGraph.getStore();
-		HGHandle handle = storeSubgraph(subGraph, store);
-		
-		graph.add((HGPersistentHandle)handle, cacheGraph.get(handle));
 		return handle;
 	}
 
@@ -326,15 +313,10 @@ public class HyperGraphPeer {
 
 	public void registerType(HGPersistentHandle handle, Class<?> clazz)
 	{
-		if ((graph!= null) && (graph.getStore().getLink(handle) == null))
+		if (storage != null)
 		{
-			graph.getTypeSystem().defineTypeAtom(handle, clazz);
-		}
-		
-		if(cacheGraph.getStore().getLink(handle) == null)
-		{
-			cacheGraph.getTypeSystem().defineTypeAtom(handle, clazz);
-		}
+			storage.registerType(handle, clazz);
+		}		
 	}
 
 	public HGSearchResult<HGHandle> find(HGQueryCondition query)
@@ -364,6 +346,21 @@ public class HyperGraphPeer {
 
 		if (result.size() > 0) return result.get(0);
 		else return null;
+	}
+
+	public HyperGraph getHGDB()
+	{
+		return graph;
+	}
+
+	public StorageService getStorage()
+	{
+		return storage;
+	}
+
+	public void setStorage(StorageService storage)
+	{
+		this.storage = storage;
 	}
 
 }

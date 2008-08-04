@@ -62,9 +62,9 @@ public class Log
 
 	}
 
-	public LogEntry createLogEntry(Object value)
+	public LogEntry createLogEntry(HGPersistentHandle handle, Object value)
 	{
-		LogEntry entry = new LogEntry(value, logDb);
+		LogEntry entry = new LogEntry(value, logDb, handle);
 		
 		return entry;
 	}

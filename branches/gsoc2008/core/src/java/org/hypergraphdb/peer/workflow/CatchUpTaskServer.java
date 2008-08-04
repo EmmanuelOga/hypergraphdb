@@ -7,8 +7,11 @@ import java.util.UUID;
 import org.hypergraphdb.peer.HyperGraphPeer;
 import org.hypergraphdb.peer.InterestEvaluator;
 import org.hypergraphdb.peer.PeerInterface;
+import org.hypergraphdb.peer.PeerRelatedActivity;
+import org.hypergraphdb.peer.PeerRelatedActivityFactory;
 import org.hypergraphdb.peer.log.LogEntry;
 import org.hypergraphdb.peer.log.Timestamp;
+import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.peer.workflow.RememberTaskServer.State;
 import org.hypergraphdb.query.HGAtomPredicate;
 import static org.hypergraphdb.peer.Structs.*;
@@ -60,6 +63,7 @@ public class CatchUpTaskServer extends TaskActivity<CatchUpTaskServer.State>
 			lastTimestamp = entry.getTimestamp();
 		}
 		
+		setState(State.Done);
 	};
 
 	public static class CatchUpTaskServerFactory implements TaskFactory

@@ -76,7 +76,7 @@ public abstract class HGTopicMapObjectBase implements TopicMapObject, HGGraphHol
 		if (rel != null)
 			graph.remove(rel);
 		// If this locator is not used in anything else, we may remove it.
-		if (graph.getIncidenceSet(lh).length == 0)
+		if (graph.getIncidenceSet(lh).size() == 0)
 			graph.remove(lh);		
 	}
 	

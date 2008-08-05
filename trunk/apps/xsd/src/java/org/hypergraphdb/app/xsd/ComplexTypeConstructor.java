@@ -8,25 +8,16 @@
  */
 package org.hypergraphdb.app.xsd;
 
-import java.util.Iterator;
-
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGHandleFactory;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
+import org.hypergraphdb.IncidenceSet;
 import org.hypergraphdb.IncidenceSetRef;
 import org.hypergraphdb.LazyRef;
-import org.hypergraphdb.type.HGCompositeType;
-import org.hypergraphdb.type.HGProjection;
 import org.hypergraphdb.type.RecordType;
 import org.hypergraphdb.HGValueLink;
 import org.hypergraphdb.type.HGAtomType;
-import java.util.Collection;
-import org.hypergraphdb.atom.AtomProjection;
-import org.hypergraphdb.atom.HGAtomRef;
-import org.hypergraphdb.HGSearchResult;
-import org.hypergraphdb.HGQuery;
-import org.hypergraphdb.query.AtomTypeCondition;
 
 /**
  * 
@@ -58,15 +49,15 @@ public class ComplexTypeConstructor implements HGAtomType
     */
    public Object make(
       HGPersistentHandle handle, LazyRef<HGHandle[]> targetSet,
-      IncidenceSetRef incidenceSet)
+      IncidenceSetRef incidenceSetRef)
    {
-      HGHandle[] handles = incidenceSet.deref();
-      HGValueLink valueLink = (HGValueLink) hg.get(handles[0]);
+      IncidenceSet incidenceSet = incidenceSetRef.deref();
+      HGValueLink valueLink = (HGValueLink) hg.get(incidenceSet.first());
       RecordType recordType = (RecordType) valueLink.getValue();
 
       Object result = null;
 
-      Class clazz = ClassGenerator.generateComplexType(hg, ComplexTypeBase.class, recordType);
+      Class<?> clazz = ClassGenerator.generateComplexType(hg, ComplexTypeBase.class, recordType);
       try
       {
          result = clazz.newInstance();

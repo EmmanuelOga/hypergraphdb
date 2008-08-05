@@ -15,6 +15,7 @@ import org.hypergraphdb.HGQuery;
 import org.hypergraphdb.HGSearchResult;
 import org.hypergraphdb.HGValueLink;
 import org.hypergraphdb.HyperGraph;
+import org.hypergraphdb.IncidenceSet;
 import org.hypergraphdb.IncidenceSetRef;
 import org.hypergraphdb.LazyRef;
 import org.hypergraphdb.atom.HGSubsumes;
@@ -52,9 +53,9 @@ public class SimpleTypeConstructor implements HGAtomType
     */
    public Object make(
       HGPersistentHandle handle, LazyRef<HGHandle[]> targetSet,
-      IncidenceSetRef incidenceSet)
+      IncidenceSetRef incidenceSetRef)
    {
-      HGHandle[] handles = incidenceSet.deref();
+      IncidenceSet incidenceSet = incidenceSetRef.deref();
 
       XSDTypeImplementation nameType = null;
       HGSubsumes subsumes = null;
@@ -71,10 +72,16 @@ public class SimpleTypeConstructor implements HGAtomType
        * subsumes = (HGSubsumes)o; } }
        */
 
-      nameType = (XSDTypeImplementation) hg.get(handles[0]);
-      subsumes = (HGSubsumes) hg.get(handles[1]);
-      valueLink = (HGValueLink) hg.get(handles[2]);
+      // TODO: the following 3 lines are commented out because they are wrong: an
+      // order cannot be assumed in the incidence set!
+      
+      //nameType = (XSDTypeImplementation) hg.get(handles[0]);
+      //subsumes = (HGSubsumes) hg.get(handles[1]);
+      //valueLink = (HGValueLink) hg.get(handles[2]);
 
+      if (true)
+    	  throw new UnsupportedOperationException("There's a bug in the above 3 lines...");
+      
       facets = (FacetsDescriptorBase) valueLink.getValue();
       HGHandle typeNameHandle = nameType.getXSDTypeName();
       XSDTypeName typeName = (XSDTypeName) hg.get(typeNameHandle);

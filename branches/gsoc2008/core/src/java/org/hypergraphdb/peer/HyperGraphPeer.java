@@ -222,7 +222,7 @@ public class HyperGraphPeer {
 			//add to local store and return handle
 			handle = graph.getPersistentHandle(graph.add(value));
 		}else{
-			RememberTaskClient activity = new RememberTaskClient(peerInterface, value, log, cacheGraph, null);
+			RememberTaskClient activity = new RememberTaskClient(peerInterface, value, log, cacheGraph, null, StorageService.Operation.Create);
 			activity.run();
 			handle = activity.getResult();
 		}

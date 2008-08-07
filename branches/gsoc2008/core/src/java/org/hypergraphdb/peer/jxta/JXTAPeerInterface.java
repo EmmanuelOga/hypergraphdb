@@ -3,6 +3,7 @@ package org.hypergraphdb.peer.jxta;
 import static org.hypergraphdb.peer.HGDBOntology.ACTION;
 import static org.hypergraphdb.peer.HGDBOntology.PERFORMATIVE;
 import static org.hypergraphdb.peer.HGDBOntology.SEND_TASK_ID;
+import static org.hypergraphdb.peer.Structs.getOptPart;
 import static org.hypergraphdb.peer.Structs.getPart;
 
 import java.io.IOException;
@@ -16,6 +17,7 @@ import net.jxta.pipe.PipeID;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.socket.JxtaServerSocket;
 
+import org.hypergraphdb.peer.PeerConfig;
 import org.hypergraphdb.peer.PeerFilter;
 import org.hypergraphdb.peer.PeerFilterEvaluator;
 import org.hypergraphdb.peer.PeerInterface;
@@ -53,6 +55,8 @@ public class JXTAPeerInterface implements PeerInterface{
 	private HashMap<UUID, TaskActivity<?>> tasks = new HashMap<UUID, TaskActivity<?>>();
 	private HGAtomPredicate atomInterests;
 	
+	private boolean hasCustomInterface;
+	
 	public boolean configure(Object configuration, String user, String passwd) 
 	{
 		boolean result = true;
@@ -60,10 +64,14 @@ public class JXTAPeerInterface implements PeerInterface{
 		System.out.println("JXTAPeerInterface: configure");
 
 		//get the part we are interested in
+		boolean hasTempDb = (Boolean)getOptPart(configuration, true, PeerConfig.HAS_TEMP_STORAGE);
+		boolean hasLocalStorage = (Boolean)getPart(configuration, PeerConfig.HAS_LOCAL_STORAGE);
+
+		hasCustomInterface = hasLocalStorage || hasTempDb;
 		config = getPart(configuration, JXTAConfig.CONFIG_NAME);
 		result = jxtaNetwork.init(config, user, passwd);
 
-		if (result)
+		if (result && hasCustomInterface)
 		{
 			String peerName = (String)getOptPart(config, "HGDBPeer", JXTAConfig.PEER_NAME);
 			
@@ -95,33 +103,36 @@ public class JXTAPeerInterface implements PeerInterface{
 		return new JXTASendActivityFactory(jxtaNetwork.getPeerGroup(), pipeAdv);
 	}
 	
-	public void run() {
-		
-        System.out.println("Starting ServerSocket");
-        JxtaServerSocket serverSocket = null;
-        
-        try {
-        	serverSocket = new JxtaServerSocket(jxtaNetwork.getPeerGroup(), pipeAdv);
-            serverSocket.setSoTimeout(0);
-        } catch (IOException e) {
-            System.out.println("failed to create a server socket");
-            e.printStackTrace();
-        }
-        
-        //TODO implement a stop method
-        while (true) {
-            try {
-                System.out.println("Waiting for connections");
-                Socket socket = serverSocket.accept();
-                if (socket != null) {
-                    System.out.println("New socket connection accepted");
-                    Thread thread = new Thread(new ConnectionHandler(socket), "Connection Handler Thread");
-                    thread.start();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+	public void run() 
+	{
+		if (hasCustomInterface)
+		{
+	        System.out.println("Starting ServerSocket");
+	        JxtaServerSocket serverSocket = null;
+	        
+	        try {
+	        	serverSocket = new JxtaServerSocket(jxtaNetwork.getPeerGroup(), pipeAdv);
+	            serverSocket.setSoTimeout(0);
+	        } catch (IOException e) {
+	            System.out.println("failed to create a server socket");
+	            e.printStackTrace();
+	        }
+	        
+	        //TODO implement a stop method
+	        while (true) {
+	            try {
+	                System.out.println("Waiting for connections");
+	                Socket socket = serverSocket.accept();
+	                if (socket != null) {
+	                    System.out.println("New socket connection accepted");
+	                    Thread thread = new Thread(new ConnectionHandler(socket), "Connection Handler Thread");
+	                    thread.start();
+	                }
+	            } catch (Exception e) {
+	                e.printStackTrace();
+	            }
+	        }
+		}
 	}
 
 	private class ConnectionHandler implements Runnable{

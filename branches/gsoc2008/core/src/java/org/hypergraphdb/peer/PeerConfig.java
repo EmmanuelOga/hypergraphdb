@@ -8,9 +8,12 @@ public class PeerConfig
 
 	public static final String LOCAL_DB = "localDB";
 
+	public static final String HAS_TEMP_STORAGE = "hasTempStorage";
+
 	public static final String TEMP_DB = "tempDB";
 
 	public static final String INTERFACE_TYPE = "interfaceType";
+	
 	
 	
 }

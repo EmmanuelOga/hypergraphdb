@@ -130,8 +130,13 @@ public class HyperGraphPeer {
 			//get required objects
 			try
 			{
-				//create cache database - this should eventually be an actual cache, not just another database
-				cacheGraph = new HyperGraph((String)getOptPart(configuration, ".tempdb", PeerConfig.TEMP_DB)); 
+				boolean hasTempDb = (Boolean)getOptPart(configuration, true, PeerConfig.HAS_TEMP_STORAGE);
+				if (hasTempDb)
+				{
+					//create cache database - this should eventually be an actual cache, not just another database
+					cacheGraph = new HyperGraph((String)getOptPart(configuration, ".tempdb", PeerConfig.TEMP_DB));
+				}
+				
 				GenericSerializer.setTempDB(cacheGraph);
 
 				//create the local database
@@ -141,7 +146,6 @@ public class HyperGraphPeer {
 					graph = new HyperGraph((String)getOptPart(configuration, ".hgdb", PeerConfig.LOCAL_DB));
 				}
 				
-
 				//load and start interface
 				String peerInterfaceType = (String)getPart(configuration, PeerConfig.INTERFACE_TYPE);
 				peerInterface = (PeerInterface)Class.forName(peerInterfaceType).getConstructor().newInstance();
@@ -155,23 +159,26 @@ public class HyperGraphPeer {
 		                thread.start();
 		                
 		                //configure services
-	        			peerInterface.registerTaskFactory(Performative.CallForProposal, HGDBOntology.REMEMBER_ACTION, new RememberTaskServer.RememberTaskServerFactory(this));
-	        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.ATOM_INTEREST, new PublishInterestsTask.PublishInterestsFactory());
-	        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.QUERY, new QueryTaskServer.QueryTaskFactory(this));
-	        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.CATCHUP, new CatchUpTaskServer.CatchUpTaskServerFactory(this));
-		        		peerInterface.registerTaskFactory(Performative.Inform, HGDBOntology.ATOM_INTEREST, new GetInterestsTask.GetInterestsFactory());
-	
-		        		typeSystem = new HGTypeSystemPeer(peerInterface, (graph == null) ? null : graph.getTypeSystem());
-		        		log = new Log(cacheGraph, peerInterface);
-	
-		        		//TODO: this should not be an indefinite wait ... 
-		        		if (!hasLocalStorage)
-		        		{
-		                	peerInterface.getPeerNetwork().waitForRemotePipe();
-		                }
-		        		
-						storage = new StorageService(graph, cacheGraph, peerInterface, log);
+		                if (hasLocalStorage || hasTempDb)
+		                {
+		        			peerInterface.registerTaskFactory(Performative.CallForProposal, HGDBOntology.REMEMBER_ACTION, new RememberTaskServer.RememberTaskServerFactory(this));
+		        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.ATOM_INTEREST, new PublishInterestsTask.PublishInterestsFactory());
+		        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.QUERY, new QueryTaskServer.QueryTaskFactory(this));
+		        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.CATCHUP, new CatchUpTaskServer.CatchUpTaskServerFactory(this));
+			        		peerInterface.registerTaskFactory(Performative.Inform, HGDBOntology.ATOM_INTEREST, new GetInterestsTask.GetInterestsFactory());
 
+			        		typeSystem = new HGTypeSystemPeer(peerInterface, (graph == null) ? null : graph.getTypeSystem());
+			        		log = new Log(cacheGraph, peerInterface);
+
+			        		//TODO: this should not be an indefinite wait ... 
+			        		if (!hasLocalStorage)
+			        		{
+			                	peerInterface.getPeerNetwork().waitForRemotePipe();
+			                }
+			        		
+							storage = new StorageService(graph, cacheGraph, peerInterface, log);
+
+		                }	
 					}
 				}else{
 					System.out.println("Can not start HGBD: peer interface could not be instantiated");

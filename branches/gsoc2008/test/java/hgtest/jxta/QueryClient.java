@@ -10,26 +10,17 @@ import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.handle.UUIDPersistentHandle;
-import org.hypergraphdb.peer.DummyPolicy;
 import org.hypergraphdb.peer.HyperGraphPeer;
 import org.hypergraphdb.peer.PeerFilterEvaluator;
+import org.hypergraphdb.peer.RemotePeer;
 import org.hypergraphdb.peer.jxta.DefaultPeerFilterEvaluator;
 
 public class QueryClient
 {
 	public static void main(String[] args) throws NumberFormatException, IOException{
-		if (args.length != 2)
-		{
-			System.out.println("arguments: PeerName PeerGroup");
-			System.exit(0);
-		}
-
-		String peerName = args[0];
-		String groupName = args[1];
-
 		System.out.println("Starting a HGDB client ...");
 
-		HyperGraphPeer peer = new HyperGraphPeer(new File("./client1Config"), new DummyPolicy(false));
+		HyperGraphPeer peer = new HyperGraphPeer(new File("./config/client1Config"));
 		
 		peer.start("user", "pwd");
 
@@ -44,17 +35,33 @@ public class QueryClient
 
 		peer.updateNetworkProperties();
 		
-		//getting users from Server1
-		ArrayList<?> result;
-		PeerFilterEvaluator evaluator = new DefaultPeerFilterEvaluator("Server1");
-		result = peer.query(evaluator, hg.type(User.class), false);
-		System.out.println("the client received: " + result);		
 		
-		for(Object elem:result)
+		RemotePeer remotePeer = peer.getRemotePeer("Server1");
+		if (remotePeer != null)
 		{
-			HGHandle handle = (HGHandle)elem;
-			System.out.println(elem + " -> " + peer.query(evaluator, hg.bfs(handle), false));
+			ArrayList<?> result = remotePeer.query(hg.type(User.class), false);
+			
+			//getting users from Server1
+			for(Object elem:result)
+			{
+				HGHandle handle = (HGHandle)elem;
+				System.out.println("received: " + elem + " -> " + remotePeer.get(handle));
+			}
 		}
+		
+		HGHandle addedHandle = remotePeer.add(new User(11, "user 11"));
+		System.out.println("added: " + addedHandle);
+		System.out.println("the value = " + remotePeer.get(addedHandle));
+		
+		remotePeer.replace((HGPersistentHandle)addedHandle, new User(11, "new user 11"));
+		System.out.println("updated: " + addedHandle);
+		System.out.println("the value = " + remotePeer.get(addedHandle));
+		
+		
+		remotePeer.remove((HGPersistentHandle)addedHandle);
+		System.out.println("removed: " + addedHandle);
+		System.out.println("the value = " + remotePeer.get(addedHandle));
+		
 		
 //		result = peer.query(new DefaultPeerFilterEvaluator("Server1"), hg.type(User.class), true);
 //		System.out.println("the client received: " + result);

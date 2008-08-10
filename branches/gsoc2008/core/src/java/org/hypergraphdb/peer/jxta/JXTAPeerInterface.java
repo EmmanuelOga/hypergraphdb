@@ -36,7 +36,7 @@ import static org.hypergraphdb.peer.Structs.*;
 /**
  * @author Cipri Costa
  *
- * Implements the PeerInterface interface and manages the communication with the other peers int he JXTA network.
+ * Implements the PeerInterface interface and manages the communication with the other peers in the JXTA network.
  * Also manages resources like task allocation and threads.
  */
 

@@ -26,7 +26,7 @@ public class InterestEvaluator implements PeerFilterEvaluator
 		System.out.println("InterestsPeerFilterEvaluator: evaluating " + handle + " for " + target);
 		
 		HGAtomPredicate pred = peerInterface.getPeerNetwork().getAtomInterests(target);
-		return pred.satisfies(hg, handle);
+		return (pred != null) && pred.satisfies(hg, handle);
 	}
 
 	public PeerInterface getPeerInterface()

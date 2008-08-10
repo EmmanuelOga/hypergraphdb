@@ -14,7 +14,7 @@ public class StartPeer
 			System.exit(-1);
 		}
 		
-        HyperGraphPeer server = new HyperGraphPeer(new File(args[0]), new DummyPolicy(true));
+        HyperGraphPeer server = new HyperGraphPeer(new File(args[0]));
         if (server.start("user", "pwd"))        
         {                
         	//peer is started ...                

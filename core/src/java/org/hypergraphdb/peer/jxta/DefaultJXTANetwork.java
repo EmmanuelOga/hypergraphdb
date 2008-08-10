@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import net.jxta.credential.AuthenticationCredential;
 import net.jxta.credential.Credential;
@@ -62,6 +64,7 @@ import net.jxta.protocol.PeerGroupAdvertisement;
 import net.jxta.protocol.PipeAdvertisement;
 import net.jxta.rendezvous.RendezVousService;
 
+import org.hypergraphdb.peer.RemotePeer;
 import org.hypergraphdb.query.HGAtomPredicate;
 import org.hypergraphdb.util.Pair;
 
@@ -710,8 +713,6 @@ public class DefaultJXTANetwork implements JXTANetwork{
 	                		{
 		                		peerAdvs.put(adv, null);
 		                		peerAdvIds.put(adv, peerName);
-		                		System.out.println("New Pipe from " + peerName + " (" + pipeId + ")");	
-		                		System.out.println(adv);
 	                		}
 	                		
 	                	}
@@ -772,5 +773,32 @@ public class DefaultJXTANetwork implements JXTANetwork{
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public List<RemotePeer> getConnectedPeers()
+	{
+		ArrayList<RemotePeer> peers = new ArrayList<RemotePeer>();
+		for(Entry<Advertisement, String> advId : peerAdvIds.entrySet())
+		{
+			peers.add(new JXTARemotePeer(advId.getKey()));
+		}
+
+		return peers;
+	}
+
+	public RemotePeer getConnectedPeer(String peerName)
+	{
+		RemotePeer peer = null;
+		
+		for(Entry<Advertisement, String> advId : peerAdvIds.entrySet())
+		{
+			if (peerName.equals(((PipeAdvertisement)advId.getKey()).getName()))
+			{
+				peer = new JXTARemotePeer(advId.getKey());
+				break;
+			}
+		}
+		
+		return peer;
 	}
 }

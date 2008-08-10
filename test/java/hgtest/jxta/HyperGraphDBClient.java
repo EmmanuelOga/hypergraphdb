@@ -10,7 +10,6 @@ import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.handle.UUIDPersistentHandle;
-import org.hypergraphdb.peer.DummyPolicy;
 import org.hypergraphdb.peer.HyperGraphPeer;
 import org.hypergraphdb.peer.PeerFilterEvaluator;
 import org.hypergraphdb.peer.jxta.DefaultPeerFilterEvaluator;
@@ -26,7 +25,7 @@ public class HyperGraphDBClient{
 		}
 
 		System.out.println("Starting a HGDB client ...");
-		HyperGraphPeer peer = new HyperGraphPeer(new File("./config/client1ConfigCalin"), new DummyPolicy(false));
+		HyperGraphPeer peer = new HyperGraphPeer(new File("./config/client1ConfigCalin"));
 
 		if (peer.start("user", "pwd"))
 		{

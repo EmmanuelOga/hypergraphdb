@@ -8,8 +8,8 @@ import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.handle.UUIDPersistentHandle;
-import org.hypergraphdb.peer.DummyPolicy;
 import org.hypergraphdb.peer.HyperGraphPeer;
+import org.hypergraphdb.peer.RemotePeer;
 import org.hypergraphdb.query.AnyAtomCondition;
 import org.hypergraphdb.query.AtomPartCondition;
 import org.hypergraphdb.query.ComparisonOperator;
@@ -29,7 +29,7 @@ public class HyperGraphDBServer {
 		
 		System.out.println("Starting HGDB peer " + configFile + " ...");
 
-		HyperGraphPeer server = new HyperGraphPeer(new File(configFile), new DummyPolicy(true));
+		HyperGraphPeer server = new HyperGraphPeer(new File(configFile));
 		
 		
 		if (server.start("user", "pwd"))
@@ -39,11 +39,16 @@ public class HyperGraphDBServer {
 				Thread.sleep(3000);
 			} catch (InterruptedException e){}
 	
-	
+			System.out.println("List of connected peers:");
+			for(RemotePeer peer : server.getConnectedPeers())
+			{
+				System.out.println("Connected peer: " + peer);
+			}
+			
 			HGPersistentHandle typeHandle = UUIDPersistentHandle.makeHandle("e917bda6-0932-4a66-9aeb-3fc84f04ce57");
 			server.registerType(typeHandle, User.class);
 			System.out.println("Types registered...");
-
+			/*
 			//server.setAtomInterests(new AtomPartCondition(new String[] {"part"}, "5", ComparisonOperator.LT));
 			server.setAtomInterests(new AnyAtomCondition());
 			
@@ -63,11 +68,11 @@ public class HyperGraphDBServer {
 				graph.replace(handle, user1);
 				System.out.println("object updated");
 				
-				graph.remove(handle);
-				System.out.println("object removed");
+				//graph.remove(handle);
+				//System.out.println("object removed");
 				
-			}
-			
+			}*/
+		
 		}else{
 			System.out.println("Can not start peer");
 		}

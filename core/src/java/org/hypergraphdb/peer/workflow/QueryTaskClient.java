@@ -29,7 +29,9 @@ public class QueryTaskClient extends TaskActivity<QueryTaskClient.State>
 	protected enum State {Started, Done}
 
 	private AtomicInteger count = new AtomicInteger(1);
-	private PeerFilterEvaluator evaluator;
+
+	private PeerFilterEvaluator evaluator = null;
+	private Iterator<Object> targets = null;
 	
 	private HGHandle handle;
 	private HGQueryCondition cond;
@@ -37,6 +39,14 @@ public class QueryTaskClient extends TaskActivity<QueryTaskClient.State>
 	private HyperGraph tempGraph;
 	
 	private ArrayList<Object> result;
+	
+	public QueryTaskClient(PeerInterface peerInterface, HyperGraph tempGraph)
+	{
+		super(peerInterface, State.Started, State.Done);
+		
+		this.tempGraph = tempGraph;
+	
+	}
 	
 	public QueryTaskClient(PeerInterface peerInterface, HyperGraph tempGraph, PeerFilterEvaluator evaluator, HGQueryCondition cond, boolean getObject)
 	{
@@ -48,6 +58,18 @@ public class QueryTaskClient extends TaskActivity<QueryTaskClient.State>
 		this.getObject = getObject;
 		this.tempGraph = tempGraph;
 	}
+	public QueryTaskClient(PeerInterface peerInterface, HyperGraph tempGraph, Iterator<Object> targets, HGQueryCondition cond, boolean getObject)
+	{
+		super(peerInterface, State.Started, State.Done);
+	
+		this.targets  = targets;
+		this.handle = null;
+		this.cond = cond;
+		this.getObject = getObject;
+		this.tempGraph = tempGraph;
+	}
+
+
 
 	public QueryTaskClient(PeerInterface peerInterface, HyperGraph tempGraph, PeerFilterEvaluator evaluator, HGHandle handle)
 	{
@@ -58,17 +80,35 @@ public class QueryTaskClient extends TaskActivity<QueryTaskClient.State>
 		this.getObject = true;
 		this.tempGraph = tempGraph;
 	}
+	public QueryTaskClient(PeerInterface peerInterface, HyperGraph tempGraph, Iterator<Object> targets, HGHandle handle)
+	{
+		super(peerInterface, State.Started, State.Done);
+		
+		this.targets = targets;
+		this.handle = handle;
+		this.getObject = true;
+		this.tempGraph = tempGraph;
+	}
+	
+	private Iterator<Object> getTargets()
+	{
+		if (targets != null)
+		{
+			return targets;
+		}else{
+			PeerFilter peerFilter = getPeerInterface().newFilterActivity(evaluator);
+			peerFilter.filterTargets();
+			return peerFilter.iterator();			
+		}
+	}
 	
 	@Override
 	protected void startTask()
 	{		
-		//do startup tasks - filter peers and send messages
 		PeerRelatedActivityFactory activityFactory = getPeerInterface().newSendActivityFactory();
+		Iterator<Object> it = getTargets();
 		
-		PeerFilter peerFilter = getPeerInterface().newFilterActivity(evaluator);
-
-		peerFilter.filterTargets();
-		Iterator<Object> it = peerFilter.iterator();
+		//do startup tasks - filter peers and send messages
 		while (it.hasNext())
 		{
 			Object target = it.next();

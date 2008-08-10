@@ -77,11 +77,8 @@ public class Log
 	 * @param peerFilter
 	 * @return
 	 */
-	public LogEntry addEntry(LogEntry entry, PeerFilter peerFilter)
-	{
-		peerFilter.filterTargets();
-		Iterator<Object> it = peerFilter.iterator();
-		
+	public LogEntry addEntry(LogEntry entry, Iterator<Object> targets)
+	{		
 		//ensure only one at a time is logged
 		synchronized(timestamp)
 		{
@@ -95,9 +92,9 @@ public class Log
 			logDb.add(new HGPlainLink(timestampHandle, entry.getLogEntryHandle(), opHandle));
 			
 			//get timestamp, save, 
-			while (it.hasNext())
+			while (targets.hasNext())
 			{
-				Object target = it.next();
+				Object target = targets.next();
 	
 				Object targetId = peerInterface.getPeerNetwork().getPeerId(target);
 				Peer peer = getPeer(targetId);

@@ -1,5 +1,7 @@
 package org.hypergraphdb.peer;
 
+import java.util.List;
+
 import org.hypergraphdb.query.HGAtomPredicate;
 
 /**
@@ -18,4 +20,7 @@ public interface PeerNetwork
 	Object getPeerId(Object peer);
 	
 	void waitForRemotePipe();
+
+	List<RemotePeer> getConnectedPeers();
+	RemotePeer getConnectedPeer(String peerName);
 }

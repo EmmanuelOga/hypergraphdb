@@ -33,17 +33,20 @@ public class GenericSerializer implements HGSerializer
 	public Object readData(InputStream in)
 	{
 		Subgraph result = null;
-		int getSubgraphContent = 0;
+		int subgraphType = 0;
 		try
 		{
-			getSubgraphContent = in.read();
+			subgraphType = in.read();
 		} catch (IOException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		if (getSubgraphContent == 0)
+		if (subgraphType == 2)
+		{
+			return null;
+		}else if (subgraphType == 0)
 		{
 			result = (Subgraph) serializer.readData(in);
 			return result;
@@ -64,35 +67,47 @@ public class GenericSerializer implements HGSerializer
 		Subgraph subGraph;
 		HGPersistentHandle tempHandle = null;
 		
-		if (data instanceof Subgraph) 
+		if (data == null)
 		{
 			try
 			{
-				out.write(0);
+				out.write(2);
 			} catch (IOException e)
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			subGraph = (Subgraph)data;
 		}else{
-			try
+			if (data instanceof Subgraph) 
 			{
-				out.write(1);
-			} catch (IOException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				try
+				{
+					out.write(0);
+				} catch (IOException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				subGraph = (Subgraph)data;
+			}else{
+				try
+				{
+					out.write(1);
+				} catch (IOException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				tempHandle = tempDB.getPersistentHandle(tempDB.add(data));
+				
+				subGraph = new Subgraph(tempDB, tempHandle);
 			}
-			tempHandle = tempDB.getPersistentHandle(tempDB.add(data));
-			
-			subGraph = new Subgraph(tempDB, tempHandle);
-		}
 		
-		serializer.writeData(out, subGraph);
-		if (tempHandle != null)
-		{
-			tempDB.remove(tempHandle);
+			serializer.writeData(out, subGraph);
+			if (tempHandle != null)
+			{
+				tempDB.remove(tempHandle);
+			}
 		}
 	}
 	

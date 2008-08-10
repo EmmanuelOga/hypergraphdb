@@ -1,5 +1,6 @@
 package org.hypergraphdb.peer.workflow;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -7,6 +8,8 @@ import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
 import static org.hypergraphdb.peer.HGDBOntology.*;
+
+import org.hypergraphdb.handle.UUIDPersistentHandle;
 import org.hypergraphdb.peer.InterestEvaluator;
 import org.hypergraphdb.peer.PeerFilter;
 import org.hypergraphdb.peer.PeerInterface;
@@ -62,6 +65,16 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 		
 	}
 	
+	public RememberTaskClient(PeerInterface peerInterface, Object value, Log log, HyperGraph hg, HGPersistentHandle handle, Object targetPeer, StorageService.Operation operation)
+	{
+		super(peerInterface, State.Started, State.Done);
+		this.value = value;
+		this.log = log;
+		this.handle = handle; 
+		this.operation = operation;
+		this.targetPeer = targetPeer;		
+	}
+	
 	public RememberTaskClient(PeerInterface peerInterface, LogEntry entry, Object targetPeer, Log log)
 	{
 		super(peerInterface, State.Started, State.Done);
@@ -88,12 +101,18 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 		{
 			peerFilter = getPeerInterface().newFilterActivity(evaluator);
 		}
-		
+
 		if (entry == null)
 		{
+			if (handle == null)
+			{
+				handle = UUIDPersistentHandle.makeHandle();
+			}
+			
 			entry = log.createLogEntry(handle, value, operation);
-			evaluator.setHandle(entry.getLogEntryHandle());
-			log.addEntry(entry, peerFilter);
+			
+			Iterator<Object> targets = getTargets();			
+			log.addEntry(entry, targets);
 		}
 		
 		if (peerFilter != null)
@@ -110,6 +129,22 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 		
 		if (count.decrementAndGet() == 0) setState(State.Done);
 	}
+	private Iterator<Object> getTargets()
+	{
+		if (targetPeer == null)
+		{
+			evaluator.setHandle(entry.getLogEntryHandle());
+			peerFilter.filterTargets();
+			
+			return peerFilter.iterator();
+		}else{
+			ArrayList<Object> targets = new ArrayList<Object>();
+			targets.add(targetPeer);
+			
+			return targets.iterator();
+		}
+	}
+
 	private void sendCallForProposal(Object target, PeerRelatedActivityFactory activityFactory)
 	{
 		count.incrementAndGet();

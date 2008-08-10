@@ -8,16 +8,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
+import org.hypergraphdb.HGEnvironment;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HGSearchResult;
 import org.hypergraphdb.HGStore;
 import org.hypergraphdb.HyperGraph;
-import org.hypergraphdb.event.HGAtomAddedEvent;
-import org.hypergraphdb.event.HGEvent;
-import org.hypergraphdb.event.HGListener;
-import org.hypergraphdb.peer.jxta.DefaultPeerFilterEvaluator;
 import org.hypergraphdb.peer.log.Log;
 import org.hypergraphdb.peer.protocol.Performative;
 import org.hypergraphdb.peer.serializer.GenericSerializer;
@@ -28,64 +26,92 @@ import org.hypergraphdb.peer.workflow.GetInterestsTask;
 import org.hypergraphdb.peer.workflow.PublishInterestsTask;
 import org.hypergraphdb.peer.workflow.QueryTaskClient;
 import org.hypergraphdb.peer.workflow.QueryTaskServer;
-import org.hypergraphdb.peer.workflow.RememberTaskClient;
 import org.hypergraphdb.peer.workflow.RememberTaskServer;
-import org.hypergraphdb.query.AtomTypeCondition;
 import org.hypergraphdb.query.HGAtomPredicate;
 import org.hypergraphdb.query.HGQueryCondition;
 
 /**
  * @author Cipri Costa
  *
- * <p>
- * Main class that implements the services accessible through the peer interface.
+ * Main class for the local peer. It will start the peer (set up the interface and register in the network) given a configuration.
  * 
- * </p>
+ * The class will wrap an existing HyperGraph instance. It is possible to create an instance of this class with an existing HyperGraph, or 
+ * allow the peer to create its own based on the configuration properties. A separate hyperGraph instance will be created for the temporary storage 
+ * (if it is needed).
+ * 
  */
-public class HyperGraphPeer {
-	
+public class HyperGraphPeer 
+{
+	/**
+	 * The object used to configure the peer.
+	 */
 	private Object configuration;
 	
 	/**
-	 * object used for communicating with other peers
+	 * Object used for communicating with other peers
 	 */
 	private PeerInterface peerInterface = null;
 		
 	/**
-	 * The peer can be configured to store atoms in this local database
+	 * The local database of the peer. The peer will be listening on any changes to the local database and replciate them accordingly.
 	 */
 	private HyperGraph graph = null;
+	
 	/**
-	 * this is used for serializing object that need to be sent to other peers (TODO: rename to tempDB)
+	 * Temporary storage for all types of things, including replication and subgraph serialization.
 	 */
-	private HyperGraph cacheGraph = null;
-	
-	private HGTypeSystemPeer typeSystem = null;
-
-	private PeerPolicy policy;
-	
+	private HyperGraph tempGraph = null;
+		
+	/**
+	 * The log of operations that happened in the local database.
+	 */
 	private Log log;
 	
+	/**
+	 * Object that monitors the lcoal database and propagates changes accordingly.
+	 */
 	private StorageService storage;
 	
-	public HyperGraphPeer(PeerPolicy policy)
-	{
-		this.policy = policy;
-	}
-	
-	public HyperGraphPeer(Object configuration, PeerPolicy policy)
+	/**
+	 * Creates a peer from a JSON object.
+	 * @param configuration
+	 */
+	public HyperGraphPeer(Object configuration)
 	{
 		this.configuration = configuration;
-		this.policy = policy;
 	}
 	
-	public HyperGraphPeer(File configFile, PeerPolicy policy)
+	/**
+	 * Creates a peer from a JSON object and a given local database.
+	 * @param configuration
+	 */
+	public HyperGraphPeer(Object configuration, HyperGraph graph)
+	{
+		this(configuration);
+		this.graph = graph;
+	}
+	
+	/**
+	 * Creates a peer from a file containing the JSON object
+	 * @param configFile
+	 */
+	public HyperGraphPeer(File configFile)
 	{
 		loadConfig(configFile);
-		this.policy = policy;
 	}
 	
-	public void loadConfig(File configFile)
+
+	/**
+	 * Creates a peer from a file containing the JSON object and a given local database.
+	 * @param configFile
+	 */
+	public HyperGraphPeer(File configFile, HyperGraph graph)
+	{
+		this(configFile);
+		this.graph = graph;
+	}
+	
+	private void loadConfig(File configFile)
 	{
 		JSONReader reader = new JSONReader();
 
@@ -121,6 +147,13 @@ public class HyperGraphPeer {
 	    return contents.toString();
 	}
 	
+	/**
+	 * Starts the peer and leaves it in a state where all its functions are available.
+	 * 
+	 * @param user The user name to use when the group is joined.
+	 * @param passwd Password to use to authenticate against the group.
+	 * @return
+	 */
 	public boolean start(String user, String passwd)
 	{
 		boolean status = false;
@@ -134,16 +167,16 @@ public class HyperGraphPeer {
 				if (hasTempDb)
 				{
 					//create cache database - this should eventually be an actual cache, not just another database
-					cacheGraph = new HyperGraph((String)getOptPart(configuration, ".tempdb", PeerConfig.TEMP_DB));
+					tempGraph = HGEnvironment.get((String)getOptPart(configuration, ".tempdb", PeerConfig.TEMP_DB));
 				}
 				
-				GenericSerializer.setTempDB(cacheGraph);
+				GenericSerializer.setTempDB(tempGraph);
 
 				//create the local database
 				boolean hasLocalStorage = (Boolean)getPart(configuration, PeerConfig.HAS_LOCAL_STORAGE);
-				if (hasLocalStorage)
+				if (hasLocalStorage && (graph == null))
 				{
-					graph = new HyperGraph((String)getOptPart(configuration, ".hgdb", PeerConfig.LOCAL_DB));
+					graph = HGEnvironment.get((String)getOptPart(configuration, ".hgdb", PeerConfig.LOCAL_DB));
 				}
 				
 				//load and start interface
@@ -161,14 +194,9 @@ public class HyperGraphPeer {
 		                //configure services
 		                if (hasLocalStorage || hasTempDb)
 		                {
-		        			peerInterface.registerTaskFactory(Performative.CallForProposal, HGDBOntology.REMEMBER_ACTION, new RememberTaskServer.RememberTaskServerFactory(this));
-		        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.ATOM_INTEREST, new PublishInterestsTask.PublishInterestsFactory());
-		        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.QUERY, new QueryTaskServer.QueryTaskFactory(this));
-		        			peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.CATCHUP, new CatchUpTaskServer.CatchUpTaskServerFactory(this));
-			        		peerInterface.registerTaskFactory(Performative.Inform, HGDBOntology.ATOM_INTEREST, new GetInterestsTask.GetInterestsFactory());
+		        			registerTasks();
 
-			        		typeSystem = new HGTypeSystemPeer(peerInterface, (graph == null) ? null : graph.getTypeSystem());
-			        		log = new Log(cacheGraph, peerInterface);
+			        		log = new Log(tempGraph, peerInterface);
 
 			        		//TODO: this should not be an indefinite wait ... 
 			        		if (!hasLocalStorage)
@@ -176,7 +204,7 @@ public class HyperGraphPeer {
 			                	peerInterface.getPeerNetwork().waitForRemotePipe();
 			                }
 			        		
-							storage = new StorageService(graph, cacheGraph, peerInterface, log);
+							storage = new StorageService(graph, tempGraph, peerInterface, log);
 
 		                }	
 					}
@@ -193,12 +221,35 @@ public class HyperGraphPeer {
 		
 		return status;
 	}
+
+	/**
+	 * Registers the tasks that can be created by the peer interface when a message is received.
+	 */
+	private void registerTasks()
+	{
+		peerInterface.registerTaskFactory(Performative.CallForProposal, HGDBOntology.REMEMBER_ACTION, new RememberTaskServer.RememberTaskServerFactory(this));
+		peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.ATOM_INTEREST, new PublishInterestsTask.PublishInterestsFactory());
+		peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.QUERY, new QueryTaskServer.QueryTaskFactory(this));
+		peerInterface.registerTaskFactory(Performative.Request, HGDBOntology.CATCHUP, new CatchUpTaskServer.CatchUpTaskServerFactory(this));
+		peerInterface.registerTaskFactory(Performative.Inform, HGDBOntology.ATOM_INTEREST, new GetInterestsTask.GetInterestsFactory());
+	}
 	
+	/**
+	 * Initializes a catch-up phase. During this all the known peers will be connected to see if any information has been sent to this peer 
+	 * while it was off line. If there is any, the peer should not resume normal operations until this task completes. 
+	 */
 	public void catchUp()
 	{
 		CatchUpTaskClient catchUpTask = new CatchUpTaskClient(peerInterface, null, this);
 		catchUpTask.run();
 	}
+	
+	/**
+	 * Announces the interests of this peer. All the other peers that notice this announcement will send any content that matches the given predicate,
+	 * regardless of whether this peer is on or off line.
+	 * 
+	 * @param pred An atom predicate that needs to be matched by an atom in order for any operations on the atom to be sent to this peer.
+	 */
 	public void setAtomInterests(HGAtomPredicate pred)
 	{
 		peerInterface.setAtomInterests(pred);
@@ -208,73 +259,16 @@ public class HyperGraphPeer {
 	}
 	
 
-	void stop(){
+	void stop()
+	{
 		
 	}
 
-	
-	/**
-	 * This is where objects "enter" the system. The peer might decide to store them locally or forward them to other peers. 
-	 * 
-	 * @param value
-	 * @return
-	 */
-	public HGHandle add(Object value){		
-		System.out.println("adding atom: " + value.toString());
-		
-		HGHandle handle = null;
-		
-		if (policy.shouldStore(value))
-		{
-			//add to local store and return handle
-			handle = graph.getPersistentHandle(graph.add(value));
-		}else{
-			RememberTaskClient activity = new RememberTaskClient(peerInterface, value, log, cacheGraph, null, StorageService.Operation.Create);
-			activity.run();
-			handle = activity.getResult();
-		}
-
-		return handle;
-	}
-
-	private HGHandle storeSubgraph(Subgraph subGraph, HGStore store)
+/*	private HGHandle storeSubgraph(Subgraph subGraph, HGStore store)
 	{
 		return SubgraphManager.store(subGraph, store);
 	}
-	
-	public Object get(HGHandle handle){
-		Object result = null;
-		
-		//check local db, see if the object exists locally
-		if (graph != null)
-		{
-			result = graph.get(handle);
-		}
-		
-		//if not locally stored
-		//TODO need a better way to see if we queried for a non existing object
-		if (result == null)
-		{
-			//TODO optimization - check cache, only get what we need from server
-			//get data from the other peer
-			Object peerResult = null;//peerInterface.forward(null, msg);
-			if (peerResult != null)
-			{
-				Subgraph subgraph = (Subgraph)peerResult;
-		
-				//store the result in cache
-				storeSubgraph(subgraph, cacheGraph.getStore());
-			
-				//return result
-				result = cacheGraph.get(handle);
-
-				//TODO: delete from local storage
-			}			
-		}
-		
-		return result;
-	}
-	
+*/	
 	//TODO use streams?
 	public Subgraph getSubgraph(HGHandle handle)
 	{
@@ -287,19 +281,9 @@ public class HyperGraphPeer {
 			return null;
 		}
 	}
-	
-	/**
-	 * @param clazz
-	 * @return
-	 * 
-	 * TODO: this should return TypeSystem interface when common interfaces are defined ...  
-	 */
-	public HGTypeSystemPeer getTypeSystem(){
-		return typeSystem;
-	}
 
 	/**
-	 * will broadcast messages and update the peers knowledge of the neighbouring peers
+	 * will broadcast messages and update the peers knowledge of the neighboring peers
 	 */
 	public void updateNetworkProperties()
 	{
@@ -318,41 +302,18 @@ public class HyperGraphPeer {
 		this.log = log;
 	}
 
+	/**
+	 * Registers an application provided type in the database type systems. All peers that handle a give type must have the type registered
+	 * apriori (and with the same handle)
+	 * @param handle
+	 * @param clazz
+	 */
 	public void registerType(HGPersistentHandle handle, Class<?> clazz)
 	{
 		if (storage != null)
 		{
 			storage.registerType(handle, clazz);
 		}		
-	}
-
-	public HGSearchResult<HGHandle> find(HGQueryCondition query)
-	{
-		return graph.find(query);
-	}
-
-	public HGPersistentHandle getPersistentHandle(HGHandle handle)
-	{
-		return graph.getPersistentHandle(handle);
-	}
-
-	public ArrayList<?> query(PeerFilterEvaluator evaluator, HGQueryCondition condition, boolean getObjects)
-	{
-		QueryTaskClient queryTask = new QueryTaskClient(peerInterface, cacheGraph, evaluator, condition, getObjects);
-		queryTask.run();
-		
-		return queryTask.getResult();
-	}
-
-	public Object query(PeerFilterEvaluator evaluator, HGHandle handle)
-	{
-		QueryTaskClient queryTask = new QueryTaskClient(peerInterface, cacheGraph, evaluator, handle);
-		queryTask.run();
-		
-		ArrayList<?> result = queryTask.getResult();
-
-		if (result.size() > 0) return result.get(0);
-		else return null;
 	}
 
 	public HyperGraph getHGDB()
@@ -370,4 +331,46 @@ public class HyperGraphPeer {
 		this.storage = storage;
 	}
 
+	
+	/**
+	 * 
+	 * @return A list with all the connected peers in the form of RemotePeer objects.
+	 */
+	public List<RemotePeer> getConnectedPeers()
+	{
+		List<RemotePeer> peers = peerInterface.getPeerNetwork().getConnectedPeers();
+		
+		for(RemotePeer peer : peers)
+		{
+			peer.setLocalPeer(this);
+		}
+		
+		return peers;
+	}
+	
+	/**
+	 * Returns a remote peer with the given name (if it is connected at that point - otherwise null).
+	 * 
+	 * If multiple peers are registered with the same name, there is no guarantees as to which will be returned.
+	 * 
+	 * @param peerName
+	 * @return
+	 */
+	public RemotePeer getRemotePeer(String peerName)
+	{
+		RemotePeer peer = peerInterface.getPeerNetwork().getConnectedPeer(peerName);
+		peer.setLocalPeer(this);
+		return peer;
+	}
+
+	public HyperGraph getTempDb()
+	{
+		return tempGraph;
+	}
+
+	public PeerInterface getPeerInterface()
+	{
+		return peerInterface;
+	}
+	
 }

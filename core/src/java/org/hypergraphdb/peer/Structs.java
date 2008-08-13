@@ -452,7 +452,15 @@ public class Structs
 						else return createObject(data, clazz);
 					}
 				}
-			}else return source;
+			}else {
+				List<Object> result = new ArrayList<Object>();
+				for(Object o : data)
+				{
+					result.add(createObject(o));
+				}
+					
+				return result;
+			}
 			
 		}else return source;
 	}

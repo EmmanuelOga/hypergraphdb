@@ -1,6 +1,8 @@
 package org.hypergraphdb.peer.workflow;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.hypergraphdb.HGHandle;
@@ -30,7 +32,6 @@ public class RememberTaskServer extends TaskActivity<RememberTaskServer.State>
 	private ProposalConversation conversation;
 	private Timestamp last_version;
 	private Timestamp current_version;
-	private StorageService.Operation operation;
 	
 	public RememberTaskServer(PeerInterface peerInterface, HyperGraphPeer peer)
 	{
@@ -52,7 +53,6 @@ public class RememberTaskServer extends TaskActivity<RememberTaskServer.State>
 		
 		last_version = (Timestamp) getPart(msg, CONTENT, SLOT_LAST_VERSION);//(Timestamp) ((Document)msg).get("last_version");
 		current_version = (Timestamp) getPart(msg, CONTENT, SLOT_CURRENT_VERSION);//((Document)msg).get("curent_version");
-		operation = StorageService.Operation.valueOf(StorageService.Operation.class, getPart(msg, OPERATION).toString());
 	}
 
 	protected void startTask()
@@ -81,11 +81,35 @@ public class RememberTaskServer extends TaskActivity<RememberTaskServer.State>
 		ProposalConversation conv = (ProposalConversation)conversation;
 		Object msg = ((Conversation<?>)conversation).getMessage();		
 		
-		HGHandle handle = null;
+		List<Object> handles = new ArrayList<Object>();
+		
 		Object peerId = getPeerInterface().getPeerNetwork().getPeerId(getPart(msg, REPLY_TO));//.getReplyTo());
 		if (peer.getLog().registerRequest(peerId, last_version, current_version))
 		{
-			if (operation == StorageService.Operation.Create)
+			ArrayList<Object> contents = (ArrayList<Object>)getPart(msg, CONTENTS);
+			
+			for(Object content : contents)
+			{
+				StorageService.Operation operation = StorageService.Operation.valueOf((String)getPart(content, OPERATION));
+				
+				HGHandle handle = null;
+				if (operation == StorageService.Operation.Create)
+				{
+					Subgraph subgraph = (Subgraph) getPart(content, CONTENT);
+					handle = peer.getStorage().addSubgraph(subgraph);
+				}else if (operation == StorageService.Operation.Update){
+					Subgraph subgraph = (Subgraph) getPart(content, CONTENT);
+					handle = peer.getStorage().updateSubgraph(subgraph);
+				}else if (operation == StorageService.Operation.Remove){
+					handle = (HGPersistentHandle)getPart(content, CONTENT);
+					peer.getStorage().remove(handle);
+				}else if (operation == StorageService.Operation.Copy){
+					Subgraph subgraph = (Subgraph) getPart(content, CONTENT);
+					handle = peer.getStorage().addOrReplaceSubgraph(subgraph);
+				}
+				handles.add(svalue(handle));
+			}
+/*			if (operation == StorageService.Operation.Create)
 			{
 				Subgraph subgraph = (Subgraph) getPart(msg, CONTENT);
 				handle = peer.getStorage().addSubgraph(subgraph);
@@ -95,13 +119,16 @@ public class RememberTaskServer extends TaskActivity<RememberTaskServer.State>
 			}else if (operation == StorageService.Operation.Remove){
 				handle = (HGPersistentHandle)getPart(msg, CONTENT);
 				peer.getStorage().remove(handle);
+			}else if (operation == StorageService.Operation.Copy){
+				Subgraph subgraph = (Subgraph) getPart(msg, CONTENT);
+				handle = peer.getStorage().addOrReplaceSubgraph(subgraph);
 			}
-			
+*/			
 			peer.getLog().finishRequest(peerId, last_version, current_version);
-			System.out.println("RememberActivityServer: remembered " + handle + " (" + operation + ")");
+			System.out.println("RememberActivityServer: remembered " + handles);
 			
 			Object reply = getReply(msg);
-			combine(reply, struct(CONTENT, handle));
+			combine(reply, struct(CONTENT, handles));
 			conv.confirm(reply);
 		}else{
 			Object reply = getReply(msg);		

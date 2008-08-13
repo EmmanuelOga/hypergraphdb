@@ -1,6 +1,7 @@
 package org.hypergraphdb.peer.jxta;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import net.jxta.document.Advertisement;
 import net.jxta.protocol.PeerAdvertisement;
@@ -48,7 +49,7 @@ public class JXTARemotePeer extends RemotePeer
 		
 		return queryTask.getResult();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.hypergraphdb.peer.RemotePeer#get(org.hypergraphdb.HGHandle)
 	 */
@@ -67,37 +68,108 @@ public class JXTARemotePeer extends RemotePeer
 		else return null;
 	}
 
+	@Override
+	public void copyFrom(HGPersistentHandle handle)
+	{
+		Object atom = get(handle);
+		
+		getLocalPeer().getHGDB().addOrReplace(handle, atom);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.hypergraphdb.peer.RemotePeer#add(java.lang.Object)
 	 */
 	@Override
 	public HGHandle add(Object atom)
 	{
-		RememberTaskClient activity = new RememberTaskClient(getLocalPeer().getPeerInterface(), atom, getLocalPeer().getLog(), getLocalPeer().getTempDb(), null, adv, StorageService.Operation.Create);
-		activity.run();
-		return activity.getResult();
+		if (insideBatch()) 
+		{
+			addToBatch(new RememberTaskClient.RememberEntity(null, atom, StorageService.Operation.Create));
+			return null;
+		}
+		else
+		{
+			RememberTaskClient activity = new RememberTaskClient(getLocalPeer().getPeerInterface(), atom, getLocalPeer().getLog(), null, adv, StorageService.Operation.Create);
+			activity.run();
+			return activity.getResult();			
+		}
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see org.hypergraphdb.peer.RemotePeer#define(org.hypergraphdb.HGPersistentHandle, java.lang.Object)
+	 */
+	@Override
+	public void define(HGPersistentHandle handle, Object atom)
+	{
+		if (insideBatch())
+		{
+			addToBatch(new RememberTaskClient.RememberEntity(handle, atom, StorageService.Operation.Create));
+		}
+		else
+		{
+			RememberTaskClient activity = new RememberTaskClient(getLocalPeer().getPeerInterface(), atom, getLocalPeer().getLog(), handle, adv, StorageService.Operation.Create);
+			activity.run();
+		}
+	}
+
+	@Override
+	public void copyTo(HGHandle handle)
+	{
+		Object atom = getLocalPeer().getHGDB().get(handle);
+		HGPersistentHandle persHandle = getLocalPeer().getHGDB().getPersistentHandle(handle);
+		
+		if (insideBatch())
+		{
+			addToBatch(new RememberTaskClient.RememberEntity(persHandle, atom, StorageService.Operation.Copy));
+		}
+		else
+		{
+			RememberTaskClient activity = new RememberTaskClient(getLocalPeer().getPeerInterface(), atom, getLocalPeer().getLog(), persHandle, adv, StorageService.Operation.Copy);
+			activity.run();
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see org.hypergraphdb.peer.RemotePeer#remove(org.hypergraphdb.HGPersistentHandle)
 	 */
 	@Override
 	public HGHandle remove(HGPersistentHandle handle)
 	{
-		RememberTaskClient activity = new RememberTaskClient(getLocalPeer().getPeerInterface(), null, getLocalPeer().getLog(), getLocalPeer().getTempDb(), handle, adv, Operation.Remove);
-
-		activity.run();
-		return activity.getResult();
+		if (insideBatch())
+		{
+			addToBatch(new RememberTaskClient.RememberEntity(handle, null, StorageService.Operation.Remove));
+			return handle;
+		}
+		else
+		{		
+			RememberTaskClient activity = new RememberTaskClient(getLocalPeer().getPeerInterface(), null, getLocalPeer().getLog(), handle, adv, Operation.Remove);
+			activity.run();
+			return activity.getResult();
+		}
 	}
-	
 	/* (non-Javadoc)
 	 * @see org.hypergraphdb.peer.RemotePeer#replace(org.hypergraphdb.HGPersistentHandle, java.lang.Object)
 	 */
 	@Override 
 	public void replace(HGPersistentHandle handle, Object atom)
 	{
-	
-		RememberTaskClient activity = new RememberTaskClient(getLocalPeer().getPeerInterface(), atom, getLocalPeer().getLog(), getLocalPeer().getTempDb(), handle, adv, Operation.Update);
+		if (insideBatch())
+		{
+			addToBatch(new RememberTaskClient.RememberEntity(handle, atom, StorageService.Operation.Update));
+		}
+		else
+		{
+			RememberTaskClient activity = new RememberTaskClient(getLocalPeer().getPeerInterface(), atom, getLocalPeer().getLog(), handle, adv, Operation.Update);
+			activity.run();
+		}
+	}
+
+	@Override
+	protected List<?> doFlush()
+	{
+		RememberTaskClient activity = new RememberTaskClient(getLocalPeer().getPeerInterface(), getLocalPeer().getLog(), adv, getBatch());
 		activity.run();
+		
+		return activity.getResults();
 	}
 }

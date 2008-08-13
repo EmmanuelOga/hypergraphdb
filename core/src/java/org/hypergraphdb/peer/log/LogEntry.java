@@ -20,6 +20,7 @@ public class LogEntry implements Comparable<LogEntry>
 	private HashMap<Object, Timestamp> lastTimestamps = new HashMap<Object, Timestamp>();
 	Timestamp timestamp;
 	StorageService.Operation operation;
+	private HGPersistentHandle handle;
 	
 	public LogEntry(Object value, HyperGraph logDb, StorageService.Operation operation)
 	{
@@ -28,6 +29,8 @@ public class LogEntry implements Comparable<LogEntry>
 
 	public LogEntry(Object value, HyperGraph logDb, HGPersistentHandle handle, StorageService.Operation operation)
 	{
+		this.handle = handle;
+		
 		if (operation != StorageService.Operation.Remove)
 		{
 			if (logDb.getStore().containsLink(handle))
@@ -101,6 +104,16 @@ public class LogEntry implements Comparable<LogEntry>
 	public void setOperation(StorageService.Operation operation)
 	{
 		this.operation = operation;
+	}
+
+	public HGPersistentHandle getHandle()
+	{
+		return handle;
+	}
+
+	public void setHandle(HGPersistentHandle handle)
+	{
+		this.handle = handle;
 	}
 
 	public int compareTo(LogEntry value)

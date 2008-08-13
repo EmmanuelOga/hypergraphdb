@@ -2,6 +2,7 @@ package org.hypergraphdb.peer.workflow;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hypergraphdb.HGHandle;
@@ -39,39 +40,45 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 {
 	protected enum State {Started, Accepted, HandleProposal, HandleProposalResponse, Done};
 
-	private HGHandle result;
+	private ArrayList<HGHandle> results;
 	private InterestEvaluator evaluator;
-	private Object value;
 	private Log log;
-	private LogEntry entry;
-	private HGPersistentHandle handle;
+	private List<LogEntry> entries;
+
+	private List<Object> batch;
 	
-	//TODO replace. for now just assumming everyone is online 
+	//TODO replace. for now just assuming everyone is online 
 	private AtomicInteger count = new AtomicInteger(1);
 	PeerFilter peerFilter;
 	private Object targetPeer;
 	
-	private StorageService.Operation operation;
+	//private StorageService.Operation operation;
 	
+	public RememberTaskClient(PeerInterface peerInterface, Log log, Object targetPeer, List<Object> batch)
+	{
+		super(peerInterface, State.Started, State.Done);
+		this.log = log;
+		this.targetPeer = targetPeer;		
+		this.batch = batch;
+	}
+
 	public RememberTaskClient(PeerInterface peerInterface, Object value, Log log, HyperGraph hg, HGPersistentHandle handle, StorageService.Operation operation)
 	{
 		super(peerInterface, State.Started, State.Done);
-		this.value = value;
+		batch = new ArrayList<Object>();
+		batch.add(new RememberEntity(handle, value, operation));
 		this.log = log;
-		this.handle = handle; 
-		this.operation = operation;
 		
 		evaluator = new InterestEvaluator(peerInterface, hg);
 		
 	}
 	
-	public RememberTaskClient(PeerInterface peerInterface, Object value, Log log, HyperGraph hg, HGPersistentHandle handle, Object targetPeer, StorageService.Operation operation)
+	public RememberTaskClient(PeerInterface peerInterface, Object value, Log log, HGPersistentHandle handle, Object targetPeer, StorageService.Operation operation)
 	{
 		super(peerInterface, State.Started, State.Done);
-		this.value = value;
+		batch = new ArrayList<Object>();
+		batch.add(new RememberEntity(handle, value, operation));
 		this.log = log;
-		this.handle = handle; 
-		this.operation = operation;
 		this.targetPeer = targetPeer;		
 	}
 	
@@ -79,11 +86,13 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 	{
 		super(peerInterface, State.Started, State.Done);
 		
-		this.entry = entry;
+		entries = new ArrayList<LogEntry>();
+		entries.add(entry);
 		this.targetPeer = targetPeer;
 		this.log = log;
-		
-		this.operation = entry.getOperation();
+
+		batch = new ArrayList<Object>();
+		batch.add(new RememberEntity(null, null, entry.getOperation()));
 	}
 
 	protected void startTask()
@@ -102,17 +111,26 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 			peerFilter = getPeerInterface().newFilterActivity(evaluator);
 		}
 
-		if (entry == null)
+		if (entries == null)
 		{
-			if (handle == null)
+			entries = new ArrayList<LogEntry>();
+			for(Object elem : batch)
 			{
-				handle = UUIDPersistentHandle.makeHandle();
+				RememberEntity entity = (RememberEntity) elem;
+				HGPersistentHandle handle = entity.getHandle();
+				
+				if (handle == null) 
+				{
+					handle = UUIDPersistentHandle.makeHandle();
+					entity.setHandle(handle);
+				}
+				LogEntry entry = log.createLogEntry(handle, entity.getAtom(), entity.getOperation());
+				
+				Iterator<Object> targets = getTargets(handle);			
+				log.addEntry(entry, targets);
+				
+				entries.add(entry);
 			}
-			
-			entry = log.createLogEntry(handle, value, operation);
-			
-			Iterator<Object> targets = getTargets();			
-			log.addEntry(entry, targets);
 		}
 		
 		if (peerFilter != null)
@@ -129,11 +147,12 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 		
 		if (count.decrementAndGet() == 0) setState(State.Done);
 	}
-	private Iterator<Object> getTargets()
+	
+	private Iterator<Object> getTargets(HGPersistentHandle handle)
 	{
 		if (targetPeer == null)
 		{
-			evaluator.setHandle(entry.getLogEntryHandle());
+			evaluator.setHandle(handle);
 			peerFilter.filterTargets();
 			
 			return peerFilter.iterator();
@@ -150,12 +169,16 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 		count.incrementAndGet();
 		
 		Object msg = createMessage(Performative.CallForProposal, REMEMBER_ACTION, getTaskId());
+		
+		LogEntry firstEntry = entries.get(0);
+		LogEntry lastEntry = entries.get(entries.size() - 1);
+		
 		combine(msg, struct(
 				CONTENT, struct(
-						SLOT_LAST_VERSION, entry.getLastTimestamp(getPeerInterface().getPeerNetwork().getPeerId(target)),
-						SLOT_CURRENT_VERSION, entry.getTimestamp()
-					),
-				OPERATION, operation)
+						SLOT_LAST_VERSION, firstEntry.getLastTimestamp(getPeerInterface().getPeerNetwork().getPeerId(target)),
+						SLOT_CURRENT_VERSION, lastEntry.getTimestamp()
+					)
+				)
 		);
 
 		PeerRelatedActivity activity = (PeerRelatedActivity)activityFactory.createActivity();
@@ -196,13 +219,25 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 		if (true)
 		{
 			Object reply = getReply(conversation.getMessage());
-			if ((operation == StorageService.Operation.Create) || (operation == StorageService.Operation.Update))
+			
+			ArrayList<Object> contents = new ArrayList<Object>();
+
+			for(LogEntry entry : entries)
 			{
-				combine(reply, struct(CONTENT, object(entry.getData())));
-			}else{
-				combine(reply, struct(CONTENT, handle));
+				contents.add(
+					struct(OPERATION, entry.getOperation(),
+						CONTENT, (entry.getOperation() == StorageService.Operation.Remove) ? entry.getHandle() : object(entry.getData()))
+				);
 			}
+			combine(reply, struct(CONTENTS, contents));
 						
+/*			if (rememberEntity.getOperation() == StorageService.Operation.Remove)
+			{
+				combine(reply, struct(CONTENT, rememberEntity.getHandle()));
+			}else{
+				combine(reply, struct(CONTENT, object(entry.getData())));
+			}
+*/			
 			//set the conversation in the Accepted state
 			conversation.accept(reply);
 		}
@@ -220,14 +255,12 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 	 */
 	public State handleConfirm(AbstractActivity<?> fromActivity)
 	{
-		Object msg = ((ProposalConversation)fromActivity).getMessage();		
-		result = (HGHandle)getPart(msg, CONTENT);
-		//result = (HGHandle) msg.getContent();
+		Object msg = ((ProposalConversation)fromActivity).getMessage();	
+		
+		results = (ArrayList<HGHandle>)getPart(msg, CONTENT);
 
-		//record the message in the log
-		//Object peerId = getPeerInterface().getPeerNetwork().getPeerId(msg.getReplyTo());
 		Object peerId = getPeerInterface().getPeerNetwork().getPeerId(getPart(msg, REPLY_TO));
-		log.confirmFromPeer(peerId, entry.getTimestamp());
+		log.confirmFromPeer(peerId, entries.get(entries.size() - 1).getTimestamp());
 		
 		if (count.decrementAndGet() == 0) return State.Done;
 		else return State.Started;
@@ -243,6 +276,56 @@ public class RememberTaskClient extends TaskActivity<RememberTaskClient.State>
 	
 	public HGHandle getResult()
 	{
-		return result;
+		System.out.println("RESULT: " + results.get(0));
+		return results.get(0);
+	}
+	
+	public List<HGHandle> getResults()
+	{
+		return results;
+	}
+	
+	public static class RememberEntity
+	{
+		private HGPersistentHandle handle;
+		private Object atom;
+		private StorageService.Operation operation;
+		
+		public RememberEntity(HGPersistentHandle handle, Object atom, StorageService.Operation operation)
+		{
+			this.handle = handle;
+			this.atom = atom;
+			this.operation = operation;
+		}
+
+		public HGPersistentHandle getHandle()
+		{
+			return handle;
+		}
+
+		public void setHandle(HGPersistentHandle handle)
+		{
+			this.handle = handle;
+		}
+
+		public Object getAtom()
+		{
+			return atom;
+		}
+
+		public void setAtom(Object atom)
+		{
+			this.atom = atom;
+		}
+
+		public StorageService.Operation getOperation()
+		{
+			return operation;
+		}
+
+		public void setOperation(StorageService.Operation operation)
+		{
+			this.operation = operation;
+		}
 	}
 }

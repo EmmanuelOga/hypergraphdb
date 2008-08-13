@@ -1,6 +1,7 @@
 package org.hypergraphdb.peer;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
@@ -19,13 +20,18 @@ public abstract class RemotePeer
 	private String name;
 	private HyperGraphPeer localPeer;
 	
+	private List<Object> operationsBatch;
+	private boolean useBatch;
+	
 	public RemotePeer()
 	{
+		useBatch = false;
 	}
 	
 	public RemotePeer(String name)
 	{
 		this.name = name;
+		useBatch = false;
 	}
 	
 	/**
@@ -51,6 +57,29 @@ public abstract class RemotePeer
 	 * @return
 	 */
 	public abstract HGHandle add(Object atom);
+
+	/**
+	 * Similar to add but with a given handle
+	 * 
+	 * @param handle
+	 * @param atom
+	 */
+	public abstract void define(HGPersistentHandle handle, Object atom);
+	
+	/**
+	 * Copies the atom from a given handle from the local peer to the remote peer.
+	 * 
+	 * @param handle
+	 */
+	public abstract void copyTo(HGHandle handle);
+	
+	/**
+	 * Copies the atom with a given handle from the remote peer to the local peer.
+	 * 
+	 * @param handle
+	 */
+	public abstract void copyFrom(HGPersistentHandle handle);	
+	
 	/**
 	 * Removes the handle from the remote peer. 
 	 * The operation is implemented using the replication mechanism, so, even if it fails, it is registered in the logs and will be 
@@ -68,7 +97,74 @@ public abstract class RemotePeer
 	 * @param atom the new atom
 	 */
 	public abstract void replace(HGPersistentHandle handle, Object atom);
+	
+	/**
+	 * Starts a batch. After this call and until the endBatch call, all functions that send data to the remote peer will be queued.
+	 * In order to send the messages use flushBatch or endBatch
+	 * 
+	 */
+	public void startBatch()
+	{
+		operationsBatch = new ArrayList<Object>();
+		useBatch = true;
+	}
+	
+	/**
+	 * After this call, the operations will be imediatelly sent to the remote peer. Also calls the flush method if there are any outstanding
+	 * calls to be sent.
+	 * 
+	 * @return
+	 */
+	public List<?> endBatch()
+	{
+		List<?> result = null;
+		if (operationsBatch.size() > 0)
+		{
+			result = doFlush();
+		}
+		
+		useBatch = false;
+		operationsBatch = null;
+		
+		return result;
+	}
+	
+	/**
+	 * Sends the current list of queued operations to the remote peer.
+	 * 
+	 * @return
+	 */
+	public List<?> flushBatch()
+	{
+		List<?> result = null;
 
+		if (operationsBatch.size() > 0)
+		{
+			result = doFlush();
+			operationsBatch.clear();
+			return result;
+		}
+		
+		return result;
+		
+	}
+
+	protected abstract List<?> doFlush();
+	
+	public boolean insideBatch()
+	{
+		return useBatch;
+	}
+	
+	protected void addToBatch(Object operation)
+	{
+		operationsBatch.add(operation);
+	}
+	
+	protected List<Object> getBatch()
+	{
+		return operationsBatch;
+	}
 	public String getName()
 	{
 		return name;

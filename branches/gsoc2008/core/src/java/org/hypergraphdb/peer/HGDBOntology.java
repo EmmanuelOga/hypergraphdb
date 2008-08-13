@@ -7,6 +7,7 @@ public class HGDBOntology
 	public static final String RECEIVED_TASK_ID = "in-reply-to";
 	public static final String SEND_TASK_ID = "reply-with";
 	public static final String CONTENT = "content";
+	public static final String CONTENTS = "contents";
 	public static final String OPERATION = "operation";
 	public static final String REPLY_TO = "reply-to";
 	public static final String CONVERSATION_ID = "conversation-id";

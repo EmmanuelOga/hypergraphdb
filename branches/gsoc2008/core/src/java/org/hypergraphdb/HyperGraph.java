@@ -559,6 +559,13 @@ public /*final*/ class HyperGraph
     	return add(handle, atom, type, 0);
     }
     
+    public HGHandle addOrReplace(HGPersistentHandle handle, Object atom)
+    {
+    	if (getStore().containsLink(handle)) replace(handle, atom);
+    	else add(handle, atom);
+    	
+    	return handle;
+    }
     /**
      * <p>Add a new atom with a specified type and system flags to the database.</p>
      * 

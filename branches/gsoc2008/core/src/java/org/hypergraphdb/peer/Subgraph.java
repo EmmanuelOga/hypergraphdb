@@ -99,4 +99,17 @@ public class Subgraph
 		buffer.addLast(new Pair<HGPersistentHandle, Object>(handle, value));
 	}
 
+	public HGPersistentHandle getHandle()
+	{
+		if (handle != null) return handle;
+		else if ((buffer == null) || (buffer.size() == 0)) return null;
+		else return buffer.get(0).getFirst();
+	}
+
+	public void setHandle(HGPersistentHandle handle)
+	{
+		this.handle = handle;
+	}
+
+	
 }

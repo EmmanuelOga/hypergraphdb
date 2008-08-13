@@ -24,7 +24,7 @@ import org.hypergraphdb.peer.workflow.RememberTaskClient;
  */
 public class StorageService
 {
-	public enum Operation {Create, Update, Remove};
+	public enum Operation {Create, Update, Remove, Copy};
 
 	private HyperGraph graph;
 	private HyperGraph logGraph;
@@ -86,6 +86,21 @@ public class StorageService
 		ownUpdatedHandles.add(handle);	
 		graph.replace((HGPersistentHandle)handle, value);
 		
+		return handle;
+	}
+
+
+	public HGHandle addOrReplaceSubgraph(Subgraph subgraph)
+	{
+		HGPersistentHandle handle = (HGPersistentHandle)subgraph.getHandle();
+		
+		if (graph.getStore().containsLink(handle))
+		{
+			updateSubgraph(subgraph);
+		}else{
+			addSubgraph(subgraph);
+		}
+
 		return handle;
 	}
 

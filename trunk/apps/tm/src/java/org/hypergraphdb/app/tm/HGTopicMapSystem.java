@@ -220,7 +220,9 @@ public final class HGTopicMapSystem implements TopicMapSystem
             HGQuery.hg.apply(HGQuery.hg.targetAt(graph, 0),
                              hg.and(HGQuery.hg.type(HGAssociationRole.class), linkCondition)),
             new ValueSetter() { public void set(Object value) { linkCondition.setTarget(2, (HGHandle)value); } });
-        return hg.findAll(new PipeQuery(q1, pipe));		
+        HGQuery query = new PipeQuery(q1, pipe);
+        query.setHyperGraph(graph);
+        return hg.findAll(query);		
 	}
 	
 	/**

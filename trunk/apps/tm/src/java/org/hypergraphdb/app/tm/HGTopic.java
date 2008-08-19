@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.hypergraphdb.HGQuery.hg;
@@ -177,6 +176,43 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 		return U.getRelatedObjects(graph, HGTM.hReifierOf, graph.getHandle(this), null);
 	}
 
+	/**
+	 * <p>Retrieve all association to which this topic participates, regardless of the role 
+	 * it plays.</p>
+	 */
+	public Collection<HGAssociation> findAllAssociations()
+	{
+		return hg.getAll(graph, 
+				 hg.apply(hg.targetAt(graph, 2), 
+						  hg.and(hg.type(HGAssociationRole.class), 
+								 hg.orderedLink(graph.getHandle(this), hg.anyHandle(), hg.anyHandle()))));		
+	}
+
+	/**
+	 * <p>Retrieve all association to which this topic participates with the specified
+	 * role type.</p>
+	 * 
+	 * @param roleType the HyperGraph handle of the role type.
+	 */
+	public Collection<HGAssociation> findAllAssociations(HGHandle roleType)
+	{
+		return hg.getAll(graph, 
+				 hg.apply(hg.targetAt(graph, 2), 
+						  hg.and(hg.type(HGAssociationRole.class), 
+								 hg.orderedLink(graph.getHandle(this), roleType, hg.anyHandle()))));		
+	}
+	
+	/**
+	 * <p>Retrieve all association to which this topic participates with the specified
+	 * role type.</p>
+	 * 
+	 * @param roleType the role type.
+	 */
+	public Collection<HGAssociation> findAllAssociations(HGAssociationRole roleType)
+	{
+		return findAllAssociations(graph.getHandle(roleType));		
+	}	
+	
 	public Set<HGAssociationRole> getRolesPlayed()
 	{
 		if (roles != null)

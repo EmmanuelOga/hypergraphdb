@@ -1,6 +1,8 @@
 package org.hypergraphdb.app.management;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -79,18 +81,26 @@ public class HGManagement
 		try
 		{
 			in = HGManagement.class.getResourceAsStream(resource);
-			Properties props = new Properties();
-			props.load(in);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 			// We delete them in reverse order which gives some control over what's going
 			// on.
 			LinkedList<HGHandle> handles = new LinkedList<HGHandle>();
-			for (Iterator i = props.values().iterator(); i.hasNext(); )
-				handles.addFirst(HGHandleFactory.makeHandle(i.next().toString().trim()));
+			for (String line = reader.readLine(); line != null; line = reader.readLine())
+			{
+				line = line.trim();
+				if (line.startsWith("#") || line.length() == 0)
+					continue;
+				String [] tokens = line.split("="); 
+				handles.addFirst(HGHandleFactory.makeHandle(tokens[1].trim()));
+			}
 			for (HGHandle h : handles)
+			{
+				System.out.println("Deleting type: " + graph.get(h));
 				if (!TypeUtils.deleteInstances(graph, h))
 				{
 					throw new Exception("Unable to delete type instances of type '" + h + "'");
 				}
+			}
 			for (HGHandle h : handles)
 			{
 				graph.remove(h);

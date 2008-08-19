@@ -101,6 +101,6 @@ public class HGAssociationRole extends HGTopicMapObjectBase implements Associati
 		
     public void notifyTargetRemoved(int i)
     {
-    	throw new IllegalArgumentException("Illegal attempt to remove a HGAssociationRole target.");
+    	throw new IllegalArgumentException("Illegal attempt to remove a HGAssociationRole target:" + getTargetAt(i));
     }	
 }

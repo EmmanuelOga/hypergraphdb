@@ -19,60 +19,60 @@ public class HGTMApplication extends HGApplication
 		Locator l = null;
 		
 		l = U.makeLocator(HGTM.typeInstanceIdentifier);
-		graph.define(HGTM.hTypeInstanceLocator, l, null);
+		graph.define(HGTM.hTypeInstanceLocator, l);
 		t = new HGTopic();
 		t.graph = graph;
-		graph.define(HGTM.hTypeInstanceTopic, t,null);
+		graph.define(HGTM.hTypeInstanceTopic, t);
 		t.addSourceLocator(l);
 		
 		l = U.makeLocator(HGTM.typeRoleIdentifier);
-		graph.define(HGTM.hTypeRoleLocator, l, null);
+		graph.define(HGTM.hTypeRoleLocator, l);
 		t = new HGTopic();
 		t.graph = graph;
-		graph.define(HGTM.hTypeRoleTopic, t,null);
+		graph.define(HGTM.hTypeRoleTopic, t);
 		t.addSourceLocator(l);
 		
 		l = U.makeLocator(HGTM.instanceRoleIdentifier);
-		graph.define(HGTM.hInstanceRoleLocator, l, null);
+		graph.define(HGTM.hInstanceRoleLocator, l);
 		t = new HGTopic();
 		t.graph = graph;
-		graph.define(HGTM.hInstanceRoleTopic, t,null);
+		graph.define(HGTM.hInstanceRoleTopic, t);
 		t.addSourceLocator(l);
 		
 		l = U.makeLocator(HGTM.subtypingIdentifier);
-		graph.define(HGTM.hSubtypingLocator, l, null);
+		graph.define(HGTM.hSubtypingLocator, l);
 		t = new HGTopic();
 		t.graph = graph;
-		graph.define(HGTM.hSubtypingTopic, t,null);
+		graph.define(HGTM.hSubtypingTopic, t);
 		t.addSourceLocator(l);
 		
 		l = U.makeLocator(HGTM.subTypeRoleIdentifier);
-		graph.define(HGTM.hSubTypeLocator, l, null);
+		graph.define(HGTM.hSubTypeLocator, l);
 		t = new HGTopic();
 		t.graph = graph;
-		graph.define(HGTM.hSubTypeTopic, t,null);
+		graph.define(HGTM.hSubTypeTopic, t);
 		t.addSourceLocator(l);
 		
 		l = U.makeLocator(HGTM.superTypeRoleIdentifier);
-		graph.define(HGTM.hSuperTypeLocator, l, null);
+		graph.define(HGTM.hSuperTypeLocator, l);
 		t = new HGTopic();
 		t.graph = graph;
-		graph.define(HGTM.hSuperTypeTopic, t,null);
+		graph.define(HGTM.hSuperTypeTopic, t);
 		t.addSourceLocator(l);
 		
 		l = U.makeLocator(HGTM.topicNameIdentifier);
-		graph.define(HGTM.hTopicNameLocator, l, null);
+		graph.define(HGTM.hTopicNameLocator, l);
 		t = new HGTopic();
 		t.graph = graph;
-		graph.define(HGTM.hTopicNameTopic, t,null);
+		graph.define(HGTM.hTopicNameTopic, t);
 		t.addSourceLocator(l);
 		
 		l = U.makeLocator(HGTM.schemaAnyType);
-		graph.define(HGTM.hSchemaAnyType, l, null);
+		graph.define(HGTM.hSchemaAnyType, l);
 		l = U.makeLocator(HGTM.schemaAnyURI);
-		graph.define(HGTM.hSchemaAnyURI, l, null);
+		graph.define(HGTM.hSchemaAnyURI, l);
 		l = U.makeLocator(HGTM.schemaStringType);
-		graph.define(HGTM.hSchemaStringType, l, null);		
+		graph.define(HGTM.hSchemaStringType, l);		
 	}
 	
 	private void unloadPredefinedTopics(HyperGraph graph)
@@ -126,16 +126,16 @@ public class HGTMApplication extends HGApplication
 			HGHandle [] mapMemberTypes = 
 				new HGHandle [] { ts.getTypeHandle(HGTopicMapObjectBase.class), ts.getTypeHandle(HGTopicMap.class) };			
 			
-			graph.define(HGTM.hSubjectIdentifier, new HGRelType(HGTM.SubjectIdentifier), locatorTopicTypes);
-			graph.define(HGTM.hSubjectLocator, new HGRelType(HGTM.SubjectLocator), locatorTopicTypes);
-			graph.define(HGTM.hSourceLocator, new HGRelType(HGTM.SourceLocator), locatorItemTypes);
-			graph.define(HGTM.hTypeOf, new HGRelType(HGTM.TypeOf), topicTypes);
-			graph.define(HGTM.hScopeOf, new HGRelType(HGTM.ScopeOf), scopedTopicTypes);
-			graph.define(HGTM.hOccurrence, new HGRelType(HGTM.Occurence), scopedTopicTypes);
-			graph.define(HGTM.hReifierOf, new HGRelType(HGTM.ReifierOf), scopedTopicTypes);
-			graph.define(HGTM.hNameOf, new HGRelType(HGTM.NameOf), nameTopicTypes);
-			graph.define(HGTM.hVariantOf, new HGRelType(HGTM.VariantOf), variantNameTypes);
-			graph.define(HGTM.hMapMember, new HGRelType(HGTM.MapMember), mapMemberTypes);
+			graph.define(HGTM.hSubjectIdentifier, new HGRelType(HGTM.SubjectIdentifier, locatorTopicTypes));
+			graph.define(HGTM.hSubjectLocator, new HGRelType(HGTM.SubjectLocator, locatorTopicTypes));
+			graph.define(HGTM.hSourceLocator, new HGRelType(HGTM.SourceLocator, locatorItemTypes));
+			graph.define(HGTM.hTypeOf, new HGRelType(HGTM.TypeOf, topicTypes));
+			graph.define(HGTM.hScopeOf, new HGRelType(HGTM.ScopeOf, scopedTopicTypes));
+			graph.define(HGTM.hOccurrence, new HGRelType(HGTM.Occurence, scopedTopicTypes));
+			graph.define(HGTM.hReifierOf, new HGRelType(HGTM.ReifierOf, scopedTopicTypes));
+			graph.define(HGTM.hNameOf, new HGRelType(HGTM.NameOf, nameTopicTypes));
+			graph.define(HGTM.hVariantOf, new HGRelType(HGTM.VariantOf, variantNameTypes));
+			graph.define(HGTM.hMapMember, new HGRelType(HGTM.MapMember, mapMemberTypes));
 			
 			loadPredefinedTopics(graph);
 			

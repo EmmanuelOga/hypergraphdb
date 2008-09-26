@@ -238,7 +238,7 @@ public class HGVUtils
 	{
 		HGTypeSystem ts = hg.getTypeSystem();
 		String total = "";
-		Iterator it = ts.findAliases(h);
+		Iterator it = null;//ts.findAliases(h);
 		while (it.hasNext())
     		total += (String)it.next() + "/";// \s
 		if (total.length() > 1)

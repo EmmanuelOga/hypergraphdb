@@ -1,6 +1,6 @@
 #summary Installation of HyperGraphDB
 
-HyperGraphDB comes as library that you can directly use in applications. As such, it is an embedded database and you can have several HyperGraphDB databases open at the same time. The underlying storage mechanism is based on Sleepycat’s Berkeley DB, standard edition. Note that HyperGraph uses the native Berkeley DB instead of the Java edition in order to open the doors for interoperability with other languages. This means that the native library (Windows DLL or *nix shared library) will have to be included in the system path of your application.
+HyperGraphDB comes as library that you can directly use in applications. As such, it is an embedded database and you can have several HyperGraphDB databases open at the same time. The underlying storage mechanism is based on Sleepycat’s Berkeley DB, standard edition. Note that HyperGraphDB uses the native Berkeley DB instead of the Java edition in order to open the doors for interoperability with other languages. This means that the native library (Windows DLL or `*`nix shared library) will have to be included in the system path of your application.
 
 The quickest way is to download a pre-built package for your operating system and just unzip it somewhere on your computer. [You can also get the latest source code from https://svn.kobrix.com/hypergraphdb/core and build it with ANT.] After unzipping the distribution, you will simply need to need to:
 

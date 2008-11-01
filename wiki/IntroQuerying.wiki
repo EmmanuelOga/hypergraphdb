@@ -1,0 +1,69 @@
+#summary Querying in HyperGraphDB.
+
+There is no special purpose query language for HyperGraphDB, yet. You will have to make do with the querying API, most of which is to be found in the org.hypergraphdb.query package. The current querying mechanism allows you to search for atoms according to some criteria and that’s about it. Criteria are specified by constructing a query condition, an instance of `org.hypergraphdb.query.HGQueryCondition`. The predefined query conditions are all in the above-mentionned `org.hypergraphdb.query` package, so browse the Javadocs for a thorough overview. 
+
+Once you have a query condition, you can just invoke the `HyperGraph.find` method to perform the query and get back a result. Here is an example that will give you all books whose author is Borislav Iordanov (in this case the result set will be empty, for good or bad):
+
+{{{
+//
+// Given some HyperGraph instance that has some Books added to it.
+//
+HyperGraph hg = new HyperGraph(tutorialHyperGraphLocation);
+
+//
+// Get the handle of the Book type. Types in HyperGraph are atoms
+// too!
+//
+HGHandle hBookType = hg.getTypeSystem().getHandle(Book.class);
+
+
+HGSearchResult rs = hg.find(new And(new AtomTypeCondition(hBookType), 
+                              new AtomPartCondition(“author”, 
+                                     “Borislav Iordanov”, 
+                                      ComparisonOperator.EQ)));
+while (rs.hasNext()) 
+{ 
+    Book b = hg.get(rs.next()); 
+    System.out.println(“Found book: “ + b.getTitle());
+}
+
+rs.close();
+
+}}}
+
+That’s simple enough. Well, yes it’s kind of verbose for now. But before designing a special purpose query language for HyperGraphDB, we need some experience with it through a low-level, Java API. There is a also a more convenient syntax to create query conditions encapsulated in the HGQuery.hg namespace. Here is the above condition rewritten in this style:
+
+{{{
+// Use Java 5 static import facility to import the HGQuery.hg 
+// namespace.
+import org.hypergraphdb.HGQuery.hg;
+
+//
+// Given some HyperGraph instance that has some Books added to it.
+//
+HyperGraph graph = new HyperGraph(tutorialHyperGraphLocation);
+
+HGSearchResult rs = graph.find(hg.and(hg.type(Book.class), 
+					        hg.eq(“author”, 
+                                            “Borislav Iordanov”)));
+while (rs.hasNext()) 
+{ 
+    Book b = hg.get(rs.next()); 
+    System.out.println(“Found book: “ + b.getTitle());
+}
+
+rs.close();
+
+}}}
+
+This is achieved with several static methods in the nested `HGQuery.hg` class. 
+
+You can create query objects and execute them repeatedly:
+
+{{{
+HGQuery query = HGQuery.make(hg, condition);
+rs = query.execute();
+//etc…
+}}}
+
+The `HGSearchResult` object is analogous to a JDBC result set – you can move forward and backwards on a result set, you need to close it after you’re done with it in order to release system resources (picture the usual finally block with the close statement in there).  The `HGSearchResult` interface is parameterized by the type of objects found in the result set. The type is usually a `HGHandle` so you need to do a `HyperGraph.get` if you want to actual object instance. Again, we recommend getting an actual object only at the point when its value is needed. Get used to keeping handles around instead of objects. If you have some class that works with a bunch of HyperGraphDB atoms as member variables, make the member variables HyperGraphDB handle, not Java object references. 

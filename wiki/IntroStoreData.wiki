@@ -1,0 +1,30 @@
+#summary Storing Data in a HyperGraphDB.
+
+The short story is that you can just put in whatever object you have in a HyperGraphDB database:
+{{{
+  String x = “Hello World”;
+  Book mybook = new Book(“Critique of Pure Reason”, “E. Kant”);
+  
+  hg.add(x);
+  hg.add(mybook);
+  hg.add(new double [] {0.9, 0.1, 4.3434});
+}}}
+
+The system will generally do the right thing and store your data in a way that would make it possible to reconstruct an equivalent run-time object from storage later. Storage of concrete values is handled by the HyperGraphDB type system. The type system is a completely customizable layer, but it was built to do the sensible thing by default. And in Java, the sensible thing can be summarized as follows:
+
+  * Translate primitive types and primitive arrays into byte buffers following common industry format.
+  * Interpret Java beans as record-like structures, according to the Java Beans conventions.
+  * Store built-in arrays and collections as sequence of objects.
+  * Store maps as sequences of pairs of objects.
+  * Record type inheritance information.
+  * Some sensible details that you will learn in the course of usage ;)
+
+Every value stored in HyperGraphDB is typed. HyperGraphDB types are implementations of the `org.hypergraphdb.type.HGAtomType` interface. The main responsibilities of `HGAtomType` implementation are storage and retrieval of concrete run-time instances. There are predefined implementations for all of the above listed type categories. 
+
+Every storage medium has a meta-model, a predefined structure of what things can be stored in it. A file is a sequence of bytes. A relational database is a set of relations (or “tables”). An XML file is a tree of markup elements. A HyperGraphDB database is a generalized graph of entities. The generalization is two-fold: (1) links/edges “point to” an arbitrary number of elements instead of just two as in regular graphs and (2) links can be pointed to by other links as well. Thus everything that gets stored in a HyperGraphDB is either a node or a link (graph edges/arrows are called links in HyperGraphDB’s terminology), or both. In all cases, we refer to things in HyperGraphDB as atoms. Atoms that are edges in the graph, that is that link one or more other atoms, are called links and the number of atoms they link to is called their arity. Atoms that do not point to anything else or, in other words, which have arity 0 are called nodes. 
+
+From a Java perspective, an atom is simply some object. From a conceptual perspective, an atom is an entity that can be related to other entities or that can represent such a relation.  The primary role of HyperGraphDB as a database is to store entities networked together by relationships. There are no restrictions on what can be an entity or a relationship. That is, the data associated with a HyperGraphDB atom can be anything. To add a new atom to a database, one calls the HyperGraph.add method passing in that something as an argument. 
+
+If you want to store a Java objects that is neither serializable, nor does it follow the Java Beans naming conventions to expose its state, then you will need to develop a custom type for that Java class. Developing a custom type is actually not hard at all. It is covered in the reference guide.
+
+HyperGraphDB links are objects that implement the org.hypergraphdb.HGLink interface. If a class does not implement this interface, it is still possible to turn objects into HyperGraphDB links by embedding them into a org.hypergraphdb.HGValueLink. In general HyperGraphDB strives for a minimal API intrusiveness. 

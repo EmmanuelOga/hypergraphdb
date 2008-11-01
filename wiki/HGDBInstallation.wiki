@@ -1,13 +1,12 @@
-#summary One-sentence summary of this page.
+#summary Installation of HyperGraphDB
 
-= Introduction =
+HyperGraphDB comes as library that you can directly use in applications. As such, it is an embedded database and you can have several HyperGraphDB databases open at the same time. The underlying storage mechanism is based on Sleepycat’s Berkeley DB, standard edition. Note that HyperGraph uses the native Berkeley DB instead of the Java edition in order to open the doors for interoperability with other languages. This means that the native library (Windows DLL or *nix shared library) will have to be included in the system path of your application.
 
-Add your content here.
+The quickest way is to download a pre-built package for your operating system and just unzip it somewhere on your computer. [You can also get the latest source code from https://svn.kobrix.com/hypergraphdb/core and build it with ANT.] After unzipping the distribution, you will simply need to need to:
 
+1.	Include all jar files under the lib folder in your CLASSPATH.
+2.	Include the lib/native folder in the system PATH for your application. You can include it in the global system path if you don’t have any other installation of BerkeleyDB and there’s no danger of conflict. Note that HyperGraphDB will probably work with other versions of BerkeleyDB than the one bundled with the distribution, but using the latter will make our support easier ;)
 
-= Details =
+To test that everything is OK, create a Java program out of the examples in the next section and run it.
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+But, wait! There’s a better way to get started! Go and install Scriba from http://www.kobrix.com/scriba.jsp which already has HyperGraphDB bundled and you can use your favorite scripting language to play with it. Inside Scriba, the predefined scripting variable niche is in fact an instance of HyperGraph. 

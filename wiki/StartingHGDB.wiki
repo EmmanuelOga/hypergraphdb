@@ -4,9 +4,7 @@
 == Main elements of a HHDB peer ==
 
  # The configuration file - see PeerConfiguration page
- # The policy - this refers to how the calls to the HyperGraphPeer functions are implemented. For the time being only a DummyPolicy class is implemented that will force calls to be forwarded or resolved locally (this is subject to change in the near future)
- # The type system - for the time being, all types are supposed to be known at all peers. This means that if you need to register all used types.
- # Atom interests and replication - if a peer is interested to store objects from other peers, it will have to announce the interests in the network and start a catchUp phase in order to get up to date with the content from other peers.
+ # The backing `HyperGraph` instance.
 
 == Examples ==
 
@@ -15,7 +13,7 @@
 {{{
 public static void main(String[] args)
 {
-	HyperGraphPeer peer = new HyperGraphPeer(new File("./config/client1Config"), new DummyPolicy(false));
+	HyperGraphPeer peer = new HyperGraphPeer(args[0], HGEnvironment.get(args[1]));
 		
 	if (peer.start("user", "pwd"))
 	{
@@ -30,7 +28,7 @@ public static void main(String[] args)
 {{{
 public static void main(String[] args)
 {
-	HyperGraphPeer server = new HyperGraphPeer(new File("./config/server1Config"), new DummyPolicy(true));
+	HyperGraphPeer server = new HyperGraphPeer(...);
 	
 	if (server.start("user", "pwd"))
 	{

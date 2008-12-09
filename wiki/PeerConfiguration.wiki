@@ -10,7 +10,7 @@ Each peer can be configured before start by using a file with the settings in JS
 || tempDB || the path to the temporary HGDB database. This is used to store logs and atoms that were not yet delivered to interested peers|| .tempdb ||
 || interfaceType || The class that provides the peers interface. For the current JXTA implementation it should be org.hypergraphdb.peer.jxta.JXTAPeerInterface|| ||
 || jxta || JXTA related configuration that is not introduced in the JXTA PlatformConfig file || null ||
-
+|| threadPoolSize || The number of threads to the peer. Note that this does not include threads normally created by HyperGraphDB itself for cache management and the like. || 10 ||
 
 The jxta element has the following elements:
 || *Property* || *Description* || *DefaultValue* ||

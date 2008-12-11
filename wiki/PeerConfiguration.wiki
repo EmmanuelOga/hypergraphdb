@@ -5,9 +5,8 @@
 Each peer can be configured before start by using a file with the settings in JSON format or by creating a map with the properties (see the Structs helper class). 
 
 || *Property* || *Description* || *DefaultValue* ||
-|| hasLocalStorage || true if the peer will store atoms locally, false if not (will only forward to other peers || ||
-|| localDB || if hasLocalStorage=true then the path to the local HGDB database, otherwise ignored || .hgdb ||
-|| tempDB || the path to the temporary HGDB database. This is used to store logs and atoms that were not yet delivered to interested peers|| .tempdb ||
+|| localDB || The path to the local HGDB database this peer is bound to. When omitted, the peer will not be attached to a local database. || none ||
+|| tempDB || The path to a temporary HGDB database. This is used to store logs and atoms that were not yet delivered to interested peers. || none ||
 || interfaceType || The class that provides the peers interface. For the current JXTA implementation it should be org.hypergraphdb.peer.jxta.JXTAPeerInterface|| ||
 || jxta || JXTA related configuration that is not introduced in the JXTA PlatformConfig file || null ||
 || threadPoolSize || The number of threads to the peer. Note that this does not include threads normally created by HyperGraphDB itself for cache management and the like. Omit this parameter or specify a value <= 0 if you want to have an unbounded number of threads allocated on the fly - those threads will be cached, reused, and purged only if they remain idle for 60 seconds. || 10 ||

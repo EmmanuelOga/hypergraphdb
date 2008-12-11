@@ -5,6 +5,7 @@
 Each peer can be configured before start by using a file with the settings in JSON format or by creating a map with the properties (see the Structs helper class). 
 
 || *Property* || *Description* || *DefaultValue* ||
+|| bootstrap || The list of bootstrapping operation to invoke upon startup. This list essentially defines what the peer will do. Each bootstrapping operations plugs in some behavior into the peer and custom bootstrapping is of course possible. More on the syntax and a list of predefined bootstrapping operations can be found below.  || none ||
 || localDB || The path to the local HGDB database this peer is bound to. When omitted, the peer will not be attached to a local database. || none ||
 || tempDB || The path to a temporary HGDB database. This is used to store logs and atoms that were not yet delivered to interested peers. || none ||
 || interfaceType || The class that provides the peers interface. For the current JXTA implementation it should be org.hypergraphdb.peer.jxta.JXTAPeerInterface|| ||

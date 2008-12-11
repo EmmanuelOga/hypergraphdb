@@ -1,6 +1,6 @@
 #summary Documents various aspects of peer configuration.
 
-= HGDB Peer Configuration =
+= Top Level Configuration =
 
 Each peer can be configured before start by using a file with the settings in JSON format or by creating a map with the properties (see the Structs helper class). 
 
@@ -12,7 +12,7 @@ Each peer can be configured before start by using a file with the settings in JS
 || jxta || JXTA related configuration that is not introduced in the JXTA PlatformConfig file || null ||
 || threadPoolSize || The number of threads to the peer. Note that this does not include threads normally created by HyperGraphDB itself for cache management and the like. Omit this parameter or specify a value <= 0 if you want to have an unbounded number of threads allocated on the fly - those threads will be cached, reused, and purged only if they remain idle for 60 seconds. || 10 ||
 
-The jxta element has the following elements:
+= The `jxta` element =
 || *Property* || *Description* || *DefaultValue* ||
 || peerName || A logical name for the peer || HGDBPeer ||
 || peerGroup || The group to which this peer belongs || HGDBGroup ||

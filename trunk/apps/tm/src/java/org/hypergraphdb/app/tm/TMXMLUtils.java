@@ -8,6 +8,7 @@ import org.w3c.dom.*;
 import org.w3c.dom.bootstrap.*;
 import org.w3c.dom.ls.*;
 
+import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 public class TMXMLUtils
@@ -44,7 +45,7 @@ public class TMXMLUtils
 		Document doc = processor.getXmlDocument(version);
 		try
 		{
-			XMLSerializer serializer = new XMLSerializer();
+			XMLSerializer serializer = new XMLSerializer(new OutputFormat("XML", "ISO-8859-1", true));
 			FileWriter out = new FileWriter(outputFile);
 			serializer.setOutputCharStream(out);
 			serializer.serialize(doc);

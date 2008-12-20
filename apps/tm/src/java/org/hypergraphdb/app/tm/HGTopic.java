@@ -171,7 +171,7 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 		return occurrences;
 	}
 
-	public Set<HGTopic> getReified()
+	public Set<?> getReified()
 	{
 		return U.getRelatedObjects(graph, HGTM.hReifierOf, graph.getHandle(this), null);
 	}

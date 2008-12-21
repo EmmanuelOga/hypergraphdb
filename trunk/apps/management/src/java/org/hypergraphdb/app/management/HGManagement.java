@@ -95,7 +95,7 @@ public class HGManagement
 			}
 			for (HGHandle h : handles)
 			{
-				System.out.println("Deleting type: " + graph.get(h));
+//				System.out.println("Deleting type: " + graph.get(h));
 				if (!TypeUtils.deleteInstances(graph, h))
 				{
 					throw new Exception("Unable to delete type instances of type '" + h + "'");

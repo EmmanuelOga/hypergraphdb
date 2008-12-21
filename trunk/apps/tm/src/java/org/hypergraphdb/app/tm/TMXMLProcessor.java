@@ -3,6 +3,7 @@ package org.hypergraphdb.app.tm;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.atom.HGRel;
+import org.hypergraphdb.util.HGUtils;
 import org.tmapi.core.Association;
 import org.tmapi.core.AssociationRole;
 import org.tmapi.core.Locator;
@@ -236,6 +237,8 @@ public class TMXMLProcessor
 				else
 					value = n.getTextContent();
 			}
+			else if (n.getNodeName().equals("itemIdentity"))
+				continue;
 			else
 				break;
 		}
@@ -283,6 +286,8 @@ public class TMXMLProcessor
 			{
 				value = n.getTextContent();
 			}
+			else if (n.getNodeName().equals("itemIdentity"))
+				continue;
 			else
 				break;
 		}
@@ -372,6 +377,8 @@ public class TMXMLProcessor
 				else
 					value = n.getTextContent();
 			}
+			else if (n.getNodeName().equals("itemIdentity"))
+				continue;
 			else
 				break;
 		}
@@ -450,8 +457,9 @@ public class TMXMLProcessor
 	private void loadTopic2(Element el, HGTopicMap map)
 	{
 		String id = el.getAttribute("id");
-		Set<HGHandle> locators = getStoredLocators(getItemIdentities(el, true)); 
-		locators.add(U.ensureLocator(system.getGraph(), U.makeLocator(iri + "#" + id)));
+		Set<HGHandle> locators = getStoredLocators(getItemIdentities(el, true));
+		if (!HGUtils.isEmpty(id))
+			locators.add(U.ensureLocator(system.getGraph(), U.makeLocator(iri + "#" + id)));
 		Set<HGHandle> toAdd = new HashSet<HGHandle>();
 		HGTopic topic = (HGTopic)locate(locators, HGTopic.class, toAdd);
 		if (topic == null)
@@ -489,9 +497,13 @@ public class TMXMLProcessor
 						topic.addType(t);
 				}
 				if (!merge)
-					for (Topic t : existingTypes)
+				{
+					Set<Topic> existingCopy = new HashSet<Topic>();
+					types.addAll(existingTypes);
+					for (Topic t : existingCopy)
 						if (!types.contains(t))
 							topic.removeType(t);
+				}
 			}
 			else if (n.getNodeName().equals("name"))
 			{
@@ -501,6 +513,8 @@ public class TMXMLProcessor
 			{
 				loadOccurrence2((Element)n, map, topic);
 			}
+			else if (n.getNodeName().equals("itemIdentity"))
+				continue;
 			else
 				throw new RuntimeException("Unexpected element '" + 
 										   n.getNodeName() + "' in <topic>");			
@@ -541,6 +555,8 @@ public class TMXMLProcessor
 			{
 				roles.add(loadRole2((Element)n, ass, map));
 			}
+			else if (n.getNodeName().equals("itemIdentity"))
+				continue;
 			else
 				throw new RuntimeException("Unexpected element '" + 
 										   n.getNodeName() + "' in <association>");

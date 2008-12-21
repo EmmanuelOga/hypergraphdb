@@ -153,6 +153,11 @@ public class HGTMApplication extends HGApplication
 
 	private void undefineTypes(HyperGraph graph)
 	{
+		// we don't do a whole transaction for this simply because it's impossible for
+		// BDB to handle such a huge transaction...it runs out of lockers etc. pretty quickly
+		// and augmenting their number is not going to guarantee anything anyway. So the recommended
+		// use of such "large scale" operations should be: back up your DB first and do the operation
+		// without a transaction. 
 //		graph.getTransactionManager().beginTransaction();
 		try
 		{
@@ -186,14 +191,14 @@ public class HGTMApplication extends HGApplication
 			TypeUtils.deleteInstances(graph, HGTM.hMapMember);			
 			graph.remove(HGTM.hMapMember);
 			
-			TypeUtils.deleteInstances(graph, HGTM.hSchemaAnyType);			
+/*			TypeUtils.deleteInstances(graph, HGTM.hSchemaAnyType);			
 			graph.remove(HGTM.hSchemaAnyType);
 			
 			TypeUtils.deleteInstances(graph, HGTM.hSchemaAnyURI);			
 			graph.remove(HGTM.hSchemaAnyURI);
 			
 			TypeUtils.deleteInstances(graph, HGTM.hSchemaStringType);			
-			graph.remove(HGTM.hSchemaStringType);		
+			graph.remove(HGTM.hSchemaStringType); */		
 			
 			unloadPredefinedTopics(graph);
 			

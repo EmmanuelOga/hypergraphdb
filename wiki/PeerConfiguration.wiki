@@ -21,7 +21,7 @@ This configuration element lists implementation of the `org.hypergraphdb.peer.Bo
 {
 ...
 "bootstrap" :
- [ {"class" : "org.hypergraphdb.peer.bootstrap.ReplicationBootstrap", "config" : {}]
+ [ {"class" : "org.hypergraphdb.peer.bootstrap.ReplicationBootstrap", "config" : {}}]
 ...
 }
 }}}

@@ -1,0 +1,7 @@
+#Compiling HGDB from Source Code and Deployment
+
+HyperGraphDB consists of a core component implementing the nuts and bolts of the database itself together with several applications in different domains. Some of the applications have dependencies on others and all have a dependency on the `management` component. 
+
+Deployment consists of copying relevant files to your application and setting a few JVM runtime properties. In general, HyperGraphDB is used as a library so it very much depends on your specific application how and which components are being deployed. 
+
+= Compilation =

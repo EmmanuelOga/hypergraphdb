@@ -1,4 +1,4 @@
-#Compiling HGDB from Source Code and Deployment
+#summary Compiling HGDB from Source Code and Deployment
 
 HyperGraphDB consists of a core component implementing the nuts and bolts of the database itself together with several applications in different domains. Some of the applications have dependencies on others and all have a dependency on the `management` component. 
 

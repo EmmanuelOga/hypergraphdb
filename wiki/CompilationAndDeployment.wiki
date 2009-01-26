@@ -23,3 +23,25 @@ The directory structure under core, viewer and each application modules roughly 
 = Compilation =
 
 Compilation is done with the ANT build system (see http://ant.apache.org/). You can compile everything or individual components with the top-level ant script. Or you can compile individual components from their own home directories by running their respective ant scripts. 
+
+As a reminder, running `ant -p` lists all available targets for a project script.
+
+== Compiling Core ==
+
+There are a couple of different version that can be made out of core, depending on you will be using the system as a distributed database or just an embedded database:
+
+  * *hgdbfull.jar* - contains both the database management and the distributed version code.
+  * *hypergraphdb.jar* - contains just the embedded database version.
+  * *hgpeer.jar* - contains just the peer/distributed version related code. 
+
+So, *hgdbfull.jar* is a merge of *hypergraphdb.jar* with *hgpeer.jar*. The code from latter is entirely in the `org.hypergraphdb.peer` package.
+
+== Compiling the Application Module ==
+
+Each application module is essentially contained in one jar that you can build with its respective script. 
+
+= Deployment =
+
+Deployment of HyperGraphDB and/or its application modules obviously involves first and foremost the standard Java requirement of having all needed classes/jar files in the JVM classpath. In addition, HyperGraphDB makes use of a few native libraries available under `core/native/[os-name]` for each supported operating system. Those libraries must be in the OS path of the application using HGDB. 
+
+HyperGraphDB itself, as an embedded database, doesn't require any configuration. However, the distributed version needs to be configured as document on the 

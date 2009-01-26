@@ -4,4 +4,22 @@ HyperGraphDB consists of a core component implementing the nuts and bolts of the
 
 Deployment consists of copying relevant files to your application and setting a few JVM runtime properties. In general, HyperGraphDB is used as a library so it very much depends on your specific application how and which components are being deployed. 
 
+= Source Code Directory Structure =
+
+Source code is organized in the following top-level directories:
+
+|| apps || All HGDB application modules. There's on directory per application module under `apps` ||
+|| core || The core of HGDB, including the distributed version. ||
+|| viewer || A component for visualization of HGDB graphs. ||
+|| test || Unit tests, mainly for the core component. ||
+|| doc || Some documentation, obsolete as now all documentation is in Wiki form. ||
+
+The directory structure under core, viewer and each application modules roughly follows the pattern:
+
+|| src || The actual source code. Sub-divided under `java`, possibly `config` and possibly other languages. ||
+|| jars || 3d party Java libraries dependencies for that particular component. ||
+|| etc. || Possibly some other self-explanatory directories depending on the component. ||
+
 = Compilation =
+
+Compilation is done with the ANT build system (see http://ant.apache.org/). You can compile everything or individual components with the top-level ant script. Or you can compile individual components from their own home directories by running their respective ant scripts. 

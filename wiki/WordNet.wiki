@@ -32,3 +32,31 @@ For each part of speech (noun, adjective, verb, adverb), WordNet contains a list
 ==Loading WordNet in a HyperGraphDB==
 
 The JWNL (Java WordNet Library) - http://sourceforge.net/projects/jwordnet is used to load the WordNet database files. It is an open-source Java API for accessing WordNet which provides API-level access to WordNet data.
+
+Here is a sample code to load WordNet data into a HGDB instance. The code disables transactions for faster processing. So if the data already in your HGDB instance is important to you, make a backup copy beforehand.
+
+{{{
+import org.hypergraphdb.*;
+import org.hypergraphdb.app.wordnet.*;
+
+String wordnetDB = "d:/data/graphs/wn"; // the location of your HGDB
+
+// Disable transactions
+HGConfiguration config = new HGConfiguration();
+config.setTransactional(false);
+
+// Open/Create the HGDB instance
+HyperGraph graph = HGEnvironment.get(wordnetDB, config);
+
+long startTime = System.currentTimeMillis();
+HGWordNetLoader loader = new HGWordNetLoader();
+
+// Modify the following line to point to your WordNet installation
+loader.setDictionaryLocation("C:/tools/wordnet/dict");
+
+// This should take a while, usually under 10 minutes but maybe 
+// more if you have an older machine
+loader.loadWordNet(graph);
+long endTime = System.currentTimeMillis();
+System.out.println("Completed in " + (endTime - startTime) / 1000 + " seconds.");
+}}}

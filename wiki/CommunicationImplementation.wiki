@@ -1,5 +1,8 @@
-#summary Framework for Communication Activities
-= Implementation =
+#summary The Framework for Communication Activities
+
+= Introduction =
+
+Peers communicate through structured messages following a broad communication framework based on the Agent Communication Language (ACL) established by the FIPA standard (see http://www.fipa.org), which itself evolved from the Knowledge Query and Manipulation Language (KQML - see http://www.cs.umbc.edu/kqml/). In essence, the message framework defines a set of communication (or speech) acts that roughly formalise the intention of the communicating agent. 
 
 The implementation uses two base concepts: *tasks* and *conversations*. Both are *activities* - basically finite state machines.
 

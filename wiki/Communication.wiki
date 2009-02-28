@@ -131,21 +131,3 @@ Usually an atom should be on a single peer but we should not assume that as vari
 A peer that has the atom will send a proposal that will include as advertisement a version, a summary of the atom or the atom it self. Peer j might choose to accept or reject (and provide a reason) the proposal.
 
 A scenario to consider here is the one in which peer i queries for an atom that does not exist (might have been deleted, might have never existed, or the peer hosting it may no longer be running). In this case no one would respond to the *call-for-proposal*. For the time being we can assume a timeout for each query, but more complex behavior might be worth considering. 
-
-= Implementation =
-
-The implementation uses two base concepts: *tasks* and *conversations*. Both are *activities* - basically finite state machines.
-
-A *task* manages multiple conversations and the transitions between states are triggered by changes in the states of the conversations. A *conversation* is established between exactly two peers and the transitions between states is done by either having one peer explicitly calling a method (the "say" transitions) or by receiving a message from the other peer (the "hear" transitions).
-
-Characteristics of conversations:
-
-  # All messages need to arrive in the "proper" order. If any out-of-order messages are received a "do-not-understand" reply is generated.
-  # They are not strictly related to an action. The conversation only imposes the ordering of the performatives that are being exchanged. That being said, there can be special purpose conversation types that can be used only for a certain action.
-  # Conversations should be designed with composability in mind, but even composed conversations will assume a strict order of the messages.
-
-Characteristics of tasks:
-
-  # The transition of a task are determined by changes in the states of the conversations handled by the task. These changes can happen when the activity is not in an appropriate state to handle them. The task must make sure that these changes are available if the state changes.
-  # It is the responsibility of the conversations to ensure that no state change happens while the conversation is in a wait state at a task. This is easily ensured by the strict ordering presumption made for conversations.
-  # Implementors of the Task base class will see a serialized version of the changes that happened in the conversations (they will not observe a change in a conversation while handling a change in another conversation). There is no specific need for ordering the events, but eventually it would be useful for implementors to declare a priority based ordering of the conversations state changes (in the first use case above, the propose message is more important than the inform message).

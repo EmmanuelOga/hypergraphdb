@@ -1,4 +1,7 @@
 #summary Distributed HyperGraphDB Overview
 
-  * Communication
-  * CommunicationImplementation
+  * [Communication]
+  * [CommunicationImplementation]
+  * [PeerConfiguration]
+  * [HowToCreateTasks]
+  * [MessageStructure]

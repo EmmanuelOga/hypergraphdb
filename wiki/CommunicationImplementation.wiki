@@ -2,7 +2,9 @@
 
 = Introduction =
 
-Peers communicate through structured messages following a broad communication framework based on the Agent Communication Language (ACL) established by the FIPA standard (see http://www.fipa.org), which itself evolved from the Knowledge Query and Manipulation Language (KQML - see http://www.cs.umbc.edu/kqml/). In essence, the message framework defines a set of communication (or speech) acts that roughly formalise the intention of the communicating agent. 
+HyperGraph peers communicate through structured messages following a broad communication framework based on the Agent Communication Language (ACL) established by the FIPA standard (see http://www.fipa.org), which itself evolved from the Knowledge Query and Manipulation Language (KQML - see http://www.cs.umbc.edu/kqml/). In essence, the message framework defines a set of communication (or speech) acts that roughly formalise the intention of the communicating agent. 
+
+Following the agent metaphor, conceptually each communication act is performed within the context of accomplishing a given goal (or task). The "desire" to accomplish such a goal is always going to be initiated by one of the peers. 
 
 The implementation uses two base concepts: *tasks* and *conversations*. Both are *activities* - basically finite state machines.
 

@@ -6,7 +6,15 @@ HyperGraph peers communicate through structured messages following a broad commu
 
 Following the agent metaphor, conceptually each communication act is performed within the context of accomplishing a given goal (or task). The "desire" to accomplish such a goal is always going to be initiated by one of the peers. The context of communication between peers is captured as an _activity_. Each such activity has a local representation at each peer participating in it, and is identified by a UUID (Universally Unique Identifier). 
 
-Thus, peers perform tasks (i.e. accomplish goals) by running asynchronous activities locally and communicating their state and results via speech act messages. Each activity is always in one and only _workflow_ state. The framework mandates the use of a few basic states and allows for the definition of an arbitrary number of custom ones.
+Thus, peers perform tasks (i.e. accomplish goals) by running asynchronous activities locally and communicating their state and results via speech act messages. The flow of those activities is orchestrated by a framework that provides the following elements:
+
+  # A peer-to-peer infrastructure based on the JXTA framework (see https://jxta.dev.java.net/), including peer discovery and relay communication over firewalls.
+  # Message formatting and parsing using JSON syntax (see http://www.json.org). Serialization for common HyperGraphDB objects and Java beans is implemented and it is possible to plug in custom object serialization.
+  # Pluggable behaviour in the form of `BootstrapPeer` implementations
+  # Management and scheduling of activities. Activities can be implemented either as "roll your own" general message handlers or as framework-managed finite-state machines. Activities can also be in a parent-child relationship. 
+  # A set of predefined services such as replication and a straightforward client-server access to HyperGraphDB instances.
+ 
+Each activity is always in one and only _workflow_ state. The framework mandates the use of a few basic states and allows for the definition of an arbitrary number of custom ones.
 
 The implementation uses two base concepts: *tasks* and *conversations*. Both are *activities* - basically finite state machines.
 

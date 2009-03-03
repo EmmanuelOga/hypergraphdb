@@ -19,6 +19,15 @@ Thus, peers perform tasks (i.e. accomplish goals) by running asynchronous activi
 
 Activities in the HyperGraphDB peer-to-peer framework are the asynchronous processes through which peers communicate. An activity will generally represent a particular task to be accomplished or a sub-task of a larger task. An activity spans any number of peers at any given time.
 
+Activities accomplish their task in discrete units of work that are scheduled to run in the peer thread pool. The lifetime and scheduling of activities is orchestrated by an instance of `org.hypergraphdb.peer.workflow.ActivityManager`. In order to ensure proper sequencing/ordering of those units of work, each activity has an associated queue of actions to be performed. In general, an action simply amounts to the handling of incoming message and modifying the internal activity state somehow, but it is possible to add actions to the queue that are unrelated to messages.
+
+The ActivityManager is responsible for handling all incoming messages and dispatching them according to the following algorithm:
+
+  # If the message refers to an activity already existing locally, then schedule an action to handle with that activity's own queue.
+  # Otherwise, create a new activity, *change its workflow state to Started* and schedule the message handling action only then.
+
+Activities are identified between peers through a UUID that is created at the peer initiating the activity. Initiation itself must be done by calling one of the `ActivityManager.initiateActivity` methods - the different versions allow you to specify a parent activity and/or an event listener (`org.hypergraphdb.peer.workflow.ActivityListener`). Once an activity is initiated, the peer is free to send messages with it. All messages sent in the context of that activity will carry its ID so that other peers can create and subsequently identify their own local representations.
+
 Each activity is always in one and only one symbolic _workflow_ state that roughly defines its lifecycle. Activity implementations then maintain any additional needed state as member variables of the implementing class. Workflow states are detailed in the following section.
 
 == Workflow States ==

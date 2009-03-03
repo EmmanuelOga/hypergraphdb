@@ -99,6 +99,20 @@ The names that you give are case-sensitive. That may be important if you are usi
 
 == FSMActivity ==
 
+The `FSMActivity` base class offers an easy way to implement activities using the finite-state-machines paradigm. Each FSMActivity moves from workflow state to workflow state based on the handling of external events. There are two types of such external events: (1) messages received from other peers and (2) State changes in sub-activities (i.e. activities to which the FSMActivity is a parent). Both kinds of events result in an action and a possible state change. Event handling is done by implementing the following general interface:
+
+{{{
+public interface Transition
+{
+    public WorkflowStateConstant apply(Activity activity, Object...args);
+}
+}}}
+
+which represents a transition in the state-machine. Thus a transition takes as arguments the `Activity` instance as well as an arbitrary number of arguments depending on the kind of event that the transition handles.
+
+There are two ways to define such transitions: by directly calling one of the `setTransition` methods in the `ActivityType`'s transition map, or by declaring methods in the implementation class that obey a predefined prototype and annotating those methods with appropriate Java annotations. 
+
+
 == Scheduling Algorithm ==
 
 The scheduler works by maintaining a global queue of activities prioritized according to their wait time (the number of milliseconds elapsed since the last an activity ran) and the number of actions in their queue. A special case are activities that are currently waited on by a call to the blocking `Future.get` method on the `Future` instance associated with them - such activities always take priority over activities that are NOT waited on.

@@ -163,6 +163,9 @@ Here is an example of a transition taken from the predefined `AffirmIdentity` ac
 
 }}}
 
+To implement an FSMActivity, extend the `org.hypergraphdb.peer.workflow.FSMActivity` class, define and annotated all your transition methods and define an `initiate` method if 
+needed. 
+
 == Scheduling Algorithm ==
 
 The scheduler works by maintaining a global queue of activities prioritized according to their wait time (the number of milliseconds elapsed since the last an activity ran) and the number of actions in their queue. A special case are activities that are currently waited on by a call to the blocking `Future.get` method on the `Future` instance associated with them - such activities always take priority over activities that are NOT waited on.

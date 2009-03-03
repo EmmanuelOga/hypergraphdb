@@ -22,24 +22,9 @@ Activities in the HyperGraphDB peer-to-peer framework are the asynchronous proce
 Each activity is always in one and only one symbolic _workflow_ state that roughly defines its lifecycle. Activity implementations then maintain any additional needed state as member variables of the implementing class. The framework mandates the use of a few basic workflow states and allows for the definition of an arbitrary number of custom ones. The predefined states are summarized in the following table:
 
 || *State Constant* || *Description* ||
-|| Limbo || This state represents activities that have been created, but are not actually running because they haven't been initiated. ||
+|| Limbo || This state represents activities that have been created as Java objects, but are not actually running because they haven't been initiated. ||
 || Started || Represents activities that are currently running, that have been initiated either originally by the current peer or through a message that was received by some other peer. This state is not the only possible state representing a running activity. All custom defined states ||
 || Completed || Represents a state where the activity has completed successfully. Once an activity enters this state, it cannot be changed. ||
 || Failed || Represents a state where the activity has failed to complete, most likely due to some exception. Once an activity enters this state, it cannot be changed. ||
 || Canceled || Represents a state where the activity that was explicitly canceled. Once an activity enters this state, it cannot be changed. ||
 
-The implementation uses two base concepts: *tasks* and *conversations*. Both are *activities* - basically finite state machines.
-
-A *task* manages multiple conversations and the transitions between states are triggered by changes in the states of the conversations. A *conversation* is established between exactly two peers and the transitions between states is done by either having one peer explicitly calling a method (the "say" transitions) or by receiving a message from the other peer (the "hear" transitions).
-
-Characteristics of conversations:
-
-  # All messages need to arrive in the "proper" order. If any out-of-order messages are received a "do-not-understand" reply is generated.
-  # They are not strictly related to an action. The conversation only imposes the ordering of the performatives that are being exchanged. That being said, there can be special purpose conversation types that can be used only for a certain action.
-  # Conversations should be designed with composability in mind, but even composed conversations will assume a strict order of the messages.
-
-Characteristics of tasks:
-
-  # The transition of a task are determined by changes in the states of the conversations handled by the task. These changes can happen when the activity is not in an appropriate state to handle them. The task must make sure that these changes are available if the state changes.
-  # It is the responsibility of the conversations to ensure that no state change happens while the conversation is in a wait state at a task. This is easily ensured by the strict ordering presumption made for conversations.
-  # Implementors of the Task base class will see a serialized version of the changes that happened in the conversations (they will not observe a change in a conversation while handling a change in another conversation). There is no specific need for ordering the events, but eventually it would be useful for implementors to declare a priority based ordering of the conversations state changes (in the first use case above, the propose message is more important than the inform message).

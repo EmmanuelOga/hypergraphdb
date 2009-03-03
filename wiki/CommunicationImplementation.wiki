@@ -26,7 +26,13 @@ The ActivityManager is responsible for handling all incoming messages and dispat
   # If the message refers to an activity already existing locally, then schedule an action to handle with that activity's own queue.
   # Otherwise, create a new activity, *change its workflow state to Started* and schedule the message handling action only then.
 
-Activities are identified between peers through a UUID that is created at the peer initiating the activity. Initiation itself must be done by calling one of the `ActivityManager.initiateActivity` methods - the different versions allow you to specify a parent activity and/or an event listener (`org.hypergraphdb.peer.workflow.ActivityListener`). Once an activity is initiated, the peer is free to send messages with it. All messages sent in the context of that activity will carry its ID so that other peers can create and subsequently identify their own local representations.
+Activities are identified between peers through a UUID that is created at the peer initiating the activity. Initiation itself must be done by calling one of the `ActivityManager.initiateActivity` methods - the different versions allow you to specify a parent activity and/or an event listener for the activity lifecycle (see `org.hypergraphdb.peer.workflow.ActivityListener`). The initiation process amounts to the following:
+
+  # Add the activity to the list of currently running activities and insert into the scheduler.
+  # Change its state to started.
+  # Call its `initiate` method.
+
+Once an activity is started, the peer is free to send messages with it. In particular, initial messages should be send in the implementation of the `initiate` method. All messages sent in the context of that activity will carry its ID so that other peers can create and subsequently identify their own local representations.
 
 Each activity is always in one and only one symbolic _workflow_ state that roughly defines its lifecycle. Activity implementations then maintain any additional needed state as member variables of the implementing class. Workflow states are detailed in the following section.
 

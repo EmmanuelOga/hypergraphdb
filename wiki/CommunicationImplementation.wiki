@@ -32,7 +32,44 @@ public class Activity
 }
 }}}
 
-The `initiate` is called only at the peer first starting the activity and the `handleMessage` is called every time a message pertaining to that activity is received.
+The `initiate` method is called only at the peer first starting the activity and the `handleMessage` is called every time a message pertaining to that activity is received.
+
+Additionally, it is possible to override the `getType` to provide a custom type name for an activity's type. By default, it is the fully-qualified classname. 
+
+== Activity Types and Factories ==
+
+Activity type names are not just for display purposes. The framework needs to be able to create activity instances given a type name and an incoming message. This is accomplished by providing the framework with an `ActivityFactory` for each activity type:
+
+{{{
+package org.hypergraphdb.peer.workflow;
+public interface ActivityFactory
+{
+    Activity make(HyperGraphPeer thisPeer, UUID id, Message msg);
+}
+}}}
+
+Activity types themselves are represented by the `org.hypergraphdb.peer.workflow.ActivityType` class which, in addition to the type name an d factory, holds a transition map instances needed for implementing FSM activities and ignored otherwise.
+
+Each activity type must be registered at bootstrap time by calling one of the `ActivityManager.registerActivityType`  methods. Note that some of the version of this method do not take an `ActivityFactory` parameter. In those cases, the framework provides the factory itself using Java reflection. The Java Class of the activity is expected to have a constructor with one of the 3 forms:
+
+{{{
+public MyActivity extends Activity
+{
+   public MyActivity(HyperGraphPeer peer) { }
+  
+   or 
+
+   public MyActivity(HyperGraphPeer peer, UUID activityId) { }
+
+   or
+
+   public MyActivity(HyperGraphPeer peer, UUID activityId, Message msg) { }
+}
+}}}
+
+The third form is used preferably, then the second, then the first.
+
+== Activities Lifecycle ==
 
 Activities accomplish their task in discrete units of work that are scheduled to run in the peer thread pool. The lifetime and scheduling of activities is orchestrated by an instance of `org.hypergraphdb.peer.workflow.ActivityManager`. In order to ensure proper sequencing/ordering of those units of work, each activity has an associated queue of actions to be performed. In general, an action simply amounts to the handling of incoming message and modifying the internal activity state somehow, but it is possible to add actions to the queue that are unrelated to messages.
 

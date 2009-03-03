@@ -9,20 +9,17 @@ Following the agent metaphor, conceptually each communication act is performed w
 Thus, peers perform tasks (i.e. accomplish goals) by running asynchronous activities locally and communicating their state and results via speech act messages. The flow of those activities is orchestrated by a framework that provides the following elements:
 
   # A peer-to-peer infrastructure based on the JXTA framework (see https://jxta.dev.java.net/), including peer discovery and relay communication over firewalls.
-  # Message formatting and parsing using JSON syntax (see http://www.json.org). Serialization for common HyperGraphDB objects and Java beans is implemented and it is possible to plug in custom object serialization.
+  # Message formatting and parsing using JSON syntax (see http://www.json.org). Serialization for common runtime HyperGraphDB objects (such as queries), Java beans as well as HyperGraphDB atoms is implemented and it is possible to plug in custom object serialization.
   # Pluggable behaviour in the form of `BootstrapPeer` implementations
   # Management and scheduling of activities. Activities can be implemented either as "roll your own" general message handlers or as framework-managed finite-state machines. Activities can also be in a parent-child relationship. 
   # A set of predefined services such as replication and a straightforward client-server access to HyperGraphDB instances.
  
-Each activity is always in one and only _workflow_ state. The framework mandates the use of a few basic states and allows for the definition of an arbitrary number of custom ones.
 
 = Activities =
 
-Activities are 
+Activities in the HyperGraphDB peer-to-peer framework are the asynchronous processes through which peers communicate. An activity will generally represent a particular task to be accomplished or a sub-task of a larger task. An activity spans any number of peers at any given time.
 
-= Workflow States =
-
-The predefined states are summarized in the following table:
+Each activity is always in one and only one symbolic _workflow_ state that roughly defines its lifecycle. Activity implementations then maintain any additional needed state as member variables of the implementing class. The framework mandates the use of a few basic workflow states and allows for the definition of an arbitrary number of custom ones. The predefined states are summarized in the following table:
 
 || *State Constant* || *Description* ||
 || Limbo || This state represents activities that have been created, but are not actually running because they haven't been initiated. ||

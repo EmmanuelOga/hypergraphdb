@@ -110,8 +110,32 @@ public interface Transition
 
 which represents a transition in the state-machine. Thus a transition takes as arguments the `Activity` instance as well as an arbitrary number of arguments depending on the kind of event that the transition handles.
 
-There are two ways to define such transitions: by directly calling one of the `setTransition` methods in the `ActivityType`'s transition map, or by declaring methods in the implementation class that obey a predefined prototype and annotating those methods with appropriate Java annotations. 
+There are two ways to define such transitions: by directly calling one of the `setTransition` methods in the `ActivityType`'s transition map, or by declaring methods in the implementation class that obey a predefined prototype and annotating those methods with appropriate Java annotations.
 
+Transition methods that implement message-triggered transition have the following prototype:
+
+{{{
+    // Return the new state of the activity based on the message received.
+    public WorkflowStateConstant onFoo(Message message);
+}}}
+
+and they can be annotated with the following annotations:
+
+|| @FromState || One or more input states. The transition will triggered only if the activity is in one of those states ||
+|| @OnMessage || A set of message attributes (name=value pairs). The transition is triggered only if the incoming message has those attributes with exactly those values.||
+|| @PossibleOutcome || A list of possible output states. This is purely for informative purposes and could be enforced at some point by the framework. ||
+
+Transition methods that implement a sub-activity triggered transition have the following prototype:
+
+{{{
+    // Return the new state of the activity based on the current state of the sub-activity
+    public WorkflowStateConstant onFoo(Activity subActivity);
+}}}
+
+and they can be annotated with the `@FromState` and `@PossibleOutcome` annotation as well, but instead of `OnMessage`, two additional annotations are defined for them:
+
+|| @AtActivity || The typename of the sub-activity that will trigger this transitions. ||
+|| @OnActivityState || A list of input states for the sub-activity. When a sub-activity with the type set by the @AtActivity annotation reaches one of those input states, this method transition will be called. ||
 
 == Scheduling Algorithm ==
 

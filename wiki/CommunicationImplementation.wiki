@@ -19,7 +19,11 @@ Thus, peers perform tasks (i.e. accomplish goals) by running asynchronous activi
 
 Activities in the HyperGraphDB peer-to-peer framework are the asynchronous processes through which peers communicate. An activity will generally represent a particular task to be accomplished or a sub-task of a larger task. An activity spans any number of peers at any given time.
 
-Each activity is always in one and only one symbolic _workflow_ state that roughly defines its lifecycle. Activity implementations then maintain any additional needed state as member variables of the implementing class. The framework mandates the use of a few basic workflow states and allows for the definition of an arbitrary number of custom ones. The predefined states are summarized in the following table:
+Each activity is always in one and only one symbolic _workflow_ state that roughly defines its lifecycle. Activity implementations then maintain any additional needed state as member variables of the implementing class. Workflow states are detailed in the following section.
+
+== Workflow States ==
+
+Finite state machines (FSMs) are a generally good paradigm for implementing asynchronous processes. And even if a particular activity implementation is not entirely based on the FSM concept, its lifecycle will always follow a pattern where the activity is created, started and then it finishes (successfully or not). So the framework mandates the use of a few basic workflow states to capture this very pattern. And it also allows for the definition of an arbitrary number of custom ones so as to facilitate implementations following the FSM paradigm. The predefined states are summarized in the following table:
 
 || *State Constant* || *Description* ||
 || Limbo || This state represents activities that have been created as Java objects, but are not actually running because they haven't been initiated. ||
@@ -28,3 +32,23 @@ Each activity is always in one and only one symbolic _workflow_ state that rough
 || Failed || Represents a state where the activity has failed to complete, most likely due to some exception. Once an activity enters this state, it cannot be changed. ||
 || Canceled || Represents a state where the activity that was explicitly canceled. Once an activity enters this state, it cannot be changed. ||
 
+The `Limbo` state is in effect only after a new activity was created at a peer, but hasn't been scheduled to execute yet. As soon as it scheduled to execute, its state is changed to `Started` by the framework. The three states `Completed`, `Failed` and `Canceled` are terminal in that once an activity enters them, it can't go to another state and it will never be scheduled for execution again. 
+
+Note that workflow states, and for that matter any other internal implementation state, are *local* to a peer. Thus while one peer may have an activity in a `Failed` state, another may have it in a `Started` state. 
+
+Workflow states are implemented by the `org.hypergraphdb.peer.workflow.WorkflowState` class which provides atomic operations for changing the state and allows for listeners of state changes to be registered:
+
+{{{
+public class WorkflowState
+{
+   // ....
+
+   // Change the state the 'newState' only if it's currently 'oldState'
+   public boolean compareAndAssign(WorkflowStateConstant oldState, WorkflowStateConstant newState)
+
+   // Change the state to 'newState' regardless of current state
+   public void assign(WorkflowStateConstant newState)
+}
+}}} 
+
+both of the above methods will throw an exception if the instance is currently in one of the terminal states. 

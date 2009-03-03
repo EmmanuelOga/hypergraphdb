@@ -137,6 +137,32 @@ and they can be annotated with the `@FromState` and `@PossibleOutcome` annotatio
 || @AtActivity || The typename of the sub-activity that will trigger this transitions. ||
 || @OnActivityState || A list of input states for the sub-activity. When a sub-activity with the type set by the @AtActivity annotation reaches one of those input states, this method transition will be called. ||
 
+Here is an example of a transition taken from the predefined `AffirmIdentity` activity:
+
+{{{
+    @FromState("Started")
+    @OnMessage(performative="Inform")
+    @PossibleOutcome("Completed")
+    public WorkflowState onInform(Message msg)
+    {
+        HGPeerIdentity thisId = getThisPeer().getIdentity();
+        HGPeerIdentity id = parseIdentity(getStruct(msg, CONTENT));
+        Message reply = getReply(msg);        
+        if (id.getId().equals(thisId.getId()))
+            combine(reply, struct(PERFORMATIVE, Disconfirm));
+        else
+        {
+            combine(reply, combine(struct(PERFORMATIVE, Confirm),
+                                   struct(CONTENT, 
+                                          makeIdentityStruct(getThisPeer().getIdentity()))));
+            getThisPeer().bindIdentityToNetworkTarget(id, getPart(msg, REPLY_TO));
+        }
+        getPeerInterface().send(getSender(msg), reply);
+        return WorkflowState.Completed;
+    }
+
+}}}
+
 == Scheduling Algorithm ==
 
 The scheduler works by maintaining a global queue of activities prioritized according to their wait time (the number of milliseconds elapsed since the last an activity ran) and the number of actions in their queue. A special case are activities that are currently waited on by a call to the blocking `Future.get` method on the `Future` instance associated with them - such activities always take priority over activities that are NOT waited on.

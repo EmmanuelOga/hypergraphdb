@@ -27,14 +27,14 @@ Finite state machines (FSMs) are a generally good paradigm for implementing asyn
 
 || *State Constant* || *Description* ||
 || Limbo || This state represents activities that have been created as Java objects, but are not actually running because they haven't been initiated. ||
-|| Started || Represents activities that are currently running, that have been initiated either originally by the current peer or through a message that was received by some other peer. This state is not the only possible state representing a running activity. All custom defined states ||
+|| Started || Represents activities that are currently running, that have been initiated either originally by the current peer or through a message that was received by some other peer. This state is not the only possible state representing a running activity. All custom defined states also represent a currently running (i.e. "active") activity. ||
 || Completed || Represents a state where the activity has completed successfully. Once an activity enters this state, it cannot be changed. ||
 || Failed || Represents a state where the activity has failed to complete, most likely due to some exception. Once an activity enters this state, it cannot be changed. ||
 || Canceled || Represents a state where the activity that was explicitly canceled. Once an activity enters this state, it cannot be changed. ||
 
-The `Limbo` state is in effect only after a new activity was created at a peer, but hasn't been scheduled to execute yet. As soon as it scheduled to execute, its state is changed to `Started` by the framework. The three states `Completed`, `Failed` and `Canceled` are terminal in that once an activity enters them, it can't go to another state and it will never be scheduled for execution again. 
+The `Limbo` state is in effect only after a new activity was created at a peer, but hasn't been scheduled to execute yet. As soon as it scheduled to execute, its state is changed to `Started` by the framework. Once an activity leaves the `Limbo` state, it can never return to it. The three states `Completed`, `Failed` and `Canceled` are terminal in that once an activity enters them, it can't go to another state and it will never be scheduled for execution again. 
 
-Note that workflow states, and for that matter any other internal implementation state, are *local* to a peer. Thus while one peer may have an activity in a `Failed` state, another may have it in a `Started` state. 
+Note that workflow states, and for that matter any other internal implementation state data, are *local* to a peer. Thus while one peer may have an activity in a `Failed` state, another may have it in a `Started` state. 
 
 Workflow states are implemented by the `org.hypergraphdb.peer.workflow.WorkflowState` class which provides atomic operations for changing the state and allows for listeners of state changes to be registered:
 
@@ -52,3 +52,17 @@ public class WorkflowState
 }}} 
 
 both of the above methods will throw an exception if the instance is currently in one of the terminal states. 
+
+The `WorkflowStateConstant` type of the parameters that you see above is that type of all workflow state constants. The implementation is akin to an open-ended enum - a pool of constants is maintained and any custom workflow state constant must be explicitly registered with the pool before it's being used by calling the static `WorkflowState.makeStateConstant(String name)` method. Each constant is identified by a name and this method ensures that there are no duplicate state constants so it is safe to compare them using the Java `==` operator. Given a name, you can retrieve the constant from the pool with `WorkflowState.toStateConstant(String name)` which will throw an exception if there's no constant with this name. 
+
+The `WorkflowStateConstant` is simply an immutable version (an extension) of `WorkflowState`. To create a brand new mutable `WorkflowState`, call one of the static methods `WorkflowState.makeState(WorkflowStateConstant c)` or `WorkflowState.makeState()`. The latter method assume a default initial value of `WorkflowState.Limbo`.
+
+To create custom state constant, it is customary to simply declare them as final static fields in some class:
+
+{{{
+    public static final WorkflowStateConstant Started = WorkflowState.makeStateConstant("Started");
+    public static final WorkflowStateConstant Completed = WorkflowState.makeStateConstant("Completed");
+    // etc...
+}}}
+
+The names that you give are case-sensitive. That may be important if you are using Java annotations in combination with the provided `FSMActivity` implementation.

@@ -16,6 +16,21 @@ Thus, peers perform tasks (i.e. accomplish goals) by running asynchronous activi
  
 Each activity is always in one and only _workflow_ state. The framework mandates the use of a few basic states and allows for the definition of an arbitrary number of custom ones.
 
+= Activities =
+
+Activities are 
+
+= Workflow States =
+
+The predefined states are summarized in the following table:
+
+|| *State Constant* || *Description* ||
+|| Limbo || This state represents activities that have been created, but are not actually running because they haven't been initiated. ||
+|| Started || Represents activities that are currently running, that have been initiated either originally by the current peer or through a message that was received by some other peer. This state is not the only possible state representing a running activity. All custom defined states ||
+|| Completed || Represents a state where the activity has completed successfully. Once an activity enters this state, it cannot be changed. ||
+|| Failed || Represents a state where the activity has failed to complete, most likely due to some exception. Once an activity enters this state, it cannot be changed. ||
+|| Canceled || Represents a state where the activity that was explicitly canceled. Once an activity enters this state, it cannot be changed. ||
+
 The implementation uses two base concepts: *tasks* and *conversations*. Both are *activities* - basically finite state machines.
 
 A *task* manages multiple conversations and the transitions between states are triggered by changes in the states of the conversations. A *conversation* is established between exactly two peers and the transitions between states is done by either having one peer explicitly calling a method (the "say" transitions) or by receiving a message from the other peer (the "hear" transitions).

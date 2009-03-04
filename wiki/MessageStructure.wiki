@@ -4,7 +4,9 @@
 
 This document is intended to describe the structure of the messages that are exchanged between HGDB peers. 
 
-We attempt to follow the semantics of communication performatives which is described in the [http://www.fipa.org/specs/fipa00037/SC00037J.html FIPA Communicative Act Library Specification]
+The core attribute of a message are defined in the [http://www.fipa.org/specs/fipa00061/SC00061G.html FIPA ACL Message Structure Specification].
+
+The most important attribute is the performative which defines the "speech act". We attempt to follow the semantics of communication performatives which is described in the [http://www.fipa.org/specs/fipa00037/SC00037J.html FIPA Communicative Act Library Specification]
 
 
 = Message Structure =

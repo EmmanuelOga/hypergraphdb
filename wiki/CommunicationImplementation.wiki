@@ -90,7 +90,32 @@ Activities are identified between peers through a UUID that is created at the pe
 
 Once an activity is started, the peer is free to send messages with it. In particular, initial messages should be send in the implementation of the `initiate` method. All messages sent in the context of that activity will carry its ID so that other peers can create and subsequently identify their own local representations.
 
-Each activity is always in one and only one symbolic _workflow_ state that roughly defines its lifecycle. Activity implementations then maintain any additional needed state as member variables of the implementing class. Workflow states are detailed in the following section.
+Each activity is always in one and only one symbolic _workflow_ state that roughly defines its lifecycle. The state is accessible as `Activity.getState()`. Activity implementations then maintain any additional needed state as member variables of the implementing class. Workflow states are detailed in the next section.
+
+The result of the computation performed by an activity is represented by the `org.hypergraphdb.peer.workflow.ActivityResult` class. The result essentially just holds a reference to the activity instance as well as the exception that possibly caused it to fail. When you call `ActivityManager.initiateActivity(...)`, you get back a `Future<ActivityResult>` which you can store somewhere, track when the activity has finished or do a `get()` and wait for the activity to finish. The latter is not advisable since an activity's completion will depend upon remote communication and a call to `Future.get()` would pause the current thread for a very long period of time. So, use it only when it really makes sense. Another way to track when an activity completes is to register a listener with its WorkflowState:
+
+{{{
+   activity.getState().addListener(new StateListener() { // etc.. see Javadocs for exact API });
+}}}
+
+Yet another way is to register an `ActivityListener` when calling `initiateActivity`. For example:
+
+{{{
+   thisPeer.geActivityManager().initiateActivity(myActivity, 
+      new ActivityListener()
+      {
+           void activityFinished(ActivityResult result)
+           {
+              System.out.println("Activity " + result.getActivity().getId() + " finished.");
+              if (result.getException() != null) 
+                 System.out.println("With exception: " + result.getException());
+           }
+      }
+}}}
+
+The last method is most convenient when you are just interested to do something when an activity has finished executing and you don't want to keep track of the `Future` returned by the `initiateActivity` method.
+
+[[ TODO - document cancellation when implement. How does cancellation at one peer affect the activity at other peers, performative used to signal it etc.]]
 
 == Workflow States ==
 

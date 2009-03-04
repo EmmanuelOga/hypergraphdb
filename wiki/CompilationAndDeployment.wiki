@@ -45,3 +45,17 @@ Each application module is essentially contained in one jar that you can build w
 Deployment of HyperGraphDB and/or its application modules obviously involves first and foremost the standard Java requirement of having all needed classes/jar files in the JVM classpath. In addition, HyperGraphDB makes use of a few native libraries available under `core/native/[os-name]` for each supported operating system. Those libraries must be in the OS path of the application using HGDB. This is done either by modifying the OS PATH environment variable or passing in the `-Djava.library.path` command line option (or equivalent) to the JVM.
 
 HyperGraphDB itself, as an embedded database, doesn't require any configuration. However, the distributed version needs to be configured as documented on the PeerConfiguration topic. In addition, the distributed version comes with a main program `org.hypergraphdb.peer.StartPeer` that takes as a single argument the peer configuration file.
+
+= Compiling with GCJ =
+
+Instructions worked on Ubuntu 8.10, but should work everywhere GCJ is installed.
+
+First, compile the BerkeleyDB Java interface with GCJ as follows. In the BerkeleyDB distribution top folder run:
+
+gcj -fjni -o dbjava.o -c `find java/src -name '*.java' | grep -v debug`
+
+that produces an object file 'dbjava.o' that needs to be linked to HGDB. If you're compiling on 64bit, add the option -fPIC to the above command line. Then in 'hypergraphdb/core' run:
+
+gcj -shared --classpath=jars/db.jar dbjava.o hypergraphdb.jar -o hgdb.so
+
+again adding -fPIC on 64bit. That'll produce a shared library hgdb.so that can be loaded from C++ applications. 

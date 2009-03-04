@@ -10,7 +10,7 @@ Thus, peers perform tasks (i.e. accomplish goals) by running asynchronous activi
 
   # A peer-to-peer infrastructure based on the JXTA framework (see https://jxta.dev.java.net/), including peer discovery and relay communication over firewalls.
   # Message formatting and parsing using JSON syntax (see http://www.json.org). Serialization for common runtime HyperGraphDB objects (such as queries), Java beans as well as HyperGraphDB atoms is implemented and it is possible to plug in custom object serialization.
-  # Pluggable behaviour in the form of `BootstrapPeer` implementations
+  # Pluggable behaviour in the form of implementation of a `BootstrapPeer` interface.
   # Management and scheduling of activities. Activities can be implemented either as "roll your own" general message handlers or as framework-managed finite-state machines. Activities can also be in a parent-child relationship. 
   # A set of predefined services such as replication and a straightforward client-server access to HyperGraphDB instances.
  
@@ -32,9 +32,9 @@ public class Activity
 }
 }}}
 
-The `initiate` method is called only at the peer first starting the activity and the `handleMessage` is called every time a message pertaining to that activity is received.
+The `initiate` method is called only at the peer first starting the activity and the `handleMessage` is called every time a message pertaining to that activity is received. The content and semantics of the `Message` argument is described in the MessageStructure topic.
 
-Additionally, it is possible to override the `getType` to provide a custom type name for an activity's type. By default, it is the fully-qualified classname. 
+Additionally, it is possible to override the `getType()` method to provide a custom type name for an activity's type. By default, it is the fully-qualified classname, which has several drawbacks: it is harder to read by humans, it is tied to a one class implementation at all peers and it is Java language dependent.
 
 == Activity Types and Factories ==
 
@@ -48,9 +48,9 @@ public interface ActivityFactory
 }
 }}}
 
-Activity types themselves are represented by the `org.hypergraphdb.peer.workflow.ActivityType` class which, in addition to the type name an d factory, holds a transition map instances needed for implementing FSM activities and ignored otherwise.
+Activity types themselves are represented by the `org.hypergraphdb.peer.workflow.ActivityType` class whose purpose is to contain meta information about a particular activity type. In addition to the type name and activity factory, it holds a transition map needed for implementing FSM activities and ignored otherwise. The `ActivityType` may be extended in the future to contain further information.
 
-Each activity type must be registered at bootstrap time by calling one of the `ActivityManager.registerActivityType`  methods. Note that some of the version of this method do not take an `ActivityFactory` parameter. In those cases, the framework provides the factory itself using Java reflection. The Java Class of the activity is expected to have a constructor with one of the 3 forms:
+Each activity type must be registered at bootstrap time by calling one of the `ActivityManager.registerActivityType`  methods. Note that some of the versions of this method do not take an `ActivityFactory` parameter. In those cases, the framework provides the factory itself using Java reflection. The Java Class of the activity is expected to have a constructor with one of 3 forms:
 
 {{{
 public MyActivity extends Activity
@@ -67,11 +67,15 @@ public MyActivity extends Activity
 }
 }}}
 
-The third form is used preferably, then the second, then the first.
+The third form is used preferably, then the second, then the first. Given that an activity implementation has such a constructor, it can be registered simply by calling:
+
+{{{
+    thisPeer.getActivityManager().registerActivityType(MyActivity.class);
+}}}
 
 == Activities Lifecycle ==
 
-Activities accomplish their task in discrete units of work that are scheduled to run in the peer thread pool. The lifetime and scheduling of activities is orchestrated by an instance of `org.hypergraphdb.peer.workflow.ActivityManager`. In order to ensure proper sequencing/ordering of those units of work, each activity has an associated queue of actions to be performed. In general, an action simply amounts to the handling of incoming message and modifying the internal activity state somehow, but it is possible to add actions to the queue that are unrelated to messages.
+Activities accomplish their task in discrete units of work that are scheduled to run in the peer thread pool. The lifetime and scheduling of activities is orchestrated by the peer-wide instance of `org.hypergraphdb.peer.workflow.ActivityManager` (accessible through `HyperGraphPeer.getActivityManager()`). In order to ensure proper sequencing/ordering of those units of work, each activity has an associated queue of actions to be performed. In general, an action simply amounts to the handling of incoming message and modifying the internal activity state somehow, but it is possible to add actions to the queue that are unrelated to messages.
 
 The ActivityManager is responsible for handling all incoming messages and dispatching them according to the following algorithm:
 
@@ -122,9 +126,9 @@ both of the above methods will throw an exception if the instance is currently i
 
 The `WorkflowStateConstant` type of the parameters that you see above is that type of all workflow state constants. The implementation is akin to an open-ended enum - a pool of constants is maintained and any custom workflow state constant must be explicitly registered with the pool before it's being used by calling the static `WorkflowState.makeStateConstant(String name)` method. Each constant is identified by a name and this method ensures that there are no duplicate state constants so it is safe to compare them using the Java `==` operator. Given a name, you can retrieve the constant from the pool with `WorkflowState.toStateConstant(String name)` which will throw an exception if there's no constant with this name. 
 
-The `WorkflowStateConstant` is simply an immutable version (an extension) of `WorkflowState`. To create a brand new mutable `WorkflowState`, call one of the static methods `WorkflowState.makeState(WorkflowStateConstant c)` or `WorkflowState.makeState()`. The latter method assume a default initial value of `WorkflowState.Limbo`.
+The `WorkflowStateConstant` is simply an immutable version (an extension) of `WorkflowState`. To create a brand new mutable `WorkflowState`, call one of the static methods `WorkflowState.makeState(WorkflowStateConstant c)` or `WorkflowState.makeState()`. The latter method assumes a default initial value of `WorkflowState.Limbo`.
 
-To create custom state constant, it is customary to simply declare them as final static fields in some class:
+To create a custom state constant, it is customary to simply declare them as final static fields in some class:
 
 {{{
     public static final WorkflowStateConstant Started = WorkflowState.makeStateConstant("Started");
@@ -133,6 +137,8 @@ To create custom state constant, it is customary to simply declare them as final
 }}}
 
 The names that you give are case-sensitive. That may be important if you are using Java annotations in combination with the provided `FSMActivity` implementation.
+
+Each mutable WorkflowState can have any number of `StateListener`s attached to it. Whenever the value of the state changes, listeners are called in the order in which they were added. The framework itself relies on workflow state listeners to track an activity's state and decide when to remove it from scheduling etc.
 
 == FSMActivity ==
 

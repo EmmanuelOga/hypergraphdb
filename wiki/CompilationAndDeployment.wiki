@@ -52,7 +52,7 @@ Instructions worked on Ubuntu 8.10, but should work everywhere GCJ is installed.
 
 First, compile the BerkeleyDB Java interface with GCJ as follows. In the BerkeleyDB distribution top folder run:
 
-gcj -fjni -o dbjava.o -c `find java/src -name '*.java' | grep -v debug`
+gcj -fjni -o dbjava.o -c ``find java/src -name '*.java' | grep -v debug``
 
 that produces an object file 'dbjava.o' that needs to be linked to HGDB. If you're compiling on 64bit, add the option -fPIC to the above command line. Then in 'hypergraphdb/core' run:
 

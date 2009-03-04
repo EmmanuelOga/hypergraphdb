@@ -4,6 +4,8 @@
 
 This document is intended to describe the structure of the messages that are exchanged between HGDB peers. 
 
+We attempt to follow the semantics of communication performatives which is described in the [http://www.fipa.org/specs/fipa00037/SC00037J.html FIPA Communicative Act Library Specification]
+
 
 = Message Structure =
 

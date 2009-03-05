@@ -1,0 +1,13 @@
+#summary First Step in Using HyperGraphDB
+
+= Introduction =
+
+HyperGraphDB is an embedded database and as such it is meant to be used within the same process as your application. Therefore, learning to use HyperGraphDB (or HGDB for short) amounts to learning its API and the concepts behind it. There are very few configuration options that you need to be aware of. And there are virtually no setup/installation steps.
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages

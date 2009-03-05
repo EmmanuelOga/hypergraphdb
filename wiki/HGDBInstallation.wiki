@@ -5,7 +5,7 @@ HyperGraphDB comes as library that you can directly use in applications. As such
 The quickest way is to download a pre-built package for your operating system and just unzip it somewhere on your computer. You can also get the latest source code from http://code.google.com/p/hypergraphdb/source/checkout and build it with ANT. After unzipping the distribution, you will simply need to need to:
 
   # Include all jar files under the lib folder in your CLASSPATH.
-  # Include the lib/native folder in the system PATH for your application. You can include it in the global system path if you don’t have any other installation of BerkeleyDB and there’s no danger of conflict. Note that HyperGraphDB will probably work with other versions of BerkeleyDB than the one bundled with the distribution, but using the latter will make our support easier ;)
+  # Include the lib/native folder in the system PATH (on Windows) or the LD_LIBRARY_PATH (on Unix) for your application. You can include it in the global system path if you don’t have any other installation of BerkeleyDB and there’s no danger of conflict. Note that HyperGraphDB will probably work with other versions of BerkeleyDB than the one bundled with the distribution, but using the latter will make our support easier.
 
 To test that everything is OK, create a Java program out of the examples in the next section and run it.
 

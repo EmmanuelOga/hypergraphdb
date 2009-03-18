@@ -2,3 +2,4 @@
 
 HyperGraphDB is an embedded database and as such it is meant to be used within the same process as your application. Therefore, learning to use HyperGraphDB (or HGDB for short) amounts to learning its API and the concepts behind it. The implementation is based on the very robust and ubiquitous [http://www.oracle.com/database/berkeley-db/index.html BerkeleyDB database]. There are very few configuration options that you need to be aware of. And there are virtually no setup/installation steps to get up to speed and use the database. You only need to incorporate the library in your application. In case of problems, such as if your application experiences a serious crash and the default recovery mechanism is not sufficient, you may need to rely on the BerkeleyDB tool suite for troubleshooting. Other than this, you will not need to know about any BerkeleyDB particularities. 
 
+  # [IntroDBCreate Creating a Database]

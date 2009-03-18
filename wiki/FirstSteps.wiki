@@ -4,7 +4,7 @@ HyperGraphDB is an embedded database and as such it is meant to be used within t
 
 While HyperGraphDB aims to be a very general and flexible storage framework in which it is in principle possible to represents various formalisms for organizing data, it can be used "out of the box" as an object-oriented Java database. To ease the introduction into its APIs, the present tutorial focuses mostly on that particular aspect.
 
-The following short sections go through the basics of installing HyperGraphDB, creating a new database instance and playing with the basics of storing and retrieving information.
+The following short sections go through the basics of installing HyperGraphDB, creating a new database instance and playing with fundamental operations such as storing and retrieving information.
 
   # [IntroInstall Installing HyperGraphDB]
   # [IntroDBCreate Creating a Database]

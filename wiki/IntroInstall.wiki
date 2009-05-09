@@ -1,0 +1,3 @@
+#summary Installing HyperGraphDB
+
+Here we describe installation of HyperGraphDB from an official build. If you'd like to build and install the system directly from source, please refer to the [IntroCompiling] page.

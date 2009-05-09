@@ -1,10 +1,14 @@
 #summary Installing HyperGraphDB
 
-Here we describe installation of HyperGraphDB from an official build. If you'd like to build and install the system directly from source, please refer to the [CompilationAndDeployment] page.
+Here we describe installation of HyperGraphDB from an official build. If you'd like to build and install the system directly from source, please refer to the [CompilationAndDeployment] page. Note that every official build comes with its source so it is always possible/easy to examine the code, experiment with or apply patches if need be.
+
+HyperGraphDB comes as library that you can directly use in applications. As such, it is an embedded database and you can have several HyperGraphDB databases open at the same time. The underlying storage mechanism is based on Sleepycat’s Berkeley DB, standard edition. Note that HyperGraphDB uses the native Berkeley DB instead of the Java edition in order to open the doors for interoperability with other languages. This means that the native library (Windows DLL or *nix shared library) will have to be included in the system path of your application. 
 
 = Where do I get it? =
 
 All official builds are located at the [http://code.google.com/p/hypergraphdb/downloads/list Google Code downloads area]. The latest build is linked to at [http://www.kobrix.com/hgdb.jsp HyperGraphDB home page].
+
+Builds comes in the form of zipped files. To install a distribution just unzip the build file into a directory of your own choosing. 
 
 = Distribution Archive Content =
 
@@ -19,3 +23,10 @@ The unzipped archive (.tar.gz for Unix platforms and .zip for Windows) contains 
 || src/ ||  The source code used to create this build. ||
 || !LicensingInformation || Self-explanatory. ||
 || !ThirdPartyLicensing || Directory containing licensing information on HGDB dependencies, such as BerkeleyDB||
+
+= Deployment =
+
+As mentioned above, HyperGraphDB is deployed by linking it as a library to your application. This means:
+
+  # Including the relevant .jar files in your CLASSPATH.
+  # Making the relevant native libraries accessible to the JVM.

@@ -30,3 +30,17 @@ As mentioned above, HyperGraphDB is deployed by linking it as a library to your 
 
   # Including the relevant .jar files in your CLASSPATH.
   # Making the relevant native libraries accessible to the JVM.
+
+Which jars to include depends whether you want to use the P2P functionality or not and what kind of communication infrastructure you'd want to deploy:
+
+  * Core HGDB (without networking): include *hypergraphdb.jar* and *jars/db.jar*
+  * HGDB + JXTA networking: include *hgdbfull.jar*, *jars/db.jar* and *jars/jxta.jar*
+  * HGDB + Jabber networking: include *hgdbfull.jar*, *jars/db.jar*, *jars/smack.jar* and *jars/smackx.jar*
+
+For more on networking deployment and configuration, see DistributedHyperGraph.
+
+Native libraries are made available to the Java Virtual Machine in one of two ways:
+
+  # The java command line option -Djava.library.path. For example *java -Djava.library.path=$HGDB_ROOT/native*
+  # Adding their location to the PATH environment variable (on Windows) or the LD_LIBRARY_PATH environment variable (on Linux/Unix)
+

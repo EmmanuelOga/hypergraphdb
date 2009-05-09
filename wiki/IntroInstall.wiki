@@ -17,5 +17,5 @@ The unzipped archive (.tar.gz for Unix platforms and .zip for Windows) contains 
 || native/ || Native libraries needed to run HGDB. While most Unix environments already contain a version of BerkeleyDB in some standard location, it is strongly advised to link to the version provided in the distribution. ||  
 || javadoc/ || API documentation in Javadoc format.||  
 || src/ ||  The source code used to create this build. ||
-|| LicensingInformation || Self-explanatory. ||
-|| ThirdPartyLicensing || Directory containing licensing information on HGDB dependencies, such as BerkeleyDB||
+|| !LicensingInformation || Self-explanatory. ||
+|| !ThirdPartyLicensing || Directory containing licensing information on HGDB dependencies, such as BerkeleyDB||

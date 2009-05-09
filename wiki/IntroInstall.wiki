@@ -8,7 +8,7 @@ HyperGraphDB comes as library that you can directly use in applications. As such
 
 All official builds are located at the [http://code.google.com/p/hypergraphdb/downloads/list Google Code downloads area]. The latest build is linked to at [http://www.kobrix.com/hgdb.jsp HyperGraphDB home page].
 
-Builds comes in the form of zipped files. To install a distribution just unzip the build file into a directory of your own choosing. 
+Builds comes in the form of compressed archive files. To install a distribution just unzip the build file into a directory of your own choosing. 
 
 = Distribution Archive Content =
 

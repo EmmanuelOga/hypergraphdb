@@ -44,3 +44,4 @@ Native libraries are made available to the Java Virtual Machine in one of two wa
   # The java command line option -Djava.library.path. For example *java -Djava.library.path=$HGDB_ROOT/native*
   # Adding their location to the PATH environment variable (on Windows) or the LD_LIBRARY_PATH environment variable (on Linux/Unix)
 
+*NOTE for Windows users* - the Windows native libraries may require the installatioin of the Visual C++ runtime libraries. If you get a runtime error pertaining to DLL loading, try installing the MSVC 9 redistribution package from http://www.microsoft.com/downloads/details.aspx?familyid=A5C84275-3B97-4AB7-A40D-3802B2AF5FC2&displaylang=en

@@ -5,3 +5,17 @@ Here we describe installation of HyperGraphDB from an official build. If you'd l
 = Where do I get it? =
 
 All official builds are located at the [http://code.google.com/p/hypergraphdb/downloads/list Google Code downloads area]. The latest build is linked to at [http://www.kobrix.com/hgdb.jsp HyperGraphDB home page].
+
+= Distribution Archive Content =
+
+The unzipped archive (.tar.gz for Unix platforms and .zip for Windows) contains the following:
+
+|| hypergraphdb.jar || A jar with the core functionality only - the bare minimum needed to run HGDB. ||  
+|| hgpeer.jar || A jar containing code needed to run HGDB in a P2P (peer-to-peer) deployment. ||
+|| hgdbfull.jar || A jar containing both core functionality and P2P related functionality. Essentially, hgdbfull.jar=hypergraphdb.jar+hgpeer.jar ||
+|| jars || A directory with third-party dependency Java libraries. Note that not all libraries in this directory are needed in every situation. Only the BerkeleyDB jar file *db.jar* is absolutely needed. ||  
+|| native || Native libraries needed to run HGDB. While most Unix environments already contain a version of BerkeleyDB in some standard location, it is strongly advised to link to the version provided in the distribution. ||  
+|| javadoc || API documentation in Javadoc format.||  
+|| LicensingInformation || Self-explanatory. ||
+|| src ||  The source code used to create this build. ||
+|| ThirdPartyLicensing || Directory containing licensing information on HGDB dependencies, such as BerkeleyDB||

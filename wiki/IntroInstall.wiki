@@ -1,3 +1,7 @@
 #summary Installing HyperGraphDB
 
 Here we describe installation of HyperGraphDB from an official build. If you'd like to build and install the system directly from source, please refer to the [CompilationAndDeployment] page.
+
+= Where do I get it? =
+
+All official builds are located at the [http://code.google.com/p/hypergraphdb/downloads/list Google Code downloads area]. The latest build is linked to at [http://www.kobrix.com/hgdb.jsp HyperGraphDB home page].

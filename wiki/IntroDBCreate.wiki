@@ -1,20 +1,20 @@
 #summary Creating a Database.
 
-HyperGraphDB manages storage as a set of files in a directory. When you create a new database, you need to designate a directory that will hold the data. Then in your Java program, import the relevant classes and create a new HyperGraphDB object. For example:
+HyperGraphDB manages storage as a set of files in a directory. To create a new database, you need to designate a directory that will hold the data and write some Java code that creates and initializes a database instance in that directory. Here's an example:
 
 {{{
-import org.hypergraphdb.*;
+import org.hypergraphdb.*; // top-level API classes are in this package
 
-public class MyProgram
+public class HGDBCreateSample
 { 
     public static void main(String [] args)
     {
         String databaseLocation = args[0];
-        HyperGraph hg; 
+        HyperGraph graph; 
      	// ….
         try
 	{
-            hg = new HyperGraph(databaseLocation);
+            graph = new HyperGraph(databaseLocation);
         }
         catch (Throwable t)
         {
@@ -22,13 +22,22 @@ public class MyProgram
         }
         finally
         {
-            hg.close();
+            graph.close();
         }
     }
 }
 
 }}}
 
-As you can see, creating a database amounts to creating a new HyperGraphDB instance. If the database does not exist, it will be created. If it does exist, it will be opened. So the same code is used to create or open a database. If you want an “open if exists, otherwise throw an exception” behavior, you should perform the check in your own code.
+As you can see, creating a database amounts to creating a new `HyperGraph` instance. If the database does not exist, it will be created. If it does exist, it will be opened. So the same code is used to create or open a database. 
 
-As an opened database obviously maintains some OS resources open, it is wise to make sure it is closed in a finally block.  It is also very important to properly close a database in order to avoid any data loss or corruption of the underlying low-level storage. HyperGraphDB may throw exceptions, but none of the methods throws checked exceptions. Usually the exception thrown will be a `HGException`, possibly wrapping some underlying cause.
+As an opened database holds operating systems resources open, it is wise to make sure it is closed in a finally block.  It is also very important to properly close a database in order to avoid any data loss or corruption of the underlying low-level storage. HyperGraphDB may throw exceptions, but very few of the API methods throw checked exceptions. Usually the exception thrown will be a `HGException`, possibly wrapping some underlying cause.
+
+The [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HyperGraph.html HyperGraph class] in the code above is the main entry point into the database API. It represents a single database. While creating/opening a database by calling the `HyperGraph` constructor is a valid approach, it may be preferable to rely on the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGEnvironment.html HGEnvironment class] for such high-level operations. Opening a database is instead done thus:
+
+{{{
+
+}}}
+
+
+If you want an “open if exists, otherwise throw an exception” behavior, you should perform the check in your own code.

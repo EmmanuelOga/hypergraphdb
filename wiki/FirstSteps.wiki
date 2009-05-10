@@ -6,5 +6,7 @@ While HyperGraphDB aims to be a very general and flexible storage framework in w
 
 The following short sections go through the basics of installing HyperGraphDB, creating a new database instance and playing with fundamental operations such as storing and retrieving information.
 
+The pages are written mostly in tutorial style. And while there are no accompanying sources with all the examples, you are encouraged to copy and paste code from the tutorial and run it and play with it. 
+
   # [IntroInstall Installing HyperGraphDB]
   # [IntroDBCreate Creating a Database]

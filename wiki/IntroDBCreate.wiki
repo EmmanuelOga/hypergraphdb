@@ -36,8 +36,11 @@ As an opened database holds operating systems resources open, it is wise to make
 The [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HyperGraph.html HyperGraph class] in the code above is the main entry point into the database API. It represents a single database. While creating/opening a database by calling the `HyperGraph` constructor is a valid approach, it may be preferable to rely on the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGEnvironment.html HGEnvironment class] for such high-level operations. Opening a database is instead done thus:
 
 {{{
-
+    ....
+    HyperGraph graph = HGEnvironment.get(databaseLocation);
+    ....
 }}}
 
+The main different between a call to `HGEnvironment.get` and a call to `new HyperGraph` is that the former will return an already opened database instance at that location. The `HGEnvironment` class maintains a static map of all databases currently open. If you want an “open if exists, otherwise throw an exception” behavior, `HGEnvironment` provides it through the `getExistingOnly` method.
 
-If you want an “open if exists, otherwise throw an exception” behavior, you should perform the check in your own code.
+*Note on closing databases* - it is generally recommended that you close a HyperGraph instance as soon as you're done with it. However, in many cases databases remain open for the lifetime of an application. To ensure proper closing in such cases, you only need to make sure that the application exits gracefully. The `HGEnvironment` registers a shutdown hook with the Java Virtual Machine to properly close all databases that are still open. A slight disadvantage is that sometimes this may exiting your application may take longer than usual because the system may be flushing caches and writing some remaining transactions to disk.

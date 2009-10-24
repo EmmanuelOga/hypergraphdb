@@ -103,7 +103,7 @@ public class HGOccurrence extends HGScopedObject implements Occurrence
 		if (reifier != null)
 		{
 			U.setReifierOf(graph, thisH, null);
-			((Topic)graph.get(reifier)).remove();
+//			((Topic)graph.get(reifier)).remove();
 		}				
 		setType(null);
 		for (Locator l : getSourceLocators())

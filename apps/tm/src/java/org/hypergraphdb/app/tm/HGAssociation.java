@@ -1,5 +1,6 @@
 package org.hypergraphdb.app.tm;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -115,7 +116,9 @@ public class HGAssociation extends HGScopedObject implements Association, HGLink
 		for (Locator l : getSourceLocators())
 			removeSourceLocator(l);		
 		setType(null);
-		for (HGAssociationRole role : getAssociationRoles())
+		ArrayList<HGAssociationRole> roles = new ArrayList<HGAssociationRole>(getArity());
+		roles.addAll(getAssociationRoles());
+		for (HGAssociationRole role : roles)
 			try { role.remove(); } catch (TMAPIException ex) {throw new HGException(ex); }
 		HGHandle reifier = U.getReifierOf(graph, thisH);
 		if (reifier != null)
@@ -123,7 +126,7 @@ public class HGAssociation extends HGScopedObject implements Association, HGLink
 			U.setReifierOf(graph, thisH, null);
 			((Topic)graph.get(reifier)).remove();
 		}		
-		graph.remove(thisH);
+		graph.remove(thisH, true);
 	}	
 	
 	public String toString()

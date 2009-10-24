@@ -93,7 +93,7 @@ public class HGAssociationRole extends HGTopicMapObjectBase implements Associati
 		}		
 		for (Locator l : getSourceLocators())
 			removeSourceLocator(l);					
-		graph.remove(thisH);
+		graph.remove(thisH, true);
 		Set<HGAssociationRole> R = ((HGTopic)getPlayer()).roles;
 		if (R != null)
 			R.remove(this);

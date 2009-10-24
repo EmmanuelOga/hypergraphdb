@@ -399,6 +399,7 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public void remove() throws TopicInUseException
 	{
 		HGHandle thisH = graph.getHandle(this);
@@ -475,16 +476,21 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 		 
 		if (removeInstances)
 			for (TopicMapObject x : getInstances())
-				x.remove();
+				if (x instanceof HGTopic)
+					((HGTopic)x).forceRemove(removeInstances, removeScoped);
+				else
+					x.remove();
 		else
 			U.removeRelations(graph, HGTM.hTypeOf, graph.getHandle(this), null);
 		
 		if (removeScoped)
-			for (HGTopicMapObjectBase x : getScoped())
-				x.remove();
+			for (HGTopicMapObjectBase x : getScoped())			
+				if (x instanceof HGTopic)
+					((HGTopic)x).forceRemove(removeInstances, removeScoped);
+				else
+					x.remove();
 		else
-			U.removeRelations(graph, HGTM.hScopeOf, null, graph.getHandle(this));
-		
+			U.removeRelations(graph, HGTM.hScopeOf, null, graph.getHandle(this));		
 		remove();
 	}
 	

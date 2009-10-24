@@ -1,18 +1,39 @@
 package org.hypergraphdb.app.tm;
 
 import java.io.File;
-import java.io.FileWriter;
-
 import javax.xml.parsers.*;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.w3c.dom.*;
 import org.w3c.dom.bootstrap.*;
 import org.w3c.dom.ls.*;
 
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
-
 public class TMXMLUtils
 {
+	public static void writeXmlFile(Document doc, File file) 
+	{
+        try 
+        {
+            // Prepare the DOM document for writing
+            Source source = new DOMSource(doc);
+    
+            Result result = new StreamResult(file);
+    
+            // Write the DOM document to the file
+            Transformer xformer = TransformerFactory.newInstance().newTransformer();
+            xformer.transform(source, result);
+        } 
+        catch (Exception e) 
+        {
+        	throw new RuntimeException(e);
+        }
+    }
+	
 	/**
 	 * <p>
 	 * Load a topic map.
@@ -43,18 +64,7 @@ public class TMXMLUtils
 	{
 		TMXMLProcessor processor = new TMXMLProcessor(system, iri);
 		Document doc = processor.getXmlDocument(version);
-		try
-		{
-			XMLSerializer serializer = new XMLSerializer(new OutputFormat("XML", "ISO-8859-1", true));
-			FileWriter out = new FileWriter(outputFile);
-			serializer.setOutputCharStream(out);
-			serializer.serialize(doc);
-			out.close();
-		}
-		catch (Throwable t)
-		{
-			throw new RuntimeException(t);
-		}
+		writeXmlFile(doc, outputFile);
 	}
 	
 	public static String canonicalizeContent(Element e)

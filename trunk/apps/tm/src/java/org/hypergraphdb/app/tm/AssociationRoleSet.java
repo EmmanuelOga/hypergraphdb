@@ -1,13 +1,13 @@
 package org.hypergraphdb.app.tm;
 
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Set;
 
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.util.HGUtils;
-import org.tmapi.core.AssociationRole;
 import org.tmapi.core.TMAPIRuntimeException;
 
 /**
@@ -77,12 +77,23 @@ class AssociationRoleSet implements Set<HGAssociationRole>
 
 	public Iterator<HGAssociationRole> iterator()
 	{
+		final int currSize = size();
 		return new Iterator<HGAssociationRole>()
 		{
 			int i = 0;
 			public void remove() { throw new UnsupportedOperationException(); }
-			public boolean hasNext() { return i < ass.targetSet.length; }
-			public HGAssociationRole next()  { return get(i++); } 		
+			public boolean hasNext() 
+			{
+				if (currSize != ass.targetSet.length)
+					throw new ConcurrentModificationException();
+				return i < ass.targetSet.length; 
+			}
+			public HGAssociationRole next()  
+			{ 
+				if (currSize != ass.targetSet.length)
+					throw new ConcurrentModificationException();				
+				return get(i++); 
+			} 		
 		};
 	}
 
@@ -118,6 +129,7 @@ class AssociationRoleSet implements Set<HGAssociationRole>
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> T[] toArray(T[] a)
 	{
         if (a.length < ass.targetSet.length)

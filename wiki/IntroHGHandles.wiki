@@ -19,8 +19,8 @@ You will notice that [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGH
 
 == From Objects to Handles ==
 
-If you have a Java object reference that is also a HyperGraphDB atom, you can obtain its handle through the `HyperGraph.getHandle(object)` method. Thus despite the advice given above, you're not required to refer to hypergraph atoms only through their handles. It would be cumbersome to have obtain the object with calls to `HyperGraph.get` every time you need. 
+If you have a Java object reference that is also a HyperGraphDB atom, you can obtain its handle through the `HyperGraph.getHandle(object)` method. Thus despite the advice given above, you're not required to refer to hypergraph atoms only through their handles. It would be cumbersome to have obtain the object with calls to `HyperGraph.get` every time you need it. 
 
-However, you must be careful that object whose handle you're trying to obtain is actually in the HyperGraphDB cache. It will be there either if it was loaded from HyperGraphDB through a previous `get` or if it was just recently added by a call to `add`. 
+However, you must be careful that the object whose handle you're trying to obtain is actually in the HyperGraphDB cache. It will be there either if it was loaded from HyperGraphDB through a previous `get` or if it was just recently added by a call to `add`. 
 
 In general, you would use the Java object reference whenever you have to work with the actual data value and/or you want to isolate an application layer from the HyperGraphDB API. And you would use the `HGHandle` interface when you are mindful of memory consumption and/or you are working mainly with the graph structure of your data, rather than individual atoms.

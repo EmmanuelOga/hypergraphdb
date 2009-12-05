@@ -13,7 +13,7 @@ The short story is that you can just put in whatever object you have in a HyperG
   graph.add(new double [] {0.9, 0.1, 4.3434});
 }}}
 
-That there is nothing "graphish" in this example - we are just adding some data in our database. The system will generally do the right thing and store your data in a way that would make it possible to reconstruct an equivalent run-time object from storage later. Storage of concrete values is handled by the HyperGraphDB type system. The type system is a completely customizable layer, but it was built to do the sensible thing by default. And in Java, the sensible thing can be summarized as follows:
+There is nothing "graphish" in this example - we are just adding some data in our database. The system will generally do the right thing and store your data in a way that would make it possible to reconstruct an equivalent run-time object from storage later. Storage of concrete values is handled by the HyperGraphDB type system. The type system is a completely customizable layer, but it was built to do the sensible thing by default. And in Java, the sensible thing can be summarized as follows:
 
   * Translate primitive types and primitive arrays into byte buffers following common industry format.
   * Interpret Java beans as record-like structures, according to the Java Beans conventions.

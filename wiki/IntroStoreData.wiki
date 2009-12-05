@@ -35,9 +35,11 @@ Every storage medium has a meta-model, a predefined structure of what things can
   # Links/edges “point to” an arbitrary number of elements instead of just two as in regular graphs 
   # Links can be pointed to by other links as well. 
 
-Thus everything that gets stored in a HyperGraphDB is either a node or a link (graph edges/arrows are called links in HyperGraphDB’s terminology), or both. In all cases, we refer to things in HyperGraphDB as *atoms*. Atoms that are edges in the graph, that is that link one or more other atoms, are called links and the number of atoms they link to is called their arity. Atoms that do not point to anything else or, in other words, which have arity 0 are called nodes. 
+Everything that gets stored in a HyperGraphDB is either a node or a link. A node is simply some object value that does not represent a relationship, it doesn't point to anything else. A link is a graph edges (or arrow) in HyperGraphDB’s terminology. A link holds pointers to other entities in the graph and in general represents some sort of relationship. In all cases, we refer to the things in HyperGraphDB as *atoms*. When an atoms is a link, we call the number of atoms it points its *arity*. Thus, nodes are atoms that have arity 0. 
 
-From a Java perspective, an atom is simply some object. From a conceptual perspective, an atom is an entity that can be related to other entities or that can represent such a relation.  The primary role of HyperGraphDB as a database is to store entities networked together by relationships. There are no restrictions on what can be an entity or a relationship. That is, the data associated with a HyperGraphDB atom can be anything. To add a new atom to a database, one calls the HyperGraph.add method passing in that something as an argument. 
+As a final piece of terminology pertaining to graph linkage, we call the set of all links pointing to a given atom its *incidence set*. We say that link that points to an atom is *incident* to it.
+
+From a Java perspective, an atom is simply some object. From a conceptual perspective, an atom is an entity that can be related to other entities or that can represent such a relation.  The primary role of HyperGraphDB as a database is to store entities networked together by relationships. There are no restrictions on what can be an entity or a relationship. That is, the data associated with a HyperGraphDB atom can be anything. To add a new atom to a database, one calls the `HyperGraph.add` method passing in that something as an argument. 
 
 == Storing Graphs ==
 

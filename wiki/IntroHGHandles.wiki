@@ -1,14 +1,17 @@
 #summary Referring to Atoms - HyperGraphDB Handles.
 
-One refers to object on a memory heap with memory addresses. In a relational database, one uses primary keys. On the internet, it’s URIs. With HyperGraphDB, one uses HyperGraphDB handles – instances of `org.hypergraphdb.HGHandle`. When you add an atom with the `HyperGraph.add` method, you get back a `HGHandle`. When you query for atoms, you get back a set of handles. HyperGraphDB links also point to atoms by using handles. 
+One refers to object on a memory heap with memory addresses. In a relational database, one uses primary keys. On the internet, it’s URIs. With HyperGraphDB, one uses HyperGraphDB handles – instances of [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGHandle.html HGHandle]. When you add an atom with the `HyperGraph.add` method, you get back a `HGHandle`. When you query for atoms, you get back a set of handles. HyperGraphDB links also point to atoms by using handles. In other, handle are to HyperGraphDB what object reference to Java or pointer to C/C++.
 
 If you have a `HGHandle`, you can get the actual atom by calling `HyperGraph.get`. For example:
 
 {{{
 HGHandle handle = // some means to obtain a handle to an atom
-Book book = (Book)hg.get(handle);
+Book book = (Book)graph.get(handle);
 }}}
 
-In general, when working with objects that reside in HyperGraphDB, it is preferable to use handles and retrieve the actual object on a need-by-need basis. This recommendation is based on (1) the way caching of objects works in HyperGraphDB  and (2) the fact that links in the graph are based on handles, not plain Java references. The `HyperGraph.get` method is pretty fast (most of the time it doesn’t even involve a hash lookup), so it’s ok to use `HGHandle` as your way of referring to objects stored in HyperGraphDB instead of plain Java references. 
+In general, when working with objects that reside in HyperGraphDB, it is preferable to use handles and retrieve the actual object on a need-by-need basis. This recommendation is based on:
 
-You will notice that `HGHandle` is actually just a marker interface. There are several implementation of it that may change in the future, so you shouldn’t be relying on any concrete implementation. The only time you may be interested in a variety of a HyperGraphDB handle is if you want to persist the handle somewhere else. In those cases, you can get a persistent version of it by calling `HyperGraph.getPersistentHandle()`.  Persistent handles are represented by the `HGPersistentHandle` interface. They can be converted to byte buffers and then read back with `HGHandleFactory.makeHandle(byte [])`.
+  # The way caching of objects works in HyperGraphDB. The system will cache all currently loaded atoms and maintain a map b/w `HGHandle`s and Java object references. When a Java object is garbage collected, the cache clears its maps from it. But the handle remains valid and the object will be automatically re-load upon the next `HyperGraph.get(handle)` request.
+  # The fact that links in the graph are based on handles, not plain Java references. The `HyperGraph.get` method is pretty fast (most of the time it doesn’t even involve a hash lookup), so it’s ok to use `HGHandle` as your way of referring to objects stored in HyperGraphDB instead of plain Java references. 
+
+You will notice that [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGHandle.html HGHandle] is actually just a marker interface. There are several implementation of it that may change in the future, so you shouldn’t be relying on any concrete implementation. The only time you may be interested in a variety of a HyperGraphDB handle is if you want to persist the handle somewhere else. In those cases, you can get a persistent version of it by calling `HyperGraph.getPersistentHandle(handle)`.  Persistent handles are represented by the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGPersistentHandle.html HGPersistentHandle] interface. They can be converted to byte buffers and then read back with [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGHandleFactory.html#makeHandle HGHandleFactory.makeHandle(byte [])].

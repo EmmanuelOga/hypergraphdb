@@ -1,6 +1,6 @@
 #summary Creating a Database.
 
-== A HyperGraphDB database is an instance of the HyperGraph class ==
+== A HyperGraphDB database is an instance of the !HyperGraph class ==
 
 HyperGraphDB manages storage as a set of files in a directory. To create a new database, you need to designate a directory that will hold the data and write some Java code that creates and initializes a database instance in that directory. Here's an example:
 

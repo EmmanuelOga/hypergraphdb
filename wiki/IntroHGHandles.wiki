@@ -16,3 +16,11 @@ In general, when working with objects that reside in HyperGraphDB, it is prefera
 
 You will notice that [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGHandle.html HGHandle] is actually just a marker interface. There are several implementation of it that may change in the future, so you shouldn’t be relying on any concrete implementation. The only time you may be interested in a variety of a HyperGraphDB handle is if you want to persist the handle somewhere else. In those cases, you can get a persistent version of it by calling `HyperGraph.getPersistentHandle(handle)`.  Persistent handles are represented by the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGPersistentHandle.html HGPersistentHandle] interface. They can be converted to byte buffers and then read back with
 [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGHandleFactory.html#makeHandle() HGHandleFactory.makeHandle].
+
+== From Objects to Handles ==
+
+If you have a Java object reference that is also a HyperGraphDB atom, you can obtain its handle through the `HyperGraph.getHandle(object)` method. Thus despite the advice given above, you're not required to refer to hypergraph atoms only through their handles. It would be cumbersome to have obtain the object with calls to `HyperGraph.get` every time you need. 
+
+However, you must be careful that object whose handle you're trying to obtain is actually in the HyperGraphDB cache. It will be there either if it was loaded from HyperGraphDB through a previous `get` or if it was just recently added by a call to `add`. 
+
+In general, you would use the Java object reference whenever you have to work with the actual data value and/or you want to isolate an application layer from the HyperGraphDB API. And you would use the `HGHandle` interface when you are mindful of memory consumption and/or you are working mainly with the graph structure of your data, rather than individual atoms.

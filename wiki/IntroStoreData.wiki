@@ -24,7 +24,7 @@ There is nothing "graphish" in this example - we are just adding some data in ou
 
 == HyperGraphDB is a Typed World ==
 
-Every value stored in HyperGraphDB is typed. HyperGraphDB types are implementations of the http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/type/HGAtomType.html HGAtomType] interface. The main responsibilities of an `HGAtomType` implementation are storage and retrieval of concrete run-time instances. There are predefined implementations for all of the above listed type categories. 
+Every value stored in HyperGraphDB is typed. HyperGraphDB types are implementations of the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/type/HGAtomType.html HGAtomType] interface. The main responsibilities of an `HGAtomType` implementation are storage and retrieval of concrete run-time instances. There are predefined implementations for all of the above listed type categories. 
 
 If you want to store a Java objects that is neither serializable, nor does it follow the Java Beans naming conventions to expose its state, then you will need to develop a custom type for that Java class. Developing a custom type is actually not hard at all. It is covered in the reference guide.
 

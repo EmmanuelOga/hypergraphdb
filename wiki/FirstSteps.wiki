@@ -11,3 +11,7 @@ The pages are written mostly in tutorial style. And while there are no accompany
   # [IntroInstall Installing HyperGraphDB]
   # [IntroDBCreate Creating a Database]
   # [IntroStoreData Storing Data]
+  # [IntroHandles Atom Handles]
+  # [IntroQuerying Querying]
+  # [IntroGraphTraversals Graph Traversals]
+  # [IntroTransactions Transaction Essentials]

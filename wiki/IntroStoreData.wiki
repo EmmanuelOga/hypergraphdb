@@ -63,4 +63,4 @@ Here's an example of using the `HGValueLink`:
 
 While in general HyperGraphDB strives for a minimal API intrusiveness, implementing meaningful representations is best done by defining your own `HGLink` implementations. Other predefined links with specific semantics and some of which are used by HyperGraphDB itself can be found in the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/atom/index.html atom package].
 
-Note the use of the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGHandle.html HGHandle] interface in the above example. Handles are the basic means to refer to atoms in HyperGraphDB as detailed in [IntroHGHandle this topic].
+Note the use of the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGHandle.html HGHandle] interface in the above example. Handles are the basic means to refer to atoms in HyperGraphDB as detailed in [IntroHGHandles this topic].

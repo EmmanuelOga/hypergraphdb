@@ -41,6 +41,6 @@ From a Java perspective, an atom is simply some object. From a conceptual perspe
 
 == Storing Graphs ==
 
-To store an actual graph structure in a HyperGraphDB database, you would need to create links between atoms. HyperGraphDB links are objects that implement the http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGLink.html HGLink] interface. So to store a link between two entities (i.e. _atoms_), you would simply add an atom that is an instance of the `HGLink` interface. 
+To store an actual graph structure in a HyperGraphDB database, you would need to create links between atoms. HyperGraphDB links are objects that implement the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGLink.html HGLink] interface. So to store a link between two entities (i.e. _atoms_), you would simply add an atom that is an instance of the `HGLink` interface. 
 
-If a class does not implement this interface, it is still possible to turn objects into HyperGraphDB links by embedding them into a http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGValueLink.html HGValueLink]. In general HyperGraphDB strives for a minimal API intrusiveness. 
+If a class does not implement this interface, it is still possible to turn objects into HyperGraphDB links by embedding them into a [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGValueLink.html HGValueLink]. In general HyperGraphDB strives for a minimal API intrusiveness. 

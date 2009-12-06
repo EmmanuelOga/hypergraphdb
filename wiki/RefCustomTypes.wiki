@@ -1,0 +1,3 @@
+#summary How to develop a custom type.
+
+This topic explains the details of writing a custom type for HyperGraphDB.

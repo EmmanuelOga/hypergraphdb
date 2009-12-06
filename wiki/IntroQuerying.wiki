@@ -68,17 +68,17 @@ The following sections give a list of common query factory methods thematically 
 The three standard logical operators _and_, _or_ and _not_ are available:
 
 || *hg Factory Method* || *Description* ||
-|| hg.and(c1, c2, ...) || performs a logical conjunction of conditions c1, c2...etc ||
-|| hg.or(c1, c2, ...) || performs a logical disjunction of conditions c1, c2...etc || 
-|| hg.not(c) || performs a logical negation of the conditions c ||
+|| and(c1, c2, ...) || performs a logical conjunction of conditions c1, c2...etc ||
+|| or(c1, c2, ...) || performs a logical disjunction of conditions c1, c2...etc || 
+|| not(c) || performs a logical negation of the conditions c ||
 
 == Querying Atom Values == 
 
 The usual comparison operators are available when constraining the values of atoms in the result set. They are "enumed" in the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/query/ComparisonOperator.html ComparisonOperator class]. For every operator, the `HGQuery.hg` supplies a factory method as a shortcut. In addition, value comparing factory methods come in two flavors: comparing atom values or comparing atom property values (a.k.a. bean properties in the Java world). Here's a summary:
 
 || *hg Factory Method* || *Description* ||
-|| hg.value(x, op) || compare the atom's value against x using the ComparisonOperator op||
-|| hg.part(path, x, op) || compare the atom's property referred by _path_ against x using the ComparisonOperator op ||
+|| value(x, op) || compare the atom's value against x using the ComparisonOperator op||
+|| part(path, x, op) || compare the atom's property referred by _path_ against x using the ComparisonOperator op ||
 || eq(x), eq(path, x) || the atom (or its property identified by _path_) must be equal to x||
 || lt(x), lt(path, x) || the atom (or its property identified by _path_) must be less than x||
 || gt(x), gt(path, x) || the atom (or its property identified by _path_) must be greater than x||
@@ -86,6 +86,12 @@ The usual comparison operators are available when constraining the values of ato
 || gte(x), gte(path, x) || the atom (or its property identified by _path_) must be greater than equal to x||
 
 Naturally, the operators lt, lte, gt and gte can only be applied to values that are comparable.
+
+|| *hg Factory Method* || *Description* ||
+|| type(class), type(handle) || the atom must have the specified type, either as a Java class or as a HGDB handle ||
+|| typePlus(class), typePlus(handle) || the atom's must be either of the specified type or a of a type inheriting the specified type ||
+|| subsumes(x) || the atom must subsume the atom specified in the condition ||
+|| subsumed(x) || the atom must *be* subsumed by the atom specified in the condition ||
 
 == Querying Graph Structure ==
 

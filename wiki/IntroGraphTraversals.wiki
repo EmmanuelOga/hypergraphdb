@@ -1,10 +1,12 @@
 #summary Graph Traversals
 
-One of the main advantages of HyperGraphDB as a database is its ability to store and manage very large graphs of relationships. It is mixing this and regular relational and object-oriented style databases that makes HyperGraphDB a powerful tool for information management and knowledge representation. So let’s examine the basic APIs for walking around a HyperGraph and the algorithms provided out of the box. All interfaces and classes talked about in this section are in the `org.hypergraphdb.algorithms` package.
+One of the main advantages of HyperGraphDB as a database is its ability to store and manage very large graphs of relationships. It is mixing this and regular relational and object-oriented style databases that makes HyperGraphDB a powerful tool for information management and knowledge representation. So let’s examine the basic APIs for walking around a !HyperGraph and the algorithms provided out of the box. All interfaces and classes talked about in this section are in the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/algorithms/package-summary.html org.hypergraphdb.algorithms package].
 
-At the foundation of all graph related algorithms lies the basic operation of walking from node to node, or in HyperGraphDB lingo form atom to atom. This is represented by the `HGTraversal` interface. Traversing the graph is always done in some particular order, depending on the concrete traversing algorithm. A traversing algorithm simply produces atoms in a sequence and the `HGTraversal` interface is a specialization of the standard `java.util.Iterator` interface. The two standard graph traversal algorithms are implemented by the `HGBreadthFirstTraversal` and `HGDepthFirstTraversal` respectively. 
+At the foundation of all graph related algorithms lies the basic operation of walking from node to node, or in HyperGraphDB lingo form atom to atom. This is represented by the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/algorithms/HGTraversal.html HGTraversal] interface. Traversing the graph is always done in some particular order, depending on the concrete traversing algorithm. A traversing algorithm simply produces atoms in a sequence and the `HGTraversal` interface is a specialization of the standard `java.util.Iterator` interface. The two standard graph traversal algorithms are implemented by the `HGBreadthFirstTraversal` and `HGDepthFirstTraversal` respectively. 
 
-Now, in HyperGraphDB all links are typed and have an arbitrary object attached to them. In addition, one can have meta-links (i.e. links the point to other links) and each atom can conceptually participate in several independent structures in a graph. Therefore it is not immediately obvious which links should a traversal use when walking from atom to atom. An essential component of the traversing  algorithms in HyperGraphDB is thus this decision making: given that we are currently on A atom, which ones of its adjacent atoms should be next visited. This is encapsulated in the `HGALGenerator` interface. Implementation of this interface produce sequences of atoms adjacent to a given atom. Both the breadth-first and depth-first traversal implementations take `HGALGenerator` as a constructor argument. The simplest generator will list all adjacent atoms, disregarding types and values of atoms:
+Now, in HyperGraphDB all links are typed and have an arbitrary object attached to them. More importantly, each atom can conceptually participate in several independent structures in a graph. Therefore it is not immediately obvious which links should a traversal follow when walking from atom to atom. An essential component of the traversing  algorithms in HyperGraphDB is that very decision: which of the adjacent atoms should be next visited. That decision is delegated to the user of a traversal algorithm - you :) 
+
+The adjacent atoms that must be visited are calculated by implementations of the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/algorithms/HGALGenerator.html HGALGenerator interface]. Both the breadth-first and depth-first traversal implementations take an `HGALGenerator` instance as a constructor argument. The simplest generator is the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/algorithms/SimpleALGenerator.html SimpleALGenerator] implementation. This implementation will list all adjacent atoms, disregarding types and values of atoms:
 
 {{{
 HGHandle myBook = ...// get the handle of a book of interest.
@@ -22,17 +24,17 @@ while (traversal.hasNext())
 }
 }}}
 
-Notice that the next method of the `HGTraversal` interface return a pair of objects . This to make available both the link that led to the next atom in the traversal together with the atom itself.
+Notice that the next method of the `HGTraversal` interface return a pair of objects. The first element is this pair is the link that led to the current atom while the second is the atom itself. 
 
-A more interesting `HGALGenerator` is the `DefaultALGenerator`. The `DefaultALGenerator` implementation allows control over most aspects of graph link-atom selection that one would encounter in practice. The full constructor signature looks like this:
+A more interesting `HGALGenerator` is the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/algorithms/DefaultALGenerator.html DefaultALGenerator interface]. The `DefaultALGenerator` implementation allows control over most aspects of graph link-atom selection that one would encounter in practice. The full constructor signature looks like this:
 
 {{{
 DefaultALGenerator(HyperGraph hg, 
-                   HGQueryCondition linkPredicate, 
-                   HGQueryCondition siblingPredicate, 
+                   HGAtomPredicate linkPredicate, 
+                   HGAtomPredicate siblingPredicate, 
                    boolean returnPreceeding, 
                    boolean returnSucceeding, 
                    boolean reverseOrder)
 }}}
 
-As you can see, the `DefaultALGenerator` can be configured with a predicate that constraints the links to be selected during traversal and a predicate that filters the atoms to be traversed. In addition, one can also specify the order in which atoms linked by a given link are visited. In classical graphs where all links are of arity 2, the order amounts to specifying directionality of the links of interest. In hypergraph, where links can potentially tie together tens of atoms, the order may be much more important. It all depends on the representation of your domain. HyperGraphDB only provides the general stoage facilities!
+As you can see, the `DefaultALGenerator` can be configured with a predicate that constraints the links to be selected during traversal and a predicate that filters the atoms to be traversed. In addition, one can also specify the order in which atoms linked by a given link are visited. In classical graphs where all links are of arity 2, the order amounts to specifying directionality of the links of interest. In hypergraph, where links can potentially tie together tens of atoms, the order may be much more important. It all depends on the representation of your domain. 

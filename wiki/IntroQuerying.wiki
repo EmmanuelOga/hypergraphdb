@@ -60,3 +60,15 @@ rs = query.execute();
 }}}
 
 The advantage of creating a [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGQuery.html HGQuery] object is that the condition is analyzed and a query plan is created and stored as part of that object, thus increasing performance each time the query is executed.
+
+== Query Graph Structure ==
+
+A few conditions deal with the linkage between atoms. You can constrain an atom to be a link having a certain form or to be the target of a link. Here is table summarizing those conditions:
+
+|| *hg Factory Method* || *Description* ||
+|| target(x) || the atom must be a target of the link x. ||
+|| incident(x) || the atom must be a link pointing to x. ||
+|| link(h1, h2, ...) || the atom must be a link whose target set includes atoms h1, h2...etc.||
+|| orderedLink(h1, h2, ...) || the atom must be a link whose target set is ordered and where h1, h2...etc appear in exactly that order.||
+|| arity(n) || the atom has arity n.||
+|| disconnected() || the atom has no links pointing to it. ||

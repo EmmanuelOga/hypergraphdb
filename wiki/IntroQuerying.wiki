@@ -42,28 +42,21 @@ import org.hypergraphdb.HGQuery.hg;
 // Given some HyperGraph instance that has some Books added to it.
 //
 HyperGraph graph = new HyperGraph(tutorialHyperGraphLocation);
-
-HGSearchResult rs = graph.find(hg.and(hg.type(Book.class), 
-					        hg.eq(“author”, 
-                                            “Borislav Iordanov”)));
-while (rs.hasNext()) 
-{ 
-    Book b = hg.get(rs.next()); 
-    System.out.println(“Found book: “ + b.getTitle());
-}
-
-rs.close();
-
+List<Book> books = hg.getAll(hg.and(hg.type(Book.class), hg.eq("author", "George Bush")));
+for (Book b : books)
+    System.out.println(b.getTitle());
 }}}
 
-This is achieved with several static methods in the nested `HGQuery.hg` class. 
+For example, the `hg.and` takes an arbitrary number of arguments, each a query condition and returns a composite condition representing the conjuction of all sub-conditions. There  are several methods for comparing values: `hg.eq`, `hg.lt`, `hg.gte` etc. and they all will construct a corresponding condition for comparing against an atom's value or an atom's property value.
+
+Of note in the above example is the `hg.getAll` method. It will load from storage and put in a standard Java list all atoms of the search result set. This is convenient when you don't expect a large result set or when you need the whole of it in RAM anyway. The `hg.findAll` method does the same, but it returns a list of `HGHandle`s instead of pre-loading the atom from disk.
 
 You can create query objects and execute them repeatedly:
 
 {{{
-HGQuery query = HGQuery.make(hg, condition);
+HGQuery query = HGQuery.make(graph, condition);
 rs = query.execute();
 //etc…
 }}}
 
-The `HGSearchResult` object is analogous to a JDBC result set – you can move forward and backwards on a result set, you need to close it after you’re done with it in order to release system resources (picture the usual finally block with the close statement in there).  The `HGSearchResult` interface is parameterized by the type of objects found in the result set. The type is usually a `HGHandle` so you need to do a `HyperGraph.get` if you want to actual object instance. Again, we recommend getting an actual object only at the point when its value is needed. Get used to keeping handles around instead of objects. If you have some class that works with a bunch of HyperGraphDB atoms as member variables, make the member variables HyperGraphDB handle, not Java object references. 
+The advantage of creating a [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGQuery.html HGQuery] object is that the condition is analyzed and a query plan is created and stored as part of that object, thus increasing performance each time the query is executed.

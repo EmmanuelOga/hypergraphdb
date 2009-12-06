@@ -29,7 +29,7 @@ Notice that the next method of the `HGTraversal` interface returns a pair of obj
 A more interesting `HGALGenerator` is the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/algorithms/DefaultALGenerator.html DefaultALGenerator interface]. The `DefaultALGenerator` implementation allows control over most aspects of graph link-atom selection that one would encounter in practice. The full constructor signature looks like this:
 
 {{{
-DefaultALGenerator(HyperGraph hg, 
+DefaultALGenerator(HyperGraph graph, 
                    HGAtomPredicate linkPredicate, 
                    HGAtomPredicate siblingPredicate, 
                    boolean returnPreceeding, 
@@ -49,4 +49,23 @@ The AL generator will first check whether the link `L` satisfies the `linkPredic
   L = [e, d, x, c, b, a]
 }}}
 
-This reversed order affects which siblings are first returned.
+This reversed order affects which siblings are first returned. As an example, imagine a graph where you have all sorts of publications (books, articles, blogs) as nodes and you have links of type CitedBy(X, Y) which means that publication X contains a quote from publication Y. To traverse all citations of articles published in the _Science_ magazine, you could perform the following:
+
+{{{
+   DefaultALGenerator algen = new DefaultALGenerator(graph, 
+                                                     hg.type(CitedBy.class),
+                                                     hg.and(hg.type(ScientificArticle.class),
+                                                            hg.eq("publication", "Science")),
+                                                     true,
+                                                     false,
+                                                     false);
+   HGTraversal traversal = new HGBreadthFirstTraversal(startingArticle, algen);
+   ScientificArticle currentArticle = startingArticle;
+   while (traversal.hasNext())
+   {
+       Pair<HGHandle, HGHandle> next = traversal.next();
+       ScientificArticle nextArticle = graph.get(next.getSecond());
+       System.out.println("Article " + current + " quotes " + nextArticle);
+       currentArticle = nextArticle;
+   }
+}}}

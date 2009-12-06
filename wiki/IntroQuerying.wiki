@@ -87,12 +87,6 @@ The usual comparison operators are available when constraining the values of ato
 
 Naturally, the operators lt, lte, gt and gte can only be applied to values that are comparable.
 
-|| *hg Factory Method* || *Description* ||
-|| type(class), type(handle) || the atom must have the specified type, either as a Java class or as a HGDB handle ||
-|| typePlus(class), typePlus(handle) || the atom's must be either of the specified type or a of a type inheriting the specified type ||
-|| subsumes(x) || the atom must subsume the atom specified in the condition ||
-|| subsumed(x) || the atom must *be* subsumed by the atom specified in the condition ||
-
 == Querying Graph Structure ==
 
 A few conditions deal with the linkage between atoms. You can constrain an atom to be a link having a certain form or to be the target of a link. Here is table summarizing those conditions:
@@ -112,3 +106,15 @@ Note that:
 }}}
 
 In fact, this is how link lookups are implemented: by intersecting incidence sets of the desired link target set.
+
+== Typing Constraints ==
+
+Whether you are querying atoms by their value or relationships in the graph, it is frequently necessary to include a typing constraint. For example, given an `AtomValueCondition`, the query system will easily infer the desired atom type from the Java class of the value. But this is impossible with a single `AtomPartCondition` for example. 
+
+Asking for atoms with a specific type is akin to a _from_ clause in an SQL query because all atoms are automatically indexed by their type. This is done with `hg.type` factory method. If you don't know the specific type, but only know a super-type, you can use the `hg.typePlus` condition.
+
+|| *hg Factory Method* || *Description* ||
+|| type(class), type(handle) || the atom must have the specified type, either as a Java class or as a HGDB handle ||
+|| typePlus(class), typePlus(handle) || the atom's must be either of the specified type or a of a type inheriting the specified type ||
+|| subsumes(x) || the atom must subsume (i.e. be more general) the atom specified in the condition ||
+|| subsumed(x) || the atom must *be* subsumed (i.e. be more specific) by the atom specified in the condition ||

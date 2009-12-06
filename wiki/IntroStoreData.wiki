@@ -22,12 +22,6 @@ There is nothing "graphish" in this example - we are just adding some data in ou
   * Record type inheritance information.
   * Some sensible details that you will learn in the course of usage ;)
 
-== HyperGraphDB is a Typed World ==
-
-Every value stored in HyperGraphDB is typed. HyperGraphDB types are implementations of the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/type/HGAtomType.html HGAtomType] interface. The main responsibilities of an `HGAtomType` implementation are storage and retrieval of concrete run-time instances. There are predefined implementations for all of the above listed type categories. 
-
-If you want to store a Java objects that is neither serializable, nor does it follow the Java Beans naming conventions to expose its state, then you will need to develop a custom type for that Java class. Developing a custom type is actually not hard at all. It is covered in the reference guide.
-
 == The Storage Model ==
 
 Every storage medium has a meta-model, a predefined structure of what things can be stored in it. A file is a sequence of bytes. A relational database is a set of relations (or “tables”). An XML file is a tree of markup elements. A HyperGraphDB database is a generalized graph of entities. The generalization is two-fold: 
@@ -35,7 +29,7 @@ Every storage medium has a meta-model, a predefined structure of what things can
   # Links/edges “point to” an arbitrary number of elements instead of just two as in regular graphs 
   # Links can be pointed to by other links as well. 
 
-Everything that gets stored in a HyperGraphDB is either a node or a link. A node is simply some object value that does not represent a relationship, it doesn't point to anything else. A link is a graph edge (or arrow) in HyperGraphDB’s terminology. A link holds pointers to other entities in the graph and in general represents some sort of relationship. In all cases, we refer to the things in HyperGraphDB as *atoms*. When an atoms is a link, we call the number of atoms it points to its *arity*. Thus, nodes are atoms that have arity 0. 
+Everything that gets stored in a HyperGraphDB is either a node or a link. A node is simply some object value that does not represent a relationship, it doesn't point to anything else. A *link* is HyperGraphDB's terminology for a graph edge or arrow. A link holds pointers to other entities in the graph and in general represents some sort of relationship. In all cases, we refer to the things in HyperGraphDB as *atoms*. When an atoms is a link, we call the number of atoms it points to its *arity*. Thus, nodes are atoms that have arity 0. 
 
 As a final piece of terminology pertaining to graph linkage, we call the set of all links pointing to a given atom its *incidence set* and we call the set of atoms a given link points to its *target set*. If L is a link pointing to the atom A, we say that L is *incident* to A and that A is a *target* of L.
 

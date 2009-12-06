@@ -24,7 +24,7 @@ while (traversal.hasNext())
 }
 }}}
 
-Notice that the next method of the `HGTraversal` interface return a pair of objects. The first element is this pair is the link that led to the current atom while the second is the atom itself. 
+Notice that the next method of the `HGTraversal` interface returns a pair of objects. The first element of this pair is the link that led to the current atom while the second is the atom itself. 
 
 A more interesting `HGALGenerator` is the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/algorithms/DefaultALGenerator.html DefaultALGenerator interface]. The `DefaultALGenerator` implementation allows control over most aspects of graph link-atom selection that one would encounter in practice. The full constructor signature looks like this:
 
@@ -37,4 +37,16 @@ DefaultALGenerator(HyperGraph hg,
                    boolean reverseOrder)
 }}}
 
-As you can see, the `DefaultALGenerator` can be configured with a predicate that constraints the links to be selected during traversal and a predicate that filters the atoms to be traversed. In addition, one can also specify the order in which atoms linked by a given link are visited. In classical graphs where all links are of arity 2, the order amounts to specifying directionality of the links of interest. In hypergraph, where links can potentially tie together tens of atoms, the order may be much more important. It all depends on the representation of your domain. 
+As you can see, the `DefaultALGenerator` can be configured with a predicate that constraints the links to be selected during traversal and a predicate that filters the atoms to be traversed. In addition, one can also specify the order in which atoms linked by a given link are visited. In classical graphs where all links are of arity 2, the order amounts to specifying directionality of the links of interest. In hypergraph, where links can potentially tie together tens of atoms, the order may be important. It all depends on the representation of your domain. Suppose that the current atom during a traversal is `x` and that x is the target of some link that looks like this:
+
+{{{
+  L = [a, b, c, x, d, e]
+}}}
+
+The AL generator will first check whether the link `L` satisfies the `linkPredicate`. Then if `returnPreceeding` is true it will examine each of the atoms a, b and c as potential siblings and it will returns all those that satisfy the `siblingPredicate`. Similarly, if `returnSucceeding` is true, it will examine and maybe return the atoms d and e. When `reverseOrder` is true, the AL generator considers the link L as if it had the following form:
+
+{{{
+  L = [e, d, x, c, b, a]
+}}}
+
+This reversed order affects which siblings are first returned.

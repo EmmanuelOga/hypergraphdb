@@ -9,7 +9,7 @@ The conditional expressions for querying are build up out of classes in the [htt
 {{{
     HGQueryCondition condition = new And(new AtomTypeCondition(Book.class), 
                                          new AtomPartCondition("author", "George Bush", ComparisonOperator.EQ));
-    HGSearchResult rs = graph.find(condition);
+    HGSearchResult<HGHandle> rs = graph.find(condition);
     try
     {
         while (rs.hasNext())
@@ -29,36 +29,9 @@ The condition should be self-explanatory: it asks for atoms of type Book and who
 
 As you can see, the result is returned in the form of  [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGSearchResult HGSearchResult] instance. Search results are basically bi-directional iterators (you go back to a previous item) that you need to close once you are done with them, similarly to a JDBC `ResultSet` object. If a search result is not closed, it will maintain locks on certain parts of the database which in turn is likely is likely to cause a deadlock in your application. 
 
-Once you have a query condition, you can just invoke the `HyperGraph.find` method to perform the query and get back a result. Here is an example that will give you all books whose author is Borislav Iordanov (in this case the result set will be empty, for good or bad):
+That’s simple enough, albeit a bit verbose. But there is a much more convenient syntax to work with HyperGraphDB queries.  The [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGQuery.hg.html HGQuery.hg] class defines an extensive list of so called "factory methods" (methods that instantiate object in lieu of constructing them directly) for creating and composing condition. It also defines several more general purpose utility methods which you are encouraged to examine.
 
-{{{
-//
-// Given some HyperGraph instance that has some Books added to it.
-//
-HyperGraph hg = new HyperGraph(tutorialHyperGraphLocation);
-
-//
-// Get the handle of the Book type. Types in HyperGraph are atoms
-// too!
-//
-HGHandle hBookType = hg.getTypeSystem().getHandle(Book.class);
-
-
-HGSearchResult rs = hg.find(new And(new AtomTypeCondition(hBookType), 
-                              new AtomPartCondition(“author”, 
-                                     “Borislav Iordanov”, 
-                                      ComparisonOperator.EQ)));
-while (rs.hasNext()) 
-{ 
-    Book b = hg.get(rs.next()); 
-    System.out.println(“Found book: “ + b.getTitle());
-}
-
-rs.close();
-
-}}}
-
-That’s simple enough. Well, yes it’s kind of verbose for now. But before designing a special purpose query language for HyperGraphDB, we need some experience with it through a low-level, Java API. There is a also a more convenient syntax to create query conditions encapsulated in the HGQuery.hg namespace. Here is the above condition rewritten in this style:
+Here is the above condition rewritten in this style:
 
 {{{
 // Use Java 5 static import facility to import the HGQuery.hg 

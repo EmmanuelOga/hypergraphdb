@@ -111,7 +111,7 @@ In fact, this is how link lookups are implemented: by intersecting incidence set
 
 Whether you are querying atoms by their value or relationships in the graph, it is frequently necessary to include a typing constraint. For example, given an `AtomValueCondition`, the query system will easily infer the desired atom type from the Java class of the value. But this is impossible with a single `AtomPartCondition` for example. 
 
-Asking for atoms with a specific type is akin to a _from_ clause in an SQL query because all atoms are automatically indexed by their type. This is done with `hg.type` factory method. If you don't know the specific type, but only know a super-type, you can use the `hg.typePlus` condition.
+Asking for atoms with a specific type is akin to a _from_ clause in an SQL query because all atoms are automatically indexed by their type. This is done with `hg.type` factory method. If you don't care about specific type, but only about a super-type (i.e. base class or an interface in Java), you can use the `hg.typePlus` condition.
 
 || *hg Factory Method* || *Description* ||
 || type(class), type(handle) || the atom must have the specified type, either as a Java class or as a HGDB handle ||

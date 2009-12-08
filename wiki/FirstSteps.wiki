@@ -15,4 +15,5 @@ The pages are written mostly in tutorial style. And while there are no accompany
   # [IntroHGTypes Atom Types]
   # [IntroQuerying Querying]
   # [IntroGraphTraversals Graph Traversals]
+  # [IndexesHowto Indexing]
   # [IntroTransactions Transaction Essentials]

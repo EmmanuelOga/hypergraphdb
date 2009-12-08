@@ -22,7 +22,7 @@ There is nothing "graphish" in this example - we are just adding some data in ou
   * Record type inheritance information.
   * Some sensible details that you will learn in the course of usage ;)
 
-Note that when `mybook` is added, we assign the result to a variable of type `HGHandle`. This is essentially an identifier within the HyperGraphDB system, explained in more detail in the AtomHandles topic. A newly added object will have its handle/identifier assigned by the system. You need this identifier when you want to delete or update some date:
+Note that when `mybook` is added, we assign the result to a variable of type `HGHandle`. This is essentially an identifier within the HyperGraphDB system, explained in more detail in the [IntroHGHandles Atom Handles] topic. A newly added object will have its handle/identifier assigned by the system. If a Java object is already known to the system, you can update it in storage without passing the handle. But you need the handle when you want to delete some data:
 
 {{{
 ...

@@ -9,7 +9,7 @@ The short story is that you can just put in whatever object you have in a HyperG
   Book mybook = new Book(“Critique of Pure Reason”, “E. Kant”);
   
   graph.add(x);
-  graph.add(mybook);
+  HGHandle bookHandle = graph.add(mybook);
   graph.add(new double [] {0.9, 0.1, 4.3434});
 }}}
 
@@ -21,6 +21,27 @@ There is nothing "graphish" in this example - we are just adding some data in ou
   * Store maps as sequences of pairs of objects.
   * Record type inheritance information.
   * Some sensible details that you will learn in the course of usage ;)
+
+Note that when `mybook` is added, we assign the result to a variable of type `HGHandle`. This is essentially an identifier within the HyperGraphDB system, explained in more detail in the AtomHandles topic. A newly added object will have its handle/identifier assigned by the system. You need this identifier when you want to delete or update some date:
+
+{{{
+...
+// Add a new object to the database
+HGHandle bookHandle = graph.add(mybook);
+
+// At a later point, update an existing object's value:
+mybook.setYearPublished(1988);
+graph.update(mybook);
+
+// At a later point, delete the object:
+graph.remove(bookHandle);
+}}}
+
+Note that the `HGHandle` is needed to remove the object. You can also replace the object identified by that handle with a completely new object:
+
+{{{
+graph.replace(bookHandle, new Book(....));
+}}}
 
 == The Storage Model ==
 

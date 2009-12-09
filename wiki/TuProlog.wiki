@@ -1,9 +1,9 @@
 #summary TuProlog interpreter integration with HyperGraphDB.
 
-== What is TuProlog ==
+== What is !TuProlog ==
 
 This is a pure Java Prolog interpreter developed developed at the University of Bologna, Italy, see its [http://alice.unibo.it/xwiki/bin/view/Tuprolog/ home page] for more information.
 
-== TuProlog + HyperGraphDB ==
+== !TuProlog + HyperGraphDB ==
 
 In HyperGraphDB, we forked the codebase to experiment with integrating a Prolog engine for reasoning with HyperGraphDB's atoms. In addition, the integration provides for a very large factbase for the Prolog engine with efficient database style indexing etc.

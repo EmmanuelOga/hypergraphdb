@@ -12,6 +12,7 @@ The general patterns for HGApplication implementations is to create the common H
 
 = List of Existing HGDB Applications =
 
+  * TuProlog
   * WordNet
   * TopicMaps
   * XmlSchema

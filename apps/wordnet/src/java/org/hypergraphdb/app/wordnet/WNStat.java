@@ -12,9 +12,9 @@ import org.hypergraphdb.HyperGraph;
  * HyperGraphDB instance. Global statistics usually take time to calculate and they
  * are stable for a given WordNet version/dataset. A single <code>WNStat</code>
  * implementation holds the value calculated and implements the actual algorithm
- * to do the calculation. The resulting value of the statistic can be anything
- * storable in a HyperGraphDB (from a simple number to a complex structure that
- * the type system can handle). 
+ * to do the calculation. The resulting value of the statistic can be anything,
+ * from a simple number to a complex structure, as long as it can be stored in
+ * HyperGraphDB (i.e. the type system can handle it). 
  * </p>
  * 
  * <p>
@@ -24,9 +24,16 @@ import org.hypergraphdb.HyperGraph;
  * </p>
  * 
  * <p>
- * Because the type of the result value is arbitrary (modulo storability in HGDB), this
- * class can in fact by used to manage any sort of precomputed values on the WordNet database.
+ * Because the type of the result value is arbitrary, this
+ * class can in fact by used to manage any sort of pre-computed values on the WordNet database,
+ * not just statistics in the number/mathematical sense
  * But we keep the name <code>WNStat</code> because it reflects the main intent.
+ * </p>
+ * 
+ * <p>
+ * The main restriction on the value of a <code>WNStat</code> is that it can't be
+ * <code>null</code> as that particular value indicates that the computation hasn't
+ * been performed yet.
  * </p>
  * 
  * <p>
@@ -66,36 +73,76 @@ public abstract class WNStat<T> implements HGGraphHolder
 		return value;
 	}
 	
+	/**
+	 * <p>Return <code>true</code> if this statistic has already been computed and
+	 * <code>false</code> otherwise. In general, this method should be called before
+	 * attempting to get the value of the statistic.
+	 */
 	public boolean isCalculated() 
 	{ 
 		return value != null; 
 	}
-	
+
+	/**
+	 * <p>Return the value of this statistic or <code>null</code> if it hasn't
+	 * been computed yet.</p>
+	 */
 	public T getValue()
 	{
 		return value;
 	}
 	
+	/**
+	 * <p>
+	 * Set this statistic's value - use with caution. 
+	 * </p>
+	 * 
+	 * @param value
+	 */
 	public void setValue(T value)
 	{
 		this.value = value;
 	}
 
+	/**
+	 * <p>Return the precise date/time at which computation of
+	 * this statistic completed, or <code>null</code> if the computation
+	 * has been completed yet.
+	 */
 	public Date getCalculationTimestamp()
 	{
 		return calculationTimestamp;
 	}
 
+	/**
+	 * <p>
+	 * Set the precise date/time of the completion of the calculation
+	 * of this statistic - not intended for public use.
+	 * </p>
+	 * 
+	 * @param calculationTimestamp
+	 */
 	public void setCalculationTimestamp(Date calculationTimestamp)
 	{
 		this.calculationTimestamp = calculationTimestamp;
 	}
 
+	/**
+	 * <p>Return the <code>HyperGraph</code> instance holding the data
+	 * upon which this statistic was computed.</p>
+	 */
 	public HyperGraph getHyperGraph()
 	{
 		return graph;
 	}
 
+	/**
+	 * <p>
+	 * Set the <code>HyperGraph</code> instance holding the data
+	 * upon which this statistic was computed - intented for internal use
+	 * only.
+	 * </p>
+	 */
 	public void setHyperGraph(HyperGraph graph)
 	{
 		this.graph = graph;

@@ -22,7 +22,7 @@ import org.hypergraphdb.util.HGUtils;
  * A collection of utility methods for applying graph traversals and
  * algorithms onto the HyperGraph representation of WordNet.
  * </p>
- *
+ * 
  * @author Borislav Iordanov
  *
  */
@@ -349,32 +349,82 @@ public class WNGraph
 			default: return null;
 		}
 	}
-	
+
+	/**
+	 * <p>
+	 * Retrieve all senses of a particular word if used as a specific part-of-speech.
+	 * The part-of-speech is identified by the <code>senseType</code> parameter.
+	 * </p>
+	 * <p>
+	 * Alternatively, you can use one of the <code>get<em>T</em>Senses</code> methods
+	 * where <em>T</em> is one of <em>Noun</em>, <em>Verb</em>, <em>Adverb</em> or
+	 * <em>Adj</em>.
+	 * </p>
+	 * @param word The word handle.
+	 * @param senseType The sense type - this corresponds to one of the sub-classes of
+	 * the {@link SynsetLink} class. 
+	 * @return
+	 */
 	public List<HGHandle> getSenses(HGHandle word, HGHandle senseType)
 	{
 		return hg.findAll(graph, hg.and(hg.type(senseType), hg.incident(word)));
 	}
-	
+
+	/**
+	 * <p>
+	 * Retrieve all senses of a particular word if used as a specific part-of-speech.
+	 * The part-of-speech is identified by the <code>senseType</code> parameter.
+	 * </p>
+	 * <p>
+	 * Alternatively, you can use one of the <code>get<em>T</em>Senses</code> methods
+	 * where <em>T</em> is one of <em>Noun</em>, <em>Verb</em>, <em>Adverb</em> or
+	 * <em>Adj</em>.
+	 * </p>
+	 * @param word The word handle.
+	 * @param senseType The sense type - one of the sub-classes of
+	 * the {@link SynsetLink} class. 
+	 * @return
+	 */	
 	public List<HGHandle> getSenses(HGHandle word, Class<? extends SynsetLink> type)
 	{
 		return hg.findAll(graph, hg.and(hg.type(type), hg.incident(word)));
 	}	
 	
+	/**
+	 * <p>
+	 * Return all senses of <code>word</code> when used as a noun.
+	 * </p>
+	 */
 	public List<HGHandle> getNounSenses(HGHandle word)
 	{
 		return getSenses(word, NounSynsetLink.class);
 	}
 
+	/**
+	 * <p>
+	 * Return all senses of <code>word</code> when used as a verb.
+	 * </p>
+	 */
 	public List<HGHandle> getVerbSenses(HGHandle word)
 	{
 		return getSenses(word, VerbSynsetLink.class);
 	}
 	
+	/**
+	 * <p>
+	 * Return all senses of <code>word</code> when used as an adverb.
+	 * </p>
+	 */
 	public List<HGHandle> getAdverbSenses(HGHandle word)
 	{
 		return getSenses(word, AdverbSynsetLink.class);
 	}
 	
+	/**
+	 * <p>
+	 * Return all senses of <code>word</code> when used as an adjective.
+	 * </p>
+	 */
 	public List<HGHandle> getAdjSenses(HGHandle word)
 	{
 		return getSenses(word, AdjSynsetLink.class);

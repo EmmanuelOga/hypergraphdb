@@ -82,7 +82,7 @@ public class HGWordNetLoader
 	
 	private String typeAliasPrefix;
 	private String dictionaryLocation; 
-	private Logger logger = Logger.global;
+	private Logger logger = Logger.getAnonymousLogger();// global;
 	private HashMap<Integer, HGPersistentHandle> verbFrames = new HashMap<Integer, HGPersistentHandle>();
 	private HGIndex<String, HGPersistentHandle> wordIndex = null; 
 	
@@ -114,6 +114,7 @@ public class HGWordNetLoader
 		this.typeAliasPrefix = typeAliasPrefix;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void loadWordNet(HyperGraph graph)
 	{
 		try
@@ -171,7 +172,7 @@ public class HGWordNetLoader
 	{
 		HGHandle typeHandle = graph.getTypeSystem().getTypeHandle(typeAlias);
 		ByPartIndexer byProperty = new ByPartIndexer(typeHandle, new String[] { keyProperty });	
-		HGIndex index = graph.getIndexManager().getIndex(byProperty);
+		HGIndex<Object, HGPersistentHandle> index = graph.getIndexManager().getIndex(byProperty);
 		return (HGPersistentHandle) index.findFirst(keyValue);
 	}
 	
@@ -221,7 +222,7 @@ public class HGWordNetLoader
 		}
 	}
 	
-	private void addSynsets(HyperGraph graph, Iterator it, int pos)
+	private void addSynsets(HyperGraph graph, Iterator<Synset> it, int pos)
 	{
 		while (it.hasNext())
 		{
@@ -273,7 +274,7 @@ public class HGWordNetLoader
 		return link;
 	}
 
-	private void addPointers(HyperGraph graph, Iterator it, String synTypeAlias) throws JWNLException
+	private void addPointers(HyperGraph graph, Iterator<Synset> it, String synTypeAlias) throws JWNLException
 	{
 		PtType.initialize();
 		while (it.hasNext())
@@ -296,7 +297,7 @@ public class HGWordNetLoader
 		}
 	}
 
-	private void addExceptions(HyperGraph graph, Iterator it, int pos)
+	private void addExceptions(HyperGraph graph, Iterator<Exc> it, int pos)
 	{
 		while (it.hasNext())
 		{

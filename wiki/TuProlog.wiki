@@ -2,7 +2,7 @@
 
 == What is !TuProlog ==
 
-!TuProlog a pure Java Prolog interpreter developed developed at the University of Bologna, Italy, see its [http://alice.unibo.it/xwiki/bin/view/Tuprolog/ home page] for more information. The architecture of the interpreter is modular which makes relatively easy to extend. It also has a nice interface to Java and small memory footprint. 
+!TuProlog a pure Java Prolog interpreter developed developed at the University of Bologna, Italy, see its [http://alice.unibo.it/xwiki/bin/view/Tuprolog/ home page] for more information. The architecture of the interpreter is modular which makes relatively easy to extend. It also has a nice interface to Java and small memory footprint. A good, concise description of its features can be found at the [http://en.wikipedia.org/wiki/TuProlog TuProlog Wikipedia Page].
 
 == !TuProlog + HyperGraphDB ==
 

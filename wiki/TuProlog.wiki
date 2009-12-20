@@ -2,8 +2,8 @@
 
 == What is !TuProlog ==
 
-This is a pure Java Prolog interpreter developed developed at the University of Bologna, Italy, see its [http://alice.unibo.it/xwiki/bin/view/Tuprolog/ home page] for more information.
+!TuProlog a pure Java Prolog interpreter developed developed at the University of Bologna, Italy, see its [http://alice.unibo.it/xwiki/bin/view/Tuprolog/ home page] for more information. The architecture of the interpreter is modular which makes relatively easy to extend. It also has a nice interface to Java and small memory footprint. 
 
 == !TuProlog + HyperGraphDB ==
 
-In HyperGraphDB, we forked the codebase to experiment with integrating a Prolog engine for reasoning with HyperGraphDB's atoms. In addition, the integration provides for a very large factbase for the Prolog engine with efficient database style indexing etc.
+In HyperGraphDB, we forked the codebase to experiment with integrating a Prolog engine for reasoning with HyperGraphDB's atoms. The modularity of !TuProlog permits additions of _predicate libraries_ implemented in Java, but it doesn't permit pluggable implementations of the interpreter's `ClauseStore`. In addition, the integration provides for a very large factbase for the Prolog engine with efficient database style indexing etc.

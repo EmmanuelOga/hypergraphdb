@@ -79,3 +79,14 @@ The `HGPrologLibrary.attach` method expects a `HyperGraph` instance and `Prolog`
 || hg_bind/2 || Bind a predicate to a HGDB condition. Has the same effect as additing to he HGDB clause store factory predicate mapping ||
 || hg_unbind/2 || Remove a predicate binding from the HGDB clause store factory. ||
 || to be completed || .... ||
+
+So far, we've described mostly how a Prolog interpreter is extended with HGDB storage and representations. This doesn't require installing the Prolog HGDB application into your HyperGraphDB instance. But to store Prolog terms (facts or rules) into a HyperGraphDB instance, first you will need to install the module like so:
+
+{{{
+import alice.tuprolog.hgdb.*;
+
+HyperGraph graph = HGEnvironment.get(....);
+new PrologHGDBApp().install(graph);
+}}}
+
+The above will install !TuProlog typing in your database instance.

@@ -43,3 +43,39 @@ We've added another variety of Prolog term to TuProlog in addition to the `Var` 
 HyperGraphDB types have been created to store Prolog terms. See the `alice.prolog.hgdb` package. Numbers, ground symbols and variables are represented in a trivial way by storing their values (the value of a variable is its name). Structs (compound terms) are represented as HGDB links with values the functor names.
 
 == Usage == 
+
+To use additional clause factories, you need to explicitly add them to a Prolog interpreter instance. Here is an example:
+
+{{{
+import alice.tuprolog.*;
+import alice.tuprolog.clausestore.*;
+			
+Prolog prolog = new Prolog();
+prolog.getEngineManager().getClauseStoreManager().getFactories().add(new JavaCollectionStoreFactory());			prolog.getEngineManager().getClauseStoreManager().getFactories().add(new JavaMapStoreFactory());			
+}}}
+
+The above install factories to work with Java collections and maps. You can implemented and plug your own factories in a similar way. For instance, you could implement a factories that queries a SQL database server or some other form of persistent storage. Here's an example of using Java collections and maps as predicates:
+
+{{{
+collection_item(C, Item),
+map_entry(Map, Key, Value)
+}}}
+
+To plug HyperGraphDB into a Prolog interpreter, you need to attach the `HGPrologLibrary` following the standard !TuProlog extension mechanism. That library will plug the HyperGraphDB clause store factory and it will also export some predicates related to HyperGraphDB processing:
+
+{{{
+HGPrologLibrary lib = HGPrologLibrary.attach(graph, prolog);
+Map<String, HGQueryCondition> map = lib.getClauseFactory().getPredicateMapping();
+map.put("myrelation/3", hg.type(MyRelation.class));
+
+//... etc.
+
+}}}
+
+The `HGPrologLibrary.attach` method expects a `HyperGraph` instance and `Prolog` instance. A HyperGraphDB based clause factory will be plugged into the interpreter, but you need to associate predicates with HGDB conditions in order to make use of it, as the following lines show. The `MyRelation` class is presumably a `HGLink` implementation of some 3-way relationship (i.e. links of arity 3). In Prolog it will be available as a `myrelation/3` predicate. The predicates and functions exported by the `HGPrologLibrary` are listed in the following table:
+
+|| * Predicate * ||* Description * ||
+|| hg_atom/1 || Succeed if its argument is a HGDB atom and fails otherwise. ||
+|| hg_bind/2 || Bind a predicate to a HGDB condition. Has the same effect as additing to he HGDB clause store factory predicate mapping ||
+|| hg_unbind/2 || Remove a predicate binding from the HGDB clause store factory. ||
+|| to be completed || .... ||

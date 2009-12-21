@@ -6,14 +6,24 @@
 
 == !TuProlog + HyperGraphDB ==
 
-The integration of !TuProlog and !HyperGraphDB has the following goals:
+The integration of !TuProlog and HyperGraphDB has the following goals:
 
-  # Ability to store !Prolog facts and rules (i.e. !Prolog programs) in a !HyperGraph.
-  # Ability to perform !HyperGraphDB queries from !Prolog. This amounts to being able to represent query conditions as Prolog terms.
+  # Ability to store Prolog facts and rules (i.e. Prolog programs) in a !HyperGraph.
+  # Ability to perform HyperGraphDB queries from Prolog. This amounts to being able to represent query conditions as Prolog terms.
   # Ability to represent hypergraph atoms as prolog terms so they participate in the unification process natively.
 
-The idea is to work with !HyperGraph data in a natural way, as if it was part of the !Prolog  system.
+The idea is to work with HyperGraph data in a natural way, as if it was part of the Prolog  system.
 
 == Codebase Fork ==
 
-To achieve the stated goals, we forked the codebase to experiment with integrating a Prolog engine for reasoning with HyperGraphDB's atoms. The modularity of !TuProlog permits additions of _predicate libraries_ implemented in Java, but it doesn't permit pluggable implementations of the interpreter's rule base (`ClauseStore`s, in !TuProlog terms). In addition, the integration provides for a very large factbase for the Prolog engine with efficient database style indexing etc.
+To achieve the stated goals, we had to fork the TuProlog codebase. The modularity of !TuProlog permits additions of _predicate libraries_ implemented in Java, but it doesn't permit pluggable implementations of the interpreter's rule base (`ClauseStore`s, in !TuProlog terms). 
+
+== Implementation == 
+
+=== Clause Stores === 
+
+The implementation relies on a newly added `ClauseStoreManager` that maintains a list of `ClauseFactory`s. When a Prolog term must be translated into set of clauses to be verified (possibly one by one through backtracking), TuProlog creates a `ClauseStore` instance. The original TuProlog implementation uses the current theory stored in RAM. The modified implementation tries all factories in the clause manager and returns the result as soon as one of the factories is able to construct a clause store from the Prolog term, falling back to the default RAM implementation. 
+
+This strategy allows arbitrary HGDB conditions to be treated as Prolog predicates and thus one can have a Prolog program backtrack through a HGDB result set. For this to work, however, an application must bind predicates to HGDB condition explicitly so that they can be recognized by the HGDB clause factory. Example are given below.
+
+In addition, the integration provides for a very large factbase for the Prolog engine with efficient database style indexing etc.

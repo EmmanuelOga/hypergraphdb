@@ -78,7 +78,17 @@ The `HGPrologLibrary.attach` method expects a `HyperGraph` instance and `Prolog`
 || hg_atom/1 || Succeed if its argument is a HGDB atom and fails otherwise. ||
 || hg_bind/2 || Bind a predicate to a HGDB condition. Has the same effect as additing to he HGDB clause store factory predicate mapping ||
 || hg_unbind/2 || Remove a predicate binding from the HGDB clause store factory. ||
-|| to be completed || .... ||
+|| hg_count/1 || Returns the number of atoms matching the condition specified as the argument ||
+|| hg_find_all/1 || Returns a Prolog list of all atoms matching the argument condition ||
+|| hg_clause_condition/1 || Returns the HGDB condition objects corresponding to the Prolog clause passed as the argument ||
+
+Note that `hg_find_all` and `hg_count` recognize HGDB conditions as Prolog terms. For example:
+
+{{{
+L is hg_find_all(and(type(MyRelationType), incident(SomeAtom)))
+}}}
+
+The following functors are recognized as forming HGDB conditions with their obvious meanings: `type/1`, `typePlus/1`, `incident/1`, `target/1`, `and`, `or`, `link/n`, `orderedLink/n`.
 
 So far, we've described mostly how a Prolog interpreter is extended with HGDB storage and representations. This doesn't require installing the Prolog HGDB application into your HyperGraphDB instance. But to store Prolog terms (facts or rules) into a HyperGraphDB instance, first you will need to install the module like so:
 

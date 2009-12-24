@@ -59,14 +59,20 @@
         <mkdir dir="${build}/xsd"/>
         <mkdir dir="${build}/prolog"/>
     </target>
-    
+
 	<target name="management" depends="init" description="Build HyperGraphDB Management Jar">
 		<javac source="1.5" classpathref="management-classpath" debug="${debug}" destdir="${build}/management" srcdir="management/src/java"/>
+	    <javadoc sourcepath="management/src/java" destdir="${build}/javadoc/management" classpathref="management-classpath">
+            <link href="http://www.kobrix.com/javadocs/hgcore"/>
+        </javadoc>        
 		<jar basedir="${build}/management" jarfile="${jars}/hgdbmanagement.jar"/>
 	</target>
 
 	<target name="wordnet" depends="init" description="Build HyperGraphDB WordNet Jar">
 		<javac source="1.5" classpathref="wordnet-classpath" debug="${debug}" destdir="${build}/wordnet" srcdir="wordnet/src/java"/>
+	    <javadoc sourcepath="wordnet/src/java" destdir="${build}/javadoc/wordnet" classpathref="wordnet-classpath">
+            <link href="http://www.kobrix.com/javadocs/hgcore"/>
+        </javadoc>
         <copy todir="${build}/wordnet">
           <fileset dir="wordnet/src/java">
             <include name="**/*.xml"/>            
@@ -81,6 +87,9 @@
 
 	<target name="tm" depends="init" description="Build HyperGraphDB TopicMaps Jar">
 		<javac source="1.5" classpathref="tm-classpath" debug="${debug}" destdir="${build}/tm" srcdir="tm/src/java"/>
+	    <javadoc sourcepath="tm/src/java" destdir="${build}/javadoc/tm" classpathref="tm-classpath">
+            <link href="http://www.kobrix.com/javadocs/hgcore"/>
+        </javadoc>        
         <copy todir="${build}/wordnet">
           <fileset dir="tm/src/java">
             <include name="**/*.xml"/>            
@@ -92,11 +101,17 @@
     
 	<target name="xsd" depends="init" description="Build HyperGraphDB XSD Jar">
 		<javac source="1.5" classpathref="xsd-classpath" debug="${debug}" destdir="${build}/xsd" srcdir="xsd/src/java"/>
+	    <javadoc sourcepath="xsd/src/java" destdir="${build}/javadoc/xsd" classpathref="xsd-classpath">
+            <link href="http://www.kobrix.com/javadocs/hgcore"/>
+        </javadoc>        
 		<jar basedir="${build}/xsd" jarfile="${jars}/hgdbxsd.jar"/>
 	</target>
 
 	<target name="prolog" depends="init" description="Build tuProlog Jar">
 		<javac source="1.5" classpathref="prolog-classpath" debug="${debug}" destdir="${build}/prolog" srcdir="prolog/src/java"/>
+	    <javadoc sourcepath="prolog/src/java" destdir="${build}/javadoc/prolog" classpathref="prolog-classpath">
+            <link href="http://www.kobrix.com/javadocs/hgcore"/>
+        </javadoc>        
 		<jar basedir="${build}/prolog" jarfile="${jars}/hgdbtuprolog.jar"/>
 	</target>
     

@@ -28,18 +28,10 @@ This representation is rather obvious and natural given the generality of the Hy
 
 For each part of speech (noun, adjective, verb, adverb), WordNet contains a list of exceptional forms of the root lexeme. For nouns, this is usually the irregular plural forms, for adjectives and adverbs irregular superlatives, for verbs irregular conjugations. This is useful in morphological analysis where the normal rules for inflexion do not apply. Exceptions are represented in HGWN as links of type [http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/data/ExcLink.html ExcLink], specifically its four sub types, one for reach part of speech. The first target of an exception link is the root word and the other targets are its exceptional forms. The links have an arity >= 2. Both root and exceptional forms are stored as lexemes in HyperGraphDB (i.e. as instances of the type `Word`).
 
-==Package Overview==
-
-Main package: `org.hypergraphdb.app.wordnet`. All Wordnet related classes are to be found underneath this package.
-
-JWNL configuration files are maintained in `org.hypergraph.app.wordnet.configuration`. They are only needed when Wordnet is initially loaded into HyperGraphDB.
-
-The package `org.hypergraphdb.app.wordnet.data` contains classes implementing the core Wordnet representation and the package `org.hypergraphdb.app.wordnet.data.pointer` contains classes representing semantic relationships between synsets. Those are called pointers as in the original WordNet terminology.
-
 
 ==Loading WordNet in a HyperGraphDB==
 
-The JWNL (Java WordNet Library) - http://sourceforge.net/projects/jwordnet is used to load the WordNet database files. It is an open-source Java API for accessing WordNet which provides API-level access to WordNet data.
+The JWNL (Java WordNet Library) - http://sourceforge.net/projects/jwordnet is used to load the WordNet database files. It is an open-source Java API for accessing WordNet which provides API-level access to WordNet data. The configuration files needed by that library are maintained in [http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/configuration  org.hypergraph.app.wordnet.configuration]. They are only needed when Wordnet is initially loaded into HyperGraphDB. The JWNL library is also needed only for loading the data. Once the data is in the HyperGraphDB instance, the library can be removed from Java's classpath.
 
 Here is a sample code to load WordNet data into a HGDB instance. The code disables transactions for faster processing. So if the data already in your HGDB instance is important to you, make a backup copy beforehand.
 

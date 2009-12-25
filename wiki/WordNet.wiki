@@ -19,7 +19,7 @@ as a set of synonyms. In HyperGraphDB, those are represented as links of type
 of which there's one variety for each part-of-speech. Such links have variable arity depending
 on the number of synonyms in a synset. Thus, noun senses are represented as instances of `NounSynsetLink`. Those are HyperGraphDB links with arbitrary arity >= 1. The original WordNet ID is stored as the `id` property of synsets and the sense definition (a dictionary style definition in plain english) is stored as the `gloss` property.
 
-Synsets are further related by semantic relationships (called _pointers_ in WordNet's terminology). Those are stored as HyperGraph links of arity 2 between two given synsets. The super-type
+Synsets are further related by semantic relationships (called _pointers_ in WordNet's terminology). Those are stored as hypergraph links of arity 2 between two given synsets. The super-type
 of those links is [http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/data/SemanticLink.html SemanticLink]. There are many types of semantic relationships (pointers) and they differ according to the part of speech for which they are used. Refer to the various WordNet papers (links can be found on their homepage) for a description of the semantic theory behind. Most of the time semantic links are ordered (e.g. hypernymy links), but some like [http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/data/Similar.html Similar] link are not.
 
 This representation is rather obvious and natural given the generality of the HyperGraphDB schema.

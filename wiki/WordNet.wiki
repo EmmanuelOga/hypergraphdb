@@ -24,10 +24,17 @@ of those links is [http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphd
 
 This representation is rather obvious and natural given the generality of the HyperGraphDB schema.
 
-===Exceptions===
+== Exceptions ==
 
 For each part of speech (noun, adjective, verb, adverb), WordNet contains a list of exceptional forms of the root lexeme. For nouns, this is usually the irregular plural forms, for adjectives and adverbs irregular superlatives, for verbs irregular conjugations. This is useful in morphological analysis where the normal rules for inflexion do not apply. Exceptions are represented in HGWN as links of type [http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/data/ExcLink.html ExcLink], specifically its four sub types, one for reach part of speech. The first target of an exception link is the root word and the other targets are its exceptional forms. The links have an arity >= 2. Both root and exceptional forms are stored as lexemes in HyperGraphDB (i.e. as instances of the type `Word`).
 
+== Semantic Tools ==
+
+HGWN offers some extra for working with lexical semantics, and in particular for implementing WSD (word sense disambiguation) algorithms.
+
+First, there's a utility class [http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/WNGraph.html WNGraph] which offers an API for working with WordNet in a underlying HyperGraphDB instance. In addition, the [http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/SemTools.html SemTools] offers ready-made implementation of several word sense similarity measured commonly found in the computational linguistics literature. 
+
+Finally, the [http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/WNStat.html WNStat] is simple, generic representation of some global information about the WordNet graph that is computationally intensive to calculate. Some of the predefined such `WNStats'` are the depths of the noun and verb synset hierarchies in WordNet.
 
 ==Loading WordNet in a HyperGraphDB==
 

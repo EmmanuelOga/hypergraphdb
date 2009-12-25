@@ -19,6 +19,20 @@ The package `org.hypergraphdb.app.wordnet.data` contains classes implementing th
 
 ==Representation Details==
 
+
+<p>
+The basis of the representation is the <a href="Word.html">Word class</a> which represents a single
+token (or a lemma). Each word is stored as an atom in HyperGraphDB. Words are then grouped into 
+so called <em>synsets</em> or "synonym sets" which represent senses. Thus a sense of a word is exemplified
+as a set of synonyms. In HyperGraphDB, those are represented as links of type
+<a href="SynsetLink.html">SynsetLinks</a>
+of which there's one variety for each part-of-speech. Such links have variable arity depending
+on the number of synonyms in a synset. Synsets are further related by semantic 
+relationships. Those are stored as HyperGraph links of arity 2 between two given synsets. The super-type
+of those links is <a href="SemanticLink.html">SemanticLink</a>.     
+</p>
+
+
 Each word/lexeme is stored as an instance of the class `org.hypergraphdb.app.wordnet.data.Word`. Synsets are stored as instances one of the sub-classes of`SynsetLink`. There is `SynsetLink` subclass for each part of speech. Thus, noun senses are represented as instances of `NounSynsetLink`. Those are HyperGraphDB links with arbitrary arity >= 1. The original WordNet ID is stored as the `id` property of synsets and the sense definition (a dictionary style definition in plain english) is stored as the `gloss` property.
 
 Pointers are relations between synsets. There are many types of pointers and they differ according to the part of speech for which they are used. Refer to the various WordNet papers (links can be found on their homepage) for a description of the semantic theory behind. All pointers are defined as links between synsets in the package `org.hypergraphdb.app.wordnet.data.pointer`. Usually those links have arity 2 and most of them are ordered - for instance, hypernymy links are ordered while the `Similar` pointer is not.

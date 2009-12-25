@@ -15,7 +15,7 @@ The basis of the representation is the [http://www.kobrix.com/javadocs/hgapps/wo
 token (or a lemma). Each word is stored as an atom in HyperGraphDB. Words are then grouped into 
 so called <em>synsets</em> or "synonym sets" which represent senses. Thus a sense of a word is exemplified
 as a set of synonyms. In HyperGraphDB, those are represented as links of type
-[http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/data/SynsetLink.html SynsetLinks]
+[http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/data/SynsetLink.html SynsetLink]
 of which there's one variety for each part-of-speech. Such links have variable arity depending
 on the number of synonyms in a synset. Thus, noun senses are represented as instances of `NounSynsetLink`. Those are HyperGraphDB links with arbitrary arity >= 1. The original WordNet ID is stored as the `id` property of synsets and the sense definition (a dictionary style definition in plain english) is stored as the `gloss` property.
 

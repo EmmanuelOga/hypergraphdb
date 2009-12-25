@@ -30,7 +30,7 @@ For each part of speech (noun, adjective, verb, adverb), WordNet contains a list
 
 == Semantic Tools ==
 
-HGWN offers some extra for working with lexical semantics, and in particular for implementing WSD (word sense disambiguation) algorithms.
+HGWN offers some extras for working with lexical semantics, and in particular for implementing WSD (word sense disambiguation) algorithms.
 
 First, there's a utility class [http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/WNGraph.html WNGraph] which offers an API for working with WordNet in a underlying HyperGraphDB instance. In addition, the [http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/SemTools.html SemTools] offers ready-made implementation of several word sense similarity measured commonly found in the computational linguistics literature. 
 

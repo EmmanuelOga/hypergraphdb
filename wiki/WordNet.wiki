@@ -11,7 +11,7 @@ HGWN does not support the so called "polysemy count" - number of uses of a given
 
 ==Representation Details==
 
-The basis of the representation is the [href="http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/data/Word.html Word class] which represents a single
+The basis of the representation is the [http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/data/Word.html Word class] which represents a single
 token (or a lemma). Each word is stored as an atom in HyperGraphDB. Words are then grouped into 
 so called <em>synsets</em> or "synonym sets" which represent senses. Thus a sense of a word is exemplified
 as a set of synonyms. In HyperGraphDB, those are represented as links of type

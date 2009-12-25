@@ -9,6 +9,25 @@ The HyperGraphDB Wordnet application (called henceforth HGWN) is essentially a r
 
 HGWN does not support the so called "polysemy count" - number of uses of a given word in a specific sense as obtained by analyzing several sample texts. This feature is obsolete in WordNet too and is left unchanged since 2003.  
 
+==Representation Details==
+
+The basis of the representation is the [href="http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/data/Word.html Word class] which represents a single
+token (or a lemma). Each word is stored as an atom in HyperGraphDB. Words are then grouped into 
+so called <em>synsets</em> or "synonym sets" which represent senses. Thus a sense of a word is exemplified
+as a set of synonyms. In HyperGraphDB, those are represented as links of type
+[http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/data/SynsetLink.html SynsetLinks]
+of which there's one variety for each part-of-speech. Such links have variable arity depending
+on the number of synonyms in a synset. Thus, noun senses are represented as instances of `NounSynsetLink`. Those are HyperGraphDB links with arbitrary arity >= 1. The original WordNet ID is stored as the `id` property of synsets and the sense definition (a dictionary style definition in plain english) is stored as the `gloss` property.
+
+Synsets are further related by semantic relationships (called _pointers_ in WordNet's terminology). Those are stored as HyperGraph links of arity 2 between two given synsets. The super-type
+of those links is [http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/data/SemanticLink.html SemanticLink]. There are many types of semantic relationships (pointers) and they differ according to the part of speech for which they are used. Refer to the various WordNet papers (links can be found on their homepage) for a description of the semantic theory behind. Most of the time semantic links are ordered (e.g. hypernymy links), but some like [http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/data/Similar.html Similar] link are not.
+
+This representation is rather obvious and natural given the generality of the HyperGraphDB schema.
+
+===Exceptions===
+
+For each part of speech (noun, adjective, verb, adverb), WordNet contains a list of exceptional forms of the root lexeme. For nouns, this is usually the irregular plural forms, for adjectives and adverbs irregular superlatives, for verbs irregular conjugations. This is useful in morphological analysis where the normal rules for inflexion do not apply. Exceptions are represented in HGWN as links of type [http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/data/ExcLink.html ExcLink], specifically its four sub types, one for reach part of speech. The first target of an exception link is the root word and the other targets are its exceptional forms. The links have an arity >= 2. Both root and exceptional forms are stored as lexemes in HyperGraphDB (i.e. as instances of the type `Word`).
+
 ==Package Overview==
 
 Main package: `org.hypergraphdb.app.wordnet`. All Wordnet related classes are to be found underneath this package.
@@ -17,31 +36,6 @@ JWNL configuration files are maintained in `org.hypergraph.app.wordnet.configura
 
 The package `org.hypergraphdb.app.wordnet.data` contains classes implementing the core Wordnet representation and the package `org.hypergraphdb.app.wordnet.data.pointer` contains classes representing semantic relationships between synsets. Those are called pointers as in the original WordNet terminology.
 
-==Representation Details==
-
-
-<p>
-The basis of the representation is the <a href="Word.html">Word class</a> which represents a single
-token (or a lemma). Each word is stored as an atom in HyperGraphDB. Words are then grouped into 
-so called <em>synsets</em> or "synonym sets" which represent senses. Thus a sense of a word is exemplified
-as a set of synonyms. In HyperGraphDB, those are represented as links of type
-<a href="SynsetLink.html">SynsetLinks</a>
-of which there's one variety for each part-of-speech. Such links have variable arity depending
-on the number of synonyms in a synset. Synsets are further related by semantic 
-relationships. Those are stored as HyperGraph links of arity 2 between two given synsets. The super-type
-of those links is <a href="SemanticLink.html">SemanticLink</a>.     
-</p>
-
-
-Each word/lexeme is stored as an instance of the class `org.hypergraphdb.app.wordnet.data.Word`. Synsets are stored as instances one of the sub-classes of`SynsetLink`. There is `SynsetLink` subclass for each part of speech. Thus, noun senses are represented as instances of `NounSynsetLink`. Those are HyperGraphDB links with arbitrary arity >= 1. The original WordNet ID is stored as the `id` property of synsets and the sense definition (a dictionary style definition in plain english) is stored as the `gloss` property.
-
-Pointers are relations between synsets. There are many types of pointers and they differ according to the part of speech for which they are used. Refer to the various WordNet papers (links can be found on their homepage) for a description of the semantic theory behind. All pointers are defined as links between synsets in the package `org.hypergraphdb.app.wordnet.data.pointer`. Usually those links have arity 2 and most of them are ordered - for instance, hypernymy links are ordered while the `Similar` pointer is not.
-
-So essentially: the basic datum is a `Word`, its sense represented as a `SynsetLink` which is a link between words and semantic relationships with other senses is represented as a `Pointer` which is a link between `SynsetLinks`. This is a natural representation steming from the generality of the HyperGraphDB schema.
-
-===Exceptions===
-
-For each part of speech (noun, adjective, verb, adverb), WordNet contains a list of exceptional forms of the root lexeme. For nouns, this is usually the irregular plular forms, for adjectives and adverbs irregular superlatives, for verbs irregular conjugation. This is useful in morphological analysis where the normal rules for inflexion do not apply. Exception are represented in HGWN as links of type `ExcLink` and its sub-classes, one for reach part of speech. The first target of an exception link is the root word and the other targets are its exceptional forms. The links have an arity >= 2. Both root and exceptional forms are stored as lexemes in HyperGraphDB (i.e. as instances of the type `Word`).
 
 ==Loading WordNet in a HyperGraphDB==
 

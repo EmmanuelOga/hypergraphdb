@@ -16,6 +16,41 @@ import org.hypergraphdb.query.HGAtomPredicate;
 import org.hypergraphdb.query.HGQueryCondition;
 import org.hypergraphdb.util.Pair;
 
+/**
+ * 
+ * <p>
+ * This class assists in computing <em>conceptual densities</em> between synsets 
+ * as described in the <a href="http://acl.ldc.upenn.edu/W/W99/W99-0501.pdf">
+ * WordNet 2 - A Morphologically and Semantically Enhanced Resource</a> paper. 
+ * </p>
+ *
+ * <p>
+ * Part of the "extended WordNet" effort, which unfortunately seems abandoned
+ * was a robust WSD algorithm based on WordNet senses. Many algorithms work
+ * on the WordNet noun hierarchy simply because there are no connection between
+ * senses of different parts of speech. The Conceptual Density method overcomes 
+ * this problem by examining synset glosses (i.e. the dictionary style definition
+ * of the senses) and looking for words of other parts of speech there. For this,
+ * the gloss needs to POS-tagged where each word is affixed with #n (noun), #v (verb), 
+ * #d (adverb) or #a (adjective). A tagged gloss must be stored as the <code>taggedGloss</code> 
+ * attribute of a {@link SynseInfo} instance associated with the given {@link SynsetLink}.
+ * POS tagging must be performed by some 3d party tool (see, for example, 
+ * http://code.google.com/p/disko which has code to do just that).
+ * The common words in those glosses 
+ * are counted and a metric based on this count yields what is called the "conceptual
+ * density".  
+ * </p>
+ * 
+ * <P>
+ * TODO: I'm not sure this is the same conceptual density from the paper above. Either
+ * I modified it, or I saw a modified version somewhere, need to dig this up from
+ * the stacks of printed papers....in any case the calculation here doesn't take into
+ * account the depth of the gloss in the synset hierarchy where a common word is found.
+ * </p>
+ * 
+ * @author Borislav Iordanov
+ *
+ */
 public class ConceptualDensity
 {
 	private WNGraph wn = null;
@@ -110,6 +145,16 @@ public class ConceptualDensity
 		this.wn = wn;
 	}
 	
+	/**
+	 * <p>
+	 * Get all words of the specified part of speech appearing in the WordNet
+	 * hierarchy of the given synset. The semantic relationship traversed to
+	 * form this hierarchy depend on the part of speech as well (e.g. Isa and KindOf
+	 * for nouns, Entails for verbs, Antonym/Similar for adjectives).
+	 * @param synset
+	 * @param pos
+	 * @return
+	 */
 	public Set<String> getWords(HGHandle synset, Pos pos)
 	{
 		Map<Pos, Set<String>> pos_sets = cache.get(synset);
@@ -129,11 +174,13 @@ public class ConceptualDensity
 	
 	/**
 	 * <p>
-	 * Calculates the conceptual density between two synsets. TODO: doc more...
+	 * Calculates the conceptual density between two synsets 
 	 * </p>
 	 * 
-	 * @param s1 
-	 * @param s2
+	 * @param s1 One of the synsets.
+	 * @param s2 The other synset.
+	 * @param pos The part of speech of words appearing in glosses 
+	 * to compare.
 	 * @return
 	 */
 	public double calculate(HGHandle s1, HGHandle s2, Pos pos)

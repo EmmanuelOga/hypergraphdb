@@ -9,9 +9,18 @@ import org.hypergraphdb.app.wordnet.WNStat;
 import org.hypergraphdb.app.wordnet.data.Isa;
 import org.hypergraphdb.util.Pair;
 
+/**
+ * 
+ * <p>
+ * A statistic that stores the maximal hierarchical depth within a WordNet
+ * semantic relationship hierarchy (assumed acyclical).
+ * </p>
+ *
+ * @author Borislav Iordanov
+ *
+ */
 public abstract class DepthStat extends WNStat<Long>
 {
-
 	protected Long doCalculation(HGHandle root, HGALGenerator generator)
 	{		
 		// A stack that maintains the current chain being explored in a depth first traversal.

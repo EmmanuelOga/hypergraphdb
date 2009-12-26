@@ -11,7 +11,7 @@ import org.hypergraphdb.app.wordnet.WNGraph;
  * </p>
  *
  * <p>
- * This is calculated by doing a depth-first traversal starting from the nouse
+ * This is calculated by doing a depth-first traversal starting from the noun
  * sense root (the WordNet "entity" sense). Every time a leaf in the DAG is reached
  * its depth is replaced as the tentative result if it is greater than the current
  * one. 

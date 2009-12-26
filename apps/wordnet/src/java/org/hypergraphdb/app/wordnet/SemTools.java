@@ -48,17 +48,29 @@ public class SemTools
 		this.graph = graph;
 		this.wn = new WNGraph(graph);
 	}
-	
+
+	/**
+	 * Return the associated {@WNGraph} instance.
+	 */
 	public WNGraph getWNGraph()
 	{
 		return wn;
 	}
 	
+	/**
+     * Return the underlying HyperGraphDB instance.
+	 */
 	public HyperGraph getGraph()
 	{
 		return graph;
 	}
 	
+	/**
+	 * <p>
+	 * Get the lazily initialized instance of the {@link ConceptualDensity}
+	 * calculator.
+	 * </p>
+	 */
 	public ConceptualDensity getConceptualDensity()
 	{
 		if (conceptualDensity == null)
@@ -118,6 +130,15 @@ public class SemTools
 			return 0;
 	}
 	
+	/**
+	 * <p>Return all closest common parent between two sysnets in am <em>Isa</em> semantic 
+	 * relationships hierarchy. Because isa relationships form a DAG, there may be more
+	 * than one such ancestors at equal distance.
+	 * </p>
+	 * 
+	 * @param synset1
+	 * @param synset2
+	 */
 	public Set<HGHandle> getAllLeastCommonSubsumers(HGHandle synset1, HGHandle synset2)
 	{
 		Set<HGHandle> result = new HashSet<HGHandle>();
@@ -208,6 +229,15 @@ public class SemTools
 		return result;
 	}
 	
+    /**
+     * <p>Return the closest common parent between two sysnets in am <em>Isa</em> semantic 
+     * relationships hierarchy. A breadth-first traversal here stops as soon as one 
+     * such ancestor is found.
+     * </p>
+     * 
+     * @param synset1
+     * @param synset2
+     */	
 	public HGHandle getLeastCommonSubsumer(HGHandle synset1, HGHandle synset2)
 	{
 		if (synset1.equals(synset2))

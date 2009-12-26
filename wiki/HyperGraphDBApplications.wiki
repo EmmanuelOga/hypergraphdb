@@ -2,13 +2,13 @@
 
 = What Are HGDB Applications? =
 
-Those are simply collections of classes that rely on a HyperGraphDB instance to work and that are usually organized around a set of core atom types and cover some area or domain of interest. A few simple abstractions are defined in the org.hypergraphdb.app.management package  to support this. 
+Those are simply collections of classes that rely on a HyperGraphDB instance to work and that are usually organized around a set of core atom types and cover some area or domain of interest. A few simple abstractions are defined in the [http://www.kobrix.com/javadocs/hgapps/management/index.html org.hypergraphdb.app.management ] package  to support this. 
 
-The HGApplication class represents an application defined by a name and a version. Implementation must essentially implement the PresenceLifecycle interface (from the same package) with methods install/uninstall/update/reset. 
+The [http://www.kobrix.com/javadocs/hgapps/management/HGApplication.html HGApplication] class represents an application defined by a name and a version. Implementation must essentially implement the [http://www.kobrix.com/javadocs/hgapps/management/PresenceLifecycle.html PresenceLifecycle] interface (from the same package) with methods install/uninstall/update/reset. 
 
-Then there's a HGManagement class that helps with managing applications in a HGDB instance with methods like isInstalled, ensureInstalled and remove. 
+Then there's a [http://www.kobrix.com/javadocs/hgapps/management/HGManagement.html HGManagement] class that helps with managing applications in a HGDB instance with methods like `isInstalled`, `ensureInstalled` and `remove`. 
 
-The general patterns for HGApplication implementations is to create the common HGDB types and whatever atoms are needed in the install method and be able to reverse this and cleanup the mess one created in the uninstall method. The other two methods, update and reset, are optional really.
+The general patterns for `HGApplication` implementations is to create the common HGDB types and whatever atoms are needed in the install method and be able to reverse this and cleanup the all data in the uninstall method. The other two methods, `update` and `reset`, are optional and will probably only be implemented when it is straightforward to do so.
 
 = List of Existing HGDB Applications =
 

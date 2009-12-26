@@ -6,9 +6,13 @@ import org.hypergraphdb.HGPlainLink;
 /**
  * 
  * <p>
- * A WordNet Synset is represented as a hypergraph between all the word in it.
+ * A WordNet synset is represented as an unordered hypergraph link between all the words in it.
  * </p>
  *
+ * <p>
+ * The <code>gloss</code> contains a dictionary style definition of the sense. The <code>id</code>
+ * property is the number identifier copied from the original WordNet database. 
+ * </p>
  * @author Borislav Iordanov
  *
  */

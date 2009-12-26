@@ -1,5 +1,15 @@
 package org.hypergraphdb.app.wordnet.data;
 
+/**
+ * 
+ * <p>
+ * Represents a lexical unit, a token whose string value is stored in the <code>lemma</code>
+ * property.
+ * </p>
+ *
+ * @author Borislav Iordanov
+ *
+ */
 public class Word
 {
     // static final long serialVersionUID = 8591237840924027785L;

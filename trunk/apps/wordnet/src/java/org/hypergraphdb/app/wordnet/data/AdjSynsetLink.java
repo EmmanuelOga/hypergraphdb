@@ -2,18 +2,29 @@ package org.hypergraphdb.app.wordnet.data;
 
 import org.hypergraphdb.HGHandle;
 
-public class AdjSynsetLink extends SynsetLink{
+/**
+ * 
+ * <p>
+ * Represents the sense (a WordNet synset) of an adjective.
+ * </p>
+ * 
+ * @author Borislav Iordanov
+ * 
+ */
+public class AdjSynsetLink extends SynsetLink
+{
+    public AdjSynsetLink()
+    {
+        super();
+    }
 
-	public AdjSynsetLink() {
-		super();
-	}
+    public AdjSynsetLink(HGHandle[] targets)
+    {
+        super(targets);
+    }
 
-	public AdjSynsetLink(HGHandle[] targets) {
-		super(targets);
-	}
-
-	public String toString()
-	{
-		return "Adjective(" + getGloss() + ")";
-	}
+    public String toString()
+    {
+        return "Adjective(" + getGloss() + ")";
+    }
 }

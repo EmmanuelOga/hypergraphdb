@@ -1,12 +1,21 @@
 #summary TopicMaps Standard Resources
 
-There's the older topic maps standard of 1.0 and the newer evolution 2.0 which is only
-conceptually sort of compatible with the old one.
- 
-  * [http://www.isotopicmaps.org/ The Main Site of the ISO standard]
-  * [http://www.topicmaps.org/xtm/index.html XTM 1.0 - XML represetation for 1.0]
+== What Are Topic Maps ==
 
+Topic maps are a knowledge representation standard, an RDF rival that did not get as much traction, but is nonetheless supported by an active and enthusiastic community. Whereas in RDF the basis is a subject-predicate-object relationship stemming from traditional logic, topic maps are based on the intuition that knowledge is best represent as a network of interdependent concepts. Topic maps were conceived as a meta-model to talk about information resources. Key concepts are _topics_, _association_s between topic and _occurrence_s of topics within specific information resources. In a way, RDF makes a commitment about the existence real world objects that must be described through a series of predicates while topic maps remains within the realm of pure discourse (the information space). 
 
-=== Representation in HGDB ===
+More on topic maps and pointers to further reading can be found on the [http://en.wikipedia.org/wiki/Topic_maps Wikipedia Topic Maps Page]. Latest from the topic maps community can be found at [http://www.topicmapslab.de/home Topic Maps Labs Home Page].
 
-All topic maps constructs are represented as HGDB atoms. The Java classes implementing those atoms are in the package org.hypergraphdb.apps.tm. The API is based on the 
+== Implementation ==
+
+The HGTM (HyperGraph Topic Maps) implementation is based on the older 1.0 version of the topic maps API and data model. The specification can be found [http://www.tmapi.org/ here].
+
+In HGTM, all topic maps constructs are represented as HGDB atoms. The Java classes implementing those atoms are in the package org.hypergraphdb.apps.tm. The API is an almost complete implementation of the 1.0 specification. Everything except merging is implementing. Merging wouldn't be hard, but I haven't found the need for it yet.
+
+As anyone familiar with both technologies HyperGraphDB and Topic Maps would easily realize, the representation of Topic Maps within HyperGraphDB is rather straightfoward:
+
+  * Topic, names, variants and occurrences are represented as node (atoms with arity 0).
+  * Associations are represents as links between _association roles_.
+  * Association roles are represented as links between the role player (a topic) and the type (a topic again).
+
+In addition, information that a topic carries such its type (if any), the set of constructs that it reifies (if any), its occurrences (if any) etc. are represented by HyperGraphDB of predefined types. 

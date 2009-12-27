@@ -14,6 +14,8 @@ The integration of !TuProlog and HyperGraphDB has the following goals:
 
 The idea is to work with HyperGraphDB data in a natural way, as if it was part of the Prolog  system.
 
+Full API Javadocs (of the original tuProlog and our extensions) [http://www.kobrix.com/javadocs/hgapps/prolog/index.html can be found here].
+
 == Codebase Fork ==
 
 To achieve the stated goals, we had to fork the TuProlog codebase. The modularity of !TuProlog permits additions of _predicate libraries_ implemented in Java, but it doesn't permit pluggable implementations of the interpreter's rule base (`ClauseStore`s, in !TuProlog terms). 

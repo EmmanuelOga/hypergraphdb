@@ -25,9 +25,9 @@ TopicMap tm = tmSystem.createTopicMap("http://mycompany.com/topic-map");
 // by the HGTM implementation
 }}}
 
-== Implementation ==
+== Details ==
 
-The HGTM (HyperGraphDB Topic Maps) implementation is based on the older 1.0 version of the topic maps API and data model. The specification can be found [http://www.tmapi.org/ here].
+The HGTM (HyperGraphDB Topic Maps) implementation is based on the older 1.0 version of the topic maps API and data model. The specification can be found [http://www.tmapi.org/ here]. HGTM has some extra methods specific to the HGTM representation that you can look up in the [http://www.kobrix.com/javadocs/hgapps/tm/index.html HGTM API JavaDocs].
 
 In HGTM, all topic maps constructs are represented as HGDB atoms. The Java classes implementing those atoms are in the package org.hypergraphdb.apps.tm. The API is an almost complete implementation of the 1.0 specification. Everything except merging is implementing. Merging wouldn't be hard, but I haven't found the need for it yet.
 

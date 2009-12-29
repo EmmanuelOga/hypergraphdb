@@ -1,6 +1,6 @@
 #summary Installing HyperGraphDB
 
-A sentence!Yahoo :)
+A sentence!YahooBal :)
 
 Here we describe installation of HyperGraphDB from an official build. If you'd like to build and install the system directly from source, please refer to the [CompilationAndDeployment] page. Note that every official build comes with its source so it is always possible/easy to examine the code, experiment with or apply patches if need be.
 

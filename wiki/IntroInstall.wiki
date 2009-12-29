@@ -1,7 +1,5 @@
 #summary Installing HyperGraphDB
 
-A sentence !Yahooal :)
-
 Here we describe installation of HyperGraphDB from an official build. If you'd like to build and install the system directly from source, please refer to the [CompilationAndDeployment] page. Note that every official build comes with its source so it is always possible/easy to examine the code, experiment with or apply patches if need be.
 
 HyperGraphDB comes as library that you can directly use in applications. As such, it is an embedded database and you can have several HyperGraphDB databases open at the same time. The underlying storage mechanism is based on Sleepycat’s Berkeley DB, standard edition. Note that HyperGraphDB uses the native Berkeley DB instead of the Java edition in order to open the doors for interoperability with other languages. This means that the native library (Windows DLL or `*`nix shared library) will have to be included in the system path of your application. 

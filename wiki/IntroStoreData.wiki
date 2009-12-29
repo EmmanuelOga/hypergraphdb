@@ -1,13 +1,5 @@
 #summary Storing Data in a HyperGraphDB.
 
-WikiWWblAdsfsd
-
-WAafasdWasdfasd
-
-WASFasasfasdWasdfasd
-
-asdfWsadfasWasdfasd
-
 == Store by Adding Any Java Object to a DB Instance ==
 
 The short story is that you can just put in whatever object you have in a HyperGraphDB database:

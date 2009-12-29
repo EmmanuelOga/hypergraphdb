@@ -1,7 +1,5 @@
 #summary Querying in HyperGraphDB.
 
 {{{
-    HGQueryCondition condition = new And(new AtomTypeCondition(Book.class), 
-                                         new AtomPartCondition("author", "George Bush", ComparisonOperator.EQ));
-    
+asdfasdf
 }}}

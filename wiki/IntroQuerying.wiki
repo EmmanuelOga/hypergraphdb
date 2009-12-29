@@ -7,8 +7,9 @@ There is no special purpose query language for HyperGraphDB, yet. Therefore, que
 The conditional expressions for querying are build up out of classes in the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/query/package-summary.html org.hypergraphdb.query package]. Some of the conditions apply to atom values (the Java object) while others apply to the graph structure (how atoms are link between each other). You can create a query condition by instantiating those classes. Here is an example:
 
 {{{
-    HGQueryCondition condition = new And(new AtomTypeCondition(Book.class), 
-                                         new AtomPartCondition("author", "George Bush", ComparisonOperator.EQ));
+    HGQueryCondition condition = new And(
+              new AtomTypeCondition(Book.class), 
+              new AtomPartCondition("author", "George Bush", ComparisonOperator.EQ));
     HGSearchResult<HGHandle> rs = graph.find(condition);
     try
     {

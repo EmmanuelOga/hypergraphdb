@@ -13,7 +13,7 @@ public class HGDBCreateSample
     {
         String databaseLocation = args[0];
         HyperGraph graph; 
-     	// ….
+     	// ...
         try
 	{
             graph = new HyperGraph(databaseLocation);

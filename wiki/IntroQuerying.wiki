@@ -71,18 +71,3 @@ The three standard logical operators _and_, _or_ and _not_ are available:
 || and(c1, c2, ...) || performs a logical conjunction of conditions c1, c2...etc ||
 || or(c1, c2, ...) || performs a logical disjunction of conditions c1, c2...etc || 
 || not(c) || performs a logical negation of the conditions c ||
-
-== Querying Atom Values == 
-
-The usual comparison operators are available when constraining the values of atoms in the result set. They are "enumed" in the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/query/ComparisonOperator.html ComparisonOperator class]. For every operator, the `HGQuery.hg` supplies a factory method as a shortcut. In addition, value comparing factory methods come in two flavors: comparing atom values or comparing atom property values (a.k.a. bean properties in the Java world). Here's a summary:
-
-|| *hg Factory Method* || *Description* ||
-|| value(x, op) || compare the atom's value against x using the ComparisonOperator op||
-|| part(path, x, op) || compare the atom's property referred by _path_ against x using the ComparisonOperator op ||
-|| eq(x), eq(path, x) || the atom (or its property identified by _path_) must be equal to x||
-|| lt(x), lt(path, x) || the atom (or its property identified by _path_) must be less than x||
-|| gt(x), gt(path, x) || the atom (or its property identified by _path_) must be greater than x||
-|| lte(x), lte(path, x) || the atom (or its property identified by _path_) must be less than or equal to x||
-|| gte(x), gte(path, x) || the atom (or its property identified by _path_) must be greater than equal to x||
-
-Naturally, the operators lt, lte, gt and gte can only be applied to values that are comparable.

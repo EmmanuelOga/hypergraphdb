@@ -118,3 +118,5 @@ Asking for atoms with a specific type is akin to a _from_ clause in an SQL query
 || typePlus(class), typePlus(handle) || the atom's must be either of the specified type or a of a type inheriting the specified type ||
 || subsumes(x) || the atom must subsume (i.e. be more general) the atom specified in the condition ||
 || subsumed(x) || the atom must *be* subsumed (i.e. be more specific) by the atom specified in the condition ||
+
+last line

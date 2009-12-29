@@ -1,8 +1,8 @@
 #summary Transaction Handling.
 
-HyperGraphDB is transactional. For performance reasons, HyperGraphDB’s transactions are by default ACI, but not D. That is, they are atomic, consistent and isolated, but not durable. This means that upon failure, some of the recently committed transactions may be lost. This is generally acceptable, especially in a Java environment where JVM crashes are relatively rare. If you need durability, that’s possible as well.
+HyperGraphDB is transactional. For performance reasons, HyperGraphDB's transactions are by default ACI, but not D. That is, they are atomic, consistent and isolated, but not durable. This means that upon failure, some of the recently committed transactions may be lost. This is generally acceptable, especially in a Java environment where JVM crashes are relatively rare. If you need durability, that's possible as well.
 
-In addition, transactions can be nested so that sub-operations of more complex operations can fail, while the top-level transaction succeeds. Every update operation that you perform is automatically encapsulated in a transaction so most of the time you don’t have to worry about it. However, when you want to perform several operations as a transactional unit, you can wrap them in a top-level transaction as shown below.
+In addition, transactions can be nested so that sub-operations of more complex operations can fail, while the top-level transaction succeeds. Every update operation that you perform is automatically encapsulated in a transaction so most of the time you don't have to worry about it. However, when you want to perform several operations as a transactional unit, you can wrap them in a top-level transaction as shown below.
 
 In order to alleviate the API, none of the public HyperGraphDB methods take a transaction object as a parameter. Instead, a current transaction is associated with every thread. It is theoretically possible to have multiple threads share the same current transaction, by working directly with the transactions API, but this is error prone and it should be avoided. 
 

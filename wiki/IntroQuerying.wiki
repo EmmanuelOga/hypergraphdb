@@ -3,7 +3,7 @@
 {{{
     HGQueryCondition condition = new And(new AtomTypeCondition(Book.class), 
                                          new AtomPartCondition("author", "George Bush", ComparisonOperator.EQ));
-    HGSearchResult<HGHandle> rs = graph.find(condition);
+    HGSearchResult HGHandle  rs = graph.find(condition);
     try
     {
         while (rs.hasNext())

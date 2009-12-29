@@ -50,24 +50,3 @@ for (Book b : books)
 For example, the `hg.and` takes an arbitrary number of arguments, each a query condition and returns a composite condition representing the conjuction of all sub-conditions. There  are several methods for comparing values: `hg.eq`, `hg.lt`, `hg.gte` etc. and they all will construct a corresponding condition for comparing against an atom's value or an atom's property value.
 
 Of note in the above example is the `hg.getAll` method. It will load from storage and put in a standard Java list all atoms of the search result set. This is convenient when you don't expect a large result set or when you need the whole of it in RAM anyway. The `hg.findAll` method does the same, but it returns a list of `HGHandle`s instead of pre-loading the atom from disk.
-
-You can create query objects and execute them repeatedly:
-
-{{{
-HGQuery query = HGQuery.make(graph, condition);
-rs = query.execute();
-//etc…
-}}}
-
-The advantage of creating a [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGQuery.html HGQuery] object is that the condition is analyzed and a query plan is created and stored as part of that object, thus increasing performance each time the query is executed.
-
-The following sections give a list of common query factory methods thematically grouped.
-
-== Logical Operators == 
-
-The three standard logical operators _and_, _or_ and _not_ are available:
-
-|| *hg Factory Method* || *Description* ||
-|| and(c1, c2, ...) || performs a logical conjunction of conditions c1, c2...etc ||
-|| or(c1, c2, ...) || performs a logical disjunction of conditions c1, c2...etc || 
-|| not(c) || performs a logical negation of the conditions c ||

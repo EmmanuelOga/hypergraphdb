@@ -1,8 +1,5 @@
 #summary Querying in HyperGraphDB.
 
-There is no special purpose query language for HyperGraphDB, yet. Therefore, querying for atoms is performed with a special purpose API. Like in many other database systems, the API is based on conditional expressions that you create, submit to the query system and get back a set of atoms as the result. 
-
-
 {{{
     HGQueryCondition condition = new And(new AtomTypeCondition(Book.class), 
                                          new AtomPartCondition("author", "George Bush", ComparisonOperator.EQ));

@@ -1,4 +1,4 @@
-#summary Explanatation of HGDB application and the HGManagement API.
+#summary HyperGraphDB Applications
 
 = What Are HGDB Applications? =
 

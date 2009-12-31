@@ -53,7 +53,10 @@ import alice.tuprolog.*;
 import alice.tuprolog.clausestore.*;
 			
 Prolog prolog = new Prolog();
-prolog.getEngineManager().getClauseStoreManager().getFactories().add(new JavaCollectionStoreFactory());			prolog.getEngineManager().getClauseStoreManager().getFactories().add(new JavaMapStoreFactory());			
+prolog.getEngineManager()
+  .getClauseStoreManager().getFactories().add(new JavaCollectionStoreFactory());
+prolog.getEngineManager()
+  .getClauseStoreManager().getFactories().add(new JavaMapStoreFactory());
 }}}
 
 The above install factories to work with Java collections and maps. You can implemented and plug your own factories in a similar way. For instance, you could implement a factories that queries a SQL database server or some other form of persistent storage. Here's an example of using Java collections and maps as predicates:

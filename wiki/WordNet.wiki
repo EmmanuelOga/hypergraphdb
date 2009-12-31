@@ -1,4 +1,3 @@
-=>adsfasdf=
 Wordnet is a popular lexical database used in NLP (Natural Language Processing) research. Meaning in Wordnet is defined through _synsets_ - synonym sets that group together words with similar meaning. In addition, the database contains semantic relationships between synsets (e.g. type-token, whole-part etc.). More information can be found on 
 the [http://wordnet.princeton.edu/ Wordnet home page at Princeton].
 

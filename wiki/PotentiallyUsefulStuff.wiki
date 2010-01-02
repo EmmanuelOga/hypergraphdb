@@ -1,0 +1,3 @@
+#summary Collects info on notable algos, data structures etc.
+
+  * http://en.wikipedia.org/wiki/Burstsort : fastest string sorting algo on Earth.

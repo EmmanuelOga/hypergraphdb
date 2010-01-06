@@ -69,3 +69,5 @@ The above opens (or creates if none exists at that location) a database without 
 Naturally, configuration options are ignored in calls to `HGEnvironment.get`  for databases that have already been opened.
 
 *Note:* there are no creation time configuration options at this point, only runtime options which you can vary every time you open your database instance.
+
+[IntroInstall << Prev - Installing HyperGraphDB]  [IntroStoreData Next - Storing Data >>]

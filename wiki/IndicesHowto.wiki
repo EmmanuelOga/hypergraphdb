@@ -46,3 +46,5 @@ List<ByPartIndexer> byPartIndexers = hg.getAll(graph, hg.type(ByPartIndexer.clas
 }}}
 
 That said, removing an `HGIndexer` atom without going through the `HGIndexerManager.unregister` method would be a bad idea because the underlying storage won't be cleaned up.
+
+[IntroGraphTraversals << Prev - Graph Traversals]  [IntroTransactions Next - Transaction Essentials >>]

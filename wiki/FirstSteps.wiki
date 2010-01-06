@@ -18,3 +18,5 @@ The pages are written mostly in tutorial style. And while there are no accompany
   # [IntroGraphTraversals Graph Traversals]
   # [IndicesHowto Indexing]
   # [IntroTransactions Transaction Essentials]
+
+[IntroInstall Start Here >>]

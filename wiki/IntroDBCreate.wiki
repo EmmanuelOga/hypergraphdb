@@ -64,7 +64,7 @@ config.setSkipOpenedEvent(true);
 HyperGraph graph = HGEnvironment.get(location, config);
 }}}
 
-The above opens (or creates if none exists at that location) a database without triggered the predefined [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/event/HGOpenedEvent.html HGOpenedEvent]. In addition, the database will ignore any transactional directives - code that uses the transactions API, like much of the HyperGraphDB code itself, will work by using NOP stubs in place of true transactions. 
+The above opens (or creates if none exists at that location) a database without triggering the predefined [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/event/HGOpenedEvent.html HGOpenedEvent]. In addition, the database will ignore any transactional directives - code that uses the transactions API, like much of the HyperGraphDB code itself, will work by using NOP stubs in place of true transactions. 
 
 Naturally, configuration options are ignored in calls to `HGEnvironment.get`  for databases that have already been opened.
 

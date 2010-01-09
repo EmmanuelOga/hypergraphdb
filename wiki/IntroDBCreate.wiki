@@ -55,7 +55,7 @@ The main different between a call to `HGEnvironment.get` and a call to `new Hype
 
 It is possible to configure several of the runtime properties of a database instance when you open it. Some of those properties have to do with how the database will behave during the entire session, others affect only the startup process. 
 
-Configuration options are specified by create an instance of the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGConfiguration.html HGEnvironment class] class and passing it as an extra parameter to the `HGEnvironment.get` method:
+Configuration options are specified by create an instance of the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGConfiguration.html HGConfiguration.class] class and passing it as an extra parameter to the `HGEnvironment.get` method:
 
 {{{
 HGConfiguration config = new HGConfiguration();

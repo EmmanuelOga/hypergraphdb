@@ -1,0 +1,5 @@
+#summary HyperGraphDB Questions and Answers
+
+  * [#Can_I_make_any_object_into_a_link?_Can_I_make_any_object_into_a_link?]
+
+===Can I make any object into a link?===

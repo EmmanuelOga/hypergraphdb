@@ -3,3 +3,5 @@
   * [#Can_I_make_any_object_into_a_link? Can I make any object into a link?]
 
 ===Can I make any object into a link?===
+
+You turn any object into a hypergraph link by wrapping it up as a [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGValueLink.html HGValueLink]. This way you don't need to modify the Java class of the object. The object will be stored as the "payload" value of the link and it will still represent a relationship in the graph.

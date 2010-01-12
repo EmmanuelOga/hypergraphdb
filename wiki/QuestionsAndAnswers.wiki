@@ -1,7 +1,14 @@
 #summary HyperGraphDB Questions and Answers
 
+  * [#Can_I_access_HyperGraphDB_from_multiple_threads? Can I access HyperGraphDB from multiple threads?]
   * [#Creating_a_graph_based_on_existing_API? I already have a Java API, how do I persist it as a graph?]
   * [#Can_I_make_any_object_into_a_link? Can I make any object into a link?]
+
+===Can I access HyperGraphDB from multiple threads?===
+
+Yes and in most cases you don't have to worry about it. If you are just using the basic API operations, such as get/add/remove, or doing queries via the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGQuery.hg.html HGQuery.hg] API, you are fine. This is because those operation are already run within a transaction.
+
+However if you are iterating over a [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGSearchResult.html HGSearchResult], you need to encapsulate it into a transaction by using the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/transaction/HGTransactionManager.html HGTransactionManager] available with `HyperGraph.getTransactionManager()` of your HyperGraphDB instance.. 
 
 ===Creating a graph based on existing API===
 

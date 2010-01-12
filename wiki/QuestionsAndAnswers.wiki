@@ -1,7 +1,13 @@
 #summary HyperGraphDB Questions and Answers
 
+  * [#Creating_a_graph_based_on_existing_API? I already have a Java API, how do I persist it as a graph?]
   * [#Can_I_make_any_object_into_a_link? Can I make any object into a link?]
+
+===Creating a graph based on existing API===
+
+First of all, you need to decide which of your classes represent relationships and which represent basic data. Instances of classes that represent basic data can be added into a HyperGraphDB instances without modification as atoms of arity 0 (meaning that they don't point to other atoms). Classes that represent relationships need to be transformed into HyperGraphDB links, i.e. implementations of the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGLink.html HGLink] interface.
+
 
 ===Can I make any object into a link?===
 
-You turn any object into a hypergraph link by wrapping it up as a [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGValueLink.html HGValueLink]. This way you don't need to modify the Java class of the object. The object will be stored as the "payload" value of the link and it will still represent a relationship in the graph.
+You can turn any object into a hypergraph link by wrapping it up as a [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGValueLink.html HGValueLink]. This way you don't need to modify the Java class of the object. The object will be stored as the "payload" value of the link and it will still represent a relationship in the graph.

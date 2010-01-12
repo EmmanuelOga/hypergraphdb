@@ -5,8 +5,9 @@
 
 ===Creating a graph based on existing API===
 
-First of all, you need to decide which of your classes represent relationships and which represent basic data. Instances of classes that represent basic data can be added into a HyperGraphDB instances without modification as atoms of arity 0 (meaning that they don't point to other atoms). Classes that represent relationships need to be transformed into HyperGraphDB links, i.e. implementations of the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGLink.html HGLink] interface.
+First of all, you need to decide which of your classes represent relationships and which represent basic data. Instances of classes that represent basic data can be added into a HyperGraphDB instance without modification at all. They will simply be atoms of arity 0,  meaning that they don't point to other atoms. Classes that represent relationships need to be transformed into HyperGraphDB links, i.e. implementations of the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGLink.html HGLink] interface.
 
+You can avoid implementing the HGLink interface if you this is intrusive to your API, or if you are working with a 3d party API and you can't change by using the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGValueLink.html HGValueLink] wrapper class. However, you won't be able to access the target set of your link from your Java object instance and you will have to rely on the HGValueLink API to do so. 
 
 ===Can I make any object into a link?===
 

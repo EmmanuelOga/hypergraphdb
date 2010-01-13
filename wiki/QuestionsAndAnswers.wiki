@@ -3,6 +3,7 @@
   * [#Can_I_access_HyperGraphDB_from_multiple_threads? Can I access HyperGraphDB from multiple threads?]
   * [#Creating_a_graph_based_on_existing_API? I already have a Java API, how do I persist it as a graph?]
   * [#Can_I_make_any_object_into_a_link? Can I make any object into a link?]
+  * [#How_can_I_add_an_object_only_if_it_doesn't_exist? How can I add an object only if it doesn't exist?]
 
 ===Can I access HyperGraphDB from multiple threads?===
 
@@ -14,8 +15,21 @@ However if you are iterating over a [http://www.kobrix.com/javadocs/hgcore/org/h
 
 First of all, you need to decide which of your classes represent relationships and which represent basic data. Instances of classes that represent basic data can be added into a HyperGraphDB instance without modification at all. They will simply be atoms of arity 0,  meaning that they don't point to other atoms. Classes that represent relationships need to be transformed into HyperGraphDB links, i.e. implementations of the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGLink.html HGLink] interface.
 
-You can avoid implementing the HGLink interface if you this is intrusive to your API, or if you are working with a 3d party API and you can't change by using the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGValueLink.html HGValueLink] wrapper class. However, you won't be able to access the target set of your link from your Java object instance and you will have to rely on the HGValueLink API to do so. 
+You can avoid implementing the HGLink interface if you find this is intrusive to your API, or if you are working with a 3d party API that you can't change, by using the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGValueLink.html HGValueLink] wrapper class. However, you won't be able to access the target set of your link from your Java object instance and you will have to rely on the HGValueLink API to do so. 
 
 ===Can I make any object into a link?===
 
 You can turn any object into a hypergraph link by wrapping it up as a [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGValueLink.html HGValueLink]. This way you don't need to modify the Java class of the object. The object will be stored as the "payload" value of the link and it will still represent a relationship in the graph.
+
+=== How can I add an object only if it doesn't exist?===
+
+An object (i.e. a hypergraph atom) is uniquely identified only by its HGDB handle. Unlike in convetional RDBMS systems, there is no requirement to specify a primary key for an atom type. However it is common that certain properties of an atom identify it uniquely. At a minimum, its value and target set make unique. Therefore, you would add a uniquely identified object by first doing a lookup by the properties that define it uniquely and then insert into the database only if no results are returned by that lookup. This is a common pattern and consequently there's an API for it:
+
+{{{
+import org.hypergraphdb.HGQuery.hg;
+
+Webpage x = new Webpage(...); // the object to be insert if not existing
+HGHandle xHandle = hg.addUnique(a, hg.eq("url", a.getUrl());
+}}}
+
+The `hg.addUnique` method takes an atom to be added and a condition to query the database with. If the condition yields some results, the handle of the first one is returned. Otherwise the atom is added to the graph and its new handle is returned.

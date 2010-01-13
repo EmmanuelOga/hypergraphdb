@@ -1,0 +1,3 @@
+#summary Collects bugs fixes and improvements made in the current dev cycle
+
+  * Made HGRelTypeConstructor into a HGComplexType so that relations can be found by name more easily.

@@ -25,3 +25,7 @@ Please note that while Kobrix Software has initiated the project, we hope that t
 === Graph Algorithms ===
 
 === Graph Pattern Matching/Mining ===
+
+== Compensation ==
+
+We might be able to secure some funding for serious contributors. Serious contributors are those that have achieved something useful to the project, want to participate in an ongoing fashion and would rather do this than something else only if there was at least some immediate compensation. The kind of funding will be in the ballpark of what the Google Summer of Code program pays students. 

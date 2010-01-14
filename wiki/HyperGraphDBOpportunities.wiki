@@ -1,0 +1,7 @@
+#summary HyperGraphDB Programming Opportunities
+
+== Why Get Involved? ==
+
+Graph databases have existed as a data model for at least 30 years, but only recently with the revival of AI and the emergence of the semantic web have they become more popular and on the verge of becoming a serious industry player. In addition, many/most academic research projects still rely on traditional database technology even in cases (such as bioinformatics) where a more appropriate model is clearly called for. 
+
+== Work Areas ==

@@ -17,3 +17,11 @@ Please note that while Kobrix Software has initiated the project, we hope that t
 <b>Programmers</b> who would like to build on top of HyperGraphDB or experiment with it for business or research applications are welcome to create application libraries (e.g. a representation of some chosen domain with HyperGraphDB) and/or sample business applications that show how the technology can be applied to business problems - this is no less valuable than coding up the system itself!
 
 == Work Areas ==
+
+=== Distributed Processing ===
+
+=== Query Optimization ===
+
+=== Graph Algorithms ===
+
+=== Graph Pattern Matching/Mining ===

@@ -8,8 +8,12 @@ HyperGraphDB is one of the more advanced databases that builds on the graph data
 
 Please note that while Kobrix Software has initiated the project, we hope that this will become a community effort. We'd much prefer to be the users of a great system that we don't control rather than controlling and sweating over the development of a mediocre one!
 
-=== Skills ===
+== Skills ==
 
-  * <b>Programmers</b> who would like to participate in the code you need a fairly good knowledge of Java and/or C++. You also need a background in computing fundamentals such as algorithmics, graph theory and object-oriented design. You need to be willing to not only "get something working", but creating robust code, revisiting, cleaning up, and being able to justify design decision.
+<b>Programmers</b> who would like to participate in the core development need a fairly good knowledge of Java and/or C++. You also need a background in computing fundamentals such as algorithmics, graph theory and object-oriented design. You need to be willing to not only "get something working", but creating robust code, revisiting, cleaning up, and being able to justify design decision.
+
+<b>Non-programmers</b> who are involved in AI, the semantic web, NLP, mathematics, bioinformatics, networks research or any other field that relies heavily on graph-based data model are welcome to contribute ideas on requirements, algorithms that could benefit their work if implemented in the system, insights into the hypergraph formal model, suggestions of applications etc.
+
+<b>Programmers</b> who would like to build on top of HyperGraphDB or experiment with it for business or research applications are welcome to create application libraries (e.g. a representation of some chosen domain with HyperGraphDB) and/or sample business applications that show how the technology can be applied to business problems - this is no less valuable than coding up the system itself!
 
 == Work Areas ==

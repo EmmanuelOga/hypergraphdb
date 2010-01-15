@@ -8,7 +8,7 @@ HyperGraphDB is one of the more advanced databases that builds on the graph data
 
 Please note that while Kobrix Software has initiated the project, we hope that this will become a community effort. We'd much prefer to be the users of a great system that we don't control rather than controlling and sweating over the development of a mediocre one!
 
-== Skills ==
+== Who Could Contribute? ==
 
 <b>Programmers</b> who would like to participate in the core development need a fairly good knowledge of Java and/or C++. You also need a background in computing fundamentals such as algorithmics, graph theory and object-oriented design. You need to be willing to not only "get something working", but creating robust code, revisiting, cleaning up, and being able to justify design decision.
 

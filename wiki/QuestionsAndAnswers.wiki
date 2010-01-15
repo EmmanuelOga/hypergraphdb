@@ -4,6 +4,7 @@
   * [#Creating_a_graph_based_on_existing_API I already have a Java API, how do I persist it as a graph?]
   * [#Can_I_make_any_object_into_a_link? Can I make any object into a link?]
   * [#How_can_I_add_an_object_only_if_it_doesn't_exist? How can I add an object only if it doesn't exist?]
+  * [#When_should_I_use_transactions? When should I use transactions?]
 
 ===Can I access HyperGraphDB from multiple threads?===
 
@@ -33,3 +34,11 @@ HGHandle xHandle = hg.addUnique(a, hg.eq("url", a.getUrl());
 }}}
 
 The `hg.addUnique` method takes an atom to be added and a condition to query the database with. If the condition yields some results, the handle of the first one is returned. Otherwise the atom is added to the graph and its new handle is returned.
+
+=== When should I use transactions? ===
+
+All primitive operations offered by the HyperGraphDB API are automatically encapsulated in a transaction. In addition, HyperGraphDB supports nested transactions where child transactions can fail and be handled gracefully while a parent transaction still succeeds. There are three common cases where you may want to start and end a transaction yourself via the `HyperGraph.getTransactionManager()`:
+
+  # You are iterating over a query result set yourself, instead of fetching all data in a Java collection. 
+  # You have several operations that you want to treat as a unit - this is the most common case. For example, you need to insert two atoms and relationship between them and neither the atoms nor the relationship make sense individually in your data model. Wrap the three calls to `HyperGraph.add` in a transaction.
+  # You have a data intensive portion of your application that adds hundreds of atoms in a loop. In this case you want to wrap those addition in a transaction for performance reasons. Here is why: when a primitive operation is performed, HyperGraphDB will create a transaction only if there is none currently in effect; otherwise, HyperGraphDB will reuse the current transaction. If you do, say, a hundred atom additions in a loop without creating a transaction, HyperGraphDB will create and commit a hundred separate transactions. This is much more expensive than creating and committing a single transaction for all hundred addition. The flip side is, of course, that either all or none of your atoms will be added.

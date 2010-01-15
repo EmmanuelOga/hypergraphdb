@@ -18,13 +18,12 @@ Please note that while Kobrix Software has initiated the project, we hope that t
 
 == Work Areas ==
 
-=== Distributed Processing ===
-
-=== Query Optimization ===
-
-=== Graph Algorithms ===
-
-=== Graph Pattern Matching/Mining ===
+  * *Distributed Processing* - algorithms and implementation for data partitioning, distributed transactions, distributed querying, distributed graph mining, large-scale parallel computation
+  * *Query Language Development* - yes there are graph languages out there, but nothing to match the generality of HyperGraphDB
+  * *Query Optimization* - given a complex query expression, find the best way to get the answer (query planning, caching)
+  * *Graph Algorithms* - implement proven classical and modern graph algorithms
+  * *Graph Pattern Matching/Mining* - this is a form of querying where the query is a graph itself rather.
+  * *C++ Port* - very desirable to have it, can be done almost in isolation from the main Java branch. Ideally, the foundation will be ported from Java to C++ eventually the Java version should build upon a native C++ accessed through JNI (or something like Swig).
 
 == Compensation ==
 

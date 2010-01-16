@@ -1,10 +1,15 @@
 #summary HyperGraphDB Questions and Answers
 
+  * [#GUI_for_HyperGraphDB? Is there a GUI or a debugging tool for HyperGraphDB?]
   * [#Can_I_access_HyperGraphDB_from_multiple_threads? Can I access HyperGraphDB from multiple threads?]
   * [#Creating_a_graph_based_on_existing_API I already have a Java API, how do I persist it as a graph?]
   * [#Can_I_make_any_object_into_a_link? Can I make any object into a link?]
   * [#How_can_I_add_an_object_only_if_it_doesn't_exist? How can I add an object only if it doesn't exist?]
   * [#When_should_I_use_transactions? When should I use transactions?]
+
+=== GUI for HyperGraphDB?===
+
+There is no special purpose administrative GUI in the traditional sense. However, the scripting environment [http://www.kobrix.com/seco.jsp Seco] has been built entirely on top of HyperGraphDB. You can use to interact with a database instance via scripting or by creating your own admin components in the Seco canvas and/or leveraging such components that others have created.
 
 ===Can I access HyperGraphDB from multiple threads?===
 

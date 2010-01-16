@@ -24,7 +24,12 @@ Please note that while Kobrix Software has initiated the project, we hope that t
   * *Graph Algorithms* - implement proven classical and modern graph algorithms
   * *Graph Pattern Matching/Mining* - this is a form of querying where the query is a graph itself rather.
   * *C++ Port* - very desirable to have it, can be done almost in isolation from the main Java branch. Ideally, the foundation will be ported from Java to C++ eventually the Java version should build upon a native C++ accessed through JNI (or something like Swig).
+  * Anything else you might propose...
 
 == Compensation ==
 
 We might be able to secure some funding for serious contributors. Serious contributors are those that have achieved something useful to the project, want to participate in an ongoing fashion and would rather do this than something else only if there was at least some immediate compensation. The kind of funding will be in the ballpark of what the Google Summer of Code program pays students. 
+
+== Get In Touch! ==
+
+Interested? Please write to the [http://groups.google.com/group/hypergraphdb?hl=en project discussion forum] or contact Kobrix privately info_at_sign_kobrix_a_single_dot_com. 

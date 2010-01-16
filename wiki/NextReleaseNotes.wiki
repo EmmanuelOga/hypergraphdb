@@ -1,5 +1,5 @@
 #summary Collects bugs fixes and improvements made in the current dev cycle
 
   * Made HGRelTypeConstructor into a HGComplexType so that relations can be found by name more easily.
-  * Add the HGTransactionContext to the HGTransaction instances. Add the !HyperGraph instance to its associated HGTransactionContext.
+  * Added the HGTransactionContext to the HGTransaction instances. Added the !HyperGraph instance to its associated HGTransactionContext.
   * Added a few more events for finer grained control of atom addition and replacement. Listeners can throw strongly-typed exceptions to abort the transaction.

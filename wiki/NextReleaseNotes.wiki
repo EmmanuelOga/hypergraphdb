@@ -3,3 +3,5 @@
   * Made HGRelTypeConstructor into a HGComplexType so that relations can be found by name more easily.
   * Added the HGTransactionContext to the HGTransaction instances. Added the !HyperGraph instance to its associated HGTransactionContext.
   * Added a few more events for finer grained control of atom addition and replacement. Listeners can throw strongly-typed exceptions to abort the transaction.
+  * Added collection and List based constructors for LinkCondition and OrderedLinkCondition respectively.
+  * XMPP interface allows communicating with peers from a chat room only instead of having to manage every peer's roaster separately.

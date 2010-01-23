@@ -1,0 +1,40 @@
+#summary Configuration of the XMPP Network Interface
+
+The XMPP-based network layer for the HyperGraphDB P2P framework uses the Smack library from [http://www.igniterealtime.org/ Ignite Realtime]. It is specified by setting the full classname as the `interfaceType` property and configured with the `interfaceConfig` property of the top-level P2P configuration:
+
+{{{
+{
+"hasLocalStorage"	: false,
+"localDB": "c:/temp/hgdbpeertest",
+"bootstrap" : [ {"class" : "org.hypergraphdb.peer.bootstrap.AffirmIdentityBootstrap", "config" : {}},
+                {"class" : "org.hypergraphdb.peer.bootstrap.CACTBootstrap", "config" : {}},
+                {"class" : "org.disco.utils.ScriptingBootstrap",
+                        "config": {}
+                }
+                
+              ],
+"interfaceType"	: "org.hypergraphdb.peer.xmpp.XMPPPeerInterface",
+"interfaceConfig"		:
+  {
+    "user" : "bolerio",
+    "password" : "password",
+    "serverUrl"	: "localhost",
+    "ignoreRoster" : true,
+    "room" : "testroom@conference.localhost",
+    "port"	: 5222
+  }
+}
+}}}
+
+The `interfaceConfig` holds all options that XMPPPeerInterface recognizes. They are:
+
+||*Name*||*Description*||*Default*||*Mandatory*||
+||serverUrl||The hostname of the XMPP server.||none||Y||
+||port||The port at the XMPP server.||5222||N||
+||user || The username at the XMPP server.||none|| N||
+||password|| The password at the XMPP server.||none||N||
+||anonymous||Whether to login as anonymous user.||false||N||
+||autoRegister||Whether to attempt registration with user/password if login fails.||false||N||
+||room||A chat room to join and get the peer list from there.||none||N||
+||ignoreRoster||Whether to ignore the peer in this user's roster.||false||N||
+||fileTransferThreshold||The number of bytes above which messages will be sent as file transfers via XMPP.||100*1024||N||

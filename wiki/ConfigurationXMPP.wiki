@@ -53,4 +53,4 @@ If a user has both a roster and it joins a room, the peers from both the roster 
 
 === What server can I connect to? ===
 
-This depends on the application at hand etc. For local development or experimentation, check if there's an XMPP server at your organization that you could use, or, better, get the OpenFire server [http://www.igniterealtime.org Ignite Realtime], start it up locally and have fun. It has a very nice and easy to use admin interface.
+This depends on the application at hand etc. For local development or experimentation, check if there's an XMPP server at your organization that you could use, or, better, get the !OpenFire server [http://www.igniterealtime.org Ignite Realtime], start it up locally and have fun. It has a very nice and easy to use admin interface.

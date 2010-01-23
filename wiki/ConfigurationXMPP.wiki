@@ -28,7 +28,7 @@ The XMPP-based network layer for the HyperGraphDB P2P framework uses the Smack l
 
 The `interfaceConfig` holds all options that XMPPPeerInterface recognizes. They are:
 
-||*Name*||*Description*||*Default*||*Mandatory*||
+||<b>Name</b>||<b>Description</b>||<b>Default</b>||<b>Mandatory</b>||
 ||serverUrl||The hostname of the XMPP server.||none||Y||
 ||port||The port at the XMPP server.||5222||N||
 ||user || The username at the XMPP server.||none|| N||

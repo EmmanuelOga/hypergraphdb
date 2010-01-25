@@ -6,3 +6,4 @@
   * Added collection and List based constructors for LinkCondition and OrderedLinkCondition respectively.
   * Added HGQuery.hg.atomAssert API for "insert ignore" semantics.
   * XMPP interface allows communicating with peers from a chat room only instead of having to manage every peer's roaster separately.
+  * Add toString method to HGValueLink for tracing/debugging purposes.

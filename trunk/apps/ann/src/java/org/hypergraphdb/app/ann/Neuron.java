@@ -25,6 +25,9 @@ public class Neuron extends HGPlainLink
         super(inputs);
     }
     
+    /**
+     * Activate the neuron using the given activation function and return its activation level.
+     */
     public double fire(Map<HGHandle, Double> inputs, ActivationFunction f)
     {
         double activation = 0.0;
@@ -33,6 +36,10 @@ public class Neuron extends HGPlainLink
         return f.eval(activation);
     }
     
+    /**
+     * Return the index, within the target set, of a particular input to this
+     * neuron.
+     */
     public int findInput(HGHandle in)
     {
         for (int i = 0; i < outgoingSet.length; i++)
@@ -40,7 +47,11 @@ public class Neuron extends HGPlainLink
                 return i;
         return -1;
     }
-    
+
+    /**
+     * Self-explanatory. The new input is appended as the last element of 
+     * this neuron's target set.
+     */
     public void addInput(HGHandle in, double weight)
     {
         if (weights == null) 

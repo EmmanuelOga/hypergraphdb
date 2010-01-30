@@ -1,5 +1,8 @@
 package org.hypergraphdb.app.ann;
 
+/**
+ * Hyperbolic tangent activation function - the most commonly used.
+ */
 public class TanhFun implements ActivationFunction
 {
     public double deval(double x)

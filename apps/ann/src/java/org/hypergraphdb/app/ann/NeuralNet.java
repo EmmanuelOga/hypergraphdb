@@ -9,6 +9,16 @@ import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.HGQuery.hg;
 
+/**
+ * <p>
+ * Represents a runtime portion of a 3-layer feedforward neural network stored in a 
+ * HyperGraphDB instance. The activation levels of the 3 layers are maintained in local
+ * maps. This class is used both to execute the NN via the <code>feedforward</code> method
+ * and the train it with the <code>train</code>. Only the relevant portion of the full
+ * network, depending on the passed in inputs and outputs, is ever loaded from permanent
+ * storage.  
+ * </p>
+ */
 public class NeuralNet
 {
     private static final double INITIAL_OUT_STRENGTH = 0.1;
@@ -40,7 +50,7 @@ public class NeuralNet
         
     public Map<Object, Double> feedforward(HGHandle...inputs)
     {
-        Map<HGHandle, Double> inputMap = new ActivationMap(0.0);
+        ActivationMap inputMap = new ActivationMap(0.0);
         for (HGHandle in : inputs)
             inputMap.put(in, 1.0);
         feedforward(inputMap);
@@ -52,7 +62,7 @@ public class NeuralNet
         return result;
     }
     
-    public void feedforward(Map<HGHandle, Double> inputs)
+    public void feedforward(ActivationMap inputs)
     {
         inputLayer = inputs;
         hiddenLayer = activateNextLayer(inputLayer, new ActivationMap(0.0));
@@ -62,42 +72,44 @@ public class NeuralNet
     public void backpropagate(Map<HGHandle, Double> fromOutputs)
     {
         Map<HGHandle, Double> outputDeltas = new HashMap<HGHandle, Double>();
-        for (Map.Entry<HGHandle, Double> node : outputLayer.entrySet())
-        {
-            double error = fromOutputs.get(node.getKey()) - node.getValue();
-            outputDeltas.put(node.getKey(), activationFunction.deval(node.getValue())*error);
+        for (Map.Entry<HGHandle, Double> node : fromOutputs.entrySet())
+        {        	
+        	Double output = outputLayer.get(node.getKey());
+            double error = node.getValue() - output;
+            outputDeltas.put(node.getKey(), activationFunction.deval(output)*error);
         }
 
         Map<HGHandle, Double> hiddenDeltas = new HashMap<HGHandle, Double>();        
         for (Map.Entry<HGHandle, Double> node : hiddenLayer.entrySet())
         {
             double error = 0.0;
-            for (HGHandle out : outputLayer.keySet())
+            for (HGHandle out : fromOutputs.keySet())
             {
                 Neuron n = graph.get(out);
-                double currentWeight = n.getWeights()[n.findInput(node.getKey())];
-                error += outputDeltas.get(out)*currentWeight;
+                int pos = n.findInput(node.getKey());
+                // ignore missing hidden->output layer links
+                if (pos >= 0)
+                	error += outputDeltas.get(out)*n.getWeights()[pos];
             }
             hiddenDeltas.put(node.getKey(), activationFunction.deval(node.getValue())*error);
         }
         
-        for (Map.Entry<HGHandle, Double> node : outputLayer.entrySet())
+        for (HGHandle node : fromOutputs.keySet())
         {
-            Neuron n = graph.get(node.getKey());
+            Neuron n = graph.get(node);
             for (int i = 0; i < n.getArity(); i++)
             {
-                n.getWeights()[i] += learningRate*(outputDeltas.get(node.getKey())*hiddenLayer.get(n.getTargetAt(i)));
+                n.getWeights()[i] += learningRate*(outputDeltas.get(node)*hiddenLayer.get(n.getTargetAt(i)));
             }                
             graph.update(n);
         }
         
-        for (Map.Entry<HGHandle, Double> node : hiddenLayer.entrySet())
+        for (HGHandle node : hiddenLayer.keySet())
         {
-            Neuron n = graph.get(node.getKey());
+            Neuron n = graph.get(node);
             for (int i = 0; i < n.getArity(); i++)
             {
-                n.getWeights()[i] += learningRate*(hiddenDeltas.get(node.getKey())*
-                        inputLayer.get(n.getTargetAt(i)));
+                n.getWeights()[i] += learningRate*(hiddenDeltas.get(node)*inputLayer.get(n.getTargetAt(i)));
             }    
             graph.update(n);
         }        
@@ -105,50 +117,55 @@ public class NeuralNet
         
     public void train(Collection<HGHandle> inputs, Collection<HGHandle> outputs, HGHandle selectedOutput)
     {
-        ensureHiddenNeuron(inputs, outputs);
-        Map<HGHandle, Double> inputMap = new ActivationMap(0.0);
+        Collection<HGHandle> outputNeurons = updateNeuralStructure(inputs, outputs);
+        ActivationMap inputMap = new ActivationMap(0.0);
         for (HGHandle in : inputs)
             inputMap.put(in, 1.0);
-        Map<HGHandle, Double> outputMap = new ActivationMap(0.0);
-        // Map from output atom to its corresponding neuron:
-        selectedOutput = hg.findOne(graph, hg.apply(hg.targetAt(graph, 0), 
-                                                    hg.and(hg.type(NeuronOutput.class), 
-                                                           hg.incident(selectedOutput)))); 
+    	selectedOutput = hg.findOne(graph, hg.apply(hg.targetAt(graph, 0), 
+													hg.and(hg.type(NeuronOutput.class), 
+														   hg.incident(selectedOutput))));        
+        Map<HGHandle, Double> outputMap = new HashMap<HGHandle, Double>();
+        for (HGHandle h : outputNeurons)
+        	outputMap.put(h, 0.0);
         outputMap.put(selectedOutput, 1.0);
-        feedforward(inputMap);
+        feedforward(inputMap);        
         backpropagate(outputMap);
     }
     
     /**
      * <p>
      * Create a neuron in the hidden layers that connects a set of inputs (arbitrary atoms)
-     * and a set of neuron outputs. The method first checks whether a neuron connecting
-     * those inputs exists.
+     * and a set of neuron outputs. The method will also create an neuron in the output layer
+     * for each elements of the <code>outputs</code> that does have an associated neuron. 
      * </p>
      * 
      * @param inputs A collection of arbitrary input atoms.
      * @param outputs A collection of arbitrary output atoms.
+     * @return A collection of the output neurons corresponding to the set of output
+     * atoms. 
      */
-    public void ensureHiddenNeuron(Collection<HGHandle> inputs, 
-                                   Collection<HGHandle> outputs)
+    public Collection<HGHandle> updateNeuralStructure(Collection<HGHandle> inputs, 
+                                   	  				  Collection<HGHandle> outputs)
     {
         HGHandle [] ins = inputs.toArray(new HGHandle[0]);
         HGHandle existing = hg.findOne(graph, hg.and(hg.link(ins), hg.arity(ins.length)));
-        if (existing == null)
+        Collection<HGHandle> outputNeurons = new HashSet<HGHandle>();
+        for (HGHandle out : outputs)
         {
-            Collection<HGHandle> outputNeurons = new HashSet<HGHandle>();
-            for (HGHandle out : outputs)
+            NeuronOutput no = hg.getOne(graph, hg.and(hg.type(NeuronOutput.class), hg.incident(out)));
+            if (no == null)
             {
-                NeuronOutput no = hg.getOne(graph, hg.and(hg.type(NeuronOutput.class), hg.incident(out)));
-                if (no == null)
-                {
-                    no = new NeuronOutput(graph.add(new Neuron()), out);
-                    graph.add(no);
-                }
-                outputNeurons.add(no.getNeuron());
-            }            
-            existing = graph.getHandle(createNeuron(inputs, 1.0/ins.length, outputNeurons, INITIAL_OUT_STRENGTH));
-        }
+            	Neuron newOutputNeuron = new Neuron();
+            	if (existing != null)
+            		newOutputNeuron.addInput(existing, INITIAL_OUT_STRENGTH);
+                no = new NeuronOutput(graph.add(newOutputNeuron), out);
+                graph.add(no);
+            }
+            outputNeurons.add(no.getNeuron());
+        }            
+        if (existing == null)
+        	graph.getHandle(createNeuron(inputs, 1.0/ins.length, outputNeurons, INITIAL_OUT_STRENGTH));
+        return outputNeurons;
     }
     
     /**
@@ -182,28 +199,24 @@ public class NeuralNet
         }
         return nh;
     }
-    
-    /**
-     * <p>
-     * A map HGHandle -> Double that will return a specified default on missing keys.
-     * </p>
-     */
-    private static class ActivationMap extends HashMap<HGHandle, Double> 
-    {
-        private static final long serialVersionUID = 6911585894112990613L;
-        
-        private Double def;
-        
-        public ActivationMap(Double def)
-        {
-            this.def = def;
-        }
-        
-        @Override
-        public Double get(Object key) 
-        { 
-            Double value = super.get(key);
-            return value == null ? def : value;
-        }
-    }    
+
+	public ActivationFunction getActivationFunction()
+	{
+		return activationFunction;
+	}
+
+	public void setActivationFunction(ActivationFunction activationFunction)
+	{
+		this.activationFunction = activationFunction;
+	}
+
+	public double getLearningRate()
+	{
+		return learningRate;
+	}
+
+	public void setLearningRate(double learningRate)
+	{
+		this.learningRate = learningRate;
+	}    
 }

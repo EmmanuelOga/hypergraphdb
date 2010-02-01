@@ -114,8 +114,16 @@ public class NeuralNet
             graph.update(n);
         }        
     }
-        
+
     public void train(Collection<HGHandle> inputs, Collection<HGHandle> outputs, HGHandle selectedOutput)
+    {
+    	train(inputs, outputs, selectedOutput, 1.0);
+    }
+    
+    public void train(Collection<HGHandle> inputs, 
+    				  Collection<HGHandle> outputs, 
+    				  HGHandle selectedOutput,
+    				  Double selectedOutputActivation)
     {
         Collection<HGHandle> outputNeurons = updateNeuralStructure(inputs, outputs);
         ActivationMap inputMap = new ActivationMap(0.0);
@@ -127,7 +135,7 @@ public class NeuralNet
         Map<HGHandle, Double> outputMap = new HashMap<HGHandle, Double>();
         for (HGHandle h : outputNeurons)
         	outputMap.put(h, 0.0);
-        outputMap.put(selectedOutput, 1.0);
+        outputMap.put(selectedOutput, selectedOutputActivation);
         feedforward(inputMap);        
         backpropagate(outputMap);
     }

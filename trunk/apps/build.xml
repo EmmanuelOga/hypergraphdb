@@ -50,7 +50,17 @@
         </fileset>
 		<pathelement path="${java.class.path}" />
 	</path>
-    
+   	<path id="sail-classpath">
+        <fileset dir="sail/jars">
+            <include name="**/*.jar"/>
+        </fileset>    
+        <fileset dir="../.">
+            <include name="**/*.jar"/>
+        </fileset>
+		<pathelement path="${java.class.path}" />
+	</path>
+
+
     <target name="init">
 		<mkdir dir="${build}"/>
         <mkdir dir="${build}/management"/>
@@ -58,6 +68,7 @@
         <mkdir dir="${build}/tm"/>
         <mkdir dir="${build}/xsd"/>
         <mkdir dir="${build}/prolog"/>
+        <mkdir dir="${build}/sail"/>
     </target>
 
 	<target name="management" depends="init" description="Build HyperGraphDB Management Jar">
@@ -84,6 +95,45 @@
             <zipfileset src="wordnet/jars/utilities.jar"/>
         </jar>
 	</target>
+
+	<target name="sail" depends="init" description="Build HyperGraphDB Sail Jar">
+		<javac source="1.5" classpathref="sail-classpath" debug="${debug}" destdir="${build}/sail" srcdir="sail/src/java"/>
+	    <javadoc sourcepath="sail/src/java" destdir="${build}/javadoc/sail" classpathref="sail-classpath">
+            <link href="http://www.kobrix.com/javadocs/hgcore"/>
+        </javadoc>
+        <copy todir="${build}/sail">
+          <fileset dir="sail/src/java">
+            <include name="**/*.xml"/>            
+            <include name="**/*.properties"/>
+          </fileset>
+        </copy>        
+		<jar basedir="${build}/sail" jarfile="${jars}/hgdbsail.jar">
+            <zipfileset src="sail/jars/aduna-commons-collections-2.6.0.jar"/>
+            <zipfileset src="sail/jars/aduna-commons-concurrent-2.5.0.jar"/>
+            <zipfileset src="sail/jars/aduna-commons-iteration-2.6.0.jar"/>
+            <zipfileset src="sail/jars/aduna-commons-lang-2.7.0.jar"/>
+            <!-- zipfileset src="sail/jars/logback-classic-0.9.17.jar"/>
+            <zipfileset src="sail/jars/logback-core-0.9.17.jar"/ -->
+            <zipfileset src="sail/jars/sesame-model-2.3.0.jar"/>
+            <zipfileset src="sail/jars/sesame-query-2.3.0.jar"/>
+            <zipfileset src="sail/jars/sesame-queryalgebra-evaluation-2.3.0.jar"/>
+            <zipfileset src="sail/jars/sesame-queryalgebra-model-2.3.0.jar"/>
+            <zipfileset src="sail/jars/sesame-queryparser-api-2.3.0.jar"/>
+            <zipfileset src="sail/jars/sesame-queryparser-serql-2.3.0.jar"/>
+            <zipfileset src="sail/jars/sesame-sail-api-2.3.0-javadoc.jar"/>
+            <zipfileset src="sail/jars/sesame-sail-api-2.3.0-sources.jar"/>
+            <zipfileset src="sail/jars/sesame-sail-api-2.3.0.jar"/>
+            <!--            <zipfileset src="sail/jars/gremlin-0.2-standalone.jar"/ -->
+            <zipfileset src="sail/jars/sesame-store-testsuite-2.3.0-javadoc.jar"/>
+            <zipfileset src="sail/jars/sesame-store-testsuite-2.3.0-sources.jar"/>
+            <zipfileset src="sail/jars/sesame-store-testsuite-2.3.0.jar"/>
+            <zipfileset src="sail/jars/slf4j-api-1.5.8.jar"/>
+            <!--
+            <zipfileset src="sail/jars/*.jar"/>
+            -->
+        </jar>
+	</target>
+
 
 	<target name="tm" depends="init" description="Build HyperGraphDB TopicMaps Jar">
 		<javac source="1.5" classpathref="tm-classpath" debug="${debug}" destdir="${build}/tm" srcdir="tm/src/java"/>
@@ -115,7 +165,7 @@
 		<jar basedir="${build}/prolog" jarfile="${jars}/hgdbtuprolog.jar"/>
 	</target>
     
-	<target name="all-jars" depends="management, wordnet, xsd, prolog"/>
+	<target name="all-jars" depends="management, wordnet, sail, xsd, prolog"/>
 
 	<target description="clean up" name="clean">
 		<!-- Delete the ${build} and ${dist} directory trees -->

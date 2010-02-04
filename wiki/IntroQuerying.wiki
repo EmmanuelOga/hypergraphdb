@@ -9,7 +9,7 @@ The conditional expressions for querying are build up out of classes in the [htt
 {{{
     HGQueryCondition condition = new And(
               new AtomTypeCondition(Book.class), 
-              new AtomPartCondition("author", "George Bush", ComparisonOperator.EQ));
+              new AtomPartCondition(new String[]{"author"}, "George Bush", ComparisonOperator.EQ));
     HGSearchResult<HGHandle> rs = graph.find(condition);
     try
     {

@@ -111,7 +111,7 @@ public class HLiteral extends HValue implements Literal {
    * Methods *
    *---------*/
 
-  protected void setLabel(String label) {
+  public void setLabel(String label) {
     this.label = label;
     this.val = this.toString();
   }
@@ -163,7 +163,7 @@ public class HLiteral extends HValue implements Literal {
 
   */
 
-  protected void setLanguage(String language) {
+  public void setLanguage(String language) {
     this.language = language;
     this.val = this.toString();
   }
@@ -172,7 +172,7 @@ public class HLiteral extends HValue implements Literal {
     return language;
   }
 
-  protected void setDatatype(URI datatype) {
+  public void setDatatype(URI datatype) {
     if (datatype == null) {
       this.datatype = null;
       return;

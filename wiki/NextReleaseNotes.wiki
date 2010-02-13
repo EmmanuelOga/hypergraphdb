@@ -8,3 +8,4 @@
   * XMPP interface allows communicating with peers from a chat room only instead of having to manage every peer's roaster separately.
   * Added toString method to HGValueLink for tracing/debugging purposes.
   * Fixed a bug when removing a link with an empty target set.
+  * Added HGUtils.dropHyperGraphInstance method to delete a HGDB instance from the filesystem

@@ -28,7 +28,7 @@ This representation is rather obvious and natural given the generality of the Hy
 
 == Exceptions ==
 
-For each part of speech (noun, adjective, verb, adverb), WordNet contains a list of exceptional forms of the root lexeme. For nouns, this is usually the irregular plural forms, for adjectives and adverbs irregular superlatives, for verbs irregular conjugations. This is useful in morphological analysis where the normal rules for inflexion do not apply. Exceptions are represented in HGWN as links of type [http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/data/ExcLink.html ExcLink], specifically its four sub types, one for reach part of speech. The first target of an exception link is the root word and the other targets are its exceptional forms. The links have an arity >= 2. Both root and exceptional forms are stored as lexemes in HyperGraphDB (i.e. as instances of the type `Word`).
+For each part of speech (noun, adjective, verb, adverb), WordNet contains a list of exceptional forms of the root lexeme. For nouns, this is usually the irregular plural forms, for adjectives and adverbs irregular superlatives, for verbs irregular conjugations. This is useful in morphological analysis where the normal rules for inflexion do not apply. Exceptions are represented in HGWN as links of type [http://www.kobrix.com/javadocs/hgapps/wordnet/org/hypergraphdb/app/wordnet/data/ExcLink.html ExcLink], specifically its four sub types, one for each part of speech. The first target of an exception link is the root word and the other targets are its exceptional forms. The links have an arity >= 2. Both root and exceptional forms are stored as lexemes in HyperGraphDB (i.e. as instances of the type `Word`).
 
 == Semantic Tools ==
 

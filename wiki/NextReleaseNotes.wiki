@@ -8,6 +8,7 @@
   * XMPP interface allows communicating with peers from a chat room only instead of having to manage every peer's roaster separately.
   * Added toString method to HGValueLink for tracing/debugging purposes.
   * Fixed a bug when removing a link with an empty target set.
+  * Fixed a bug in SimpleALGenerator and DefaultALGenerator returning incorrect link when it changes.
   * Added HGUtils.dropHyperGraphInstance method to delete a HGDB instance from the filesystem
   * Implemented MVCC (snapshot isolation) transactions, which are now default.
   * Added some more configuration options to HGConfiguration: for the BDB cache and an MVCC flag (applies only to BDB - RAM structures are only MVCC).

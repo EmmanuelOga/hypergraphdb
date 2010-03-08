@@ -55,7 +55,7 @@ public class HyperGraphStore extends SailBase {
     return valueFactory;
   }
 
-  @Override
+  
   protected void initializeInternal()
       throws SailException {
     if (graph == null) {

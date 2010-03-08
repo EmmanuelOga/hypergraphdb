@@ -71,38 +71,6 @@ public class HyperValueFactory extends ValueFactoryBase {
         HGQuery.hg.eq("val", h.stringValue())));
   }
 
-  /*
-
-  private HGHandle addit(HValue h) {
-    if (h instanceof HResource) {
-      return addit((HResource) h);
-    } else if (h instanceof HLiteral) {
-      return addit((HLiteral) h);
-    }
-    return store.getGraph().add(h);
-  }
-
-  private HGHandle addit(HResource h) {
-    if (h instanceof HURI) {
-      return addit((HURI) h);
-    } else if (h instanceof HBNode) {
-      return addit((HBNode) h);
-    }
-    return store.getGraph().add(h);
-  }
-
-  private HGHandle addit(HBNode h) {
-    return store.getGraph().add(h);
-  }
-
-  private HGHandle addit(HURI h) {
-    return store.getGraph().add(h);
-  }
-
-  private HGHandle addit(HLiteral h) {
-    return store.getGraph().add(h);
-  }
-  */
 
   public URI createURI(String uri) {
     HURI huri = new HURI(uri);

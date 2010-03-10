@@ -1,11 +1,11 @@
 #summary HyperGraphDB Developer Guide
 
- * Part I - The Core (Fundamentals)
+ * *Part I - The Core (Fundamentals)*
    * Introducing HyperGraphDB
      * Basic Graph Terminology and Examples
      * Downloading the Software
-   * Installation and Deployment
-     * Distribution Contents
+   * [IntroInstall Installation and Deployment]
+     * [IntroInstall#Distribution_Archive_Content Distribution Contents]
        * Readme
        * Jars
        * Native libraries
@@ -30,15 +30,15 @@
    * Queries
    * Transactions
    * Graph Traversal Algorithms 
- * Part II - Advanced Features
+ * *Part II - Advanced Features*
    * The Type System in Detail
      * Developing a Custom Type
    * Developing Custom Link Types
    * Distributed HyperGraphDB
    * Accessing a HyperGraphDB Datastore from Other Languages
    * Using Prolog with HyperGraphDB 
- * Part III - Javadoc API Reference 
- * Part IV - Developing an End-to-End Application
+ * *Part III - Javadoc API Reference*
+ * *Part IV - Developing an End-to-End Application*
    * The Application
      * Design Considerations for HyperGraphDB
      * Beginning Development

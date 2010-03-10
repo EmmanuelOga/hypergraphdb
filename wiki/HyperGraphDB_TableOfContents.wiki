@@ -11,6 +11,7 @@
        * Native libraries
        * Javadoc
        * Source code
+     * Building the Source Code
      * Deployment
        * Required Jars
        * Native Libraries

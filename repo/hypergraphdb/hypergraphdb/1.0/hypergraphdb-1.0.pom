@@ -4,10 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>hypergraphdb</groupId>
   <artifactId>hypergraphdb</artifactId>
-  <!--
   <version>1.0</version>
-  
-  -->
   <description>POM was created from install:install-file</description>
   
   <dependencies>

@@ -6,7 +6,7 @@
    * [IntroInstall Installation and Deployment]
      * [IntroInstall#Downloading_and_Installing_HyperGraphDB Downloading and Installing]
      * [IntroInstall#Distribution_Archive_Content Distribution Contents]
-     * [IntroInstall#Deploying_Applications]
+     * [IntroInstall#Deploying_Applications Deploying Applications]
      * [CompilationAndDeployment Installing from Source Code]
    * Testing the Installation
      * Hello, HyperGraphDB 

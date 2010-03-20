@@ -3,18 +3,11 @@
  * *Part I - The Core (Fundamentals)*
    * Introducing HyperGraphDB
      * Basic Graph Terminology and Examples
-     * Downloading the Software
    * [IntroInstall Installation and Deployment]
+     * [IntroInstall#Downloading_and_Installing_HyperGraphDB Downloading and Installing]
      * [IntroInstall#Distribution_Archive_Content Distribution Contents]
-       * Readme
-       * Jars
-       * Native libraries
-       * Javadoc
-       * Source code
-     * Building the Source Code
-     * Deployment
-       * Required Jars
-       * Native Libraries
+     * [IntroInstall#Deploying_Applications]
+     * [CompilationAndDeployment Installing from Source Code]
    * Testing the Installation
      * Hello, HyperGraphDB 
      * Creating and Closing Databases

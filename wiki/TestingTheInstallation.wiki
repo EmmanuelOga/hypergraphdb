@@ -1,0 +1,80 @@
+#sidebar HyperGraphDB_TableOfContents
+
+= Testing the Installation = 
+
+Now that you have HyperGraphDB installed, you will want to do some basic testing to make sure all the 
+relevant files are located properly in your environment. We will build a small application that tests some basic functionality, and from this you can verify that you have HyperGraphDB installed properly, as well as get a flavor of how HyperGraphDB works.
+
+The rest of this topic assumes that you have read the [IntroInstall Installation instructions], and that you have configured your development environment to find the required HyperGraphDB JAR files. Don't forget that HyperGraphDB uses Berkeley DB's JNI libraries, so you will also have to configure your development environment to locate them (in addition to the JAR files)^1^. 
+ 
+== Hello, HyperGraphDB == 
+
+Let's begin simply by creating a skeleton class for our first application. 
+
+{{{
+/*
+ * HyperGraphDB Test Program.
+ */
+
+package hgdbtest;
+
+import org.hypergraphdb.*;
+
+/**
+ *
+ * @author punisher
+ */
+public class Main {
+
+    static final String dbLocation="./HGTestDB";
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+
+    }
+
+}
+}}}
+
+The salient points in this snippet are the `import` statement for the `org.hypergraphdb` package, and
+the static variable we will use for the location of our database. 
+
+The `org.hypergraphdb` package contains most of the classes and interfaces you will work with as you write your application. Of immediate interest are the `HyperGraph`, and the `HGEnvironment` classes, as we'll see in the next section.
+
+The `dbLocation` string designates the directory where the database files will live. This is the name of a _directory_, and not the name of an individual database file. In this case
+HyperGraphDB (more specifically, Berkeley DB) will create the directory relative to the current 
+working directory from where we run the little program.
+
+Note that if you are using an IDE such as NetBeans, the current working directory is the directory where the project is located. 
+
+
+
+== Creating a Database == 
+
+There are two ways to create a HyperGraphDB database. The first way requires you to manage the database handles yourself. The second way creates an *environment*, where HyperGraphDB manages the handles. When you need to perform an operation, you can request the handle by name, and HyperGraphDB will look up that name in the environment and give you back the associated handle. Creating an environment is the perferred way to manage your database connections. As your application grows, it will likely need to manage multiple databases, and the environment gives you a clean way to do that. 
+
+But first let's start from the ground up and look at the case of creating a single database instance. 
+
+We will add the following code to our `main` method:
+
+{{{
+        HyperGraph graph = null;
+
+        try {
+            graph = new HyperGraph(dbLocation);
+        }
+        catch(Throwable t) {
+            t.printStackTrace();
+        }
+        finally {
+            graph.close();
+        }
+}}}
+
+
+
+
+----
+^1^Usually this amounts to adding the `-Djava.library.path` setting to the JVM options your IDE  uses when it runs your program.

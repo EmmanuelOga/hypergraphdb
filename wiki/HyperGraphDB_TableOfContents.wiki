@@ -8,7 +8,7 @@
      * [IntroInstall#Distribution_Archive_Content Distribution Contents]
      * [IntroInstall#Deploying_Applications Deploying Applications]
      * [CompilationAndDeployment Installing from Source Code]
-   * [TestingTheInstallation] Testing the Installation]
+   * [TestingTheInstallation Testing the Installation]
      * [TestingTheInstallation#Hello,_HyperGraphDB Hello, HyperGraphDB]
      * [TestingTheInstallation#Creating_a_Database Creating a Database]
      * Adding, Removing, and Updating Atoms

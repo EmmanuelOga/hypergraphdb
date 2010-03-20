@@ -34,8 +34,6 @@ In total, the HyperGraphDB library consists of its own JAR files, Berkeley DB's 
 || HyperGraphDB with JXTA networking || `hgdbfull.jar`, `jars/db.jar`, and `jars/jxta.jar`^1^ ||
 || HyperGraphDB with Jabber networking || `hgdbfull.jar`, `jars/db.jar`, `jars/smack.jar`, and `jars/smackx.jar` ||
 
-For more on networking deployment and configuration, see [DistributedHyperGraph Creating Distributed Databases].
-
 When deploying your application, you must:
 
   * Include the relevant `.jar` files in the application's CLASSPATH.
@@ -53,6 +51,10 @@ Here, the environment variable `HGDB_ROOT` has previously been set with the root
 
 *NOTE for Windows users*:<br>
 The Windows native libraries may require the installatioin of the Visual C++ runtime libraries. If you get a runtime error pertaining to DLL loading, try installing the MSVC 9 redistribution package from the [http://www.microsoft.com/downloads/details.aspx?familyid=A5C84275-3B97-4AB7-A40D-3802B2AF5FC2&displaylang=en Microsoft download site].
+
+== Configuration == 
+
+As an embedded database, HyperGraphDB does not require any configuration outside of a few parameters that you set at runtime. However, the distributed version must be configured as described in [PeerConfiguration Configuring Peer-to-Peer Communication]. In addition, there is a `main` method in the class, `org.hypergraphdb.peer.StartPeer`  that takes the name of a configuration file as its only argument. See the topic on [DistributedHyperGraph Creating Distributed Databases] for more information.
 
 [IntroDBCreate Next - Creating a Database >>]
 

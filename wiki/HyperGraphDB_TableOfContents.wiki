@@ -8,9 +8,9 @@
      * [IntroInstall#Distribution_Archive_Content Distribution Contents]
      * [IntroInstall#Deploying_Applications Deploying Applications]
      * [CompilationAndDeployment Installing from Source Code]
-   * Testing the Installation
-     * Hello, HyperGraphDB 
-     * Creating and Closing Databases
+   * [TestingTheInstallation] Testing the Installation]
+     * [TestingTheInstallation#Hello_HyperGraphDB] Hello, HyperGraphDB]
+     * [TestingTheInstallation#Creating_a_Database Creating a Database]
      * Adding, Removing, and Updating Atoms
    * HyperGraphDB Architecture
      * From Graph Theory to HyperGraphDB

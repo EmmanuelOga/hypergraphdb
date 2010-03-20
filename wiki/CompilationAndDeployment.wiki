@@ -1,68 +1,76 @@
-#summary Compiling HGDB from Source Code and Deployment
+= Installing from Source Code = 
 
-= Getting the Source Code = 
+The HyperGraphDB source code resides in the [http://code.google.com/p/hypergraphdb/source/checkout  Subversion repository] and releases are structured following standard Subversion conventions:
 
-Source code resides in the [http://code.google.com/p/hypergraphdb/source/checkout HGDB Subversion repository] and releases are structured following standard Subversion conventions:
+  * The main branch containing latest development code can be found under `trunk`.
+  * Each release can be found under `tags`.
 
-  * The main branch containing latest development code can be found under *trunk*.
-  * Each release can be found under *tags*.
+HyperGraphDB consists of a core component implementing the nuts and bolts of the database itself, together with several example applications that use HyperGraphDB in different domains. Some of the applications have dependencies on other applications, and all have a dependency on the `management` component. 
 
-HyperGraphDB consists of a core component implementing the nuts and bolts of the database itself together with several applications in different domains. Some of the applications have dependencies on others and all have a dependency on the `management` component. 
-
-Deployment consists of copying relevant files to your application and setting a few JVM runtime properties. In general, HyperGraphDB is used as a library so it very much depends on your specific application how and which components are being deployed. 
-
-= Source Code Directory Structure =
+== Source Code Directory Structure ==
 
 Source code is organized in the following top-level directories:
 
-|| apps || All HGDB application modules. There's on directory per application module under `apps` ||
-|| core || The core of HGDB, including the distributed version. ||
-|| viewer || A component for visualization of HGDB graphs. ||
-|| test || Unit tests, mainly for the core component. ||
-|| doc || Some documentation, obsolete as now all documentation is in Wiki form. ||
+|| `apps` || All HyperGraphDB application modules. There is one directory per application module under `apps`. ||
+|| `core` || The core of HyperGraphDB, including the distributed database functionality. ||
+|| `viewer` || A component for visualization of HyperGraphDB graphs. ||
+|| `test` || Unit tests, mainly for the core component. ||
 
-The directory structure under core, viewer and each application modules roughly follows the pattern:
+The directory structure under `core`, `viewer`, and each application module roughly follows this pattern:
 
-|| src || The actual source code. Sub-divided under `java`, possibly `config` and possibly other languages. ||
-|| jars || 3d party Java libraries dependencies for that particular component. ||
-|| etc. || Possibly some other self-explanatory directories depending on the component. ||
+|| `src/` || The source code. Sub-divided under `java`, possibly `config` and possibly other languages. ||
+|| `jars/` || Third-party Java library dependencies for that particular component. ||
+|| `etc/` || Optional, self-explanatory directories depending on the component. ||
 
-= Compilation =
 
-Compilation is done with the ANT build system (see http://ant.apache.org/). You can compile everything or individual components with the top-level ant script. Or you can compile individual components from their own home directories by running their respective ant scripts. 
+= Compiling the Source =
 
-As a reminder, running `ant -p` lists all available targets for a project script.
+HyperGraphDB uses the [http://ant.apache.org ANT build system]. You can compile the entire package, or individual components with the top-level ant script. You can also compile individual components from their own home directories by running their respective ant scripts. 
 
-== Compiling Core ==
+*Tip*: Use the command `ant -p` to list all available targets for a project script.
 
-There are a couple of different version that can be made out of core, depending on you will be using the system as a distributed database or just an embedded database:
+== Compiling the HyperGraphDB Core ==
 
-  * *hgdbfull.jar* - contains both the database management and the distributed version code.
-  * *hypergraphdb.jar* - contains just the embedded database version.
-  * *hgpeer.jar* - contains just the peer/distributed version related code. 
+There are a number of different targets that can be built from `core`, depending on whether you will use HyperGraphDB as a distributed database, or simply as an embedded database. The following table describes the three targets used to build HyperGraphDB for deployment:
 
-So, *hgdbfull.jar* is a merge of *hypergraphdb.jar* with *hgpeer.jar*. The code from latter is entirely in the `org.hypergraphdb.peer` package.
+|| *Target* || *Result* || *Contents* ||
+|| `full-jar` || `hgdbfull.jar` || Contains both the database management and the distributed version code. ||
+|| `core-jar` || `hypergraphdb.jar` || Contains just the embedded database version. ||
+|| `peer-jar` || `hgpeer.jar` || Contains just the peer/distributed version related code. ||
 
-== Compiling the Application Module ==
+The `full-jar` target merges `hypergraphdb.jar` with `hgpeer.jar` to give you all the functionality you need to create both local and distributed databases. The code for `hgpeer.jar` is contained entirely in the `org.hypergraphdb.peer` package.
 
-Each application module is essentially contained in one jar that you can build with its respective script. 
+== Compiling the Application Modules ==
+
+Each application module is essentially contained in one `.jar` file. The `build.xml` file in the `apps` directory contains the target for each respective application.  The next table describes each of these targets:
+
+|| *Target* || *Description* ||
+|| `loadWordNet` ||  Loads WordNet into a HyperGraphDB instance. ||
+|| `management` ||  Builds the HyperGraphDB Management JAR. ||
+|| `prolog`             || Builds the tuProlog JAR.  ||
+||  `sail`                 || Builds the HyperGraphDB Sail JAR, for use with the [http://www.openrdf.org Seseme RDF framework. ||
+|| `tm`      ||     Builds the HyperGraphDB TopicMaps JAR ||
+|| `wordnet`   ||   Builds the HyperGraphDB WordNet Jar ||
+|| `xsd`    ||      Build HyperGraphDB XSD JAR ||
+
+
+== Compiling with GCJ ==
+
+The following has only been tested on Ubuntu 8.10, but should work on any system where GCJ is installed.
+
+First, compile the Berkeley DB Java interface with GCJ as follows. In the Berkeley DB distribution top folder run:
+{{{
+gcj -fjni -o dbjava.o -c ``find java/src -name '*.java' | grep -v debug``
+}}}
+
+This command produces an object file, `dbjava.o` that needs to be linked to HyperGraphDB. If you're compiling on a 64-bit system, add the option `-fPIC` to the above command line. Then in 'hypergraphdb/core' run:
+{{{
+gcj -shared --classpath=jars/db.jar dbjava.o hypergraphdb.jar -o hgdb.so
+}}}
+
+Again, add `-fPIC` if you are building on a 64-bit system. This will produce a shared library called `hgdb.so` that can be loaded from C++ applications.
+
 
 = Deployment =
 
-Deployment of HyperGraphDB and/or its application modules obviously involves first and foremost the standard Java requirement of having all needed classes/jar files in the JVM classpath. In addition, HyperGraphDB makes use of a few native libraries available under `core/native/[os-name]` for each supported operating system. Those libraries must be in the OS path of the application using HGDB. This is done either by modifying the OS PATH environment variable or passing in the `-Djava.library.path` command line option (or equivalent) to the JVM.
-
-HyperGraphDB itself, as an embedded database, doesn't require any configuration. However, the distributed version needs to be configured as documented on the PeerConfiguration topic. In addition, the distributed version comes with a main program `org.hypergraphdb.peer.StartPeer` that takes as a single argument the peer configuration file.
-
-= Compiling with GCJ =
-
-Instructions worked on Ubuntu 8.10, but should work everywhere GCJ is installed.
-
-First, compile the BerkeleyDB Java interface with GCJ as follows. In the BerkeleyDB distribution top folder run:
-
-gcj -fjni -o dbjava.o -c ``find java/src -name '*.java' | grep -v debug``
-
-that produces an object file 'dbjava.o' that needs to be linked to HGDB. If you're compiling on 64bit, add the option -fPIC to the above command line. Then in 'hypergraphdb/core' run:
-
-gcj -shared --classpath=jars/db.jar dbjava.o hypergraphdb.jar -o hgdb.so
-
-again adding -fPIC on 64bit. That'll produce a shared library hgdb.so that can be loaded from C++ applications. 
+Deployment of HyperGraphDB and/or its application modules is described in [IntroInstall#Deploying_Applications Deploying Applications]. 

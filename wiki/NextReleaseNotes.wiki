@@ -12,3 +12,4 @@
   * Added HGUtils.dropHyperGraphInstance method to delete a HGDB instance from the filesystem
   * Implemented MVCC (snapshot isolation) transactions, which are now default.
   * Added some more configuration options to HGConfiguration: for the BDB cache and an MVCC flag (applies only to BDB - RAM structures are only MVCC).
+  * Added size() method to HGCache interface and implementations.

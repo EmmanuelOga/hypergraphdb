@@ -213,12 +213,14 @@ public class HGWordNetLoader
 	
 	private void addWords(HyperGraph graph, Iterator<?> it)
 	{  
+	    int i = 0;
 		while (it.hasNext())
 		{
 			IndexWord word = (IndexWord) it.next();
 			String lemma = cleanupLemma(word.getLemma());
 			if (wordIndex.findFirst(lemma) == null)
 				addWord(graph, lemma);
+			System.out.println("Added " + (++i) + "th word " + lemma);
 		}
 	}
 	

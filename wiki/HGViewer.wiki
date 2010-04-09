@@ -4,7 +4,49 @@
 
 As its name implies HGViewer is an application that is meant to visually represent parts of a given HyperGraph instance. It can be used as a standalone application or as a embeddable component. HGViewer is based on [http://www.cs.umd.edu/hcil/jazz/index.shtml Piccolo] project, which provides very useful visual features such as: zooming interface, infinite canvas, scene/camera support, etc.       
 
-= Installation and Deployment = 
+= Installing from Source Code = 
+
+The HyperGraphDB source code resides in the [http://code.google.com/p/hypergraphdb/source/checkout  Subversion repository] and releases are structured following standard Subversion conventions:
+
+  * The main branch containing latest development code can be found under `trunk`.
+  * Each release can be found under `tags`.
+
+HyperGraphDB consists of a core component implementing the nuts and bolts of the database itself, together with several example applications that use HyperGraphDB in different domains. Some of the applications have dependencies on other applications, and all have a dependency on the `management` component. 
+
+== Source Code Directory Structure ==
+
+Source code is organized in the following top-level directories:
+
+|| `apps` || All HyperGraphDB application modules. There is one directory per application module under `apps`. ||
+|| `core` || The core of HyperGraphDB, including the distributed database functionality. ||
+|| `viewer` || A component for visualization of HyperGraphDB graphs. ||
+|| `test` || Unit tests, mainly for the core component. ||
+
+The directory structure under `core`, `viewer`, and each application module roughly follows this pattern:
+
+|| `src/` || The source code. Sub-divided under `java`, possibly `config` and possibly other languages. ||
+|| `jars/` || Third-party Java library dependencies for that particular component. ||
+|| `etc/` || Optional, self-explanatory directories depending on the component. ||
+
+
+= Compiling the Source =
+
+HyperGraphDB uses the [http://ant.apache.org ANT build system]. You can compile the entire package, or individual components with the top-level ant script. You can also compile individual components from their own home directories by running their respective ant scripts. 
+
+*Tip*: Use the command `ant -p` to list all available targets for a project script.
+
+== Compiling the HyperGraphDB Core ==
+
+There are a number of different targets that can be built from `core`, depending on whether you will use HyperGraphDB as a distributed database, or simply as an embedded database. The following table describes the three targets used to build HyperGraphDB for deployment:
+
+|| *Target* || *Result* || *Contents* ||
+|| `full-jar` || `hgdbfull.jar` || Contains both the database management and the distributed version code. ||
+|| `core-jar` || `hypergraphdb.jar` || Contains just the embedded database version. ||
+|| `peer-jar` || `hgpeer.jar` || Contains just the peer/distributed version related code. ||
+
+The `full-jar` target merges `hypergraphdb.jar` with `hgpeer.jar` to give you all the functionality you need to create both local and distributed databases. The code for `hgpeer.jar` is contained entirely in the `org.hypergraphdb.peer` package.
+
+== Installation and Deployment == 
 
 This page describes the installation of HyperGraphDB from an official release package. If you would like to build and install the system directly from source, please refer to the [CompilationAndDeployment Installing from Source] page. Note that every official release comes with source code, so it is always possible to examine the code, experiment, and apply patches if need be.
 

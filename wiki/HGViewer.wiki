@@ -2,7 +2,7 @@
 
 = Introduction =
 
-Add your content here.
+As its name implies HGViewer is an application that is meant to visually represent parts of a given HyperGraph instance. It can be used as a standalone application or as a embeddable component. HGViewer is based on Piccolo project, which provides very useful visual features such as: zooming interface, infinite canvas, scene/camera support, etc.      
 
 
 = Details =

@@ -46,13 +46,26 @@ The unzipped archive contains the following:
 || `hgviewer.jar`         || The HGViewer jar. ||
 || `run.cmd`         || Start script for Windows distribution only. ||
 || `run.sh`         || Start script for Linux distribution only. ||
-|| `hgviewer.jar`         || The HGViewer jar. ||
 || `jars/`                || Third-party Java library dependencies. Note that not all libraries in this directory are needed in every situation. Jar dependencies are described below . ||  
 || `javadoc/` || API documentation in HTML format.||  
 
+== Third-party Java library dependencies ==
+The following table describes the HGViewer jar dependencies. It's up to you to decide which of them to include according the way you plan to use HGViewer.
+|| `freehep-base.jar`         || Common functionality to all freehep* jars. ||
+|| `freehep-graphics2d.jar`   || Common functionality to all freehep* jars. ||
+|| `freehep-graphicsio.jar`   || Common functionality to all freehep* jars.. ||
+|| `freehep--graphicsio-gif.jar`         ||Export the HGViewer canvas in GIF format. ||
+|| `freehep--graphicsio-pdf.jar`         || Export the HGViewer canvas in PDF format. ||
+|| `freehep--graphicsio-ps.jar`         || Export the HGViewer canvas in PS format. ||
+|| `freehep--graphicsio-svg.jar`         || Export the HGViewer canvas in SVG format. ||
+|| `freehep--graphicsio-swf.jar`         || Export the HGViewer canvas in SWF format. ||
+|| `l2fprod-common-sheet.jar`         || Needed for GUI sheets used to define/modify node/edge painters. ||
+|| `org-netbeans-swing-outline.jar`         || Used for the Object Inspector used to examine the value of currently selected node in the viewer. || 
+|| `piccolo.jar`         || Piccolo project jar. ||
+|| `piccolox.jar`         || Piccolo project jar. ||
+All freehep* jars are used in a single place in the viewer - Export command. If you didn't plan to used it, you could remove these jars. If you gonna use HGViewer inside Seco, you'll not need piccolo, piccolox and l2fprod-common-sheet jars, because they are already included in Seco.
 
-
-= Deploying Applications =
+== Deploying Applications ==
 
 In total, the HyperGraphDB library consists of its own JAR files, Berkeley DB's `db.jar` file, third-party JAR files for peer-to-peer communication, and the Berkeley DB JNI library. The specific JARS required by your application depend on the deployment scenario. The following table shows the possible deployment scenarios and the JARS required for each:
 

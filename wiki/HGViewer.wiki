@@ -1,4 +1,4 @@
-#summary HGViewer.
+#summary Overview, building and installing.
 
 = Introduction =
 

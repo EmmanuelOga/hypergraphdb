@@ -65,35 +65,12 @@ The following table describes the HGViewer jar dependencies. It's up to you to d
 || `piccolox.jar`         || Piccolo project jar. ||
 All freehep* jars are used in a single place in the viewer - Export command. If you didn't plan to used it, you could remove these jars. If you gonna use HGViewer inside Seco, you'll not need piccolo, piccolox and l2fprod-common-sheet jars, because they are already included in Seco.
 
-== Deploying Applications ==
+== Running HGViewer ==
 
-In total, the HyperGraphDB library consists of its own JAR files, Berkeley DB's `db.jar` file, third-party JAR files for peer-to-peer communication, and the Berkeley DB JNI library. The specific JARS required by your application depend on the deployment scenario. The following table shows the possible deployment scenarios and the JARS required for each:
-
-|| *HyperGraphDB Features* || *Files Required* ||
-|| Core HyperGraphDB (embedded database only, no networking) || `hypergraphdb.jar` and `jars/db.jar` ||
-|| HyperGraphDB with JXTA networking || `hgdbfull.jar`, `jars/db.jar`, and `jars/jxta.jar`^1^ ||
-|| HyperGraphDB with Jabber networking || `hgdbfull.jar`, `jars/db.jar`, `jars/smack.jar`, and `jars/smackx.jar` ||
-
-When deploying your application, you must:
-
-  * Include the relevant `.jar` files in the application's CLASSPATH.
-  * Tell the Java Virtual Machine where to find the Berkeley DB JNI library.
-
-You tell the Java Virtual Machine where to find native libraries in one of two ways:
-
-  * Specify the location using the `java` command line option `-Djava.library.path`. For example:<br>
-{{{
-java -Djava.library.path=$HGDB_ROOT/native
-}}}
-Here, the environment variable `HGDB_ROOT` has previously been set with the root directory of the HyperGraphDB installation.
-
-  * Add the location to the `PATH` environment variable (on Windows) or the `LD_LIBRARY_PATH` environment variable (on Linux/Unix).
-
-= Details =
-
-
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+HGViewer could be used as a standalone application, as part of Seco or embedded in a different application.
+===Standalone===    
+Edit the JAVA_HOME and HGDB_HOME variables in run.cmd/run.sh file corresponding to your OS  to point to the relevant directories, the run the batch script. 
+===Seco===
+Place hgviewer.jar and its dependency jars in the Seco lib directory. Start Seco and open the ViewerInSeco.nb file, then simply follow the short tutorial presented inside.
+===Another application===
+You can embed HGViewer component in your own application. Here's a sample code:

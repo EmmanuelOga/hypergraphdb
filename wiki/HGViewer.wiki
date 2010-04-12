@@ -83,13 +83,13 @@ f.getContentPane().add(viewer);
 f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 f.addWindowListener(new WindowAdapter()
 {
-        public void windowClosing(WindowEvent e)
-        {
-                f.setVisible(false);
-                //uncomment if you'd use only one instance  
-                //graph.close();
-        }
-} );
+   public void windowClosing(WindowEvent e)
+   {
+      f.setVisible(false);
+      //uncomment if you'd use only one instance  
+      //graph.close();
+   }
+});
 f.setMinimumSize(new Dimension(600, 400));
 f.setVisible(true);
 }}}

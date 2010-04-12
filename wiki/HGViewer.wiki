@@ -73,4 +73,23 @@ Edit the JAVA_HOME and HGDB_HOME variables in run.cmd/run.sh file corresponding 
 ===Seco===
 Place hgviewer.jar and its dependency jars in the Seco lib directory. Start Seco and open the ViewerInSeco.nb file, then simply follow the short tutorial presented inside.
 ===Another application===
-You can embed HGViewer component in your own application. Here's a sample code:
+You can embed HGViewer component in your own application. Here's a sample code that places a viewer in a JFrame:
+{{{
+JFrame f = new JFrame();
+HyperGraph graph = HGEnvironment.get("c:/MyHyperGraph");
+HGHandle h = graph.getTypeSystem().getTypeHandle(HGStats.class);
+HGViewer viewer = new HGViewer(graph, h, 2, null);
+f.getContentPane().add(viewer);
+f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+f.addWindowListener(new WindowAdapter()
+{
+        public void windowClosing(WindowEvent e)
+        {
+                f.setVisible(false);
+                //uncomment if you'd use only one instance  
+                //graph.close();
+        }
+} );
+f.setMinimumSize(new Dimension(600, 400));
+f.setVisible(true);
+}}}

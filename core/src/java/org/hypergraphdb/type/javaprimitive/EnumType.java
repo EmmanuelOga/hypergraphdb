@@ -7,16 +7,20 @@
  */
 package org.hypergraphdb.type.javaprimitive;
 
+
 import org.hypergraphdb.HGException;
+
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.IncidenceSetRef;
 import org.hypergraphdb.LazyRef;
+import org.hypergraphdb.storage.BAUtils;
+import org.hypergraphdb.storage.ByteArrayConverter;
 import org.hypergraphdb.type.HGAtomType;
 import org.hypergraphdb.type.HGAtomTypeBase;
 
 @SuppressWarnings("unchecked")
-public class EnumType extends HGAtomTypeBase
+public class EnumType extends HGAtomTypeBase implements ByteArrayConverter
 {
 	private Class<Enum> enumType;
 	
@@ -72,4 +76,18 @@ public class EnumType extends HGAtomTypeBase
 		stringType.release(layout[0]);
 		graph.getStore().removeLink(handle);
 	}
+
+    public Object fromByteArray(byte[] byteArray)
+    {
+        int ordinal = BAUtils.readInt(byteArray, 0);
+        return enumType.getEnumConstants()[ordinal];        
+    }
+
+    public byte[] toByteArray(Object object)
+    {
+        Enum<?> e = (Enum<?>)object;
+        byte [] B = new byte[4];
+        BAUtils.writeInt(e.ordinal(), B, 0);
+        return B;
+    }	
 }

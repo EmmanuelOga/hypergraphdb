@@ -33,9 +33,9 @@ The following table describes the three targets used to build HyperGraphDB for d
 
 == Downloading and Installing HGViewer ==
 
-All official release packages are located at the ???[http://code.google.com/p/hypergraphdb/downloads/list Google Code downloads area]. The latest build is linked to at [http://www.kobrix.com/hgdb.jsp HyperGraphDB home page].
+All official release packages are located at the ???[http://code.google.com/p/hypergraphdb/downloads/list Google Code downloads area].
 
-HyperGraphDB releases are distributed in compressed archive files  (`.tar.gz` for Unix platforms and `.zip` for Windows). To install a distribution, just unzip the archive into a directory of your own choosing. 
+HGViewer releases are distributed in compressed archive files  (`.tar.gz` for Unix platforms and `.zip` for Windows). To install a distribution, just unzip the archive into a directory of your own choosing. 
 
 == Distribution Archive Content ==
 
@@ -73,6 +73,7 @@ HGViewer could be used as a standalone application, as part of Seco or embedded 
 
 Edit the JAVA_HOME and HGDB_HOME variables in run.cmd/run.sh file corresponding to your OS  to point to the relevant directories, the run the batch script. 
 ===Seco===
+[http://www.freeimagehosting.net/image.php?5cc059ad1e.jpg http://www.freeimagehosting.net/uploads/th.5cc059ad1e.jpg]
 Place hgviewer.jar and its dependency jars in the Seco lib directory. Start Seco and open the ViewerInSeco.nb file, then simply follow the short tutorial presented inside.
 ===Another application===
 You can embed HGViewer component in your own application. Here's a sample code that places a viewer in a JFrame:

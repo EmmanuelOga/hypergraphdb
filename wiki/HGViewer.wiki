@@ -69,7 +69,7 @@ All freehep* jars are used in a single place in the viewer - Export command. If 
 
 HGViewer could be used as a standalone application, as part of Seco or embedded in a different application.
 ===Standalone=== 
-http://www.freeimagehosting.net/uploads/th.f290f0e2be.jpg
+[http://www.freeimagehosting.net/image.php?f290f0e2be.jpg http://www.freeimagehosting.net/uploads/th.f290f0e2be.jpg]
 
 Edit the JAVA_HOME and HGDB_HOME variables in run.cmd/run.sh file corresponding to your OS  to point to the relevant directories, the run the batch script. 
 ===Seco===

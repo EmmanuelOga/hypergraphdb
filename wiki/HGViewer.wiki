@@ -7,8 +7,8 @@ As its name implies HGViewer is an application that is meant to visually represe
 ==Screenshots ==    
 
 ||Standalone ||Embedded in Seco||
-||[http://www.freeimagehosting.net/image.php?f290f0e2be.jpg http://www.freeimagehosting.net/uploads/th.f290f0e2be.jpg]
-||[http://www.freeimagehosting.net/image.php?5cc059ad1e.jpg http://www.freeimagehosting.net/uploads/th.5cc059ad1e.jpg]||
+||[http://www.freeimagehosting.net/image.php?f290f0e2be.jpg http://www.freeimagehosting.net/uploads/th.f290f0e2be.jpg]||[http://www.freeimagehosting.net/image.php?5cc059ad1e.jpg http://www.freeimagehosting.net/uploads/th.5cc059ad1e.jpg]||
+
 == Installing from Source Code == 
 
 The HGViewer source code resides in the [http://code.google.com/p/viewer/source/checkout  Subversion repository] and releases are structured following standard Subversion conventions:

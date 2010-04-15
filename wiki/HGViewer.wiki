@@ -5,12 +5,10 @@
 As its name implies HGViewer is an application that is meant to visually represent parts of a given HyperGraph instance. It can be used as a standalone application or as a embeddable component. HGViewer is based on [http://www.cs.umd.edu/hcil/jazz/index.shtml Piccolo] project, which provides very useful visual features such as: zooming interface, infinite canvas, scene/camera support, etc. HGViewer lets you examine portions of a given HyperGraph, expand given or remove given nodes and edges. It provides few different layout algorithms and a fully-customizable styling/painting framework. As a bonus HGViewer lets you examine the underlying value of each node through debugger-like object inspector.   
 
 ==Screenshots ==    
-===Standalone=== 
-[http://www.freeimagehosting.net/image.php?f290f0e2be.jpg http://www.freeimagehosting.net/uploads/th.f290f0e2be.jpg]
 
-===Embedded in Seco===
-[http://www.freeimagehosting.net/image.php?5cc059ad1e.jpg http://www.freeimagehosting.net/uploads/th.5cc059ad1e.jpg]
-
+||Standalone ||Embedded in Seco||
+||[http://www.freeimagehosting.net/image.php?f290f0e2be.jpg http://www.freeimagehosting.net/uploads/th.f290f0e2be.jpg]
+||[http://www.freeimagehosting.net/image.php?5cc059ad1e.jpg http://www.freeimagehosting.net/uploads/th.5cc059ad1e.jpg]||
 == Installing from Source Code == 
 
 The HGViewer source code resides in the [http://code.google.com/p/viewer/source/checkout  Subversion repository] and releases are structured following standard Subversion conventions:

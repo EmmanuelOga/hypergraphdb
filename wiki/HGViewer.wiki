@@ -37,7 +37,7 @@ The unzipped archive contains the following:
 || `hgviewer.jar`         || The HGViewer jar. ||
 || `run.cmd`         || Start script for Windows distribution only. ||
 || `run.sh`         || Start script for Linux distribution only. ||
-|| `ViewerInSeco.nb` || A short tutorial to be used by Seco.
+|| `ViewerInSeco.nb` || A short tutorial to be used by Seco. ||
 || `jars/`                || Third-party Java library dependencies. Note that not all libraries in this directory are needed in every situation. Jar dependencies are described below . ||  
 || `javadoc/` || API documentation in HTML format.||  
 

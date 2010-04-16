@@ -39,9 +39,9 @@ The unzipped archive contains the following:
 
 == Third-party Java library dependencies ==
 The following table describes the HGViewer jar dependencies. It's up to you to decide which of them to include according the way you plan to use HGViewer.
-|| `freehep-base.jar`         || Common functionality to all freehep* jars. ||
-|| `freehep-graphics2d.jar`   || Common functionality to all freehep* jars. ||
-|| `freehep-graphicsio.jar`   || Common functionality to all freehep* jars.. ||
+|| `freehep-base.jar`         || Common functionality to all freehepXXX jars. ||
+|| `freehep-graphics2d.jar`   || Common functionality to all freehepXXX jars. ||
+|| `freehep-graphicsio.jar`   || Common functionality to all freehepXXX jars. ||
 || `freehep--graphicsio-gif.jar`         ||Export the HGViewer canvas in GIF format. ||
 || `freehep--graphicsio-pdf.jar`         || Export the HGViewer canvas in PDF format. ||
 || `freehep--graphicsio-ps.jar`         || Export the HGViewer canvas in PS format. ||
@@ -104,7 +104,7 @@ The following table describes the three targets used to build HyperGraphDB for d
 
 || *Target* || *Result* || *Contents* ||
 || `jar` || `hgviewer.jar` || Creates the HGViewer jar. ||
-|| `dist-win` || `hgviewer-dist-win.zip` || Creates zipped Windows distribution. ||
-|| `dist-lin` || `hgviewer-dist-lin.zip` || Creates zipped Linux distribution. ||
+|| `dist-zip` || `hgviewer-dist-win.zip` || Creates zipped distribution. ||
+|| `dist-tar.gz` || `hgviewer-dist-lin.zip` || Creates tar-gzipped distribution. ||
 
 *Tip*: Use the command `ant -p` to list all available targets for a project script.

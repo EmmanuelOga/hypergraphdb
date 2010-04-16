@@ -11,7 +11,7 @@ As its name implies HGViewer is an application that is meant to visually represe
  * Debugger-like object inspector that lets you examine the underlying value of each node
  * Infinite canvas with zooming support
  * Ability to export viewed graph in a number of formats, including: GIF, JPEG, PS, PDF and many more.
- * Additional drawing layer that lets you add hand-written comments over the viewed graph      
+ * Additional drawing mode that lets you add hand-written comments over the viewed graph      
 
 
 == Screenshots ==    

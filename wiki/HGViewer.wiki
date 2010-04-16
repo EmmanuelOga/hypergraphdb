@@ -96,7 +96,7 @@ Source code is organized in the following top-level directories:
 || `src/` || The source code. Sub-divided under `java` ||
 || `jars/` || Third-party Java library dependencies for the HGViewer. ||
 
-= Compiling the Source =
+== Compiling the Source ==
 
 HGViewer uses the [http://ant.apache.org ANT build system]. You can compile, build and zip the distribution with the top-level ant script. The only prerequisite is the HyperGraphDB jar which you can take from the HyperGraphDB distribution or build from source. For more information see [http://code.google.com/p/hypergraphdb/wiki/IntroInstall]. Place the hgdbfull.jar in the project's top directory or change the value of hgdb_jar property to point to HyperGraphDB jar.   
 

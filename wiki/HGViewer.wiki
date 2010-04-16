@@ -19,33 +19,6 @@ As its name implies HGViewer is an application that is meant to visually represe
 ||Standalone ||Embedded in Seco||
 ||[http://www.freeimagehosting.net/image.php?f290f0e2be.jpg http://www.freeimagehosting.net/uploads/th.f290f0e2be.jpg]||[http://www.freeimagehosting.net/image.php?5cc059ad1e.jpg http://www.freeimagehosting.net/uploads/th.5cc059ad1e.jpg]||
 
-== Installing from Source Code == 
-
-The HGViewer source code resides in the [http://code.google.com/p/viewer/source/checkout  Subversion repository] and releases are structured following standard Subversion conventions:
-
-  * The main branch containing latest development code can be found under `trunk`.
-  * Each release can be found under `tags`.
-
-== Source Code Directory Structure ==
-
-Source code is organized in the following top-level directories:
-
-|| `src/` || The source code. Sub-divided under `java` ||
-|| `jars/` || Third-party Java library dependencies for the HGViewer. ||
-
-= Compiling the Source =
-
-HGViewer uses the [http://ant.apache.org ANT build system]. You can compile, build and zip the distribution with the top-level ant script. The only prerequisite is the HyperGraphDB jar which you can take from the HyperGraphDB distribution or build from source. For more information see [http://code.google.com/p/hypergraphdb/wiki/IntroInstall]. Place the hgdbfull.jar in the project's top directory or change the value of hgdb_jar property to point to HyperGraphDB jar.   
-
-The following table describes the three targets used to build HyperGraphDB for deployment:
-
-|| *Target* || *Result* || *Contents* ||
-|| `jar` || `hgviewer.jar` || Creates the HGViewer jar. ||
-|| `dist-win` || `hgviewer-dist-win.zip` || Creates zipped Windows distribution. ||
-|| `dist-lin` || `hgviewer-dist-lin.zip` || Creates zipped Linux distribution. ||
-
-*Tip*: Use the command `ant -p` to list all available targets for a project script.
-
 == Downloading and Installing HGViewer ==
 
 All official release packages are located at the ???[http://code.google.com/p/hypergraphdb/downloads/list Google Code downloads area].
@@ -108,3 +81,30 @@ f.addWindowListener(new WindowAdapter()
 f.setMinimumSize(new Dimension(600, 400));
 f.setVisible(true);
 }}}
+
+== Installing from Source Code == 
+
+The HGViewer source code resides in the [http://code.google.com/p/viewer/source/checkout  Subversion repository] and releases are structured following standard Subversion conventions:
+
+  * The main branch containing latest development code can be found under `trunk`.
+  * Each release can be found under `tags`.
+
+== Source Code Directory Structure ==
+
+Source code is organized in the following top-level directories:
+
+|| `src/` || The source code. Sub-divided under `java` ||
+|| `jars/` || Third-party Java library dependencies for the HGViewer. ||
+
+= Compiling the Source =
+
+HGViewer uses the [http://ant.apache.org ANT build system]. You can compile, build and zip the distribution with the top-level ant script. The only prerequisite is the HyperGraphDB jar which you can take from the HyperGraphDB distribution or build from source. For more information see [http://code.google.com/p/hypergraphdb/wiki/IntroInstall]. Place the hgdbfull.jar in the project's top directory or change the value of hgdb_jar property to point to HyperGraphDB jar.   
+
+The following table describes the three targets used to build HyperGraphDB for deployment:
+
+|| *Target* || *Result* || *Contents* ||
+|| `jar` || `hgviewer.jar` || Creates the HGViewer jar. ||
+|| `dist-win` || `hgviewer-dist-win.zip` || Creates zipped Windows distribution. ||
+|| `dist-lin` || `hgviewer-dist-lin.zip` || Creates zipped Linux distribution. ||
+
+*Tip*: Use the command `ant -p` to list all available targets for a project script.

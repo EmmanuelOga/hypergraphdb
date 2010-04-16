@@ -51,7 +51,7 @@ The following table describes the HGViewer jar dependencies. It's up to you to d
 || `org-netbeans-swing-outline.jar`         || Used for the Object Inspector used to examine the value of currently selected node in the viewer. || 
 || `piccolo.jar`         || Piccolo project jar. ||
 || `piccolox.jar`         || Piccolo project jar. ||
-All freehep* jars are used in a single place in the viewer - Export command. If you didn't plan to used it, you could remove these jars. If you gonna use HGViewer inside Seco, you'll not need piccolo, piccolox and l2fprod-common-sheet jars, because they are already included in Seco.
+All freehepXXX jars are used in a single place in the viewer - Export command. If you didn't plan to used it, you could remove these jars. If you gonna use HGViewer inside Seco, you'll not need piccolo, piccolox and l2fprod-common-sheet jars, because they are already included in Seco.
 
 == Running HGViewer ==
 

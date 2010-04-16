@@ -42,11 +42,11 @@ The following table describes the HGViewer jar dependencies. It's up to you to d
 || `freehep-base.jar`         || Common functionality to all freehepXXX jars. ||
 || `freehep-graphics2d.jar`   || Common functionality to all freehepXXX jars. ||
 || `freehep-graphicsio.jar`   || Common functionality to all freehepXXX jars. ||
-|| `freehep--graphicsio-gif.jar`         ||Export the HGViewer canvas in GIF format. ||
-|| `freehep--graphicsio-pdf.jar`         || Export the HGViewer canvas in PDF format. ||
-|| `freehep--graphicsio-ps.jar`         || Export the HGViewer canvas in PS format. ||
-|| `freehep--graphicsio-svg.jar`         || Export the HGViewer canvas in SVG format. ||
-|| `freehep--graphicsio-swf.jar`         || Export the HGViewer canvas in SWF format. ||
+|| `freehep-graphicsio-gif.jar`         ||Export the HGViewer canvas in GIF format. ||
+|| `freehep-graphicsio-pdf.jar`         || Export the HGViewer canvas in PDF format. ||
+|| `freehep-graphicsio-ps.jar`         || Export the HGViewer canvas in PS format. ||
+|| `freehep-graphicsio-svg.jar`         || Export the HGViewer canvas in SVG format. ||
+|| `freehep-graphicsio-swf.jar`         || Export the HGViewer canvas in SWF format. ||
 || `l2fprod-common-sheet.jar`         || Needed for GUI sheets used to define/modify node/edge painters. ||
 || `org-netbeans-swing-outline.jar`         || Used for the Object Inspector used to examine the value of currently selected node in the viewer. || 
 || `piccolo.jar`         || Piccolo project jar. ||

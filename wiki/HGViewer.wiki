@@ -4,7 +4,7 @@
 
 As its name implies HGViewer is an application that is meant to visually represent parts of a given HyperGraph instance. It can be used as a standalone application or as a embeddable component. HGViewer is based on [http://www.cs.umd.edu/hcil/jazz/index.shtml Piccolo] project, which provides very useful visual features such as: zooming interface, infinite canvas, scene/camera support, etc. HGViewer lets you examine portions of a given HyperGraph, expand given or remove given nodes and edges, inspect values, etc.
 
-==Feature Summary==
+== Feature Summary ==
 
 * Few different algorithms for proper layout of nodes 
 * Fully-customizable styling/painting framework to control node/edge appearance 
@@ -14,7 +14,7 @@ As its name implies HGViewer is an application that is meant to visually represe
 * Additional drawing layer that lets you add hand-written comments over the viewed graph      
 
 
-==Screenshots ==    
+== Screenshots ==    
 
 ||Standalone ||Embedded in Seco||
 ||[http://www.freeimagehosting.net/image.php?f290f0e2be.jpg http://www.freeimagehosting.net/uploads/th.f290f0e2be.jpg]||[http://www.freeimagehosting.net/image.php?5cc059ad1e.jpg http://www.freeimagehosting.net/uploads/th.5cc059ad1e.jpg]||

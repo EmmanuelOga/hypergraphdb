@@ -49,8 +49,6 @@ working directory from where we run the little program.
 
 Note that if you are using an IDE such as NetBeans, the current working directory is the directory where the project is located. 
 
-
-
 == Creating a Database == 
 
 There are two ways to create a HyperGraphDB database. The first way requires you to manage the database handles yourself. The second way creates an *environment*, where HyperGraphDB manages the handles. When you need to perform an operation, you can request the handle by name, and HyperGraphDB will look up that name in the environment and give you back the associated handle. Creating an environment is the perferred way to manage your database connections. As your application grows, it will likely need to manage multiple databases, and the environment gives you a clean way to do that. 
@@ -87,6 +85,11 @@ Everything in the HyperGraphDB database, regardless of whether
 it is a node or a link, is called an *atom*. Note that since a link
 is also an atom, links too can also have relationships (i.e. other links)
 attached to them. 
+
+These two points about links in HyperGraphDB are important and bear repeating:
+
+  # Links (edges) "point to" an arbitrary number of elements instead of just two as in regular graphs. 
+  # Links can be pointed to by other links as well. 
 
 You can easily add a reference to a Java object to a HyperGraphDB database. The next code
 snippet adds a Java String, an object of type Book, and an array of
@@ -166,6 +169,18 @@ The way we do it is to add nodes for the two books, and then use an `HGValueLink
 }}}
 
 While in general HyperGraphDB strives for a minimal API intrusiveness, implementing meaningful representations is best done by defining your own `HGLink` implementations. Other predefined links with specific semantics, some of which are used by HyperGraphDB itself, can be found in the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/atom/index.html atom package].
+
+== Summary == 
+
+This section has presented some short code snippets to help you ensure you have HyperGraphDB installed correctly, and to get you started with some basic terms and APIs of the library. These concepts and APIs will be presented in much more detail in later chapters. 
+
+For now, we leave you with a few more terms you will encounter frequently when working with HyperGraphDB:
+ 
+ * *arity*: The number of atoms a link points to. Nodes have an arity of zero.
+ * *incidence set*: The set of all links pointing to a given atom.
+ * *target set*: The set of atoms a given link points to.
+
+If _L_ is a link pointing to the atom _A_, we say that _L_ is *incident* to _A_ and that _A_ is a *target* of _L_.
 
 ----
 ^1^Usually this amounts to adding the `-Djava.library.path` setting to the JVM options your IDE  uses when it runs your program.

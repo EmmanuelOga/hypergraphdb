@@ -11,7 +11,7 @@
    * [TestingTheInstallation Testing the Installation]
      * [TestingTheInstallation#Hello,_HyperGraphDB Hello, HyperGraphDB]
      * [TestingTheInstallation#Creating_a_Database Creating a Database]
-     * [TestingTheInstallation#Adding,_Removing_and_Updating_Graph_Nodes]
+     * [TestingTheInstallation#Adding,_Removing_and_Updating_Graph_Nodes Adding, Removing and Updating Graph Nodes]
    * HyperGraphDB Architecture
      * From Graph Theory to HyperGraphDB
        * Mapping Graph Theory Terms to HyperGraphDB

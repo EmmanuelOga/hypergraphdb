@@ -73,7 +73,97 @@ We will add the following code to our `main` method:
         }
 }}}
 
+== Adding, Removing and Updating Graph Nodes == 
 
+From the HyperGraph perspective, everything you put into the database
+is one of two things: A *node*, or a *link*. A node is simply some object
+(a Java object reference, or a primitive datatype) that does not
+represent a relationship. A link is the HyperGraphDB term for a graph
+edge, or arrow. A link joins two or more nodes, and represents some
+relationship between them. Your application determines the nature of
+the relationship. 
+
+Everything in the HyperGraphDB database, regardless of whether 
+it is a node or a link, is called an *atom*. Note that since a link
+is also an atom, links too can also have relationships (i.e. other links)
+attached to them. 
+
+You can easily add a reference to a Java object to a HyperGraph database. The next code
+snippet adds a Java String, an object of type Book, and an array of
+the primitive type double. These objects represent data, not a
+relationship, so they are nodes. 
+
+{{{
+      HyperGraph graph = HGEnvironment(dbLocation);
+      HGHandle   stringHandle, bookandle, arrayHandle;
+
+      String x = "Hello World";
+      stringHandle  = graph.add(x);
+
+      Book mybook = new Book("Critique of Pure Reason", "E. Kant");
+      bookHandle  = graph.add(mybook);
+
+      arrayHandle = graph.add(new double [] {0.9, 0.1, 4.3434});
+}}} 
+
+HyperGraphDB stores each atom (nodes and links), and you use the APIs 
+to reconstruct them again later, through queries, traversals, and so
+on. The next snippet demonstrates updating and removing the nodes we
+just added. 
+
+{{{
+      // myBook was created and previously added to the database.
+      // Now, we will update one of the existing object's attributes:
+      mybook.setYearPublished(1988);
+      graph.update(mybook);
+
+      // ...
+
+      // Now, we need to delete the object from the database.
+      graph.remove(bookHandle);
+}}}
+
+Note that the `HGHandle` is needed to remove the object. You can also
+replace the object identified by that handle with a completely new object:
+
+{{{
+      graph.replace(bookHandle, new Book(....));
+}}}
+
+== Creating a Graph: Adding Links == 
+
+The nodes we added in the previous section do not constitute a very
+intersting graph. All we have so far are simply objects in the
+database, with no relationships between them. Now we are going to see
+some short examples of adding links between nodes. 
+
+In terms of the HyperGraphDB API, links are objects that implement the
+`HGLink` interface. To store a link between two entities (i.e. atoms,
+recall that a link is also an atom), you add a new atom that is an
+instance of the `HGLink` interface.  
+
+The HyperGraphDB library contains some default implementations
+of the `HGLink` interface:
+
+  * The [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGPlainLink.html HGPlainLink] class is a link implementation that carries no additional information with. It contains no additional data and its type is general with no special meaning.
+  * The [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGValueLink.html HGValueLink] class is similar to `HGPlainLink`, but it allows you to embed an arbitrary Java object in it as "payload".
+  * The [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/atom/HGRel.html HGRel] class is a labeled link implementation with type constraints to its target set (i.e. its arguments). Use of this type of links is documented in [RefLabeledRelations this topic].
+
+Here's an example of using the `HGValueLink` to create a relationship between two Book objects. We have two books, "The Critique of Pure Reason", by E.Kant, and "Kant's System of Perspectives" by Stephen Palmquist. Palmquist's book contains a glossary of Kant's technical terms, and we wish to make a statement to that effect in our database. Furthermore, there is a web site where we can find the glossary online; we will use that as the value of the link. 
+
+The way we do it is to add nodes for the two books, and then use an `HGValueLink` 
+
+{{{
+  HyperGraph graph = HGEnvironment(dbLocation);
+
+  Book cpr = new Book("Critique of Pure Reason", "E. Kant");  
+  Book sop = new Book("Kant's System of Perspectives", "Stephen Palmquist");  
+  HGHandle cprHandle = graph.add(cpr);
+  HGHandle sopHandle = graph.add(sop);
+
+  // Now link the two nodes. The URL of the glossary website is the value.
+  HGValueLink link = new HGValueLink("http://www.hkbu.edu.hk/~ppp/ksp1/KSPglos.html", cprHandle, sopHandle);
+}}}
 
 
 ----

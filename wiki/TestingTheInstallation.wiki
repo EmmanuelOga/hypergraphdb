@@ -75,7 +75,7 @@ We will add the following code to our `main` method:
 
 == Adding, Removing and Updating Graph Nodes == 
 
-From the HyperGraph perspective, everything you put into the database
+From the HyperGraphDB perspective, everything you put into the database
 is one of two things: A *node*, or a *link*. A node is simply some object
 (a Java object reference, or a primitive datatype) that does not
 represent a relationship. A link is the HyperGraphDB term for a graph
@@ -88,7 +88,7 @@ it is a node or a link, is called an *atom*. Note that since a link
 is also an atom, links too can also have relationships (i.e. other links)
 attached to them. 
 
-You can easily add a reference to a Java object to a HyperGraph database. The next code
+You can easily add a reference to a Java object to a HyperGraphDB database. The next code
 snippet adds a Java String, an object of type Book, and an array of
 the primitive type double. These objects represent data, not a
 relationship, so they are nodes. 
@@ -149,7 +149,7 @@ of the `HGLink` interface:
   * The [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGValueLink.html HGValueLink] class is similar to `HGPlainLink`, but it allows you to embed an arbitrary Java object in it as "payload".
   * The [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/atom/HGRel.html HGRel] class is a labeled link implementation with type constraints to its target set (i.e. its arguments). Use of this type of links is documented in [RefLabeledRelations this topic].
 
-Here's an example of using the `HGValueLink` to create a relationship between two Book objects. We have two books, "The Critique of Pure Reason", by E.Kant, and "Kant's System of Perspectives" by Stephen Palmquist. Palmquist's book contains a glossary of Kant's technical terms, and we wish to make a statement to that effect in our database. Furthermore, there is a web site where we can find the glossary online; we will use that as the value of the link. 
+Here is an example of using the `HGValueLink` to create a relationship between two Book objects. We have two books, "The Critique of Pure Reason", by E.Kant, and "Kant's System of Perspectives" by Stephen Palmquist. Palmquist's book contains a glossary of Kant's technical terms, and we wish to make a statement to that effect in our database. Furthermore, there is a web site where we can find the glossary online; we will use that as the value of the link. 
 
 The way we do it is to add nodes for the two books, and then use an `HGValueLink` 
 
@@ -165,6 +165,7 @@ The way we do it is to add nodes for the two books, and then use an `HGValueLink
   HGValueLink link = new HGValueLink("http://www.hkbu.edu.hk/~ppp/ksp1/KSPglos.html", cprHandle, sopHandle);
 }}}
 
+While in general HyperGraphDB strives for a minimal API intrusiveness, implementing meaningful representations is best done by defining your own `HGLink` implementations. Other predefined links with specific semantics, some of which are used by HyperGraphDB itself, can be found in the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/atom/index.html atom package].
 
 ----
 ^1^Usually this amounts to adding the `-Djava.library.path` setting to the JVM options your IDE  uses when it runs your program.

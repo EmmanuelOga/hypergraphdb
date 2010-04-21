@@ -14,3 +14,4 @@
   * Added some more configuration options to HGConfiguration: for the BDB cache and an MVCC flag (applies only to BDB - RAM structures are only MVCC).
   * Added size() method to HGCache interface and implementations.
   * EnumType supports indexing (i.e. enum properties can be indexed by)
+  * Added HGConfiguration option to configure the max size of in-memory incidence sets - maxCachedIncidenceSetSize

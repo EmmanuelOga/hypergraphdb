@@ -15,3 +15,5 @@
   * Added size() method to HGCache interface and implementations.
   * EnumType supports indexing (i.e. enum properties can be indexed by)
   * Added HGConfiguration option to configure the max size of in-memory incidence sets - maxCachedIncidenceSetSize
+  * Added HGConfiguration option for catastrophic recovery. 
+  * Added 'goBeforeFirst' and 'goAfterLast' methods to HGRandomAccessResult interface.

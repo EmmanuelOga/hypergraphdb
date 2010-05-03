@@ -2,14 +2,14 @@
 
 = Introduction =
 
-As its name implies HGViewer is an application that is meant to visually represent parts of a given HyperGraph instance. It can be used as a standalone application or as a embeddable component. HGViewer is based on [http://www.cs.umd.edu/hcil/jazz/index.shtml Piccolo] project, which provides very useful visual features such as: zooming interface, infinite canvas, scene/camera support, etc. HGViewer lets you examine portions of a given HyperGraph, expand given or remove given nodes and edges, inspect values, etc.
+The HGViewer is a library and an application that helps to visually represent parts of a given HyperGraph instance. It can be used as a standalone application or as a embeddable component. It is mostly based on [http://www.cs.umd.edu/hcil/jazz/index.shtml Piccolo] project, which provides very useful visual features such as: zooming interface, infinite canvas, scene/camera support, etc. HGViewer lets you examine portions of a given HyperGraph by drawing it as a regular directed graph around a currently focused node. You can also completely examine the Java object of a given node or edge, as in a standard debugger.
 
 == Feature Summary ==
 
  * Few different algorithms for proper layout of nodes 
  * Fully-customizable styling/painting framework to control node/edge appearance 
  * Debugger-like object inspector that lets you examine the underlying value of each node
- * Infinite canvas with zooming support
+ * Zooming support
  * Ability to export viewed graph in a number of formats, including: GIF, JPEG, PS, PDF and many more.
  * Additional drawing mode that lets you add hand-written comments over the viewed graph      
 
@@ -20,19 +20,19 @@ As its name implies HGViewer is an application that is meant to visually represe
 ||[http://www.freeimagehosting.net/image.php?f290f0e2be.jpg http://www.freeimagehosting.net/uploads/th.f290f0e2be.jpg]||[http://www.freeimagehosting.net/image.php?5cc059ad1e.jpg http://www.freeimagehosting.net/uploads/th.5cc059ad1e.jpg]||
 
 == Standalone vs. Embedded  ==
-As you could see from the above screenshots, the two versions of the HGViewer have few differences. The standalone viewer provides lazier GUI interface: object inspector is always visible, portions of the viewed graph could be exported in another viewer in the built-in tabbed pane and so on. But you should explicitly place additional jars used by the viewed graphs in the /lib folder of the viewer installation and you don't have the scripting capabilities provided by Seco. So choosing which version to use is generally a matter of personal taste.  
+As you can see from the above screenshots, the two versions of the HGViewer have few differences. The standalone viewer provides lazier GUI interface: object inspector is always visible, portions of the viewed graph could be exported in another viewer in the built-in tabbed pane and so on. But you should explicitly place additional jars used by the viewed graphs in the /lib folder of the viewer installation and you don't have the scripting capabilities provided by Seco. Moreover the standalone version doesn't provide any means to switch focus to a completely different place in the graph, or do a search in some other way, as one could do by scripting within Seco. So using the viewer within Seco is the recommended way.
  
 == Downloading and Installing HGViewer ==
 
-All official release packages are located at the ???[http://code.google.com/p/hypergraphdb/downloads/list Google Code downloads area].
+All official release packages are located at the [http://code.google.com/p/hypergraphdb/downloads/list Google Code downloads area].
 
-HGViewer releases are distributed in compressed archive files  (`.tar.gz` for Unix platforms and `.zip` for Windows). To install a distribution, just unzip the archive into a directory of your own choosing. 
+HGViewer releases are distributed in compressed archive files  (`.tar.gz` for Unix platforms and `.zip` for Windows). To install a distribution, just unzip the archive into a directory of your own choosing. Then read the instructions below on how to use it.
 
 == Distribution Archive Content ==
 
 The unzipped archive contains the following:
 
-|| `readme.html`          || General information about the HGViewer disribution. ||
+|| `Readme.txt`          || General information about the HGViewer disribution. ||
 || `LicensingInformation` || The HGViewer license conditions. ||
 || `hgviewer.jar`         || The HGViewer jar. ||
 || `run.cmd`         || Start script for Windows distribution only. ||
@@ -55,15 +55,15 @@ The following table describes the HGViewer jar dependencies. It's up to you to d
 || `org-netbeans-swing-outline.jar`         || Used for the Object Inspector used to examine the value of currently selected node in the viewer. || 
 || `piccolo.jar`         || Piccolo project jar. ||
 || `piccolox.jar`         || Piccolo project jar. ||
-All freehepXXX jars are used in a single place in the viewer - Export command. If you didn't plan to used it, you could remove these jars. If you gonna use HGViewer inside Seco, you'll not need piccolo, piccolox and l2fprod-common-sheet jars, because they are already included in Seco.
+All freehepXXX jars are used in a single place in the viewer - Export command. If you didn't plan to used it, you could remove these jars. If you are going to use HGViewer inside Seco, you'll not need piccolo, piccolox and l2fprod-common-sheet jars, because they are already included in Seco.
 
 == Running HGViewer ==
 
 HGViewer could be used as a standalone application, as part of Seco or embedded in a different application.
 ===Standalone=== 
 Edit the JAVA_HOME and HGDB_HOME variables in run.cmd/run.sh file corresponding to your OS  to point to the relevant directories, the run the batch script. 
-===Seco===
-Place hgviewer.jar and its dependency jars in the Seco lib directory. Start Seco and open the ViewerInSeco.nb file, then simply follow the short tutorial presented inside.
+===Seco, Recommended===
+Add hgviewer.jar and its dependency jars (except piccolo, piccolox and l2fprod-common-sheet) to Seco. That is, either copy them to the Seco lib directory or add in the scripting runtime context. In Seco, import the ViewerInSeco.nb file, then simply follow the short tutorial presented inside.
 ===Another application===
 You can embed HGViewer component in your own application. Here's a sample code that places a viewer in a JFrame:
 {{{
@@ -88,10 +88,7 @@ f.setVisible(true);
 
 == Installing from Source Code == 
 
-The HGViewer source code resides in the [http://code.google.com/p/viewer/source/checkout  Subversion repository] and releases are structured following standard Subversion conventions:
-
-  * The main branch containing latest development code can be found under `trunk`.
-  * Each release can be found under `tags`.
+The HGViewer source code resides in the [http://code.google.com/p/hypergraphdb/source/checkout  Subversion repository] and it's part of the HyperGraphDB source tree, under the directory `viewer`.
 
 == Source Code Directory Structure ==
 

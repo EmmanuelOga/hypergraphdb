@@ -53,79 +53,83 @@ import java.util.*;
  */
 public class MemoryWarningSystem 
 {
-	private final Collection<Listener> listeners = new ArrayList<Listener>();
-	private MemoryPoolMXBean tenuredGenPool = null;
-	
-	public static interface Listener 
-	{
-		void memoryUsageLow(long usedMemory, long maxMemory);
-	}
+    private final Collection<Listener> listeners = new ArrayList<Listener>();
+    private MemoryPoolMXBean tenuredGenPool = null;
+    
+    public static interface Listener 
+    {
+        void memoryUsageLow(long usedMemory, long maxMemory);
+    }
 
-	public MemoryWarningSystem() 
-	{
-//	    MemoryMXBean mbean = ManagementFactory.getMemoryMXBean();
-//	    tenuredGenPool = this.findTenuredGenPool();
-//	    NotificationEmitter emitter = (NotificationEmitter) mbean;
-//	    emitter.addNotificationListener(new NotificationListener() 
-//	    {
-//	    	public void handleNotification(Notification n, Object hb) 
-//	    	{
-//	    		if (n.getType().equals(MemoryNotificationInfo.MEMORY_THRESHOLD_EXCEEDED)) 
-//	    		{	    			
-//		            long maxMemory = tenuredGenPool.getUsage().getMax();
-//		            long usedMemory = tenuredGenPool.getUsage().getUsed();
-//		            for (Listener listener : listeners) 
-//		            {
-//		              listener.memoryUsageLow(usedMemory, maxMemory);
-//		            }
-//	    		}
-//	    	}
-//	    }, null, null);
-	}
+    public MemoryWarningSystem() 
+    {
+        MemoryMXBean mbean = ManagementFactory.getMemoryMXBean();
+        tenuredGenPool = this.findTenuredGenPool();
+        NotificationEmitter emitter = (NotificationEmitter) mbean;
+        emitter.addNotificationListener(new NotificationListener() 
+        {
+            public void handleNotification(Notification n, Object hb) 
+            {
+                if (n.getType().equals(MemoryNotificationInfo.MEMORY_THRESHOLD_EXCEEDED)) 
+                {                   
+                    long maxMemory = tenuredGenPool.getUsage().getMax();
+                    long usedMemory = tenuredGenPool.getUsage().getUsed();
+                    for (Listener listener : listeners) 
+                    {
+                      listener.memoryUsageLow(usedMemory, maxMemory);
+                    }
+                }
+            }
+        }, null, null);
+    }
 
-	public boolean addListener(Listener listener) 
-	{
-		return listeners.add(listener);
-	}
+    public boolean addListener(Listener listener) 
+    {
+        return listeners.add(listener);
+    }
 
-	public boolean removeListener(Listener listener) 
-	{
-		return listeners.remove(listener);
-	}
+    public boolean removeListener(Listener listener) 
+    {
+        return listeners.remove(listener);
+    }
 
-	public void setPercentageUsageThreshold(double percentage) 
-	{
-		if (percentage <= 0.0 || percentage > 1.0) 
-			throw new IllegalArgumentException("Percentage not in range");
+    public void setPercentageUsageThreshold(double percentage) 
+    {
+        if (percentage <= 0.0 || percentage > 1.0) 
+            throw new IllegalArgumentException("Percentage not in range");
 
-//	    long maxMemory = tenuredGenPool.getUsage().getMax();
-//	    long warningThreshold = (long) (maxMemory * percentage);
-	//    tenuredGenPool.setUsageThreshold(warningThreshold);	    
-	}
+        long maxMemory = tenuredGenPool.getUsage().getMax();
+        long warningThreshold = (long) (maxMemory * percentage);
+        tenuredGenPool.setUsageThreshold(warningThreshold);     
+    }
 
-	public double getPercentageUsageThreshold()
-	{
-	    long maxMemory = tenuredGenPool.getUsage().getMax();
-	    long warningThreshold = tenuredGenPool.getUsageThreshold(); 
-	    return (double)warningThreshold/(double)maxMemory;
-	}
-	
-	/**
+    public double getPercentageUsageThreshold()
+    {
+        long maxMemory = tenuredGenPool.getUsage().getMax();
+        long warningThreshold = tenuredGenPool.getUsageThreshold(); 
+        return (double)warningThreshold/(double)maxMemory;
+    }
+    
+    /**
      * Tenured Space Pool can be determined by it being of type
      * HEAP and by it being possible to set the usage threshold.
      */
-	private MemoryPoolMXBean findTenuredGenPool() 
-	{
-	    MemoryPoolMXBean last = null;
-		for (MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) 
-		{
-			// I don't know whether this approach is better, or whether
-			// we should rather check for the pool name "Tenured Gen"?
-//			if (pool.getType() == MemoryType.HEAP && pool.isUsageThresholdSupported())
-				last = pool;
-				System.out.println("pool " + pool);
-		}
-		return last;
-		//throw new AssertionError("Could not find tenured space");
-	}
+    private MemoryPoolMXBean findTenuredGenPool() 
+    {
+        MemoryPoolMXBean last = null;
+        for (MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) 
+        {
+            // I don't know whether this approach is better, or whether
+            // we should rather check for the pool name "Tenured Gen"?
+            if (pool.getType() == MemoryType.HEAP && pool.isUsageThresholdSupported())
+            {
+                last = pool;
+                System.out.println("pool " + pool);
+            }
+        }
+        if (last != null)
+            return last;
+        else
+            throw new AssertionError("Could not find tenured space");
+    }
 }

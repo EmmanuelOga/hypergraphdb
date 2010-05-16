@@ -132,10 +132,14 @@ public class DefaultIndexImpl<KeyType, ValueType> implements HGSortIndex<KeyType
             dbConfig.setAllowCreate(true);
             if (env.getConfig().getTransactional())
             	dbConfig.setTransactional(true);
-            dbConfig.setType(DatabaseType.BTREE);
             dbConfig.setSortedDuplicates(sort_duplicates);
             if (comparator != null)
-           		dbConfig.setBtreeComparator(comparator);                	
+            {
+                dbConfig.setType(DatabaseType.BTREE);                
+           		dbConfig.setBtreeComparator(comparator);
+            }
+            else
+                dbConfig.setType(DatabaseType.HASH);
             db = env.openDatabase(null, DB_NAME_PREFIX + name, null, dbConfig);
         }
         catch (Throwable t)

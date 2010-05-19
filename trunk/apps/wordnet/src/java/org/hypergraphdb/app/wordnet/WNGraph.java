@@ -15,6 +15,7 @@ import org.hypergraphdb.atom.HGAtomSet;
 import org.hypergraphdb.algorithms.*;
 import org.hypergraphdb.query.HGAtomPredicate;
 import org.hypergraphdb.util.HGUtils;
+import org.hypergraphdb.util.Pair;
 
 /**
  * 
@@ -126,12 +127,12 @@ public class WNGraph
 		HGALGenerator gen = isaRelatedGenerator(false, true);
 	    while (true)
 	    {
-	    	HGSearchResult<HGHandle> rs = gen.generate(synset);
+	    	HGSearchResult<Pair<HGHandle, HGHandle>> rs = gen.generate(synset);
 	    	try
 	    	{
 		    	if (!rs.hasNext()) 
 		    		return synset;
-		        synset = rs.next();
+		        synset = rs.next().getSecond();
 	    	}
 	    	finally
 	    	{
@@ -212,7 +213,7 @@ public class WNGraph
 			    while (true)
 			    {
 			    	visited.add(current);
-			    	HGSearchResult<HGHandle> siblings = gen.generate(current);
+			    	HGSearchResult<Pair<HGHandle, HGHandle>> siblings = gen.generate(current);
 			    	try
 			    	{
 				    	if (!siblings.hasNext()) 
@@ -220,7 +221,7 @@ public class WNGraph
 				    		verbRoots.add(current);
 				    		break;
 				    	}
-				        current = siblings.next();
+				        current = siblings.next().getSecond();
 				        if (visited.contains(current))
 				        	break;
 			    	}

@@ -1,5 +1,6 @@
 #summary Collects bugs fixes and improvements made in the current dev cycle
 
+  * Migration to Berkeley DB 11g Release 2
   * Made HGRelTypeConstructor into a HGComplexType so that relations can be found by name more easily.
   * Added the HGTransactionContext to the HGTransaction instances. Added the !HyperGraph instance to its associated HGTransactionContext.
   * Added a few more events for finer grained control of atom addition and replacement. Listeners can throw strongly-typed exceptions to abort the transaction.
@@ -19,3 +20,4 @@
   * Added 'goBeforeFirst' and 'goAfterLast' methods to HGRandomAccessResult interface.\
   * API Change: ALGenerator now returns a Pair<HGHandle, HGHandle> result set holding both the link to the adjacent atom and the atom itself, while the getCurrentLink method was removed.
   * Added HGHandleHolder, similar to HGGraphHolder - atoms implementating this interface will have their own handle managed as a bean property by a HyperGraph instance (set during add/load/replace).
+  * Added Date related primitive types for storing java.util.Date, java.sql.Date, java.sql.Timestamp and java.util.Calendar

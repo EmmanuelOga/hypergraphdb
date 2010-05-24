@@ -17,6 +17,7 @@
   * EnumType supports indexing (i.e. enum properties can be indexed by)
   * Added HGConfiguration option to configure the max size of in-memory incidence sets - maxCachedIncidenceSetSize
   * Added HGConfiguration option for catastrophic recovery. 
+  * Added HGConfiguration option to ignore system attributes (improves performance when set to false which is not the default!)
   * Added 'goBeforeFirst' and 'goAfterLast' methods to HGRandomAccessResult interface.\
   * API Change: ALGenerator now returns a Pair<HGHandle, HGHandle> result set holding both the link to the adjacent atom and the atom itself, while the getCurrentLink method was removed.
   * Added HGHandleHolder, similar to HGGraphHolder - atoms implementating this interface will have their own handle managed as a bean property by a HyperGraph instance (set during add/load/replace).

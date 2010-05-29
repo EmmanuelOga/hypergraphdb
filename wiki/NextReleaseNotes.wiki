@@ -23,3 +23,4 @@
   * Added HGHandleHolder, similar to HGGraphHolder - atoms implementating this interface will have their own handle managed as a bean property by a HyperGraph instance (set during add/load/replace).
   * Added Date related primitive types for storing java.util.Date, java.sql.Date, java.sql.Timestamp and java.util.Calendar - value are stored as longs in GMT according to the local time zone.
   * To construct HGLink Java beans, it is now possible to use constructors of the form A(HGHandle x, HGHandle y, ..., HGHandle z) in addition to the A(HGHandle [] targetSet) form. This makes it easier to name the actual link target arguments and improves code readability and Javadocs.
+  * Added support for private default and link based constructors.

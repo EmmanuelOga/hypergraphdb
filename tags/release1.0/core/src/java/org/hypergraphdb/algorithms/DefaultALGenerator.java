@@ -410,7 +410,7 @@ public class DefaultALGenerator implements HGALGenerator, CloseMe
 
 	/**
 	 * <p>
-	 * Construct a default adjency list generator where links are considered <strong>ordered</strong>.
+	 * Construct a default adjacency list generator where links are considered <strong>ordered</strong>.
 	 * </p>
 	 *
 	 * <p>

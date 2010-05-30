@@ -127,7 +127,7 @@ public class HGStore
             dbConfig.setAllowCreate(true);
             if (env.getConfig().getTransactional())
             	dbConfig.setTransactional(true);
-            dbConfig.setType(DatabaseType.HASH);
+            dbConfig.setType(DatabaseType.BTREE);
             data_db = env.openDatabase(null, DATA_DB_NAME, null, dbConfig);    
             primitive_db = env.openDatabase(null, PRIMITIVE_DB_NAME, null, dbConfig);
             
@@ -136,7 +136,7 @@ public class HGStore
             if (env.getConfig().getTransactional())
             	dbConfig.setTransactional(true);
             dbConfig.setSortedDuplicates(true);
-            dbConfig.setType(DatabaseType.HASH);
+            dbConfig.setType(DatabaseType.BTREE);
             incidence_db = env.openDatabase(null, INCIDENCE_DB_NAME, null, dbConfig);
             
 	        transactionManager = new HGTransactionManager(getTransactionFactory());

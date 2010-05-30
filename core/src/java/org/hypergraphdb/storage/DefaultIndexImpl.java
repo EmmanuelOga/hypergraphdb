@@ -139,7 +139,7 @@ public class DefaultIndexImpl<KeyType, ValueType> implements HGSortIndex<KeyType
            		dbConfig.setBtreeComparator(comparator);
             }
             else
-                dbConfig.setType(DatabaseType.HASH);
+                dbConfig.setType(DatabaseType.BTREE);
             db = env.openDatabase(null, DB_NAME_PREFIX + name, null, dbConfig);
         }
         catch (Throwable t)

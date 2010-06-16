@@ -114,7 +114,7 @@ class U
 		HGHandle rel = hg.findOne(graph, 
 				  hg.and(hg.type(HGTM.hTypeOf), 
 						 hg.incident(h),
-						 hg.orderedLink(HGHandleFactory.anyHandle, h)));
+						 hg.orderedLink(graph.getHandleFactory().anyHandle(), h)));
 		if (rel == null)
 			return null;
 		else
@@ -126,7 +126,7 @@ class U
 		HGHandle rel = hg.findOne(graph, 
 								  hg.and(hg.type(HGTM.hTypeOf),
 										 hg.incident(object),
-										 hg.orderedLink(HGHandleFactory.anyHandle, object)));
+										 hg.orderedLink(graph.getHandleFactory().anyHandle(), object)));
 		if (rel != null)
 			graph.remove(rel);
 		if (type != null)
@@ -138,7 +138,7 @@ class U
 		HGHandle rel = hg.findOne(graph, 
 				  hg.and(hg.type(HGTM.hReifierOf), 
 						 hg.incident(h),
-						 hg.orderedLink(HGHandleFactory.anyHandle, h)));
+						 hg.orderedLink(graph.getHandleFactory().anyHandle(), h)));
 		if (rel == null)
 			return null;
 		else
@@ -150,7 +150,7 @@ class U
 		HGHandle rel = hg.findOne(graph, 
 								  hg.and(hg.type(HGTM.hReifierOf), 
 										 hg.incident(object),
-										 hg.orderedLink(HGHandleFactory.anyHandle, object)));
+										 hg.orderedLink(graph.getHandleFactory().anyHandle(), object)));
 		if (rel != null)
 			graph.remove(rel);
 		if (reifier != null)
@@ -168,8 +168,8 @@ class U
 		HGQueryCondition relQuery = hg.and(hg.type(relType),
 							   hg.incident(first == null ? second : first),	
 							   hg.orderedLink(new HGHandle[] { 
-								first == null ? HGHandleFactory.anyHandle : first,
-								second == null ? HGHandleFactory.anyHandle : second
+								first == null ? graph.getHandleFactory().anyHandle() : first,
+								second == null ? graph.getHandleFactory().anyHandle() : second
 							   }));
 		int idx = (first == null ? 0 : 1);
 		List<T> L = hg.findAll(graph, 
@@ -189,8 +189,8 @@ class U
 			rs = graph.find(hg.and(hg.type(relType), 
 					   			   hg.incident(first == null ? second : first),					
 								   hg.orderedLink(new HGHandle[] { 
-									first == null ? HGHandleFactory.anyHandle : first,
-									second == null ? HGHandleFactory.anyHandle : second
+									first == null ? graph.getHandleFactory().anyHandle() : first,
+									second == null ? graph.getHandleFactory().anyHandle() : second
 								   })));
 			int idx = (first == null ? 0 : 1); 
 			while (rs.hasNext())
@@ -214,8 +214,8 @@ class U
 		HGHandle h = hg.findOne(graph, hg.and(hg.type(relType), 
 				   				hg.incident(first == null ? second : first),				
 							    hg.orderedLink(new HGHandle[] { 
-								first == null ? HGHandleFactory.anyHandle : first,
-								second == null ? HGHandleFactory.anyHandle : second
+								first == null ? graph.getHandleFactory().anyHandle() : first,
+								second == null ? graph.getHandleFactory().anyHandle() : second
 							   })));
 		int idx = (first == null ? 0 : 1);
 		if (h != null)
@@ -230,7 +230,7 @@ class U
 				   hg.incident(todettach),
 				   hg.orderedLink(new HGHandle[] { 
 					todettach,
-					HGHandleFactory.anyHandle
+					graph.getHandleFactory().anyHandle()
 				   })));
 		for (HGHandle h : all)
 			graph.remove(h);

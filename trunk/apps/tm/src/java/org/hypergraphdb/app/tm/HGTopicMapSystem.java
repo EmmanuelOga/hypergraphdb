@@ -1,6 +1,7 @@
 package org.hypergraphdb.app.tm;
 
 import java.util.HashSet;
+
 import java.util.List;
 import java.util.Set;
 
@@ -209,12 +210,12 @@ public final class HGTopicMapSystem implements TopicMapSystem
         HGQuery q1 = HGQuery.make(graph, 
         			   hg.apply(HGQuery.hg.targetAt(graph, 2), 
         						hg.and(hg.type(HGAssociationRole.class), 
-        							   hg.orderedLink(ht, hRoleType, HGHandleFactory.anyHandle()))));
+        							   hg.orderedLink(ht, hRoleType, graph.getHandleFactory().anyHandle()))));
         // A link condition constraining roles such that the role type is 'h' and the association is set as a key
         // to a piped query 
-        final OrderedLinkCondition linkCondition = HGQuery.hg.orderedLink(HGHandleFactory.anyHandle(),
+        final OrderedLinkCondition linkCondition = HGQuery.hg.orderedLink(graph.getHandleFactory().anyHandle(),
         															  hTargetRoleType,
-        															  HGHandleFactory.anyHandle());
+        															  graph.getHandleFactory().anyHandle());
         DefaultKeyBasedQuery pipe = new DefaultKeyBasedQuery(
         	graph,
             HGQuery.hg.apply(HGQuery.hg.targetAt(graph, 0),

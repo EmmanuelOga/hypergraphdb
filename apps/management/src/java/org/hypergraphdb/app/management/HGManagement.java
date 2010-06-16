@@ -1,15 +1,14 @@
 package org.hypergraphdb.app.management;
 
 import java.io.BufferedReader;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Properties;
-
 import org.hypergraphdb.HGHandle;
-import org.hypergraphdb.HGHandleFactory;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.HGQuery.hg;
@@ -57,11 +56,11 @@ public class HGManagement
 			in = HGManagement.class.getResourceAsStream(resource);
 			Properties props = new Properties();
 			props.load(in);
-			for (Iterator i = props.entrySet().iterator(); i.hasNext(); )
+			for (Iterator<Map.Entry<Object, Object>> i = props.entrySet().iterator(); i.hasNext(); )
 			{
-				Map.Entry e = (Map.Entry)i.next();
-				Class clazz = Class.forName(e.getKey().toString().trim());
-				HGPersistentHandle handle = HGHandleFactory.makeHandle(e.getValue().toString().trim());
+				Map.Entry<Object, Object> e = (Map.Entry<Object, Object>)i.next();
+				Class<?> clazz = Class.forName(e.getKey().toString().trim());
+				HGPersistentHandle handle = graph.getHandleFactory().makeHandle(e.getValue().toString().trim());
 				graph.getTypeSystem().defineTypeAtom(handle, clazz);
 			}
 		}
@@ -91,7 +90,7 @@ public class HGManagement
 				if (line.startsWith("#") || line.length() == 0)
 					continue;
 				String [] tokens = line.split("="); 
-				handles.addFirst(HGHandleFactory.makeHandle(tokens[1].trim()));
+				handles.addFirst(graph.getHandleFactory().makeHandle(tokens[1].trim()));
 			}
 			for (HGHandle h : handles)
 			{

@@ -1,11 +1,11 @@
 package org.hypergraphdb.app.wordnet;
 
 import java.util.HashMap;
+
 import java.util.List;
 import java.util.Map;
 
 import org.hypergraphdb.HGHandle;
-import org.hypergraphdb.HGHandleFactory;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HGSearchResult;
 import org.hypergraphdb.HyperGraph;
@@ -13,6 +13,7 @@ import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.app.wordnet.data.*;
 import org.hypergraphdb.atom.HGAtomSet;
 import org.hypergraphdb.algorithms.*;
+import org.hypergraphdb.handle.UUIDHandleFactory;
 import org.hypergraphdb.query.HGAtomPredicate;
 import org.hypergraphdb.util.HGUtils;
 import org.hypergraphdb.util.Pair;
@@ -32,7 +33,8 @@ public class WNGraph
 	private HyperGraph graph;
 	private Map<Class<? extends WNStat<?>>, WNStat<?>> stats = new HashMap<Class<? extends WNStat<?>>, WNStat<?>>();
 	
-	private static final HGPersistentHandle VERB_ISA_ROOT = HGHandleFactory.makeHandle("ec0de085-4ed6-4b73-b520-cb21406c1881");
+	private static HGPersistentHandle VERB_ISA_ROOT = 
+		UUIDHandleFactory.I.makeHandle("ec0de085-4ed6-4b73-b520-cb21406c1881");
 	
 	public WNGraph(HyperGraph graph)
 	{
@@ -311,8 +313,8 @@ public class WNGraph
 		return hg.findAll(graph, hg.apply(hg.targetAt(graph, leftToRight ? 1 : 0),
 				hg.and(hg.type(type), 
 					   hg.incident(synset), 
-					   hg.orderedLink(leftToRight ? synset : HGHandleFactory.anyHandle,
-							   	      leftToRight ? HGHandleFactory.anyHandle : synset))
+					   hg.orderedLink(leftToRight ? synset : graph.getHandleFactory().anyHandle(),
+							   	      leftToRight ? graph.getHandleFactory().anyHandle() : synset))
 				));
 	}
 	

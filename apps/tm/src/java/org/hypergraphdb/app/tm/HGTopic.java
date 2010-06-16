@@ -1,6 +1,7 @@
 package org.hypergraphdb.app.tm;
 
 import java.util.ArrayList;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -9,7 +10,6 @@ import java.util.Set;
 import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.HGException;
 import org.hypergraphdb.HGHandle;
-import org.hypergraphdb.HGHandleFactory;
 import org.hypergraphdb.HGLink;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HGSearchResult;
@@ -295,7 +295,8 @@ public class HGTopic extends HGTopicMapObjectBase implements Topic
 		HGHandle thisHandle = graph.getHandle(this);
 		HGQueryCondition relQuery = hg.and(hg.type(HGTM.hTypeOf),
 							   hg.incident(graph.getHandle(this)),	
-							   hg.orderedLink(new HGHandle[] {thisHandle, HGHandleFactory.anyHandle}));
+							   hg.orderedLink(new HGHandle[] {thisHandle, 
+									   						  graph.getHandleFactory().anyHandle()}));
 		HGSearchResult<HGHandle> rs = graph.find(relQuery);
 		AtomTypeCondition c = new AtomTypeCondition(graph.getTypeSystem().getTypeHandle(HGTopic.class));
 		try

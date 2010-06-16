@@ -1,6 +1,7 @@
 package org.hypergraphdb.app.tm;
 
 import java.util.HashSet;
+
 import java.util.Set;
 
 import org.hypergraphdb.HGQuery.hg;
@@ -10,7 +11,6 @@ import org.hypergraphdb.atom.HGRel;
 import org.hypergraphdb.util.HGUtils;
 import org.hypergraphdb.HGException;
 import org.hypergraphdb.HGHandle;
-import org.hypergraphdb.HGHandleFactory;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HGSearchResult;
 import org.tmapi.core.Association;
@@ -143,7 +143,7 @@ public class HGTopicMap extends HGTopicMapObjectBase implements TopicMap
 
 	public TopicMapObject getObjectById(String objectId)
 	{
-		HGPersistentHandle h = HGHandleFactory.makeHandle(objectId);
+		HGPersistentHandle h = graph.getHandleFactory().makeHandle(objectId);
 		HGTopicMapObjectBase o = (HGTopicMapObjectBase)graph.get(h);
 		return o;
 	}

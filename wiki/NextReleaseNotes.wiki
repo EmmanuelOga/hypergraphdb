@@ -12,12 +12,14 @@
   * Fixed a bug in SimpleALGenerator and DefaultALGenerator returning incorrect link when it changes.
   * Added HGUtils.dropHyperGraphInstance method to delete a HGDB instance from the filesystem
   * Implemented MVCC (snapshot isolation) transactions, which are now default.
-  * Added some more configuration options to HGConfiguration: for the BDB cache and an MVCC flag (applies only to BDB - RAM structures are only MVCC).
   * Added size() method to HGCache interface and implementations.
   * EnumType supports indexing (i.e. enum properties can be indexed by)
-  * Added HGConfiguration option to configure the max size of in-memory incidence sets - maxCachedIncidenceSetSize
-  * Added HGConfiguration option for catastrophic recovery. 
-  * Added HGConfiguration option to ignore system attributes (improves performance when set to false which is not the default!)
+  * Abstracted storage implementation into HGStoreImplementation interface
+  * API Change: Abstracted persistent handle management - HGHandleFactory is now an interface rather than a class.
+  * Added some more configuration options to HGConfiguration: 
+    * max size of in-memory incidence sets - maxCachedIncidenceSetSize 
+    * option to ignore system attributes (improves performance when set to false which is not the default!)
+  * API Change: removed storage cache configuration option from HGConfiguration - this is not separately available from BDBStorageImplementation.getConfig() which returns BDBConfig.
   * Added 'goBeforeFirst' and 'goAfterLast' methods to HGRandomAccessResult interface.\
   * API Change: ALGenerator now returns a Pair<HGHandle, HGHandle> result set holding both the link to the adjacent atom and the atom itself, while the getCurrentLink method was removed.
   * Added HGHandleHolder, similar to HGGraphHolder - atoms implementating this interface will have their own handle managed as a bean property by a HyperGraph instance (set during add/load/replace).

@@ -11,16 +11,16 @@ package org.hypergraphdb.app.xsd;
 import java.io.UnsupportedEncodingException;
 
 import org.hypergraphdb.HGHandle;
-import org.hypergraphdb.HGHandleFactory;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.IncidenceSetRef;
 import org.hypergraphdb.LazyRef;
+import org.hypergraphdb.handle.UUIDHandleFactory;
 import org.hypergraphdb.type.HGAtomTypeBase;
 
 public class ReferenceTypeCtor extends HGAtomTypeBase
 {
-   public static final HGPersistentHandle HANDLE = HGHandleFactory
-         .makeHandle("ba19fe3c-5b32-11db-82a1-a78cc7527afc");
+   public static final HGPersistentHandle HANDLE = 
+	   UUIDHandleFactory.I.makeHandle("ba19fe3c-5b32-11db-82a1-a78cc7527afc");
    public static final ReferenceTypeCtor INSTANCE = new ReferenceTypeCtor();
 
    public Object make(
@@ -50,7 +50,7 @@ public class ReferenceTypeCtor extends HGAtomTypeBase
    public HGPersistentHandle store(
       Object instance)
    {
-      HGPersistentHandle result = HGHandleFactory.nullHandle();
+      HGPersistentHandle result = graph.getHandleFactory().nullHandle();
 
       if (null != instance)
       {

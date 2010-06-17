@@ -8,7 +8,6 @@
  */
 package org.hypergraphdb.app.xsd.primitive;
 
-import org.hypergraphdb.HGHandleFactory;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.IncidenceSetRef;
@@ -44,7 +43,7 @@ public class XSDTimePrimitive implements HGAtomType
                        LazyRef targetSet,
                        IncidenceSetRef incidenceSet)
     {
-        if (HGHandleFactory.nullHandle().equals(handle))
+        if (hg.getHandleFactory().nullHandle().equals(handle))
         {
             return null;
         }

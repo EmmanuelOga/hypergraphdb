@@ -9,7 +9,6 @@
 package org.hypergraphdb.app.xsd;
 
 import org.hypergraphdb.HGHandle;
-import org.hypergraphdb.HGHandleFactory;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HGQuery;
 import org.hypergraphdb.HGSearchResult;
@@ -19,8 +18,8 @@ import org.hypergraphdb.IncidenceSet;
 import org.hypergraphdb.IncidenceSetRef;
 import org.hypergraphdb.LazyRef;
 import org.hypergraphdb.atom.HGSubsumes;
+import org.hypergraphdb.handle.UUIDHandleFactory;
 import org.hypergraphdb.query.And;
-import org.hypergraphdb.query.AtomTypeCondition;
 import org.hypergraphdb.type.HGAtomType;
 
 /**
@@ -28,8 +27,8 @@ import org.hypergraphdb.type.HGAtomType;
  */
 public class SimpleTypeConstructor implements HGAtomType
 {
-   public static final HGPersistentHandle HANDLE = HGHandleFactory
-         .makeHandle("bd99ff0c-5b32-11db-82a1-a78cc7527afb");
+   public static final HGPersistentHandle HANDLE = 
+	   UUIDHandleFactory.I.makeHandle("bd99ff0c-5b32-11db-82a1-a78cc7527afb");
    public static final SimpleTypeConstructor INSTANCE = new SimpleTypeConstructor();
 
    private HyperGraph hg;
@@ -174,7 +173,7 @@ public class SimpleTypeConstructor implements HGAtomType
    public HGPersistentHandle store(
       Object instance)
    {
-      return HGHandleFactory.nullHandle();
+      return hg.getHandleFactory().nullHandle();
    }
 
    /**

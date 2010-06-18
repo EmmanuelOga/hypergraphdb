@@ -26,3 +26,14 @@
   * Added Date related primitive types for storing java.util.Date, java.sql.Date, java.sql.Timestamp and java.util.Calendar - value are stored as longs in GMT according to the local time zone.
   * To construct HGLink Java beans, it is now possible to use constructors of the form A(HGHandle x, HGHandle y, ..., HGHandle z) in addition to the A(HGHandle [] targetSet) form. This makes it easier to name the actual link target arguments and improves code readability and Javadocs.
   * Added support for private default and link based constructors.
+
+=== API Changes ===
+
+A couple of minor changes to the public API were made in this release. Those changes *do not* remove functionality and are peripheral enough that they should impact only a few lines of code (if any) on projects using HyperGraphDB. Here is the list of them together with an explanation of the rationale behind the change and what you should do if you are impacted:
+
+  # The `HGHandleFactory` class is now an interface. It used to be a class with static methods dealing with persistent handles. The choice of static methods assumed that a JVM instance would only need one kind of persistent handles generated. This may RAM-only hypergraph instances perhaps several co-existent HyperGraph object with different handle schemas, the `HGHandleFactory` is now an object associated with the HyperGraph instance of which it manages handles. This means all persistent handle construction (new handles, from string, from byte[]) are to be done by the object returned from HyperGraph.getHandleFactory(). The handle factory itself is part of the `HGConfiguration` bean. The default remains `UUIDHandleFactory` constructing random UUIDs. If you need to define persistent handles statically and if you've done so already, and you are comfortable with a commitment to UUID-based handle, you can make call to the UUIDHandleFactory.I instance in static contexts.
+  # The storage caching related attributes where removed from the `HGConfiguration` bean. This is because we'd like to implement different back-ends in the future (than BerkeleyDB) and not all will have a configurable cache. Instead:
+    # The `HGStore` now relies on an implementation of HGStoreImplementation.
+    # Each `HGStoreImplementation` offers a configuration object through its `getConfiguration` method.
+    # Thus, one can configure the storage implementation before instantiating a HyperGraph instance via HGConfiguration.getStoreImplementation().getConfiguration()
+ 

@@ -15,13 +15,13 @@
   * Added size() method to HGCache interface and implementations.
   * EnumType supports indexing (i.e. enum properties can be indexed by)
   * Abstracted storage implementation into HGStoreImplementation interface
-  * API Change: Abstracted persistent handle management - HGHandleFactory is now an interface rather than a class.
+  * Abstracted persistent handle management - HGHandleFactory is now an interface rather than a class.
   * Added some more configuration options to HGConfiguration: 
     * max size of in-memory incidence sets - maxCachedIncidenceSetSize 
     * option to ignore system attributes (improves performance when set to false which is not the default!)
-  * API Change: removed storage cache configuration option from HGConfiguration - this is not separately available from BDBStorageImplementation.getConfig() which returns BDBConfig.
+  * Removed storage cache configuration option from HGConfiguration - this is not separately available from BDBStorageImplementation.getConfig() which returns BDBConfig.
   * Added 'goBeforeFirst' and 'goAfterLast' methods to HGRandomAccessResult interface.\
-  * API Change: ALGenerator now returns a Pair<HGHandle, HGHandle> result set holding both the link to the adjacent atom and the atom itself, while the getCurrentLink method was removed.
+  * HGALGenerator now returns a Pair<HGHandle, HGHandle> result set holding both the link to the adjacent atom and the atom itself, while the getCurrentLink method was removed.
   * Added HGHandleHolder, similar to HGGraphHolder - atoms implementating this interface will have their own handle managed as a bean property by a HyperGraph instance (set during add/load/replace).
   * Added Date related primitive types for storing java.util.Date, java.sql.Date, java.sql.Timestamp and java.util.Calendar - value are stored as longs in GMT according to the local time zone.
   * To construct HGLink Java beans, it is now possible to use constructors of the form A(HGHandle x, HGHandle y, ..., HGHandle z) in addition to the A(HGHandle [] targetSet) form. This makes it easier to name the actual link target arguments and improves code readability and Javadocs.
@@ -31,7 +31,7 @@
 
 A couple of minor changes to the public API were made in this release. Those changes *do not* remove functionality and are peripheral enough that they should impact only a few lines of code (if any) on projects using HyperGraphDB. Here is the list of them together with an explanation of the rationale behind the change and what you should do if you are impacted:
 
-  # The `HGHandleFactory` class is now an interface. It used to be a class with static methods dealing with persistent handles. The choice of static methods assumed that a JVM instance would only need one kind of persistent handles generated. This may RAM-only hypergraph instances perhaps several co-existent HyperGraph object with different handle schemas, the `HGHandleFactory` is now an object associated with the HyperGraph instance of which it manages handles. This means all persistent handle construction (new handles, from string, from byte[]) are to be done by the object returned from HyperGraph.getHandleFactory(). The handle factory itself is part of the `HGConfiguration` bean. The default remains `UUIDHandleFactory` constructing random UUIDs. If you need to define persistent handles statically and if you've done so already, and you are comfortable with a commitment to UUID-based handle, you can make call to the UUIDHandleFactory.I instance in static contexts.
+  # The `HGHandleFactory` class is now an interface. It used to be a class with static methods dealing with persistent handles. The choice of static methods assumed that a JVM instance would only need one kind of persistent handles generated. This may prevent several co-existent HyperGraph object to have different handle schemas, e.g. a RAM only instance with int handles and a UUID-based HyperGraphDB peer that's part of a distributed network . So the `HGHandleFactory` is now an object associated with the HyperGraph instance of which it manages handles. This means all persistent handle construction (new handles, from string, from byte[]) are to be done by the object returned from HyperGraph.getHandleFactory(). The handle factory itself is part of the `HGConfiguration` bean. The default remains `UUIDHandleFactory` constructing random UUIDs. If you need to define persistent handles statically and if you've done so already, and you are comfortable with a commitment to UUID-based handle, you can make call to the `UUIDHandleFactory.I` instance in static contexts.
   # The storage caching related attributes where removed from the `HGConfiguration` bean. This is because we'd like to implement different back-ends in the future (than BerkeleyDB) and not all will have a configurable cache. Instead:
     # The `HGStore` now relies on an implementation of HGStoreImplementation.
     # Each `HGStoreImplementation` offers a configuration object through its `getConfiguration` method.

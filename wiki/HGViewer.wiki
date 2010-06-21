@@ -63,6 +63,9 @@ HGViewer could be used as a standalone application, as part of Seco or embedded 
 ===Standalone=== 
 Edit the JAVA_HOME and HGDB_HOME variables in run.cmd/run.sh file corresponding to your OS  to point to the relevant directories, the run the batch script. 
 ===Seco, Recommended===
+
+For more information and to download Seco, goto http://www.kobrix.com/seco.jsp.
+
 Add hgviewer.jar and its dependency jars (except piccolo, piccolox and l2fprod-common-sheet) to Seco. That is, either copy them to the Seco lib directory or add in the scripting runtime context. In Seco, import the ViewerInSeco.nb file, then simply follow the short tutorial presented inside.
 ===Another application===
 You can embed HGViewer component in your own application. Here's a sample code that places a viewer in a JFrame:

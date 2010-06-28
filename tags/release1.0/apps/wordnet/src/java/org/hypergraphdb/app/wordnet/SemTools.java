@@ -34,13 +34,18 @@ public class SemTools
 	
 	private long countNounDescendents(HGHandle s)
 	{
-		return hg.count(new TraversalBasedQuery(wn.relatedBreadthFirst(s, InstanceOf.class, false))) +
-			   hg.count(new TraversalBasedQuery(wn.relatedBreadthFirst(s, KindOf.class, false)));
+	    HGQuery<?> q1 = new TraversalBasedQuery(wn.relatedBreadthFirst(s, InstanceOf.class, false)), 
+	               q2 = new TraversalBasedQuery(wn.relatedBreadthFirst(s, KindOf.class, false));
+	    q1.setHyperGraph(graph);
+	    q2.setHyperGraph(graph);
+		return hg.count(q1) + hg.count(q2);
 	}
 
 	private long countVerbDescendents(HGHandle s)
 	{
-		return hg.count(new TraversalBasedQuery(wn.relatedBreadthFirst(s, Entails.class, false)));
+	    HGQuery<?> query = new TraversalBasedQuery(wn.relatedBreadthFirst(s, Entails.class, false));
+	    query.setHyperGraph(graph);
+		return hg.count(query);
 	}
 	
 	public SemTools(HyperGraph graph)

@@ -203,7 +203,8 @@ public class HGWordNetLoader
 			ts.addAlias(typeH, typeAliasPrefix + "frame");
 		else if (!check.equals(typeH))
 			throw new RuntimeException("Alias already in use: " + typeAliasPrefix + "frame" + ", please change WordNet prefix.");
-		graph.getIndexManager().register(new ByPartIndexer(typeH, new String[] { "text" }));		
+		graph.getIndexManager().register(new ByPartIndexer(typeH, new String[] { "text" }));
+		graph.runMaintenance();
 	}
 	
 	private HGHandle addWord(HyperGraph graph, String lemma)

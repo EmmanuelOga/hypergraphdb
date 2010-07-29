@@ -17,4 +17,6 @@ To get the command line tools necessary for the upgrade, you may need to downloa
 
 http://www.oracle.com/technetwork/database/berkeleydb/downloads/index.html
 
+Usually, an upgrade consists of shutting down the application, running the db_recover utility, updating with the latest version and restarting the application.
+
 *In any event, always backup your database files before performing any upgrade!*

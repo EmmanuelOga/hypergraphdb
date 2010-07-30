@@ -1,11 +1,14 @@
 #summary How to develop a custom type.
 
+== Introduction ==
+
 This topic explains the details of writing a custom type for HyperGraphDB. Every atom in HyperGraphDB has one and only one type. This create a natural partition of the atom space according to type and usually a typing constraint is the first condition one specifies in a query. In a sense, types act as a natural categorization/labeling of atoms. 
 
 Furthermore, types define the semantics of storage of their values. Those semantics are abstracted into a general CRUD-like interface where there is one operation to write a value to storage, one operation to remove a value and one operation to construct the runtime representation of a value given a storage handle. Those are fundamental operations in many software settings. They are akin, for instance, to HTTP's POST, DELETE and GET respectively. But note that there is no _update_ operation like HTTP's PUT. The reason is that values in HyperGraphDB are immutable. On can attach a different value to an atom, but one cannot directly change a value. This means that once you obtain a value handle, you can be sure that this handle always points to the same value. As a consequence, value sharing between atoms and value caching are available to type implementation as possible optimizations.
 
 Lastly, type implementations define a partial equality relation between their instances: the _subsumption_ relation. Subsumption means that some entity include another as a special case. In other words, A subsumes B if A is more general than B, or if B can be used whenever A can be used. We call this partial equality because if A and B subsume each other, they must be equal (though not identical of course). In type theory, a type generally has to define when two of its elements are equal. But in practice, often one wants to know whether something can be used (plugged in) in place of something else, as in a subclass of a class. So subsumption is in fact a more general concept than equality, it subsumes it so to speak and we've chosen that more general predicate as part of the core type interface in HyperGraphDB. 
 
+== The HGAtomType Interface ==
 So, here is the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/type/HGAtomType.html HGAtomType interface]:
 
 {{{
@@ -17,3 +20,7 @@ public interface HGAtomType extends HGGraphHolder
     boolean subsumes(Object general, Object specific);   
 }
 }}}
+
+== The HGCompositeType Interface ==
+
+== Adding Your Type to a HyperGraphDB Instance ==

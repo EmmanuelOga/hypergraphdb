@@ -58,7 +58,24 @@ public MyType implements HGAtomType
 
 }}}  
 
-The `make` method constructs a runtime object from storage. This runtime object can represent an atom or it can be simply some nested value within a complex-valued atom. In the latter case, the second and third arguments will be null and must be ignored. In the former, that is when an actual atom instance must be constructed, the second argument will contain the atom's target set and the third argument its incidence set. The target set is essential for constructing runtime `HGLink`s. Usage of the incidence set is optional and depends on type implementations. Incident links can provide information about an atom in the form of annotations, relationships etc., and a type can use that. An example is when complex object structures are represented as hypergraphs at the atom level, instead of at the low storage level. In that case, the fact that an atom is a property of another atom would be represented as a link (e.g. with a  _propertyOf_ label) and the incidence set of the parent atom will provide access to all its properties. 
+It must be noted that nothing requires the creation of a new storage entry for a particular value. The only requirement is that the handle returned by a call to `store` results in the same object returned by `make` as long as `release` on that handle is not called. In particular, multiple calls to store the same value may return the exact same `HGPersistentHandle`. The actual storage entry may be reference counted (see http://en.wikipedia.org/wiki/Reference_counting) for the release method to know when to actually remove it. This is precisely what the default primitive type implementations do: every time you store a primitive Java type, say a boolean or an integer, the type implementation will first lookup if that value was already stored and if so return its handle. This is accomplished by maintaining a separate storage index within the type (see the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGStore.html HGStore] class for low-level index management APIs). Of course, there is performance hit to this. 
+
+The `make` method constructs a runtime object from storage. This runtime object can represent an atom or it can be simply some nested value within a complex-valued atom. In the latter case, the second and third arguments will be null and must be ignored. In the former, that is when an actual atom instance must be constructed, the second argument will contain the atom's target set and the third argument its incidence set. The target set is essential for constructing runtime `HGLink`s. Usage of the incidence set is optional and depends on type implementations. Incident links can provide information about an atom in the form of annotations, relationships etc., and a type can use that. An example is when complex object structures are represented as hypergraphs at the atom level, instead of at the low storage level. In that case, the fact that an atom is a property of another atom would be represented as a link (e.g. with a  _propertyOf_ label) and the incidence set of the parent atom will provide access to all its properties. Here is a very simple example of a `make` method:
+
+{{{
+public MyType implements HGAtomType
+{
+    // ...
+    public Object make(HGPersistentHandle handle, LazyRef<HGHandle[]> targetSet, IncidenceSetRef incidenceSet)
+    {
+        byte [] data = graph.getStore().getData(handle);
+        // if we were dealing with something else than byte[], we'd "deserialize" here
+        return data;
+    }
+
+    // etc...
+
+}}}  
 
 Finally, the `subsumes` is simply a predicate that return _true_ if and only if its first argument is a more general entity than its second argument. Whatever "more general" means depends on the type. Usually, if this a type-constructor (i.e. the instances of this type are types as well), you'd return _true_ if the second argument is a subtype of the first argument. Otherwise, this is usually implemented using  Java's own `equals` method:
 

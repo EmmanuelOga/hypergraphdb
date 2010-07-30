@@ -74,7 +74,7 @@ public MyType implements HGAtomType
     }
 
     // etc...
-
+}
 }}}  
 
 Finally, the `subsumes` is simply a predicate that return _true_ if and only if its first argument is a more general entity than its second argument. Whatever "more general" means depends on the type. Usually, if this a type-constructor (i.e. the instances of this type are types as well), you'd return _true_ if the second argument is a subtype of the first argument. Otherwise, this is usually implemented using  Java's own `equals` method:

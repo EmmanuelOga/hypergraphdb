@@ -24,3 +24,9 @@ public interface HGAtomType extends HGGraphHolder
 == The HGCompositeType Interface ==
 
 == Adding Your Type to a HyperGraphDB Instance ==
+
+== Associated a Type with a Java Class ==
+
+== Removing a Type from a HyperGraphDB Instance ==
+
+== Replacing an Existing Predefined Type ==

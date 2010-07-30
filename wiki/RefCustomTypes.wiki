@@ -23,7 +23,40 @@ public interface HGAtomType extends HGGraphHolder
 
 First, note that a `HGAtomType` is a [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGGraphHolder.html HGGraphHolder] which means that each type will hold a reference to the HyperGraphDB instance to which it belongs. 
 
-Next, the `store` and `release` methods are complimentary. The `store` method is responsible for recording the given object instance to permanent storage within the current transaction (if any) and returning the identifier of that object value. Note that you normally don't need to worry about starting a new transaction here. Transactions are created either at the application or atom management level and the `HGStore` implementation is responsible for using the current thread-bound transaction. 
+The `store`, `release` and `make` methods work with low-level storage to manage value persistence. The low-level storage is accessible via the `HyperGraph` instance held by the type. For example, storing a byte[] could look like this:
+
+{{{
+public MyType implements HGAtomType
+{
+    private HyperGraph graph;
+    
+    public void setHyperGraph(HyperGraph graph) { this.graph = graph; }
+
+    public HGPersistentHandle store(Object instance)
+    {
+        byte [] value = (byte[])instance;
+        return graph.getStore().store(value);
+    }
+
+    // etc...
+}}}
+
+The `store` and `release` methods are complimentary. The `store` method is responsible for recording the given object instance to permanent storage within the current transaction (if any) and returning the identifier of that object value. Note that you normally don't need to worry about starting a new transaction here. Transactions are created either at the application or atom management level and the `HGStore` implementation is responsible for using the current thread-bound transaction. It is possible to initiate a new, nested transaction, but we can't think of a case where this would be warranted.
+
+The `release` method is responsible for removing a value from storage. For example:
+
+{{{
+public MyType implements HGAtomType
+{
+    // ...
+    public void store(HGPersistentHandle handle)
+    {
+        graph.getStore().removeData(handle);
+    }
+
+    // etc...
+
+}}}  
 
 The `make` method constructs a runtime object from storage. This runtime object can represent an atom or it can be simply some nested value within a complex-valued atom. In the latter case, the second and third arguments will be null and must be ignored. In the former, that is when an actual atom instance must be constructed, the second argument will contain the atom's target set and the third argument its incidence set. The target set is essential for constructing runtime `HGLink`s. Usage of the incidence set is optional and depends on type implementations. Incident links can provide information about an atom in the form of annotations, relationships etc., and a type can use that. An example is when complex object structures are represented as hypergraphs at the atom level, instead of at the low storage level. In that case, the fact that an atom is a property of another atom would be represented as a link (e.g. with a  _propertyOf_ label) and the incidence set of the parent atom will provide access to all its properties. 
 

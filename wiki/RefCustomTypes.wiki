@@ -92,7 +92,9 @@ public boolean subsumes(Object general, Object specific)
 
 == Adding Your Type to a HyperGraphDB Instance ==
 
-== Associated a Type with a Java Class ==
+== Associating a Type with a Java Class ==
+
+When you add a Java object as a HyperGraphDB atom with a call to `HyperGraph.add(Object)`, first the system must determine what HyperGraphDB type implementation to use. 
 
 == Removing a Type from a HyperGraphDB Instance ==
 

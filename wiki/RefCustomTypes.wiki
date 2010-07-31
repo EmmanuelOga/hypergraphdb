@@ -90,12 +90,45 @@ public boolean subsumes(Object general, Object specific)
 
 == The HGCompositeType Interface ==
 
+Composite types are an abstraction of types that store complex, multi dimensional values. The most prominent example of such a type is the classical record structure. Each dimension is identified with a name and represented as a _projection_ along that dimension. A projection allows you to manipulate a specific dimension (e.g. record slot) of a complex value. 
+
+Implement the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/type/HGCompositeType.html HGCompositeType] interface for complex types:
+
+{{{
+public interface HGCompositeType extends HGAtomType
+{
+    Iterator<String> getDimensionNames();
+    HGProjection getProjection(String dimensionName);
+}}}
+
+The `getDimensionNames` method returns all dimensions of the type and the `getProjection` returns a projection instance along a specific dimension. For example, the `getDimensionNames` of a record type will return an iterator over all slot names and then `getProjection` will return individual slots. The projection instance is implemented in the following interface:
+
+{{{
+public interface HGProjection
+{
+    // return the name of the projection (e.g. record slot)
+    String getName();  
+
+    // return get projection type
+    HGHandle getType();
+
+    // get the value along that dimension (e.g. the record slot value)
+    Object project(Object atomValue);
+
+    // set the value along that dimension
+    void inject(Object atomValue, Object value);
+
+    // specify the storage layout along that dimension - unused for now
+    int [] getLayoutPath();
+}
+}}}
+
+The methods of `HGProjection` should be obvious. The `getLayoutPath` is currently not used and may actually be removed in the future, so please ignore it. 
+
 == Adding Your Type to a HyperGraphDB Instance ==
+
+== Replacing an Existing Predefined Type ==
 
 == Associating a Type with a Java Class ==
 
 When you add a Java object as a HyperGraphDB atom with a call to `HyperGraph.add(Object)`, first the system must determine what HyperGraphDB type implementation to use. 
-
-== Removing a Type from a HyperGraphDB Instance ==
-
-== Replacing an Existing Predefined Type ==

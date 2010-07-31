@@ -143,3 +143,37 @@ Now, every graph operation on `Foo` atoms will use your own `FooType` type.
 Note that you can associate several Java classes with the same HGDB type. The association is many-to-one. 
 
 == Replacing an Existing Predefined Type ==
+
+HyperGraphDB comes with a set of predefined types that handles all Java primitives, Java beans, maps, collections, arrays, dates and some of the core atoms as well. Those predefined types are listed in a configuration resource built into the library under `org/hypergraphdb/types` (this is in the `config` source folder). When a new database instance is created, all those types are automatically added to it via calls to `addPredefinedType`. You can override any or all of the predefined types at any time by calling `addPredefinedType` with the appropriate Java class as the third argument. For example, you could implement your own custom type storing Java integers as strings:
+
+{{{
+public static class MyIntType extends HGAtomTypeBase
+{
+    public Object make(HGPersistentHandle handle,
+            LazyRef<HGHandle[]> targetSet, IncidenceSetRef incidenceSet)
+    {
+        byte[] B = graph.getStore().getData(handle);
+        String s = new String(B);
+        return Integer.parseInt(s);
+    }
+
+    public void release(HGPersistentHandle handle)
+    {
+        graph.getStore().removeData(handle);
+    }
+
+    public HGPersistentHandle store(Object instance)
+    {
+        Integer x = (Integer) instance;
+        return graph.getStore().store(x.toString().getBytes());
+    }
+}
+}}}
+
+And then replace the existing type for integers like this:
+
+{{{
+graph.getTypeSystem().addPredefinedType(graph.getHandleFactory().makeHandle(), new MyIntType, Integer.class);
+}}}
+
+Note that this will simply associate a different HGDB type with the `Integer` Java class. The original integer type will still be there, with its own atom handle so any previous integer values added with the original type will still be in the database. However, to get to them, you'd need to know the handle of the original type and use it in a query instead of the `Integer.class`. 

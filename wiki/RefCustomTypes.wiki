@@ -123,7 +123,8 @@ public interface HGProjection
 }
 }}}
 
-The methods of `HGProjection` should be obvious. The `getLayoutPath` is currently not used and may actually be removed in the future, so please ignore it. 
+The methods of `HGProjection` should be obvious. The `getLayoutPath` is currently not used and may actually be removed in the future, so please ignore it. Otherwise, it provides the name of the dimension, its type (i.e. dimensions are typed) and it allows you to read and write the value along that dimension with the `project` and `inject` methods respectively.
+ 
 
 == Adding Your Type to a HyperGraphDB Instance ==
 

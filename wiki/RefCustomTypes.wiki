@@ -21,7 +21,7 @@ public interface HGAtomType extends HGGraphHolder
 }
 }}}
 
-First, note that a `HGAtomType` is a [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGGraphHolder.html HGGraphHolder] which means that each type will hold a reference to the HyperGraphDB instance to which it belongs. 
+First, note that a `HGAtomType` is a [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGGraphHolder.html HGGraphHolder] which means that each type will hold a reference to the HyperGraphDB instance to which it belongs. The [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/type/HGAtomTypeBase.html HGAtomTypeBase] abstract class implements the `HGGraphHolder` interface with a protected variable `graph` pointing to the `HyperGraph` instance.
 
 The `store`, `release` and `make` methods work with low-level storage to manage value persistence. The low-level storage is accessible via the `HyperGraph` instance held by the type. For example, storing a byte[] could look like this:
 

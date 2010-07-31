@@ -130,8 +130,16 @@ The methods of `HGProjection` should be obvious. The `getLayoutPath` is currentl
 
 Once you've written a custom type, you need to let HyperGraphDB know about it. This is done with the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGTypeSystem.html#addPredefinedType(org.hypergraphdb.HGPersistentHandle,%20org.hypergraphdb.type.HGAtomType,%20java.lang.Class) HGTypeSystem.addPredefinedType] method. Naturally, you must add the type to the database before the first time you use it. Adding a type is a bit like defining an atom: you need to do it only once, not every time you open the database, and you need to provide its persistent handle, the Java `HGAtomType` implementation and (optionally) an associated Java class. On each subsequent opening of the HyperGraphDB instance, the type implementation will be instantiated based on its recorded classname. As a consequence, *predefined types must be default constructible*. 
 
+Note the third parameter of the `addPredefinedType` method: a `Class` to be associated with your HyperGraphDB type. When you add a Java object as a HyperGraphDB atom with a call to `HyperGraph.add(Object)`, first the system must determine what HyperGraphDB type implementation to use. For this, it maintains a mapping between Java class and HGDB types. If there is no entry in this map, the type system will try to automatically construct a HGDB type for the concrete class of the atom being added and then add it to the map. The third argument of `addPredefinedType` is a way to explicitly populate that Java class -> HGDB type mapping. Say for example, you have some class in your application called `Foo` and you've written a custom type for it called `FooType`. You would add that type like this:
+
+{{{
+    FooType fooType = new FooType();
+    HGPersistentHandle fooTypeHandle = graph.getHandleFactory().makeHandle();
+    graph.getTypeSystem().addPredefinedType(fooTypeHandle, fooType, Foo.class);
+}}}
+
+Now, every graph operation on `Foo` atoms will use your own `FooType` type. 
+
+Note that you can associate several Java classes with the same HGDB type. The association is many-to-one. 
+
 == Replacing an Existing Predefined Type ==
-
-== Associating a Type with a Java Class ==
-
-When you add a Java object as a HyperGraphDB atom with a call to `HyperGraph.add(Object)`, first the system must determine what HyperGraphDB type implementation to use. 

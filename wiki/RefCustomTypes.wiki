@@ -125,6 +125,18 @@ public interface HGProjection
 
 The methods of `HGProjection` should be obvious. The `getLayoutPath` is currently not used and may actually be removed in the future, so please ignore it. Otherwise, it provides the name of the dimension, its type (i.e. dimensions are typed) and it allows you to read and write the value along that dimension with the `project` and `inject` methods respectively.
  
+== The Storage Interface ==
+
+Any type implementation will likely rely on low-level storage to persist and retrieve a value. The interface to low-level storage of HyperGraphDB is the [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGStore.html HGStore] class. Of interest to type implementors are two sets of methods:
+
+  * Methods for storage management of low-level ID tuples (`store, getLink, removeLink`) or byte [] (`store, getData, removeData`).
+  * Methods for managing storage indices (`getIndex, removeIndex`).
+
+Managing ID tuples is usually done by complex types when the value is better broken down into pieces in storage . Otherwise, types simply perform some sort of serialization/deserialization as raw byte buffer.
+
+The indexing facilities are useful for doing value sharing and reference counting, for example. But a type implementation is free to use them for whatever other appropriate purposes. 
+
+Note that a type implementation shouldn't be concerned with managing incidence sets of atoms. However, from storage perspective, the incidence related API (see methods `addIncidenceLink` etc.) can be used independently of the atoms abstraction. In fact, the only reason incidence sets of values are not automatically maintained for every low-level datum is because there hasn't been a strong need for them. But this might change in the future.
 
 == Adding Your Type to a HyperGraphDB Instance ==
 

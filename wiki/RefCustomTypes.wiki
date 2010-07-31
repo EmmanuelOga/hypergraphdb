@@ -176,4 +176,13 @@ And then replace the existing type for integers like this:
 graph.getTypeSystem().addPredefinedType(graph.getHandleFactory().makeHandle(), new MyIntType, Integer.class);
 }}}
 
-Note that this will simply associate a different HGDB type with the `Integer` Java class. The original integer type will still be there, with its own atom handle so any previous integer values added with the original type will still be in the database. However, to get to them, you'd need to know the handle of the original type and use it in a query instead of the `Integer.class`. 
+Note that this will simply associate a different HGDB type with the `Integer` Java class. The original integer type will still be there, with its own atom handle so any previous integer values added with the original type will still be in the database. However, to get to them, you'd need to know the handle of the original type and use it in a query instead of the `Integer.class`. Of course, you also replace all atom typed with the original type by atoms typed with your new type. This will easily work since both old and new types deal with the same Java class. For example:
+
+{{{
+    HGHandle oldType = graph.getTypeSystem().getTypeHandle(Integer.class);
+    HGHandle newType = graph.getHandleFactory().makeHandle();
+    graph.getTypeSystem().addPredefinedType(newType, new MyIntType, Integer.class);    
+    List<HGHandle> current = hg.findAll(graph, hg.type(oldType));
+    for (HGHandle h : current)
+        graph.replace(h, graph.get(h), newType);
+}}}

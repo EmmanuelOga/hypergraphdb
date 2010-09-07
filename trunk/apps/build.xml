@@ -50,6 +50,17 @@
         </fileset>
 		<pathelement path="${java.class.path}" />
 	</path>
+
+	<path id="ann-classpath">
+        <fileset dir="../.">
+            <include name="**/*.jar"/>
+        </fileset>
+        <fileset dir=".">
+            <include name="hgdbmanagement.jar"/>
+        </fileset>        
+		<pathelement path="${java.class.path}" />
+	</path>
+    
    	<path id="sail-classpath">
         <fileset dir="sail/jars">
             <include name="**/*.jar"/>
@@ -68,9 +79,18 @@
         <mkdir dir="${build}/tm"/>
         <mkdir dir="${build}/xsd"/>
         <mkdir dir="${build}/prolog"/>
+        <mkdir dir="${build}/ann"/>
         <mkdir dir="${build}/sail"/>
     </target>
 
+    <target name="ann" depends="init" description="Build Neural Networks Jar">
+		<javac source="1.5" classpathref="ann-classpath" debug="${debug}" destdir="${build}/ann" srcdir="ann/src/java"/>
+	    <javadoc sourcepath="ann/src/java" destdir="${build}/javadoc/ann" classpathref="ann-classpath">
+            <link href="http://www.kobrix.com/javadocs/hgcore"/>
+        </javadoc>
+		<jar basedir="${build}/ann" jarfile="${jars}/hgdbann.jar"/>
+	</target>
+	
 	<target name="management" depends="init" description="Build HyperGraphDB Management Jar">
 		<javac source="1.5" classpathref="management-classpath" debug="${debug}" destdir="${build}/management" srcdir="management/src/java"/>
 	    <javadoc sourcepath="management/src/java" destdir="${build}/javadoc/management" classpathref="management-classpath">

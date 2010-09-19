@@ -20,7 +20,7 @@ Now, when you query for site users by email (e.g. `hg.and(hg.type(SiteUser.class
 The `ByTargetIndexer` lets you index links by targets at specific positions. Take the predefined `HGSubsumes` link as an example which links something _general_ (target at position 0) to something _specific_ (target at position 1). You can index all `HGSubsumes` atoms by their second target like this:
 
 {{{
-graph.getIndexManager().register(new ByTargetIndexer(HGTypeSystem.SUBSUMES_PERSISTENT_HANDLE, 1));
+graph.getIndexManager().register(new ByTargetIndexer(graph.getTypeSystem().getTypeHandle(HGSubsumes.class), 1));
 }}}
 
 Note that indexing by link targets is only useful when doing queries on ordered links. Otherwise, for unordered links the implicit indexing by incidence sets suffices. To take advantage of the index above, you would write a query like this:

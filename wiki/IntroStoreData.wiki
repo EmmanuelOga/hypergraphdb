@@ -63,7 +63,7 @@ The example above showed storing an atom in the database amounts to calling the 
 There are a couple of general default implementations of the `HGLink` interface:
 
   * The [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGPlainLink.html HGPlainLink] class is a link implementation that carries no additional information with. It contains no additional data and its type is general with no special meaning.
-  * The [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGValueLink.html HGValueLink] class is similar to `HGPlainLink`, but it allows you to embed an arbitrary Java object in it as "payload".
+  * The [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/HGValueLink.html HGValueLink] class is similar to `HGPlainLink`, but it allows you to embed an arbitrary Java object in it as "payload". Instances of such links will take on the type of the "payload" object.
   * The [http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/atom/HGRel.html HGRel] class is a labeled link implementation with type constraints to its target set (i.e. its arguments). Use of this type of links is documented in [RefLabeledRelations this topic].
 
 Here's an example of using the `HGValueLink`:

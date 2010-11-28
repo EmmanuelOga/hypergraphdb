@@ -23,9 +23,13 @@
   * Added 'goBeforeFirst' and 'goAfterLast' methods to HGRandomAccessResult interface.\
   * HGALGenerator now returns a Pair<HGHandle, HGHandle> result set holding both the link to the adjacent atom and the atom itself, while the getCurrentLink method was removed.
   * Added HGHandleHolder, similar to HGGraphHolder - atoms implementating this interface will have their own handle managed as a bean property by a HyperGraph instance (set during add/load/replace).
+  * Added HGTypeHolder interface that behaves similarly  HGGraphHolder and HGHandleHolder - atoms implementing this interface will have their own type handle stored as a bean property (set during add/load/replace).
   * Added Date related primitive types for storing java.util.Date, java.sql.Date, java.sql.Timestamp and java.util.Calendar - value are stored as longs in GMT according to the local time zone.
   * To construct HGLink Java beans, it is now possible to use constructors of the form A(HGHandle x, HGHandle y, ..., HGHandle z) in addition to the A(HGHandle [] targetSet) form. This makes it easier to name the actual link target arguments and improves code readability and Javadocs.
   * Added support for private default and link based constructors.
+  * Fixed a bug with sub-type indices not being used.
+  * Fixed a bug with OrderedLinkCondition constructed from a List of HGHandles.
+  * Other bug fixes and improvements that weren't formally tracked or reported...
 
 === API Changes ===
 

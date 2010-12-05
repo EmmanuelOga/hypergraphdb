@@ -19,6 +19,7 @@
   * Added some more configuration options to HGConfiguration: 
     * max size of in-memory incidence sets - maxCachedIncidenceSetSize 
     * option to ignore system attributes (improves performance when set to false which is not the default!)
+    * New HGTypeConfiguration class to customize type system bootstrapping.
 
   * Removed storage cache configuration option from HGConfiguration - this is not separately available from BDBStorageImplementation.getConfig() which returns BDBConfig.
   * Added 'goBeforeFirst' and 'goAfterLast' methods to HGRandomAccessResult interface.\

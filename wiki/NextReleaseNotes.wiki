@@ -19,6 +19,7 @@
   * Added some more configuration options to HGConfiguration: 
     * max size of in-memory incidence sets - maxCachedIncidenceSetSize 
     * option to ignore system attributes (improves performance when set to false which is not the default!)
+
   * Removed storage cache configuration option from HGConfiguration - this is not separately available from BDBStorageImplementation.getConfig() which returns BDBConfig.
   * Added 'goBeforeFirst' and 'goAfterLast' methods to HGRandomAccessResult interface.\
   * HGALGenerator now returns a Pair<HGHandle, HGHandle> result set holding both the link to the adjacent atom and the atom itself, while the getCurrentLink method was removed.

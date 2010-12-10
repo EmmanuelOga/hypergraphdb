@@ -31,6 +31,7 @@
   * Added support for private default and link based constructors.
   * Fixed a bug with sub-type indices not being used.
   * Fixed a bug with OrderedLinkCondition constructed from a List of HGHandles.
+  * Completely removed dependency on JXTA for P2P implementation - this is unmaintained, confusing new users and just taking space in the distribution,
   * Other bug fixes and improvements that weren't formally tracked or reported...
 
 === API Changes ===

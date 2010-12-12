@@ -2,8 +2,13 @@
 
 == Overview Materials ==
 
-
+  * HyperGraphDB Presentation - [http://www.hypergraphdb.org/docs/HyperGraphDB-Presentation.pdf HyperGraphDB-Presentation.pdf]
+  * HyperGraphDB Paper, presented at the First Internation Workshop on Graph Database (IWGD 2010) and published by Springer-Verlag. The original publication is available at http://www.springer.com. You can download a copy [http://www.hypergraphdb.org/docs/hypergraphdb.pdf here].
 
 == Tutorials ==
 
+  * The official [FirstSteps HyperGraphDB tutorial] walks you through installation and the main features of the software.
+
 == Reference Library ==
+
+Here is a list of reference topics, covered in-depth. If you would like to see more documentation about a particular topic, please write to us on the [http://groups.google.com/group/hypergraphdb  HyperGraphDB Discussion Forum].

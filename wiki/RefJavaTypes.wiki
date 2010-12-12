@@ -1,6 +1,6 @@
 #summary Mapping Java Types.
 
-When Java is used to access a HyperGraph, the implementation provides facilities for automatically creating HyperGraph types based on Java classes. We say that the implementation infers a HyperGraph based on a Java class. This is possible because of the reflective capabilities of Java.
+When Java is used to access a !HyperGraph, the implementation provides facilities for automatically creating HyperGraph types based on Java classes. We say that the implementation infers a HyperGraph based on a Java class. This is possible because of the reflective capabilities of Java.
 
 The mapping between Java class and HyperGraph types is based mainly on the Java beans. By a widely used and accepted naming convention, Java beans are employed as the basic record structure in that language and most data models in Java are developed using this convention. A Java bean is represented in HyperGraph as a Record where each bean property is represented as a Slot.
 

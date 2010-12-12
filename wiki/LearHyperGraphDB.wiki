@@ -13,7 +13,7 @@
 
 Here is a list of reference topics, covered in-depth. If you would like to see more documentation about a particular topic, please write to us on the [http://groups.google.com/group/hypergraphdb  HyperGraphDB Discussion Forum].
 
-=== The Database Schema, a.k.a. Type ===
+=== The Database Schema, a.k.a. Type System ===
 
   * RefTypes - design philosophy behind typing in HyperGraphDB.
   * RefCustomTypes - HOWTO create custom predefined types.

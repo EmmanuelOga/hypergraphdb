@@ -6,7 +6,7 @@ HyperGraphDB provides an embedded database library that you can use to create an
 
 = Downloading and Installing HyperGraphDB =
 
-All official release packages are located at the [http://code.google.com/p/hypergraphdb/downloads/list Google Code downloads area]. The latest build is linked to at [http://www.kobrix.com/hgdb.jsp HyperGraphDB home page].
+All official release packages are located at the [http://code.google.com/p/hypergraphdb/downloads/list Google Code downloads area]. The latest build is linked to at [http://www.hypergraphdb.org/download HyperGraphDB download page].
 
 HyperGraphDB releases are distributed in compressed archive files  (`.tar.gz` for Unix platforms and `.zip` for Windows). To install a distribution, just unzip the archive into a directory of your own choosing. 
 
@@ -31,7 +31,6 @@ In total, the HyperGraphDB library consists of its own JAR files, Berkeley DB's 
 
 || *HyperGraphDB Features* || *Files Required* ||
 || Core HyperGraphDB (embedded database only, no networking) || `hypergraphdb.jar` and `jars/db.jar` ||
-|| HyperGraphDB with JXTA networking || `hgdbfull.jar`, `jars/db.jar`, and `jars/jxta.jar`^1^ ||
 || HyperGraphDB with Jabber networking || `hgdbfull.jar`, `jars/db.jar`, `jars/smack.jar`, and `jars/smackx.jar` ||
 
 When deploying your application, you must:
@@ -54,9 +53,6 @@ The Windows native libraries may require the installatioin of the Visual C++ run
 
 == Configuration == 
 
-As an embedded database, HyperGraphDB does not require any configuration outside of a few parameters that you set at runtime. However, the distributed version must be configured as described in [PeerConfiguration Configuring Peer-to-Peer Communication]. In addition, there is a `main` method in the class, `org.hypergraphdb.peer.StartPeer`  that takes the name of a configuration file as its only argument. See the topic on [DistributedHyperGraph Creating Distributed Databases] for more information.
+As an embedded database, HyperGraphDB does not require any configuration outside of a few parameters that you can set at runtime. In fact, only a directory location where data will be stored is required. However, when deploying a node within a distributed environment, you will need to extra configuration depending on your particular deployment scenario. For more information, consult the DistributedHyperGraph Creating Distributed Databases] topic.
 
 [IntroDBCreate Next - Creating a Database >>]
-
-----
-^1^JXTA networking is not really maintained anymore due to lack of adoption.

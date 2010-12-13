@@ -20,10 +20,6 @@ Here is a list of reference topics, covered in-depth. If you would like to see m
   * RefJavaTypes - mapping of the Java class to HyperGraphDB types.
   * RefPredefinedTypes - bootstrapping the type system with predefined types.
 
-=== Indexing ===
-
-Coming up...
-
 === P2P Distribution ===
 
-Coming up....
+  * [CommunicationImplementation Communication Framework]

@@ -22,6 +22,6 @@ There's one common dependency that all components share and this apps/management
 ant management sail
 }}}
 
-You will get hgdbmanagement.jar and hgdbsail.jar in the current directory. Then under `apps/sail/jars', you will find all jars from Sesame needed to run it.
+You will get hgdbmanagement.jar and hgdbsail.jar in the current directory. Then under `apps/sail/jars`, you will find all jars from Sesame needed to run it.
 
 Admittedly, this is a very rough guide. If you are having trouble, please write to the [http://groups.google.com/group/hypergraphdb HyperGraphDB Discussion Forum].

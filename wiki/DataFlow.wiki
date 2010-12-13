@@ -1,0 +1,11 @@
+#summary Distributed Dataflow
+
+== Introduction ==
+
+Flow-based programming is a powerful computational model that is becoming ever more relevant  in today's highly concurrent multi-core, distributed systems. It is more powerful and as scalable as something like map-reduce. The premise is very simple: computation is described in terms of black-box processes with well defined inputs and outputs. Each process runs in its own thread, reads inputs from a set of input channels, does something and then writes output to a set of output channels. There is no globally shared data and therefore there are no race conditions possible. 
+
+The dataflow HyperGraphDB application component offers an implementation of this concept that is distributed across machines. The flow network of processes and channels is represented as a hypergraph.
+
+== Details ==
+
+This is a module from a project called Disko that will (hopefully very soon) be extracted from there and released as a HyperGraphDB application component. It relies on the HyperGraphDB's peer-to-peer framework to implement distributed flow channels.

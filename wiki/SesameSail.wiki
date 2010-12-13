@@ -1,10 +1,10 @@
 #summary RDF Implementation via Sesame Sail
 
-= What is RDF? =
+== What is RDF? ==
 
 The Resource Description Framework (RDF) is wide spread W3C standard for semantic annotations of web resources. More can be found at the [http://www.w3.org/RDF/ W3C RDF Home Page] or at the [http://en.wikipedia.org/wiki/Resource_Description_Framework RDF Wikipedia Page]
 
 
-= What is Sesame? =
+== What is Sesame? ==
 
 Sesame is an open-source framework and API for the implementation of RDF storage engines. More can be found at http://www.openrdf.org. Sesame define several related APIs

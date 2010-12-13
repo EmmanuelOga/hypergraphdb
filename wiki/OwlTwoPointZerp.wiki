@@ -1,0 +1,13 @@
+#summary OWL 2 Implementation
+
+== What is OWL 2.0 ==
+
+The Ontology Web Language (OWL) 2.0 is a semantic web standard based on Description Logics (DL). More information on the [http://www.w3.org/TR/owl2-overview/ W3C OWL 2.0 home page] as well as at the [http://en.wikipedia.org/wiki/Web_Ontology_Language OWL 2 Wikipedia topic].
+
+== Implementation ==
+
+The HyperGraphDB implementation is currently under development and it is based on the [http://owlapi.sourceforge.net/ OWL API 2.0]. The aim is to cover the standard completely so that multiple ontologies can be stored in a single HyperGraphDB instance and reasoned over by any of the off-the-shelf OWL reasoners. 
+
+A future goal would be to implement reasoning and persist inferences within HyperGraphDB. 
+
+This component is localed undera apps/owl in the codebase.

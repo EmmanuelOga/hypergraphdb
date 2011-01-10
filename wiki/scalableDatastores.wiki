@@ -4,7 +4,7 @@
 
 || *HGDB requirement* || *Cassandra* || *OrientKV Server* || *Voldemort* || *CouchDB* || *Redis/jedis* ||
 || classical key/value store ? || no, supercolum/column families || yes || yes || no, "document"  || yes  ||  
-|| multiple sorted values || maybe, through column families || yes || maybe || [http://couchdb.apache.org/docs/intro.html maybe, within a "document"] || maybe, (sets&lists)  ||  
+|| multiple sorted values || maybe, through column families || yes || yes, confirmed || [http://couchdb.apache.org/docs/intro.html maybe, within a "document"] || maybe, (sets&lists)  ||  
 || transactions || no, maybe with zookeeper&cages || yes ACID+MVCC || maybe || yes ACID+MVCC || apparently, no isolation? ||  
 || distributed performance || high, (with zookeeper?)  || high (unconfirmed) || high ||  high || high ||  
 || distributed queries || high, map/reduce  || high (unconfirmed) || high ||  high, map/reduce || high? map/reduce ||  
@@ -16,5 +16,6 @@
 
 = Details =
 
+[http://groups.google.com/group/project-voldemort/browse_thread/thread/604e4ff929127606?hl=en voldemort multi-value confirmed here]
 
 for more details and links atm see [https://docs0.google.com/document/d/1lfpjq-9UrBLncOJRV58s6uY7_oqBcy3lz2FS4CPiB5E/edit here]

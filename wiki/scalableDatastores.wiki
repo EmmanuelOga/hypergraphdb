@@ -2,18 +2,19 @@
 
 = Introduction =
 
-|| *HGDB requirement* || *Cassandra* || *OrientKV Server* || *Voldemort* || *CouchDB* ||
-|| classical key/value store ? || no, supercolum/column families || yes || yes || no, "document"  || 
-|| multiple sorted values || maybe, through column families || yes || maybe || [http://couchdb.apache.org/docs/intro.html maybe, within a "document"] || 
-|| transactions || no, maybe with zookeeper&cages || yes ACID+MVCC || maybe || yes ACID+MVCC || 
-|| distributed performance || high, (with zookeeper?)  || high (unconfirmed) || high ||  high || 
-|| distributed queries || high, map/reduce  || high (unconfirmed) || high ||  high, map/reduce || 
-|| size of developer community || very big  || small || medium ||  big? || 
-|| licences || OS  || OS || OS  || OS   || 
-|| platform || java   || java || java  ||  java || 
-|| ease of deployment || medium-difficult?   || easy? || easy?  || ? || 
-|| documentation || bad?   || medium? || good?  ||  good || 
+|| *HGDB requirement* || *Cassandra* || *OrientKV Server* || *Voldemort* || *CouchDB* || *Redis/jedis* ||
+|| classical key/value store ? || no, supercolum/column families || yes || yes || no, "document"  || yes  ||  
+|| multiple sorted values || maybe, through column families || yes || maybe || [http://couchdb.apache.org/docs/intro.html maybe, within a "document"] || maybe, (sets&lists)  ||  
+|| transactions || no, maybe with zookeeper&cages || yes ACID+MVCC || maybe || yes ACID+MVCC || apparently, no isolation? ||  
+|| distributed performance || high, (with zookeeper?)  || high (unconfirmed) || high ||  high || high ||  
+|| distributed queries || high, map/reduce  || high (unconfirmed) || high ||  high, map/reduce || high? map/reduce ||  
+|| size of developer community || very big  || small || medium ||  big? || ? ||  
+|| licences || OS  || OS || OS  || OS   ||  ||  
+|| platform || java   || java || java  ||  java || java version exists, up-to-date?  ||  
+|| ease of deployment || medium-difficult?   || easy? || easy?  || ? || ? ||  
+|| documentation || bad?   || medium? || good?  ||  good || ? ||  
 
 = Details =
+
 
 for more details and links atm see [https://docs0.google.com/document/d/1lfpjq-9UrBLncOJRV58s6uY7_oqBcy3lz2FS4CPiB5E/edit here]

@@ -13,6 +13,6 @@
 || licences || OS  || OS || OS  || OS   || 
 || platform || java   || java || java  ||  java || 
 || ease of deployment || medium-difficult?   || easy? || easy?  || ? || 
-|| documentation || bad?   || medium? || ?  ||  java || 
+|| documentation || bad?   || medium? || good?  ||  good || 
 
 = Details =

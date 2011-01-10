@@ -3,7 +3,6 @@
 = Introduction =
 
 || *HGDB requirement* || *Cassandra* || *OrientKV Server* || *Voldemort* || *CouchDB* ||
-
 || classical key/value store ? || no, supercolum/column families || yes || yes || no, "document"  || 
 || multiple sorted values || maybe, through column families || yes || maybe || [http://couchdb.apache.org/docs/intro.html maybe, within a "document"] || 
 || transactions || no, maybe with zookeeper&cages || yes ACID+MVCC || maybe || yes ACID+MVCC || 

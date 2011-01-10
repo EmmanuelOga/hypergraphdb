@@ -16,3 +16,5 @@
 || documentation || bad?   || medium? || good?  ||  good || 
 
 = Details =
+
+for more details atm see [https://docs0.google.com/document/d/1lfpjq-9UrBLncOJRV58s6uY7_oqBcy3lz2FS4CPiB5E/edit here]

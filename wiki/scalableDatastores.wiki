@@ -4,10 +4,14 @@
 
 || *HGDB requirement* || *Cassandra* || *OrientKV Server* || *Voldemort* || *CouchDB* ||
 
-|| classical key/value store ? || no, supercolum/column families || yes || yes || no, document  || 
-|| multiple sorted values || maybe, through column families || yes || maybe, yes within a "document" || [http://couchdb.apache.org/docs/intro.html apparently] || 
+|| classical key/value store ? || no, supercolum/column families || yes || yes || no, "document"  || 
+|| multiple sorted values || maybe, through column families || yes || maybe || [http://couchdb.apache.org/docs/intro.html maybe, within a "document"] || 
 || transactions || no, maybe with zookeeper&cages || yes ACID+MVCC || maybe || yes ACID+MVCC || 
 || distributed performance || high, (with zookeeper?)  || high (unconfirmed) || high ||  high || 
 || distributed queries || high, map/reduce  || high (unconfirmed) || high ||  high, map/reduce || 
+|| size of developer community || very big  || small || big ||  medium? || 
+|| licences || OS  || OS || OS  || OS   || 
+|| platform || java   || java || java  ||  java || 
+
 
 = Details =

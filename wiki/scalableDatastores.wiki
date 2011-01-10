@@ -9,9 +9,10 @@
 || transactions || no, maybe with zookeeper&cages || yes ACID+MVCC || maybe || yes ACID+MVCC || 
 || distributed performance || high, (with zookeeper?)  || high (unconfirmed) || high ||  high || 
 || distributed queries || high, map/reduce  || high (unconfirmed) || high ||  high, map/reduce || 
-|| size of developer community || very big  || small || big ||  medium? || 
+|| size of developer community || very big  || small || medium ||  big? || 
 || licences || OS  || OS || OS  || OS   || 
 || platform || java   || java || java  ||  java || 
-
+|| ease of deployment || medium-difficult?   || easy? || easy?  || ? || 
+|| documentation || bad?   || medium? || ?  ||  java || 
 
 = Details =

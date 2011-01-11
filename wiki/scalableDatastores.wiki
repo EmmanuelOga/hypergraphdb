@@ -11,7 +11,7 @@
 || size of developer community || very big  || small || medium ||  big? || ? ||  big ||  
 || licences || OS  || OS || OS  || OS   ||  ||  OS ||  
 || platform || java   || java || java  ||  java || java version exists, up-to-date?  ||  java ||  
-|| ease of deployment&configuration || difficult?   || easy? || easy?  || ? || ? ||  difficult? ||  
+|| ease of deployment&configuration || difficult?   || easy? || easy?  || easy? || ? ||  difficult? ||  
 || documentation || bad?   || medium? || good?  ||  good || ? ||  good ||
 
 = Details =

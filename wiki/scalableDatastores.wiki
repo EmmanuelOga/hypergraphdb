@@ -7,7 +7,7 @@
 || multiple sorted values || maybe, through column families || yes || yes, confirmed || maybe, within a "document" || maybe, (sets&lists)  ||  yes ||
 || transactions || no, maybe with zookeeper&cages || yes ACID+MVCC || only partial? || yes ACID+MVCC || apparently, no isolation? ||  limited ACID ||
 || distributed performance || high, (with zookeeper?)  || high (unconfirmed) || high ||  high || high ||  high ||  
-|| distributed queries || high, map/reduce  || high (unconfirmed) || high ||  high, map/reduce || high? map/reduce || high map/reduce ||    
+|| distributed queries || high, map/reduce  || high, no m/r (unconfirmed) || high, no m/r ||  high, map/reduce || high? map/reduce || high map/reduce ||    
 || size of developer community || very big  || small || medium ||  big? || ? ||  big ||  
 || licences || OS  || OS || OS  || OS   ||  ||  OS ||  
 || platform || java   || java || java  ||  java || java version exists, up-to-date?  ||  java ||  

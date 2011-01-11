@@ -2,17 +2,17 @@
 
 = Introduction =
 
-|| *HGDB requirement* || *Cassandra* || *OrientKV Server* || *Voldemort* || *CouchDB* || *Redis/jedis* ||
-|| classical key/value store ? || no, supercolum/column families || yes || yes || no, "document"  || yes  ||  
-|| multiple sorted values || maybe, through column families || yes || yes, confirmed || [http://couchdb.apache.org/docs/intro.html maybe, within a "document"] || maybe, (sets&lists)  ||  
-|| transactions || no, maybe with zookeeper&cages || yes ACID+MVCC || maybe || yes ACID+MVCC || apparently, no isolation? ||  
-|| distributed performance || high, (with zookeeper?)  || high (unconfirmed) || high ||  high || high ||  
-|| distributed queries || high, map/reduce  || high (unconfirmed) || high ||  high, map/reduce || high? map/reduce ||  
-|| size of developer community || very big  || small || medium ||  big? || ? ||  
-|| licences || OS  || OS || OS  || OS   ||  ||  
-|| platform || java   || java || java  ||  java || java version exists, up-to-date?  ||  
-|| ease of deployment || medium-difficult?   || easy? || easy?  || ? || ? ||  
-|| documentation || bad?   || medium? || good?  ||  good || ? ||  
+|| *HGDB requirement* || *Cassandra* || *OrientKV Server* || *Voldemort* || *CouchDB* || *Redis/jedis* || *Hbase* ||
+|| classical key/value store ? || no, supercolum/column families || yes || yes || no, "document"  || yes  ||   ||
+|| multiple sorted values || maybe, through column families || yes || yes, confirmed || maybe, within a "document" || maybe, (sets&lists)  ||  yes ||
+|| transactions || no, maybe with zookeeper&cages || yes ACID+MVCC || only partial? || yes ACID+MVCC || apparently, no isolation? ||  limited ACID ||
+|| distributed performance || high, (with zookeeper?)  || high (unconfirmed) || high ||  high || high ||  high ||  
+|| distributed queries || high, map/reduce  || high (unconfirmed) || high ||  high, map/reduce || high? map/reduce || high map/reduce ||    
+|| size of developer community || very big  || small || medium ||  big? || ? ||  big ||  
+|| licences || OS  || OS || OS  || OS   ||  ||  OS ||  
+|| platform || java   || java || java  ||  java || java version exists, up-to-date?  ||  java ||  
+|| ease of deployment&configuration || difficult?   || easy? || easy?  || ? || ? ||  difficult? ||  
+|| documentation || bad?   || medium? || good?  ||  good || ? ||  good ||
 
 = Details =
 

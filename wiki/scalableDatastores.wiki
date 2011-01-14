@@ -3,7 +3,7 @@
 = Introduction =
 
 || *HGDB requirement* || *Cassandra* || *OrientKV Server* || *Voldemort* || *CouchDB* || *Redis/jedis* || *Hbase* ||
-|| classical key/value store ? || no, supercolum/column families || yes || yes || no, "document"  || yes  || no, column-oriented  ||
+|| classical key/value store ? || no, supercolum/column families || no, based upon document || yes || no, "document"  || yes  || no, column-oriented  ||
 || multiple sorted values || maybe, through column families || yes, +buckets || yes, confirmed || maybe, within a "document" || maybe, (sets&lists)  ||  yes ||
 || transactions || no, maybe with zookeeper&cages || yes ACID+MVCC || only partial? || yes ACID+MVCC || apparently, no isolation? ||  limited ACID ||
 || distributed performance || high, (with zookeeper?)  || high (unconfirmed) || high ||  high || high ||  high ||  

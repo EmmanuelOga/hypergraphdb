@@ -1,1 +1,4 @@
 #summary Changes for HyperGraphDB, Next Release
+
+  * Fixed HGEnvironment.isOpen.
+  * Added predefined type for the immutable Pair class.

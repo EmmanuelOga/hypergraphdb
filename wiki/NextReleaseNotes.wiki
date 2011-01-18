@@ -2,3 +2,4 @@
 
   * Fixed HGEnvironment.isOpen.
   * Added predefined type for the immutable Pair class.
+  * Fixed bug with AtomReference annotation not being found in super classes.

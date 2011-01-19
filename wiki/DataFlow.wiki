@@ -296,4 +296,4 @@ Finally, here's how the main program looks. See comments inside:
 
 == Distributed Version ==
 
-TODO -  the API needs some cleaning up and documentation as well as the sample app needs to have a distributed version as a showcase. When that's done, we'll the appropriate description here.
+TODO -  the API needs some cleaning up and documentation as well as the sample app needs to have a distributed version as a showcase. When that's done, we'll add the appropriate description here.

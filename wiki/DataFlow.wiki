@@ -22,11 +22,11 @@ The API resides as a HyperGraphDB app called `dataflow` alongside the other Hype
 The main classes of interest are the following:
 
 || *Class* || *Description* ||
-|| DataFlowNetwork || Represents a data flow network: essentially the program implemented using this computational model ||
-|| Processor || The interface that a processing node in the network must implement. A processing node takes a bunch of inputs and produces a bunch of outputs. The logic that it implements can be arbitrarily complex and coarse grained, or something as simple as adding two numbers. ||
-|| Channel || Represents a communication channel between processing nodes, or a _pipe_ if you will. A channel can be written to and read from by multiple processing nodes. It is also capable of buffering data that flows through it and blocking writes until that data is being processed.  ||
-|| InputPort || Represents a _read_ connection between a channel and a processing node. A node reads from a channel through an `InputPort`. ||
-|| OutputPort || Represents a _write_ connection between a channel and a processing node. A node writes to a channel via an `OutputPort`. ||
+|| [http://www.hypergraphdb.org/docs/apps/dataflow/org/hypergraphdb/app/dataflow/DataFlowNetwork.html DataFlowNetwork] || Represents a data flow network: essentially the program implemented using this computational model ||
+|| [http://www.hypergraphdb.org/docs/apps/dataflow/org/hypergraphdb/app/dataflow/Processor.html Processor] || The interface that a processing node in the network must implement. A processing node takes a bunch of inputs and produces a bunch of outputs. The logic that it implements can be arbitrarily complex and coarse grained, or something as simple as adding two numbers. ||
+|| [http://www.hypergraphdb.org/docs/apps/dataflow/org/hypergraphdb/app/dataflow/Channel.html Channel] || Represents a communication channel between processing nodes, or a _pipe_ if you will. A channel can be written to and read from by multiple processing nodes. It is also capable of buffering data that flows through it and blocking writes until that data is being processed.  ||
+|| [http://www.hypergraphdb.org/docs/apps/dataflow/org/hypergraphdb/app/dataflow/InputPort.html InputPort] || Represents a _read_ connection between a channel and a processing node. A node reads from a channel through an `InputPort`. ||
+|| [http://www.hypergraphdb.org/docs/apps/dataflow/org/hypergraphdb/app/dataflow/OutputPort.html OutputPort] || Represents a _write_ connection between a channel and a processing node. A node writes to a channel via an `OutputPort`. ||
 
 == Sample Application ==
 

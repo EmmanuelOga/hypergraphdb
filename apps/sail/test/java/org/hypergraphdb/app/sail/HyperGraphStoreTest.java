@@ -5,44 +5,39 @@ import org.openrdf.sail.Sail;
 import org.openrdf.sail.SailConnection;
 import org.openrdf.sail.SailException;
 
-import java.io.File;
-import java.io.IOException;
-
 /**
- * created Jan 31, 2010  - 9:41:37 PM
- *
- * @author IanHolsman
- *         Copyright (C) 2010 by Aol. All Rights Reserved.
+ * created Jan 31, 2010 - 9:41:37 PM
+ * 
+ * @author IanHolsman Copyright (C) 2010 by Aol. All Rights Reserved.
  */
-public class HyperGraphStoreTest extends RDFStoreTest2 {
-  public HyperGraphStoreTest(String name) {
-    super(name);
-  }
+public class HyperGraphStoreTest extends RDFStoreTest
+{
 
-  @Override
-  protected Sail createSail() throws SailException {
-    final Sail sail = new HyperGraphStore("/tmp/hyperStore.sail");
+    public HyperGraphStoreTest()
+    {
+        super("HGDB RDF Store Test");
+    }
 
-         sail.initialize();
+    @Override
+    protected Sail createSail() throws SailException
+    {
+        final Sail sail = new HyperGraphStore("/tmp/hyperStore.sail");
 
-         final SailConnection conn = sail.getConnection();
+        sail.initialize();
 
-         try {
+        final SailConnection conn = sail.getConnection();
 
-             conn.clear();
+        try
+        {
+            conn.clear();
+            conn.clearNamespaces();
+            conn.commit();
+        }
+        finally
+        {
+            conn.close();
+        }
 
-             conn.clearNamespaces();
-
-             conn.commit();
-
-         } finally {
-
-             conn.close();
-
-         }
-
-         return sail;
-
-  }
-
+        return sail;
+    }
 }

@@ -51,6 +51,16 @@
 		<pathelement path="${java.class.path}" />
 	</path>
 
+	<path id="dataflow-classpath">
+        <fileset dir="dataflow/jars">
+            <include name="**/*.jar"/>
+        </fileset>    
+        <fileset dir="../.">
+            <include name="**/*.jar"/>
+        </fileset>
+		<pathelement path="${java.class.path}" />
+	</path>
+    
 	<path id="ann-classpath">
         <fileset dir="../.">
             <include name="**/*.jar"/>
@@ -81,6 +91,7 @@
         <mkdir dir="${build}/prolog"/>
         <mkdir dir="${build}/ann"/>
         <mkdir dir="${build}/sail"/>
+        <mkdir dir="${build}/dataflow"/>
     </target>
 
     <target name="ann" depends="init" description="Build Neural Networks Jar">
@@ -154,13 +165,27 @@
         </jar>
 	</target>
 
+	<target name="dataflow" depends="init" description="Build HyperGraphDB DataFlow Framework">
+		<javac source="1.5" classpathref="dataflow-classpath" debug="${debug}" destdir="${build}/dataflow" srcdir="dataflow/src/java"/>
+	    <javadoc sourcepath="dataflow/src/java" destdir="${build}/javadoc/dataflow" classpathref="dataflow-classpath">
+            <link href="http://www.hypergraphdb.org/docs/javadoc"/>
+        </javadoc>        
+        <copy todir="${build}/dataflow">
+          <fileset dir="dataflow/src/java">
+            <include name="**/*.xml"/>            
+            <include name="**/*.properties"/>
+          </fileset>
+        </copy>        
+		<jar basedir="${build}/dataflow" jarfile="${jars}/dataflowhgdb.jar"/>
+	</target>
 
+    
 	<target name="tm" depends="init" description="Build HyperGraphDB TopicMaps Jar">
 		<javac source="1.5" classpathref="tm-classpath" debug="${debug}" destdir="${build}/tm" srcdir="tm/src/java"/>
 	    <javadoc sourcepath="tm/src/java" destdir="${build}/javadoc/tm" classpathref="tm-classpath">
             <link href="http://www.kobrix.com/javadocs/hgcore"/>
         </javadoc>        
-        <copy todir="${build}/wordnet">
+        <copy todir="${build}/tm">
           <fileset dir="tm/src/java">
             <include name="**/*.xml"/>            
             <include name="**/*.properties"/>

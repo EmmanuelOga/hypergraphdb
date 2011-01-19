@@ -24,10 +24,58 @@ The main classes of interest are the following:
 || *Class* || *Description* ||
 || [http://www.hypergraphdb.org/docs/apps/dataflow/org/hypergraphdb/app/dataflow/DataFlowNetwork.html DataFlowNetwork] || Represents a data flow network: essentially the program implemented using this computational model ||
 || [http://www.hypergraphdb.org/docs/apps/dataflow/org/hypergraphdb/app/dataflow/Processor.html Processor] || The interface that a processing node in the network must implement. A processing node takes a bunch of inputs and produces a bunch of outputs. The logic that it implements can be arbitrarily complex and coarse grained, or something as simple as adding two numbers. ||
-|| [http://www.hypergraphdb.org/docs/apps/dataflow/org/hypergraphdb/app/dataflow/Channel.html Channel] || Represents a communication channel between processing nodes, or a _pipe_ if you will. A channel can be written to and read from by multiple processing nodes. It is also capable of buffering data that flows through it and blocking writes until that data is being processed.  ||
+|| [http://www.hypergraphdb.org/docs/apps/dataflow/org/hypergraphdb/app/dataflow/Channel.html Channel] || Represents a communication channel between processing nodes, or a _pipe_ if you will. A channel can be written to and read from by multiple processing nodes. It is also capable of buffering data that flows through it and blocking writes until that data is being processed. A channel carries a specific type of data and only that type of data. A special value represent EOS (end-of-stream) must be specified when the channel is constructed.  ||
 || [http://www.hypergraphdb.org/docs/apps/dataflow/org/hypergraphdb/app/dataflow/InputPort.html InputPort] || Represents a _read_ connection between a channel and a processing node. A node reads from a channel through an `InputPort`. ||
 || [http://www.hypergraphdb.org/docs/apps/dataflow/org/hypergraphdb/app/dataflow/OutputPort.html OutputPort] || Represents a _write_ connection between a channel and a processing node. A node writes to a channel via an `OutputPort`. ||
 
+To create a network, one needs to implement the processing nodes as implementations of the <code>Processor</code> interface. The <code>AbstractProcessor</code> class can be extended instead to get a default implementation of the <code>getName</code> method. This is convenient when troubleshooting because the processor name because the thread name of the thread in which it's executing, and this makes thread dumps more readable.
+
+Then one needs to connect those processing nodes through communication channels. The connections are established through [http://www.hypergraphdb.org/docs/apps/dataflow/org/hypergraphdb/app/dataflow/Port.html ports] - input ports or output ports. Let's take a look at the <code>Processor.process</code> method:
+
+{{{
+public void process(ContextType context, Ports ports) throws InterruptedException
+{
+   // Context is the global, arbitrary object that the network instance passes 
+   // from the application onto all processing nodes. It's application specific and
+   // can be anything.
+
+   // The 'ports' parameter represents all input and output connections to channels 
+   // in the network. Since each channel has a unique name, the ports are retrieved 
+   // by name. Also, since each channel carries potentially a different type of data
+   // ports are parameterized by this data type. 
+
+   // To obtain an input port connected to a given input channel, named "inData" and
+   // that carries data of type some class A:
+   
+   InputPort<A> in = ports.getInputPort("inData");
+
+   // to get the next input blocking until there's some available:
+   A a = in.take();
+
+   // to check if there's no more input
+   if (in.isEOS(a))
+     .... do something...maybe simple return 
+
+   // to check if there's data available
+   a = in.poll();
+
+   // An input is also an Iteratable so you can read all data in a for loop:
+   for (A a : in)
+     .... do something with a
+
+
+   // To obtain an output port:
+   OutputPort<B> b = ports.getOutputPort("outData");
+   
+   // to write to it:
+   b.put(new B(a));
+
+   // Any port can be closed at any time.
+   in.close();
+}
+}}}
 == Sample Application ==
 
 == Distributed Version ==
+
+TODO -  the API needs some cleaning up and documentation as well as the sample app needs to have a distributed version as a showcase. When that's done, we'll the appropriate description here.

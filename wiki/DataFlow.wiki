@@ -2,10 +2,30 @@
 
 == Introduction ==
 
-Flow-based programming is a powerful computational model that is becoming ever more relevant  in today's highly concurrent multi-core, distributed systems. It is more powerful and as scalable as something like map-reduce. The premise is very simple: computation is described in terms of black-box processes with well defined inputs and outputs. Each process runs in its own thread, reads inputs from a set of input channels, does something and then writes output to a set of output channels. There is no globally shared data and therefore there are no race conditions possible. 
+Flow-based programming is a powerful computational model that is becoming ever more relevant  in today's highly concurrent multi-core, distributed systems. It is more powerful and as scalable as something like map-reduce. The premise is very simple: computation is described in terms of black-box processes with well defined inputs and outputs. Each process runs in its own thread, reads inputs from a set of input channels, does something and then writes output to a set of output channels. There is no globally shared data and therefore there are no race conditions possible. Thus, parallelism is inherent to this model and arbitrary computations can be represented with it.
 
-The dataflow HyperGraphDB application component offers an implementation of this concept that is distributed across machines. The flow network of processes and channels is represented as a hypergraph.
+The dataflow HyperGraphDB application component offers an implementation of this concept that is distributed across machines. The flow network of processes and channels can be thought of as a directed hypergraph, where each channel is a directed hyperedge connecting all processes writing to it and all processes reading from it. In the distributed version, it is in fact represented as such.
 
-== Details ==
+The core, in-process part of the framework, however, is *independent* of HyperGraphDB and can be used standalone. The distributed version uses the HyperGraphDB peer-to-peer framework for communication and also persists the topology in the local database instance of each peer. The intended use is data processing with HyperGraphDB as ultimate storage, but that doesn't have to be the case - processing results can be stored in files, RDBMs or whatever. It is in theory possible not to persist anything and dispense with having HGDB database instances altogether. 
 
-This is a module from a project called Disko that will (hopefully very soon) be extracted from there and released as a HyperGraphDB application component. It relies on the HyperGraphDB's peer-to-peer framework to implement distributed flow channels.
+This module was initially developed for a NLP (natural language processing) project called [http://code.google.com/p/disko Disko]. 
+
+== API Overview ==
+
+The API resides as a HyperGraphDB app called `dataflow` alongside the other HyperGraphDBApplications. The main package of the code is as expected:
+
+`org.hypergraphdb.app.dataflow`
+
+
+The main classes of interest are the following:
+
+|| *Class* || *Description* ||
+|| DataFlowNetwork || Represents a data flow network: essentially the program implemented using this computational model ||
+|| Processor || The interface that a processing node in the network must implement. A processing node takes a bunch of inputs and produces a bunch of outputs. The logic that it implements can be arbitrarily complex and coarse grained, or something as simple as adding two numbers. ||
+|| Channel || Represents a communication channel between processing nodes, or a _pipe_ if you will. A channel can be written to and read from by multiple processing nodes. It is also capable of buffering data that flows through it and blocking writes until that data is being processed.  ||
+|| InputPort || Represents a _read_ connection between a channel and a processing node. A node reads from a channel through an `InputPort`. ||
+|| OutputPort || Represents a _write_ connection between a channel and a processing node. A node writes to a channel via an `OutputPort`. ||
+
+== Sample Application ==
+
+== Distributed Version ==

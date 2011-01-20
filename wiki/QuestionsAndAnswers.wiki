@@ -5,11 +5,12 @@
 There are a few configuration options that can help increase the database performance significantly. The first one is giving the storage system a bigger cache. This must be done before a database is opened and by working directly with the BerkeleyDB API (or whatever other storage sub-system is being used). For example, with the BerkeleyDB storage one may do:
 
 {{{
+
 HGConfiguration config = new HGConfiguration();
 BDBConfig bdbConfig = config.getStoreImplementation().getConfiguration();
-
 // Change the storage cache from the 20MB default to 500MB
 bdbConfig.getEnvironmentConfig().setCacheSize(500*1024*1024);
+
 }}}
 
 Using the BerkeleyDB configuration object you can set other options such as whether to use MVCC in storage transactions, what type of key-value store (hash or b-tree) to use and others. In our experience none of those really affect performance. A hash-based storage gives a theoretical constant amortized access time, but in practice it doesn't seem faster than a b-tree.

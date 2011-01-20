@@ -28,7 +28,7 @@ The main classes of interest are the following:
 || [http://www.hypergraphdb.org/docs/apps/dataflow/org/hypergraphdb/app/dataflow/InputPort.html InputPort] || Represents a _read_ connection between a channel and a processing node. A node reads from a channel through an `InputPort`. ||
 || [http://www.hypergraphdb.org/docs/apps/dataflow/org/hypergraphdb/app/dataflow/OutputPort.html OutputPort] || Represents a _write_ connection between a channel and a processing node. A node writes to a channel via an `OutputPort`. ||
 
-To create a network, one needs to implement the processing nodes as implementations of the `Processor` interface. The `AbstractProcessor` class can be extended instead to get a default implementation of the `getName` method. This is convenient when troubleshooting because the processor name because the thread name of the thread in which it's executing, and this makes thread dumps more readable.
+To create a network, one needs to implement the processing nodes as implementations of the `Processor` interface. The `AbstractProcessor` class can be extended instead to get a default implementation of the `getName` method. This is convenient when troubleshooting because the processor name becomes the thread name of the thread in which it's executing, and this makes thread dumps more readable.
 
 Then one needs to connect those processing nodes through communication channels. The connections are established through [http://www.hypergraphdb.org/docs/apps/dataflow/org/hypergraphdb/app/dataflow/Port.html ports] - input ports or output ports. Let's take a look at the `Processor.process` method:
 

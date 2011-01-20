@@ -11,3 +11,7 @@ The HyperGraphDB implementation is currently under development and it is based o
 A future goal would be to implement reasoning and persist inferences within HyperGraphDB. 
 
 This component is localed undera apps/owl in the codebase.
+
+== Resources ==
+
+http://www.cse.iitb.ac.in/~comad/2009/proceedings/R3_4.pdf - could be useful in structuring the data for inference.

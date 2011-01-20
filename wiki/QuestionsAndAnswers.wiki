@@ -1,5 +1,36 @@
 #summary HyperGraphDB Questions and Answers
 
+=== How can I increase HyperGraphDB's performance ===
+
+There are a few configuration options that can help increase the database performance significantly. The first one is giving the storage system a bigger cache. This must be done before a database is opened and by working directly with the BerkeleyDB API (or whatever other storage sub-system is being used). For example, with the BerkeleyDB storage one may do:
+
+{{{
+HGConfiguration config = new HGConfiguration();
+BDBConfig bdbConfig = config.getStoreImplementation().getConfiguration();
+
+// Change the storage cache from the 20MB default to 500MB
+bdbConfig.getEnvironmentConfig().setCacheSize(500*1024*1024);
+
+Using the BerkeleyDB configuration object you can set other options such as whether to use MVCC in storage transactions, what type of key-value store (hash or b-tree) to use and others. In our experience none of those really affect performance. A hash-based storage gives a theoretical constant amortized access time, but in practice it doesn't seem faster than a b-tree.
+}}}
+
+The other configuration change that you may do and that results in a significant speed up of database operations is using a different-than-the-default ID generation schema. The default schema produces random UUIDs which means that data is distributed randomly in the key-value store, which makes the cache relatively ineffective. Since in general atoms that are created together tend to be accessed together, having a more conventional ID generation schema where IDs (i.e. HGPersistentHandles) are generated in a numerical sequence will result in much fewer cache misses. To use a different ID generation, you have to configure a different HGHandleFactory, e.g.:
+
+{{{
+// Generate UUID persistent handles sequentially. A UUID is made up of
+two 64bit longs.
+// The following constructs a handle factory that will use the startup
+time as one of the two longs
+// and will be counting from 0.
+SequentialUUIDHandleFactory handleFactory =
+                           new SequentialUUIDHandleFactory(System.currentTimeMillis(), 0);
+HGConfiguration config = new HGConfiguration();
+config.setHandleFactory(handleFactory);
+}}}
+
+You could implement your own handle factory as well. It's possible to use integers or longs as identifiers which will speed things up even further (comparisons are faster, data is smaller etc.) and there are handle factories for that too. However, if you do so you must also change the predefined type configuration file which contains preset handles for all types necessary to bootstrap the HyperGraphDB type system.
+
+
 === GUI for HyperGraphDB?===
 
 There is no special purpose administrative GUI in the traditional sense. However, the scripting environment [http://www.kobrix.com/seco.jsp Seco] has been built entirely on top of HyperGraphDB. You can use to interact with a database instance via scripting or by creating your own admin components in the Seco canvas and/or leveraging such components that others have created.

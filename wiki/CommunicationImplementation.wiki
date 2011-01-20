@@ -8,7 +8,7 @@ Following the agent metaphor, conceptually each communication act is performed w
 
 Thus, peers perform tasks (i.e. accomplish goals) by running asynchronous activities locally and communicating their state and results via speech act messages. The flow of those activities is orchestrated by a framework that provides the following elements:
 
-  # A peer-to-peer infrastructure based on the JXTA framework (see https://jxta.dev.java.net/), including peer discovery and relay communication over firewalls.
+  # A peer-to-peer infrastructure based on the XMPP standard (see http://xmpp.org/), specifically using the Smack library from http://www.igniterealtime.org/.
   # Message formatting and parsing using JSON syntax (see http://www.json.org). Serialization for common runtime HyperGraphDB objects (such as queries), Java beans as well as HyperGraphDB atoms is implemented and it is possible to plug in custom object serialization.
   # Pluggable behaviour in the form of implementation of a `BootstrapPeer` interface.
   # Management and scheduling of activities. Activities can be implemented either as "roll your own" general message handlers or as framework-managed finite-state machines. Activities can also be in a parent-child relationship. 

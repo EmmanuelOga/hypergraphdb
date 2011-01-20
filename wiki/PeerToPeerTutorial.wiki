@@ -1,0 +1,53 @@
+#summary A tutorial on setting a HyperGraphDB P2P network.
+
+== Main elements of a HHDB peer ==
+
+ # The configuration file - see PeerConfiguration page
+ # The backing `HyperGraph` instance.
+
+== Examples ==
+
+=== The main function for a "client" peer ===
+
+{{{
+public static void main(String[] args)
+{
+	HyperGraphPeer peer = new HyperGraphPeer(args[0], HGEnvironment.get(args[1]));
+		
+	if (peer.start("user", "pwd"))
+	{
+		//peer is started ... 
+	}
+}
+
+}}}
+
+=== The main function for a "server" peer ===
+
+{{{
+public static void main(String[] args)
+{
+	HyperGraphPeer server = new HyperGraphPeer(...);
+	
+	if (server.start("user", "pwd"))
+	{
+		//peer is started ...
+
+		//set atom interests ...
+		server.setAtomInterests(new AnyAtomCondition());
+
+		//catch up ...
+		server.catchUp();
+	}		
+}
+
+}}}
+
+=== Registering user types ===
+
+In order to use objects of a give type on any peer, the peer will have to know its type. See below the code to register the _User_ class.
+
+{{{
+	HGPersistentHandle typeHandle = UUIDPersistentHandle.makeHandle("e917bda6-0932-4a66-9aeb-3fc84f04ce57");
+	peer.registerType(typeHandle, User.class);
+}}}

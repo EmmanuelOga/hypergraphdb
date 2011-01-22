@@ -74,3 +74,7 @@ public static void main(String[] args)
 }
 
 }}}
+
+As can be seen, the HyperGraphPeer.startup returns a `Future` object that will hold a boolean once the startup process is complete. This is because startup is executed in a separate thread. Call `Future.get` block until the result is ready. Whenever the peer fails to start for whatever reason (usually due to a misconfiguration), that reason is recorded in the `startupFailedException` property of the `HyperGraphPeer` instance. 
+
+Note that all threads in the peer's thread pool are daemon threads, so the above application simply joins the network and then exits. 

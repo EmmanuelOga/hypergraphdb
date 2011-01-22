@@ -55,22 +55,22 @@ public static void main(String[] args)
     File configFile = new File("hgp2p.json"); // or whatever directory you put that file in.
     HyperGraphPeer peer = new HyperGraphPeer(configFile);
     Future<Boolean> startupResult = peer.start();		
-	    try
-		{
-			if (startupResult.get())
-			{
-			    System.out.println("Peer started successfully.");
-			}
-			else
-			{
-			    System.out.println("Peer failed to start.");
-			    peer.getStartupFailedException().printStackTrace(System.err);
-			}
-		} 
-	    catch (Exception e)
-		{
-			e.printStackTrace(System.err);
-		}
+    try
+    {
+        if (startupResult.get())
+	{
+	    System.out.println("Peer started successfully.");
+	}
+	else
+	{
+	    System.out.println("Peer failed to start.");
+	    peer.getStartupFailedException().printStackTrace(System.err);
+	}
+    } 
+    catch (Exception e)
+    {
+        e.printStackTrace(System.err);
+    }
 }
 
 }}}

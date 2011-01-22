@@ -35,7 +35,8 @@ A HyperGraphDB peer is configured with a set of parameters that can be passed as
     "user" : "hgtest",
     "password" : "password",
     "serverUrl"	: "myhost",
-    "room" : "play@conference.myhost"
+    "room" : "play@conference.myhost",
+    "autoRegister" : true
   }
 }
 }}}

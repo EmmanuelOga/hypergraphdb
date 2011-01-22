@@ -45,47 +45,20 @@ Since the framework is designed to support P2P protocols, the first thing to con
 
 For a complete list of top level configuration options, please see the PeerConfiguration page. For a list of XMPP specific configuration options, see the [ConfigurationXMPP] page.
 
-=== The main function for a "client" peer ===
+== Starting Up a Peer ==
+
+With the XMPP server and configuration ready, starting up a peer is a simple API call. The main entry point is the [http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/peer/HyperGraphPeer.html HyperGraphPeer] class. You construct an instance of that class with the desired configuration and call its `startup` method:
 
 {{{
 public static void main(String[] args)
 {
-	HyperGraphPeer peer = new HyperGraphPeer(args[0], HGEnvironment.get(args[1]));
-		
-	if (peer.start("user", "pwd"))
-	{
-		//peer is started ... 
-	}
+    File configFile = new File("hgp2p.json"); // or whatever directory you put that file in.
+    HyperGraphPeer peer = new HyperGraphPeer(configFile);
+    Future<Boolean> startupResult = peer.start(null, null);		
+    if (startupResult.get())
+    {
+       // peer started successfully
+    }
 }
 
-}}}
-
-=== The main function for a "server" peer ===
-
-{{{
-public static void main(String[] args)
-{
-	HyperGraphPeer server = new HyperGraphPeer(...);
-	
-	if (server.start("user", "pwd"))
-	{
-		//peer is started ...
-
-		//set atom interests ...
-		server.setAtomInterests(new AnyAtomCondition());
-
-		//catch up ...
-		server.catchUp();
-	}		
-}
-
-}}}
-
-=== Registering user types ===
-
-In order to use objects of a give type on any peer, the peer will have to know its type. See below the code to register the _User_ class.
-
-{{{
-	HGPersistentHandle typeHandle = UUIDPersistentHandle.makeHandle("e917bda6-0932-4a66-9aeb-3fc84f04ce57");
-	peer.registerType(typeHandle, User.class);
 }}}

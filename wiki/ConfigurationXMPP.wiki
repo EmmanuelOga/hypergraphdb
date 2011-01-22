@@ -49,7 +49,7 @@ Normally, an XMPP user has a roster which is essentially a list of friends - oth
 
 Another option is to configure a chat room and let everybody that joins in be peers. The chat room must be created in your server's admin or with the Smack API, but once it is created you simply specify its JID (Jabber ID) as the `room` parameter. When this parameter is present the XMPPPeerInterface will try to join the room and monitor all peers in it.
 
-If a user has both a roster and it joins a room, the peers from both the roster and the room form the HGDB peers of the user. If you want only the room peer, set the `ignoreRoster` parameter to false.
+If a user has both a roster and it joins a room, the peers from both the roster and the room form the HGDB peers of the user. If you want only the room peer, set the `ignoreRoster` parameter to true.
 
 === What server can I connect to? ===
 

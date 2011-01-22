@@ -10,6 +10,15 @@ Any standard compliant XMPP server can be used in principle. Since we relying on
   # Go through the configuration steps in the web interface: selected the _Embedded Database_ for simplicity. 
   # At the end of the configuration process, the current version 3.6.4 prompts you to login to the admin console, but the password you selected doesn't work. Just kill the server and start it again, it will work.
 
+Once the server is properly installed, the next step is configuring users and/or chat rooms so that peers can see each other. There are two ways that peers A and B can connect:
+
+  # Both A and B are registered users and they are in each other's roster (i.e. list of "friends"). 
+  # There is a chat room to which both A and B are participants.
+
+Users and chat rooms can be configured with the web interface. The names and passwords that you choose will have to be specified in HGDB configuration files. Since the HGDB API doesn't offer means to manage rosters, they need to be administered directly with the server web console, or by some other means. Hence, option 2 is easier to get started. But for a fine-grained connectivity control (who talks to who), option 1 is better.
+
+By default, the sever allows peers to create their accounts automatically or to login anonymously. The HyperGraphDB lets you do that as well. That is, if automatic registration is enabled, you can just pass in a username and a password to the HGDB and if it can't login, it will create an account with that username and password.
+
 == Main elements of a HHDB peer ==
 
  # The configuration file - see PeerConfiguration page

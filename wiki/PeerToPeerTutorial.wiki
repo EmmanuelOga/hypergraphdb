@@ -1,5 +1,15 @@
 #summary A tutorial on setting a HyperGraphDB P2P network.
 
+== Configuring the XMPP Server ==
+
+Any standard compliant XMPP server can be used in principle. Since we relying on the Smack client libraries by [http://www.igniterealtime.com Ignite Realtime], we have used their [http://www.igniterealtime.org/projects/openfire/index.jsp OpenFire] server so far and we highly recommend it. To install the server:
+
+  # [http://www.igniterealtime.org/downloads/index.jsp#openfire Download Openfire] for your platform of choice and install it locally to your machine.
+  # Under 'bin' in the installation directory, start the `openfired` executable.
+  # An HTTP server is now available locally on port 9090. Hit that port with the browser.
+  # Go through the configuration steps in the web interface: selected the _Embedded Database_ for simplicity. 
+  # At the end of the configuration process, the current version 3.6.4 prompts you to login to the admin console, but the password you selected doesn't work. Just kill the server and start it again, it will work.
+
 == Main elements of a HHDB peer ==
 
  # The configuration file - see PeerConfiguration page

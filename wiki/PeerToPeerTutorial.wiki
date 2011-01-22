@@ -19,12 +19,29 @@ Users and chat rooms can be configured with the web interface. The names and pas
 
 By default, the sever allows peers to create their accounts automatically or to login anonymously. The HyperGraphDB lets you do that as well. That is, if automatic registration is enabled, you can just pass in a username and a password to the HGDB and if it can't login, it will create an account with that username and password.
 
-== Main elements of a HHDB peer ==
+For tutorial purposes, create a single chat room called 'play' and leave all options to their default values.
 
- # The configuration file - see PeerConfiguration page
- # The backing `HyperGraph` instance.
+== Configuring a Single HyperGraphDB Peer ==
 
-== Examples ==
+A HyperGraphDB peer is configured with a set of parameters that can be passed as a JSON file (or runtime resource), or as a Java Map. The parameter values are simple types or nested maps (mirroring JSON's object nesting). Here we'll go with the more readable JSON, but you can do the same by manually putting data into a Java map. So create a text file called `hgp2p.json` with the following content:
+
+{{{
+{
+"interfaceType"	: "org.hypergraphdb.peer.xmpp.XMPPPeerInterface",
+"localDB": "c:/temp/hgdbpeertest",
+"peerName"	: "HGDBPeer",
+"interfaceConfig"		:
+  {
+    "user" : "hgtest",
+    "password" : "password",
+    "serverUrl"	: "myhost",
+    "room" : "play@conference.myhost"
+  }
+}
+}}}
+
+Since the framework is design to support P2P protocols, the first thing to configure is the actual protocol used. This is done with the `interfaceType` parameter whose value is the class of the implementation of the [www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/peer/PeerInterface.html PeerInterface]. Then normally a peer is bound to a local database instance, so you specify that instance location as well with the `localDB` parameter. The `peerName` parameter gives a user friendly, display name of the peer, it is part of the peer's identity within the network, but there's no requirement that it be unique. Finally, we have the detailed configuration of the XMPP network interface where we specify the user, password, server address (here we omit the port because we use the 5222 default for XMPP) and the chat room where peers should login. Replace "myhost" with the name of your machine in the above configuration: while putting "localhost" will work for the `serverUrl` parameter, the chat room JID (Jabber ID) needs the actual machine name.
+
 
 === The main function for a "client" peer ===
 

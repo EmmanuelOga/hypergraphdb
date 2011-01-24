@@ -134,7 +134,7 @@ So, once we have some activities setup with the peer, we can put them to work. L
 }
 }}}
 
-Note that here, we change the database location, peer name and XMPP username so as not conflict with our other peer. Then we can create a main program for each peer, or simply start them up both within a single main program (read the comment throughout):
+Note that here, we change the database location, peer name and XMPP username so as not conflict with our other peer. Then we can create a main program for each peer, or simply start them up both within a single main program (read the comments throughout):
 
 {{{
 // Start a peer out of a given configuration file. This will have as a side

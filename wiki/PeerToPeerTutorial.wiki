@@ -1,4 +1,4 @@
-#summary A tutorial on setting a HyperGraphDB P2P network.
+#summary Getting Started with a HyperGraphDB Peer-to-Peer Network
 
 == Configuring the XMPP Server ==
 

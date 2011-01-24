@@ -1,5 +1,7 @@
 #summary Getting Started with a HyperGraphDB Peer-to-Peer Network
 
+This short tutorial walks you through the basics of setting a P2P network, gives some background on the communication framework used and finishes with a simple example of moving atoms from one peer to another. 
+
 == Configuring the XMPP Server ==
 
 Any standard compliant XMPP server can be used in principle. Since we relying on the Smack client libraries by [http://www.igniterealtime.com Ignite Realtime], we have used their [http://www.igniterealtime.org/projects/openfire/index.jsp OpenFire] server so far and we highly recommend it. To install the server:

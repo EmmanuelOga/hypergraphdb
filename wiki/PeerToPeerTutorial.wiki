@@ -79,7 +79,7 @@ As can be seen, the `HyperGraphPeer.startup` returns a `Future` object that will
 
 Note that all threads in the peer's thread pool are daemon threads, so the above application simply joins the network and then exits. 
 
-== Making the Peer Do Something Useful == 
+== Making Peers Work - Background == 
 
 Ok, now that we've managed to start a HyperGraphDB peer and we can easily imagine starting many such peers over a network, local or the whole internet, what is it that a peer can do? With the above configuration, it cannot do anything. A peer in a P2P network is not the same as a server or a service exposing an interface and answering client requests, though it can be made to behave like this. Rather, a peer is more akin to an autonomous agent that participates in conversations with other peers. In a given conversation between peers `A` and `B`, `A` may play the role of a service while `B` is the client, but those roles may be reversed in a different conversation between the same two peers. 
 
@@ -97,7 +97,9 @@ The first argument is the name of the activity type. This type name must be uniq
 
 It is possible to register activity types at any time, but customarily they are registered at startup as part of the peer's configuration. The startup configuration of a peer allows you to list several _bootstrapping operations_ that will get performed before the peer connects to the network. A bootstrapping operation is anything implementing the [http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/peer/BootstrapPeer.html BootstrapPeer] interface. This offers a bit more generality than simply listing activity types to pre-register - one can do any kind of initialization in the `BootstrapPeer.bootstrap(HyperGraphPeer peer, Map config)` method. Besides, in some cases activity types are logically linked together and must be registered as a single operation. 
 
-Bootstrapping is configured as a top-level parameter, listing all bootstrapping implementation together with their configuration object (an arbitrary JSON object):
+== Making Peers Work - Background == 
+
+Bootstrapping is configured as a top-level parameter, listing all bootstrapping implementations together with their configuration object (an arbitrary JSON object):
 
 {{{
 // file hgp2p2.json
@@ -110,9 +112,9 @@ Bootstrapping is configured as a top-level parameter, listing all bootstrapping 
 }
 }}}
 
-For example, for a peer to do anything useful it must be made aware of other HyperGraphDB peers (by default it ignores any other XMPP presense). This is done by special built in activity called `AffirmIdentity` that needs to be bootstrapped in all configurations. The other bootstrapping listed above, `CACTBootstrap`, stands for "Common Activities Bootstrap` initializes several basic activity types, including the `DefineAtom` activity type mentioned above. As you can see, the class name of the `BootstrapPeer` implementation is required as well as the configuration to be passed to its sole method. In this case, the configuration is empty in both of the elements listed.
+For a peer to do anything useful it must be made aware of other HyperGraphDB peers (by default it ignores any other XMPP presense). This is done by special built in activity called `AffirmIdentity` that needs to be bootstrapped in all configurations, as done here. The other bootstrapping listed above, `CACTBootstrap`, stands for "Common Activities Bootstrap" initializes several basic activity types, including the `DefineAtom` activity type mentioned in the previous section. As you can see, the class name of the `BootstrapPeer` implementation is required as well as the configuration to be passed to its sole method. In this case, the configuration is empty in both of the elements listed.
 
-So, once we have some activities setup with the peer, we can put them to work. Let's take the simple example of the `DefineAtom`, startup two peers and have one of them send an atom to the other.  First, add the above "bootstrap" configuration element to the JSON file you created, and then create a second JSON file as a modified copy of the first like this:
+So, once we have some activities setup with the peer, we can put them to work. Let's take the simple example of the `DefineAtom` activity, startup two peers and have one of them send an atom to the other. First, add the above "bootstrap" configuration element to the JSON file you created, and then create a second JSON file as a modified copy of the first like this:
 
 {{{
 "interfaceType"	: "org.hypergraphdb.peer.xmpp.XMPPPeerInterface",
@@ -132,10 +134,13 @@ So, once we have some activities setup with the peer, we can put them to work. L
 }
 }}}
 
-Note that here, we change the database location, peer name and XMPP username so as not conflict with our other peer. Then we can create a main program for each peer, or simply start them up both within a single main program:
-
+Note that here, we change the database location, peer name and XMPP username so as not conflict with our other peer. Then we can create a main program for each peer, or simply start them up both within a single main program (read the comment throughout):
 
 {{{
+// Start a peer out of a given configuration file. This will have as a side
+// effect to open the underlying database if not already opened, execute
+// all bootstrapping operations found in the configuration and connect to
+// the network.
 private static HyperGraphPeer startPeer(File configFile)
 {
     HyperGraphPeer peer = new HyperGraphPeer(configFile);
@@ -160,13 +165,31 @@ private static HyperGraphPeer startPeer(File configFile)
 
 public static void main(String[] args)
 {
+    // Let's startup our two peers. 
     HyperGraphPeer peer1 = startPeer(new File("hgp2p.json"));
     HyperGraphPeer peer2 = startPeer(new File("hgp2p2.json"));
+  
+    // Add some atom to the graph of the first peer.
     HGHandle fromPeer1 = peer1.getGraph().add("From Peer1");
+
+    // Have our first peer initiate a "define-atom" activity which
+    // will trigger a "HyperGraph.define" operation with the specified
+    // atom at the other peer. 
+    //     
+    // The DefineAtom constructor takes the initiating peer as its
+    // first argument, the handle of the atom to be send as its second
+    // argument and the identity of the receiving peer.
+    //
+    // The the newly constructed activity is passed onto the ActivityManager's
+    // initiate method which will take it from there.
     peer1.getActivityManager().initiateActivity(
     		new DefineAtom(peer1, fromPeer1, peer2.getIdentity()));
+
+    // 2 seconds should be enough in a single machine to transfer the atom
     try { Thread.sleep(2000); } catch (Throwable t) { }
-    String received = peer2.getGraph().get(peer1.getGraph().getPersistentHandle(fromPeer1));
+
+    // Let's check that the atom was properly transferred. 
+    String received = peer2.getGraph().get(fromPeer1);
     if (received != null)
         System.out.println("Peer 2 received " + received);
     else

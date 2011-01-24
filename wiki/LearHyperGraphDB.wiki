@@ -8,7 +8,7 @@
 == Tutorials ==
 
   * The official [FirstSteps HyperGraphDB tutorial] walks you through installation and the main features of the software, covering data storage, querying, traversals, indexing etc.
-  * The [PeerToPeerTutorial Getting Started with a HyperGraphDB Peer-to-Peer Network] walks you through the basics of setting a P2P network, gives some background on the communication framework used and finishes with a simple example of moving atoms from one peer to another.
+  * The [PeerToPeerTutorial Getting Started with a HyperGraphDB Peer-to-Peer Network] tutorial walks you through the basics of setting a P2P network, gives some background on the communication framework used and finishes with a simple example of moving atoms from one peer to another.
 
 == Reference Library ==
 

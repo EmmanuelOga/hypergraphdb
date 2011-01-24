@@ -97,7 +97,7 @@ The first argument is the name of the activity type. This type name must be uniq
 
 It is possible to register activity types at any time, but customarily they are registered at startup as part of the peer's configuration. The startup configuration of a peer allows you to list several _bootstrapping operations_ that will get performed before the peer connects to the network. A bootstrapping operation is anything implementing the [http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/peer/BootstrapPeer.html BootstrapPeer] interface. This offers a bit more generality than simply listing activity types to pre-register - one can do any kind of initialization in the `BootstrapPeer.bootstrap(HyperGraphPeer peer, Map config)` method. Besides, in some cases activity types are logically linked together and must be registered as a single operation. 
 
-== Making Peers Work - Background == 
+== Making Peers Work - An Example == 
 
 Bootstrapping is configured as a top-level parameter, listing all bootstrapping implementations together with their configuration object (an arbitrary JSON object):
 

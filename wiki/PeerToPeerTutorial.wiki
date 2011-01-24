@@ -85,7 +85,7 @@ Ok, now that we've managed to start a HyperGraphDB peer and we can easily imagin
 
 To make a peer do something, one must configure in what kinds of conversations it will be able to participate. More generally, a peer engages in _activities_ in conjunction with other peers. Those activities are asynchronous, they can be triggered, interrupted and resumed at different points in time. Several peers may participate in a single activity in order to accomplish something, but the activity is always _initiated_ by a single peer. An activity may be something as simple as transferring an atom from one peer to another or as complex as coordinating a distributed graph traversal algorithm. Peers coordinate their participation in a given activity by sending each other messages. 
 
-Now, activities are categorized by _type_ where each _activity type_ is simply a Java class implementation that defines the conversation protocol for all activities of that type. Think of the activity type as a specific function that a peer is able to perform. Only, that function is not necessarily some predefined request-response sequence, but rather a full conversation involving potentially many messages flowing back and forth. One common approach to implementing activity types is as _finite-state machines_ and there's support for those. A detailed description of the framework managing peer activities and messages can be found in the CommunicatonImplementation page. Here we will show how peers are configured to participate in various activity types and we'll give a code sample showing how one peer can send an atom to another.
+Now, activities are categorized by _type_ where each _activity type_ is simply a Java class implementation that defines the conversation protocol for all activities of that type. Think of the activity type as a specific function that a peer is able to perform. Only, that function is not necessarily some predefined request-response sequence, but rather a full conversation involving potentially many messages flowing back and forth. One common approach to implementing activity types is as _finite-state machines_ and there's support for those. A detailed description of the framework managing peer activities and messages can be found in the CommunicationImplementation page. Here we will show how peers are configured to participate in various activity types and we'll give a code sample showing how one peer can send an atom to another.
 
 First, some API basics about activities. Those are managed by a class called [http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/peer/workflow/ActivityManager.html ActivityManager], available as `HyperGraphPeer.getActivityManager()`. In order to initiate or respond to any activity of a given type, first a peer must register that activity type the with the manager, e.g.:
 
@@ -96,3 +96,82 @@ peer.getActivityManager().registerActivityType("define-atom", DefineAtom.class);
 The first argument is the name of the activity type. This type name must be unique amongst activity types as it is used to identify the specific activity type of a message. The second argument is a class extending the [http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/peer/workflow/Activity.html Activity] class. Once the type is registered, the peer can initiate new activities of this type or respond to ones started by other peers.
 
 It is possible to register activity types at any time, but customarily they are registered at startup as part of the peer's configuration. The startup configuration of a peer allows you to list several _bootstrapping operations_ that will get performed before the peer connects to the network. A bootstrapping operation is anything implementing the [http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/peer/BootstrapPeer.html BootstrapPeer] interface. This offers a bit more generality than simply listing activity types to pre-register - one can do any kind of initialization in the `BootstrapPeer.bootstrap(HyperGraphPeer peer, Map config)` method. Besides, in some cases activity types are logically linked together and must be registered as a single operation. 
+
+Bootstrapping is configured as a top-level parameter, listing all bootstrapping implementation together with their configuration object (an arbitrary JSON object):
+
+{{{
+// file hgp2p2.json
+{
+"peerName" : "mysimplepeer",
+"bootstrap" : [ {"class" : "org.hypergraphdb.peer.bootstrap.AffirmIdentityBootstrap", "config" : {}},
+                {"class" : "org.hypergraphdb.peer.bootstrap.CACTBootstrap", "config" : {}},
+              ]
+...etc.
+}
+}}}
+
+For example, for a peer to do anything useful it must be made aware of other HyperGraphDB peers (by default it ignores any other XMPP presense). This is done by special built in activity called `AffirmIdentity` that needs to be bootstrapped in all configurations. The other bootstrapping listed above, `CACTBootstrap`, stands for "Common Activities Bootstrap` initializes several basic activity types, including the `DefineAtom` activity type mentioned above. As you can see, the class name of the `BootstrapPeer` implementation is required as well as the configuration to be passed to its sole method. In this case, the configuration is empty in both of the elements listed.
+
+So, once we have some activities setup with the peer, we can put them to work. Let's take the simple example of the `DefineAtom`, startup two peers and have one of them send an atom to the other.  First, add the above "bootstrap" configuration element to the JSON file you created, and then create a second JSON file as a modified copy of the first like this:
+
+{{{
+"interfaceType"	: "org.hypergraphdb.peer.xmpp.XMPPPeerInterface",
+"localDB": "c:/temp/hgdbpeertest2",
+"peerName"	: "HGDBPeer2",
+"bootstrap" : [ {"class" : "org.hypergraphdb.peer.bootstrap.AffirmIdentityBootstrap", "config" : {}},
+                {"class" : "org.hypergraphdb.peer.bootstrap.CACTBootstrap", "config" : {}},
+              ]
+"interfaceConfig"		:
+  {
+    "user" : "hgtest2",
+    "password" : "password",
+    "serverUrl"	: "myhost",
+    "room" : "play@conference.myhost",
+    "autoRegister" : true
+  }
+}
+}}}
+
+Note that here, we change the database location, peer name and XMPP username so as not conflict with our other peer. Then we can create a main program for each peer, or simply start them up both within a single main program:
+
+
+{{{
+private static HyperGraphPeer startPeer(File configFile)
+{
+    HyperGraphPeer peer = new HyperGraphPeer(configFile);
+    Future<Boolean> startupResult = peer.start();		
+    try
+    {
+        if (startupResult.get())
+	{
+	    System.out.println("Peer started successfully.");
+	}
+	else
+	{
+	    System.out.println("Peer failed to start.");
+	    peer.getStartupFailedException().printStackTrace(System.err);
+	}
+    } 
+    catch (Exception e)
+    {
+        e.printStackTrace(System.err);
+    }
+}
+
+public static void main(String[] args)
+{
+    HyperGraphPeer peer1 = startPeer(new File("hgp2p.json"));
+    HyperGraphPeer peer2 = startPeer(new File("hgp2p2.json"));
+    HGHandle fromPeer1 = peer1.getGraph().add("From Peer1");
+    peer1.getActivityManager().initiateActivity(
+    		new DefineAtom(peer1, fromPeer1, peer2.getIdentity()));
+    try { Thread.sleep(2000); } catch (Throwable t) { }
+    String received = peer2.getGraph().get(peer1.getGraph().getPersistentHandle(fromPeer1));
+    if (received != null)
+        System.out.println("Peer 2 received " + received);
+    else
+    	System.out.println("Peer 2 failed to receive anything.");
+
+}
+
+}}}

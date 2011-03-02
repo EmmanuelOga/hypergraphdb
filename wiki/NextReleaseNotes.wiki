@@ -5,3 +5,4 @@
   * Fixed bug with !AtomReference annotation not being found in super classes.
   * Added HGUtils.clone method for cloning arbitrary objects.
   * Some cleanup and documentation of the P2P framework and APIs.
+  * Fixed bug with buffer reuse in scanning results sets.

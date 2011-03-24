@@ -7,3 +7,5 @@
   * Some cleanup and documentation of the P2P framework and APIs.
   * Fixed bug with buffer reuse in scanning results sets.
   * Added getPersistent() to HGHandle interface. A reference to the HyperGraph instance is no longer needed to obtain a persistent handle out of a generic handle. While more general and open for different implementations, it was rather annoying to have to call HyperGraph.getPersistentHandle(...) and to have to carry a HyperGraph reference around just for that. 
+  * Added a new HyperNode interface, abstracting the basic HyperGraph operations (CRUD on atoms and queries and incidence sets). 
+  * Added an implementation PeerHyperNode of the HyperNode interface that connects to a remote peer and performs all operations remotely. 

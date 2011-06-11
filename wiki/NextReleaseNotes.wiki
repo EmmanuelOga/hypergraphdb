@@ -14,3 +14,4 @@
   * HGEventManager is now an interface who's concrete implementation can be configured in the HGConfiguration initialization object. The default implementation is called HGDefaultEventManager.
   * Removed extra check in cache for atoms when resolved through a live handle. This prompted an implementation of "abort actions" that can be attached to a HGTransaction to execute in case of abort. Also, live handles are invalid if a database instance is closed and re-opened.
   * Moved the ClassLoader configuration parameter from HGTypeSystem to HGConfiguration, where it makes more sense.
+  * Fixed bug with null AtomRef projections.

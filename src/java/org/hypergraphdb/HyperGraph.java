@@ -1026,7 +1026,7 @@ public /*final*/ class HyperGraph
 	        // Remove the atom record from the store and cache.
 	        //
 	        TypeUtils.releaseValue(HyperGraph.this, type, valueHandle);
-	        type.release(valueHandle);         
+	        //type.release(valueHandle);         
 	        store.removeLink(pHandle);
 	        
 	        //
@@ -2008,7 +2008,7 @@ public /*final*/ class HyperGraph
 	        }
 	        
 	        TypeUtils.releaseValue(HyperGraph.this, oldType, layout[1]);
-	        oldType.release(layout[1]);
+	        //oldType.release(layout[1]);
 	        layout[1] = TypeUtils.storeValue(this, newValue, type);
 	        layout[0] = getPersistentHandle(typeHandle);
 	    	indexByValue.removeEntry(oldValueHandle, pHandle);
@@ -2072,7 +2072,7 @@ public /*final*/ class HyperGraph
     	HGPersistentHandle [] layout = store.getLink(instanceHandle);
 		Object oldInstance = rawMake(layout, oldType, instanceHandle);
 		TypeUtils.releaseValue(this, oldType, layout[1]);
-		oldType.release(layout[1]);
+		//oldType.release(layout[1]);
 		indexByValue.removeEntry(layout[1], instanceHandle);
 		layout[1] = TypeUtils.storeValue(this, oldInstance, newType);
 		indexByValue.addEntry(layout[1], instanceHandle);

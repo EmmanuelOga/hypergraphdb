@@ -596,6 +596,9 @@ public class ToQueryMap extends HashMap<Class<?>, ConditionToQuery>
 		else
 		{
 			HGQuery<ResultType> q = (HGQuery<ResultType>)transformer.getQuery(hg, condition);
+			if (q == null)
+				throw new IllegalArgumentException("Unable to convert query condition " +
+						condition + " to a query. Try constraining further, e.g. by atom type.");			
 			q.setHyperGraph(hg);
 			return q;
 		}

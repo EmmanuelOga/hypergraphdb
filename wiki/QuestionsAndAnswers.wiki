@@ -15,7 +15,7 @@ bdbConfig.getEnvironmentConfig().setCacheSize(500*1024*1024);
 
 Using the BerkeleyDB configuration object you can set other options such as whether to use MVCC in storage transactions, what type of key-value store (hash or b-tree) to use and others. In our experience none of those really affect performance. A hash-based storage gives a theoretical constant amortized access time, but in practice it doesn't seem faster than a b-tree.
 
-The other configuration change that you may do and that results in a significant speed up of database operations is using a different-than-the-default ID generation schema. The default schema produces random UUIDs which means that data is distributed randomly in the key-value store, which makes the cache relatively ineffective. Since in general atoms that are created together tend to be accessed together, having a more conventional ID generation schema where IDs (i.e. HGPersistentHandles) are generated in a numerical sequence will result in much fewer cache misses. To use a different ID generation, you have to configure a different HGHandleFactory, e.g.:
+Another configuration change that you may do and that results in a significant speed up of database operations is using a different-than-the-default ID generation schema. The default schema produces random UUIDs which means that data is distributed randomly in the key-value store, which makes the cache relatively ineffective. Since in general atoms that are created together tend to be accessed together, having a more conventional ID generation schema where IDs (i.e. HGPersistentHandles) are generated in a numerical sequence will result in much fewer cache misses. To use a different ID generation, you have to configure a different HGHandleFactory, e.g.:
 
 {{{
 // Generate UUID persistent handles sequentially. A UUID is made up of
@@ -31,6 +31,12 @@ config.setHandleFactory(handleFactory);
 
 You could implement your own handle factory as well. It's possible to use integers or longs as identifiers which will speed things up even further (comparisons are faster, data is smaller etc.) and there are handle factories for that too. However, if you do so you must also change the predefined type configuration file which contains preset handles for all types necessary to bootstrap the HyperGraphDB type system.
 
+Yet another very simple change is disabling the use of "system flags". System flags are extra bits associated an atom and stored in a separate key-value store. They are kind of experimental and rarely (if ever) used, but remain on by default. This means every read and every write operation of an atom access an additional key-value store that practically has not much use. You can disable that by calling:
+
+{{{
+HGConfiguration config = new HGConfiguration();
+config.setUseSystemAtomAttributes(false);
+}}}
 
 === GUI for HyperGraphDB?===
 

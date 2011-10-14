@@ -84,6 +84,27 @@
         <class value="org.protege.editor.owl.ui.preferences.NewEntitiesPreferencesPanel"/>
     </extension -->
     
+    <extension id="ui.view.menu2"
+    		   point="org.protege.editor.core.application.EditorKitMenuAction">
+        <name value="Hypergraph"/>
+        <toolTip value="Hypergraph specific actions"/>
+        <path value="/SlotCR-C"/>
+	    <editorKitId value="HGOwlEditorKit"/>
+    </extension>
+
+    <extension id="ui.view.menu.hypergraphCleanup"
+               point="org.protege.editor.core.application.EditorKitMenuAction">
+        <name value="Clean up unused OWL entities"/>
+        <toolTip value="Clean up unused entities"/>
+        <path value="gov.miamidade.owlgdb.ui.view.menu2/SlotAA-A"/>
+        <class value="gov.miamidade.hgowl.plugin.ui.HypergraphCleanupOWLEntitiesAction"/>
+        <editorKitId value="HGOwlEditorKit"/>
+    </extension>
+
+
+
+
+
     <extension id="ui.view.menu"
     		   point="org.protege.editor.core.application.EditorKitMenuAction">
         <name value="View"/>

@@ -22,6 +22,7 @@ import net.didion.jwnl.data.VerbFrame;
 import net.didion.jwnl.data.Word;
 import net.didion.jwnl.dictionary.Dictionary;
 
+import org.hypergraphdb.HGConfiguration;
 import org.hypergraphdb.HGEnvironment;
 import org.hypergraphdb.HGHandle;
 import org.hypergraphdb.HGIndex;
@@ -30,6 +31,7 @@ import org.hypergraphdb.HGTypeSystem;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.app.wordnet.data.*;
 import org.hypergraphdb.indexing.ByPartIndexer;
+import org.hypergraphdb.storage.BDBConfig;
 
 /**
  * 
@@ -415,7 +417,7 @@ public class HGWordNetLoader
 	
 	public static void main(String [] args)
 	{
-		if (args.length < 2)
+		if (args.length != 2)
 		{
 			System.out.println("Usage: HGWordnetLoader dictionaryLocation hypergraphDBLocation");
 			System.exit(0);
@@ -424,6 +426,11 @@ public class HGWordNetLoader
 		loader.setDictionaryLocation(args[0]);
 		try
 		{
+		    HGConfiguration config = new HGConfiguration();
+		    BDBConfig bdbConfig = (BDBConfig)config.getStoreImplementation().getConfiguration();
+		    // Change the storage cache from the 20MB default to 500MB
+		    bdbConfig.getEnvironmentConfig().setCacheSize(1000*1024*1024);
+		    config.setTransactional(false);
 			HyperGraph graph = HGEnvironment.get(args[1]);
 			System.out.println("Loading WordNet to " + args[1] + " from dictionary " + args[0]);
 			loader.loadWordNet(graph);

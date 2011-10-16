@@ -176,7 +176,7 @@
             <include name="**/*.properties"/>
           </fileset>
         </copy>        
-		<jar basedir="${build}/dataflow" jarfile="${jars}/dataflowhgdb.jar"/>
+		<jar basedir="${build}/dataflow" jarfile="${jars}/hgdbdataflow.jar"/>
 	</target>
 
     

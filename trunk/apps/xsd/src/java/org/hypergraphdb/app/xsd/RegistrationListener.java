@@ -1,5 +1,7 @@
 package org.hypergraphdb.app.xsd;
 
+import java.net.URI;
+
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.event.HGEvent;
 import org.hypergraphdb.event.HGListener;
@@ -17,14 +19,14 @@ public class RegistrationListener implements HGListener
       HyperGraph hg, HGEvent e)
    {
       hg.getTypeSystem().addPredefinedType(SimpleTypeConstructor.HANDLE,
-            SimpleTypeConstructor.INSTANCE, null);
+            SimpleTypeConstructor.INSTANCE, (URI)null);
       SimpleTypeConstructor.INSTANCE.setHyperGraph(hg);
       hg.getTypeSystem().addPredefinedType(ComplexTypeConstructor.HANDLE,
-            ComplexTypeConstructor.INSTANCE, null);
+            ComplexTypeConstructor.INSTANCE, (URI)null);
       ComplexTypeConstructor.INSTANCE.setHyperGraph(hg);
 
       hg.getTypeSystem().addPredefinedType(ReferenceTypeCtor.HANDLE,
-            ReferenceTypeCtor.INSTANCE, null);
+            ReferenceTypeCtor.INSTANCE, (URI)null);
       ComplexTypeConstructor.INSTANCE.setHyperGraph(hg);
 
       XSDPrimitiveTypeSystem.getInstance().importPrimitives(hg,

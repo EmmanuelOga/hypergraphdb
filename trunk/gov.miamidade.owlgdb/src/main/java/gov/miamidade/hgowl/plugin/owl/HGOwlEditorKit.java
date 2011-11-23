@@ -6,26 +6,18 @@ import gov.miamidade.hgowl.plugin.ui.CreateHGOntologyWizard;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Properties;
-import java.util.Set;
-
-import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
-import org.hypergraphdb.app.owl.HGDBOntologyManager;
 import org.protege.editor.core.editorkit.EditorKit;
 import org.protege.editor.core.editorkit.EditorKitDescriptor;
 import org.protege.editor.core.ui.wizard.Wizard;
 import org.protege.editor.owl.OWLEditorKit;
 import org.protege.editor.owl.OWLEditorKitFactory;
 import org.protege.editor.owl.ProtegeOWL;
-import org.protege.editor.owl.model.OWLModelManager;
-import org.protege.editor.owl.model.OWLModelManagerImpl;
 import org.protege.editor.owl.model.SaveErrorHandler;
 import org.protege.editor.owl.ui.error.OntologyLoadErrorHandlerUI;
 import org.protege.editor.owl.ui.explanation.ExplanationManager;
 import org.protege.editor.owl.ui.ontology.imports.missing.MissingImportHandlerUI;
-import org.protege.editor.owl.ui.ontology.wizard.create.CreateOntologyWizard;
-import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyID;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
@@ -49,8 +41,8 @@ public class HGOwlEditorKit extends OWLEditorKit {
 		super(editorKitFactory);
 	}
 		
-
-    protected void initialise(){
+    @SuppressWarnings("deprecation")
+	protected void initialise(){
     	// DO NOT DO THIS: super.initialise();    	
     	// THIS SETS OUR MODEL MANAGER
     	HGOwlModelManagerImpl modelManager = new HGOwlModelManagerImpl();
@@ -133,7 +125,7 @@ public class HGOwlEditorKit extends OWLEditorKit {
     public void handleSave() throws Exception {
     	System.out.println("HG handleSave ");
     	super.handleSave();
-    	OWLOntology ont = getModelManager().getActiveOntology();
+    	//OWLOntology ont = getModelManager().getActiveOntology();
 //    	OWLOntologyFormat format = getModelManager().getOWLOntologyManager().getOntologyFormat(ont);
 //    	// if the format is Database, do nothing because is is already saved
 //    	if(format instanceof OWLDBOntologyFormat){
@@ -159,8 +151,6 @@ public class HGOwlEditorKit extends OWLEditorKit {
 //                                          JOptionPane.ERROR_MESSAGE);
 //        }
     }
-
-
 
     public void handleSaveAs() throws Exception {
     	System.out.println("HG handleSaveAs ");
@@ -209,9 +199,7 @@ public class HGOwlEditorKit extends OWLEditorKit {
     
     public void dispose() {
         super.dispose();
-        HGOwlModelManagerImpl m = (HGOwlModelManagerImpl)getOWLModelManager();
+        //HGOwlModelManagerImpl m = (HGOwlModelManagerImpl)getOWLModelManager();
         //m.get        
-    }
-       
-
+    }      
 }

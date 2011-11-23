@@ -7,7 +7,6 @@ import org.protege.editor.core.OntologyRepositoryFactory;
 /**
  * HGOwlOntologyRepositoryFactory.
  * A factory for Hypergraph backed Protege OntologyRepositories.
- * (Initialise doesn't get called, it seems) 
  * 
  * @author Thomas Hilpold (GIC/Miami-Dade County)
  * @created Sep 26, 2011
@@ -19,7 +18,6 @@ public class HGOwlOntologyRepositoryFactory extends OntologyRepositoryFactory {
 	@Override
 	public void initialise() throws Exception {
 		dbRepository = new HGDBOntologyRepository();
-		 
 	}
 
 	@Override
@@ -35,5 +33,4 @@ public class HGOwlOntologyRepositoryFactory extends OntologyRepositoryFactory {
 		}
 		return new HGOwlOntologyRepository("Hypergraph", dbRepository);
 	}
-
 }

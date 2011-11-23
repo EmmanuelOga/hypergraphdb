@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src/main/java"/>
-	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="lib" path="/41org.protege.editor.owl/lib/protege-owlapi-extensions.jar"/>
-	<classpathentry kind="lib" path="/41org.protege.editor.owl/lib/xmlcatalog.jar"/>
-	<classpathentry kind="lib" path="/hgcore/bin"/>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry exported="true" kind="lib" path="build/classes" sourcepath="build/classes"/>
+	<classpathentry kind="lib" path="/org.hypergraph.app.owl/lib/hgdbfull.jar"/>
+	<classpathentry kind="lib" path="/org.hypergraph.app.owl/lib/protege-owlapi-extensions.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

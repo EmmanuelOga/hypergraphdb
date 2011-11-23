@@ -31,7 +31,6 @@ public class HGOwlOntologyRepository implements OntologyRepository {
 
     private OWLOntologyIRIMapper iriMapper;
 
-
     public HGOwlOntologyRepository(String repositoryName, HGDBOntologyRepository dbRepository) {
         this.repositoryName = repositoryName;
         this.dbRepository = dbRepository;
@@ -39,25 +38,20 @@ public class HGOwlOntologyRepository implements OntologyRepository {
         iriMapper = new RepositoryIRIMapper();
     }
 
-
     public void initialise() throws Exception {
     }
-
 
     public String getName() {
         return repositoryName;
     }
 
-
     public String getLocation() {
-        return "Hypergraph Repository at " + dbRepository.HYPERGRAPH_DB_LOCATION;
+        return "Hypergraph Repository at " + HGDBOntologyRepository.HYPERGRAPH_DB_LOCATION;
     }
-
 
     public void refresh() {
         fillRepository();
     }
-
 
     public Collection<OntologyRepositoryEntry> getEntries() {
         List<OntologyRepositoryEntry> ret = new ArrayList<OntologyRepositoryEntry>();
@@ -65,11 +59,9 @@ public class HGOwlOntologyRepository implements OntologyRepository {
         return ret;
     }
 
-
     public List<Object> getMetaDataKeys() {
         return Collections.emptyList();
     }
-
 
     public void dispose() throws Exception {
     	dbRepository.dispose();
@@ -78,7 +70,6 @@ public class HGOwlOntologyRepository implements OntologyRepository {
     /////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Implementation details
-
 
     private void fillRepository() {
         entries.clear();
@@ -129,7 +120,6 @@ public class HGOwlOntologyRepository implements OntologyRepository {
             return null;
         }
 
-
         public void configureEditorKit(EditorKit editorKit) {
             ((HGOwlEditorKit) editorKit).getOWLModelManager().getOWLOntologyManager().addIRIMapper(iriMapper);
         }
@@ -140,7 +130,6 @@ public class HGOwlOntologyRepository implements OntologyRepository {
 
         }
     }
-
 
     private class RepositoryIRIMapper implements OWLOntologyIRIMapper {
 
@@ -153,5 +142,4 @@ public class HGOwlOntologyRepository implements OntologyRepository {
             return null;
         }
     }
-
 }

@@ -5,9 +5,7 @@ Bundle-SymbolicName: gov.miamidade.owlgdb;singleton:=true
 Bundle-Version: 0.0.4
 Bundle-Vendor: Miami Dade GIC/eSolutions
 Bundle-Classpath: .,
- build/classes,
- lib/protege-owlapi-extensions.jar,
- lib/xmlcatalog.jar
+ build/classes
 Import-Package: org.apache.log4j,
  org.hypergraphdb.app.owl,
  org.osgi.framework,

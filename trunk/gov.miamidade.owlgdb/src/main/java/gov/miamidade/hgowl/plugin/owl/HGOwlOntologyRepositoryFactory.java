@@ -17,7 +17,7 @@ public class HGOwlOntologyRepositoryFactory extends OntologyRepositoryFactory {
 	
 	@Override
 	public void initialise() throws Exception {
-		dbRepository = new HGDBOntologyRepository();
+		dbRepository = HGDBOntologyRepository.getInstance();
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public class HGOwlOntologyRepositoryFactory extends OntologyRepositoryFactory {
 	@Override
 	public OntologyRepository createRepository() {
 		if (dbRepository == null) {
-			dbRepository = new HGDBOntologyRepository();
+			dbRepository = HGDBOntologyRepository.getInstance();
 		}
 		return new HGOwlOntologyRepository("Hypergraph", dbRepository);
 	}

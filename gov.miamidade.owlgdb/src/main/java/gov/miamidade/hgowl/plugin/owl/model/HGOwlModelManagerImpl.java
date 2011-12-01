@@ -536,7 +536,7 @@ public class HGOwlModelManagerImpl extends AbstractModelManager
 
             try {
                 //hilpold why not EXPORT??
-            	if (!physicalURI.getScheme().equals("file")){
+            	if (!physicalURI.getScheme().equals("file") && !physicalURI.getScheme().equals("hgdb")){
                     throw new ProtocolException("Cannot save file to remote location: " + physicalURI);
                 }            	
             	//TODO if (!physicalURI.getScheme().equals("hgdb")){

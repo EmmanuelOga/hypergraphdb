@@ -4,8 +4,7 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/main/resources"/>
-	<classpathentry exported="true" kind="lib" path="build/classes" sourcepath="build/classes"/>
-	<classpathentry kind="lib" path="/org.hypergraph.app.owl/lib/hgdbfull.jar"/>
-	<classpathentry kind="lib" path="/org.hypergraph.app.owl/lib/protege-owlapi-extensions.jar"/>
+	<classpathentry kind="lib" path="/41org.protege.editor.owl/lib/protege-owlapi-extensions.jar" sourcepath="C:/_CiRM/workspaceecI/Protege4Libraries/owlapi-extensions/trunk/src/main/java"/>
+	<classpathentry kind="lib" path="/hypergraphdb/core/hypergraphdb.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

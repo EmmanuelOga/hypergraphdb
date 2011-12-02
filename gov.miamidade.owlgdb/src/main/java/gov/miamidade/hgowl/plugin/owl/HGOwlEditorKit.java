@@ -112,14 +112,19 @@ public class HGOwlEditorKit extends OWLEditorKit {
     	System.out.println("HG handleLoadRecentRequest");
         HGDBOntologyManager m = (HGDBOntologyManager) this.modelManager.getOWLOntologyManager();
         m.getOntologyRepository().printStatistics();
-        return super.handleLoadRecentRequest(descriptor );
+        boolean retValue = super.handleLoadRecentRequest(descriptor );
+        m.getOntologyRepository().printStatistics();
+        return retValue;
+
     }
 
     public boolean handleLoadRequest() throws Exception {
     	System.out.println("HG HandleLoadRequest");
         HGDBOntologyManager m = (HGDBOntologyManager) this.modelManager.getOWLOntologyManager();
         m.getOntologyRepository().printStatistics();
-    	return super.handleLoadRequest();
+        boolean retValue = super.handleLoadRequest();
+        m.getOntologyRepository().printStatistics();
+        return retValue;
 //    	if(DatabaseDialogPanel.showDialog(this)){
 //    		Properties prop = getDBProperty();
 //    		boolean success =  handleLoadFrom(prop);

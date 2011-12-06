@@ -15,6 +15,12 @@
           <class value="gov.miamidade.hgowl.plugin.owl.HGOwlOntologyRepositoryFactory" />       
     </extension>
 
+    <extension id="HGOwlPreferences"
+               point="org.protege.editor.core.application.preferencespanel">
+        <label value="Hypergraph"/>
+        <class value="gov.miamidade.hgowl.plugin.ui.HGOwlPreferencesPanel"/>
+    </extension>
+
     <!-- THE REMAINING FILE IS BASED ON editor.owl plugin.xml with modifications, such as 
     	A) OWLEditorKit" was replaced by "HGOwlEditorKit"
     	B) everything not "HGOwlEditorKit" specific was removed.

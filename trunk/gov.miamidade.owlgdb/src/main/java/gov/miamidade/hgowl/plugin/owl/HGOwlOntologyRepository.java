@@ -25,11 +25,12 @@ import org.semanticweb.owlapi.util.OntologyIRIShortFormProvider;
 public class HGOwlOntologyRepository implements OntologyRepository {
 
 	public static final String PHYSICAL_URI = "Physical URI";
-	public static final String AXIOM_COUNT = "Axiom Count";
-	public static final String ATOM_COUNT = "Atom Count";
+	
+	public static final String AXIOM_COUNT = "Nr Axioms";
+	
+	public static final String ATOM_COUNT = "Nr HGDB Atoms";
 	
 	public static final List<Object> METADATA_KEYS = Arrays.asList(new Object[]{PHYSICAL_URI, AXIOM_COUNT, ATOM_COUNT});
-	
 	
     private String repositoryName;
 

@@ -55,7 +55,7 @@ public class HGOwlOntologyRepository implements OntologyRepository {
     }
 
     public String getLocation() {
-        return "Hypergraph Repository at " + HGDBOntologyRepository.HYPERGRAPH_DB_LOCATION;
+        return "Hypergraph Repository at " + HGDBOntologyRepository.getHypergraphDBLocation();
     }
 
     public void refresh() {

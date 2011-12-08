@@ -23,9 +23,7 @@ public class HGOwlProperties {
 	    public static final String DEFAULT_HYPERGRAPH_LOCATION_FOLDER_PATH = System.getProperty("user.home") + System.getProperty("file.separator") + ".protegedb";
 
 	    private static final boolean DEFAULT_SHOW_LEGACY_EDITOR_KIT = false;
-
-	    private static String FILE_NAME = "DotScratch";
-
+	   
 	    private String hgLocationFolderPath;
 	    private boolean showLegacyEditorKit;
 

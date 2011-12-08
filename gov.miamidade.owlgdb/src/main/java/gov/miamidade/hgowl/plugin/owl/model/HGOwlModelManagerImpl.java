@@ -429,11 +429,12 @@ public class HGOwlModelManagerImpl extends AbstractModelManager
     public OWLOntology createNewOntology(OWLOntologyID ontologyID, URI physicalURI) throws OWLOntologyCreationException {
         manager.addIRIMapper(new SimpleIRIMapper(ontologyID.getDefaultDocumentIRI(), IRI.create(physicalURI)));
         OWLOntology ont = manager.createOntology(ontologyID);
-        //if (!(ont instanceof HGDBOntology)) {
+        //2011.12.08 hilpold keep new HGDB ontologies clean.
+        if (!(ont instanceof HGDBOntology)) {
         	dirtyOntologies.add(ont);
-        //} else {
+        } else {
         	//Do not add HGDBOntologys to dirtyset. They will be backed by Hypergraph.
-        //}
+        }
         setActiveOntology(ont);
         if (physicalURI != null) {
         	try {
@@ -452,6 +453,11 @@ public class HGOwlModelManagerImpl extends AbstractModelManager
 
 
     public OWLOntology reload(OWLOntology ont) throws OWLOntologyCreationException {
+    	if (ont instanceof HGDBOntology) {
+    		//2011.12.08 A reload of a database backed ontology shall be transparently skipped.
+    		//GUI dialogs should not allow this to the user.
+    		return ont;
+    	}
         IRI ontologyDocumentIRI = IRI.create(getOntologyPhysicalURI(ont));
         manager.removeOntology(ont);
         boolean wasTheActiveOntology = false;
@@ -517,13 +523,13 @@ public class HGOwlModelManagerImpl extends AbstractModelManager
      */
     public void save() throws OWLOntologyStorageException {
         for (OWLOntology ont : new HashSet<OWLOntology>(dirtyOntologies)) {
-        	//hilpold 2011.09.27 do not save hgdb backed ontologies.
-        	if (!(ont instanceof HGDBOntology)) {
+        	//2011.12.07 HGDB never dirty //hilpold 2011.09.27 do not save hgdb backed ontologies.
+        	//if (!(ont instanceof HGDBOntology)) {
         		save(ont);
-        	} else {
+        	//} else {
         		//hilpold still simulate effect of successful save.
-        		dirtyOntologies.remove(ont);
-        	}
+        	//	dirtyOntologies.remove(ont);
+        	//}
         }
     }
 
@@ -637,7 +643,11 @@ public class HGOwlModelManagerImpl extends AbstractModelManager
      * @param ontology The ontology to be made dirty.
      */
     public void setDirty(OWLOntology ontology) {
-        dirtyOntologies.add(ontology);
+    	if (!(ontology instanceof HGDBOntology)) { 
+    		dirtyOntologies.add(ontology);
+    	} else {
+    		System.out.println("Tried to set a HGDBOntology dirty. Ignored.");
+    	}
     }
 
 
@@ -772,13 +782,13 @@ public class HGOwlModelManagerImpl extends AbstractModelManager
         getHistoryManager().logChanges(changes);
         boolean refreshActiveOntology = false;
         for (OWLOntologyChange change : changes) {
-        	//hilpold 2011.09.27 Keep HGDB backed ontologies out of dirty set.
+        	//hilpold 2011.12.08 Keep HGDB backed ontologies out of dirty set.
         	//OWLOntology changedOnto = change.getOntology();
-        	//if (!(changedOnto instanceof HGDBOntology)) { 
+        	if (!(change.getOntology() instanceof HGDBOntology)) { 
         		dirtyOntologies.add(change.getOntology());
-        	//} else {
-        	//	//do not add HGDBOntologys to dirty set on change.
-        	//}
+        	} // else {
+        		//do not add HGDBOntologys to dirty set on change.
+        	// }
             if (change.isImportChange()){
                 refreshActiveOntology = true;
             }

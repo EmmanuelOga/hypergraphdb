@@ -9,6 +9,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -72,7 +73,9 @@ public class HGOwlEditorKit extends OWLEditorKit {
         loadErrorHandler = new OntologyLoadErrorHandlerUI(this);
         modelManager.setLoadErrorHandler(loadErrorHandler);
         loadIOListenerPlugins();
-        registration = ProtegeOWL.getBundleContext().registerService(EditorKit.class.getCanonicalName(), this, new Properties());
+        //TODO
+        //registration = ProtegeOWL.getBundleContext().registerService(EditorKit.class.getCanonicalName(), this, new Properties());
+        registration = ProtegeOWL.getBundleContext().registerService(EditorKit.class.getCanonicalName(), this, new Hashtable<String, Object>());
         modelManager.getOWLOntologyManager().addIRIMapper(new HGDBIRIMapper());
     }
 

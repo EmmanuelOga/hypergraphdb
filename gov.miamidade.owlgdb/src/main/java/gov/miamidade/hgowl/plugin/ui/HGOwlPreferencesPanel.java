@@ -141,23 +141,26 @@ public class HGOwlPreferencesPanel extends OWLPreferencesPanel {
         	String selectedFolder = pathField.getText();
         	File f = new File(selectedFolder);
         	boolean success = false;
-        	if (f.isDirectory()) {
-        		if (f.canWrite()) {
-        			if (f.isAbsolute()) {
-        	        	HGOwlProperties.getInstance().setHgLocationFolderPath(pathField.getText());
-        	        	success = true;
-        			} else {
-                		JOptionPane.showConfirmDialog(this, "Error: Selected path is relative folder path. Keeping old.");        				
-        			}
-        		} else {
-            		JOptionPane.showConfirmDialog(this, "Error: Cannot write to selected path directory. Keeping old.");
-        		}
-        	} else {
-        		JOptionPane.showConfirmDialog(this, "Error: Selected path is not a directory. Keeping old.");
-        	}
-        	if (!success) {
-        		JOptionPane.showConfirmDialog(this, "Keeping original Path Location. \r\n" + HGOwlProperties.getInstance().getHgLocationFolderPath());
-                pathField.setText(HGOwlProperties.getInstance().getHgLocationFolderPath());
+        	if (!pathField.getText().equals(HGOwlProperties.getInstance().getHgLocationFolderPath())) {
+	        	if (f.isDirectory()) {
+	        		if (f.canWrite()) {
+	        			if (f.isAbsolute()) {
+	        	        	HGOwlProperties.getInstance().setHgLocationFolderPath(pathField.getText());
+	        	        	success = true;
+	                		JOptionPane.showMessageDialog(this, "You need to restart Protege for this change to take effect.");        				
+	        			} else {
+	                		JOptionPane.showMessageDialog(this, "Error: Selected path is relative folder path. Keeping old.");        				
+	        			}
+	        		} else {
+	            		JOptionPane.showMessageDialog(this, "Error: Cannot write to selected path directory. Keeping old.");
+	        		}
+	        	} else {
+	        		JOptionPane.showMessageDialog(this, "Error: Selected path is not a directory. Keeping old.");
+	        	}
+	        	if (!success) {
+	        		JOptionPane.showMessageDialog(this, "Keeping original Hypergraph Location. \r\n" + HGOwlProperties.getInstance().getHgLocationFolderPath());
+	                pathField.setText(HGOwlProperties.getInstance().getHgLocationFolderPath());
+	        	}
         	}
         }
     }

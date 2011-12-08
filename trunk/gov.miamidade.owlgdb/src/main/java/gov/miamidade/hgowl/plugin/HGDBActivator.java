@@ -7,12 +7,12 @@ public class HGDBActivator implements BundleActivator {
 
 	@Override
 	public void start(BundleContext arg0) throws Exception {
-		System.out.println("OWLGDB Started");		
+		System.out.println("HGOWL DB Started");		
 	}
 
 	@Override
 	public void stop(BundleContext arg0) throws Exception {
-		System.out.println("OWLGDB Stopped");		
+		System.out.println("HGOWL DB Stopped");		
 	}
 
 }

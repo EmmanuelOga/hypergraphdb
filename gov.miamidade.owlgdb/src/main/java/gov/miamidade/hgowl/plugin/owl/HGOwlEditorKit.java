@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import org.apache.log4j.Logger;
 import org.hypergraphdb.app.owl.HGDBOntology;
 import org.hypergraphdb.app.owl.HGDBOntologyFormat;
+import org.hypergraphdb.app.owl.HGDBOntologyImpl;
 import org.hypergraphdb.app.owl.HGDBOntologyManager;
 import org.hypergraphdb.app.owl.HGDBOntologyRepository;
 import org.protege.editor.core.editorkit.EditorKit;
@@ -154,7 +155,18 @@ public class HGOwlEditorKit extends OWLEditorKit {
 
     public void handleSave() throws Exception {
     	System.out.println("HG handleSave ");
-    	super.handleSave();
+    	OWLOntology ont = getModelManager().getActiveOntology();
+    	if (ont instanceof HGDBOntologyImpl) {
+            String message = "This ontology is database backed and does not need to be saved to the database again.\n" 
+      	+ "All changes to it are instantly persisted in the Hypergraph Ontology Repository." ;
+            logger.warn(message);
+            JOptionPane.showMessageDialog(getWorkspace(),
+                                          message,
+                                          "Hypergraph Database Backed Ontology",
+                                          JOptionPane.ERROR_MESSAGE);
+    	} else {
+    		super.handleSave();
+    	}
     	//OWLOntology ont = getModelManager().getActiveOntology();
 //    	OWLOntologyFormat format = getModelManager().getOWLOntologyManager().getOntologyFormat(ont);
 //    	// if the format is Database, do nothing because is is already saved
@@ -273,6 +285,8 @@ public class HGOwlEditorKit extends OWLEditorKit {
                                                "Hypergraph Database Import Success",
                                                JOptionPane.INFORMATION_MESSAGE);
         		addRecent(documentIri.toURI());
+        		man.setOntologyFormat(ont, oldFormat);
+        		man.setOntologyDocumentIRI(ont, oldDocumentIRI);
         		return true;   
         	}
         } else {

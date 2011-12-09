@@ -148,6 +148,10 @@
        </fileset>
        <fileset dir="./src/main/resources"/>
      </copy>
+    <copy todir="${classes}/lib">
+	    <fileset dir="${projectlib}"/>
+    </copy>   	
+
    	 <!-- the manifest doesn't belong here but this is good for IDE's -->
      <mkdir dir="${classes}/META-INF"/>  
      <copy todir="${classes}/META-INF"   

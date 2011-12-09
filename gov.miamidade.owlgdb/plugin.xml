@@ -107,6 +107,14 @@
         <editorKitId value="HGOwlEditorKit"/>
     </extension>
 
+    <extension id="ui.view.menu.hypergraphStatistics"
+               point="org.protege.editor.core.application.EditorKitMenuAction">
+        <name value="Show Database Statistics"/>
+        <toolTip value="Show statistics of whole graph."/>
+        <path value="gov.miamidade.owlgdb.ui.view.menu2/SlotAA-B"/>
+        <class value="gov.miamidade.hgowl.plugin.ui.HyperGraphShowStatisticsAction"/>
+        <editorKitId value="HGOwlEditorKit"/>
+    </extension>
 
 
 
@@ -1304,7 +1312,7 @@
     </extension>
 
 
-    <!-- Help menu -->
+    <!-- Help menu
 
     <extension id="menu.PluginsMenuItem" point="org.protege.editor.core.application.EditorKitMenuAction">
         <name value="Protege-OWL plugins"/>
@@ -1313,7 +1321,7 @@
         <path value="org.protege.editor.core.application.menu.HelpMenu/SlotF-B"/>
         <editorKitId value="any"/>
     </extension>
-
+     -->
     <!--
 
     <extension id="SPARQLQueryTab">
@@ -1329,14 +1337,14 @@
 
     <!-- Reasoners -->
 
-
+	<!-- 2011.12.09 hilpold
     <extension id="NoOpReasoner"
                point="org.protege.editor.owl.inference_reasonerfactory">
         <name value="None"/>
         <class value="org.protege.editor.owl.model.inference.NoOpReasonerInfo"/>
         <defaultReasoner value="true"/>
     </extension>
-
+	-->
 
 	<!-- Explanation Services -->
 	

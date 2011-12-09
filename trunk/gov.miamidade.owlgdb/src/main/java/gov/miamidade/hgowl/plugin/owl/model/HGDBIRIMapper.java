@@ -7,7 +7,7 @@ public class HGDBIRIMapper implements OWLOntologyIRIMapper {
 
     public IRI getDocumentIRI(IRI ontologyIRI) {
     	if (ontologyIRI.getScheme().equalsIgnoreCase("hgdb")) 
-    		return IRI.create(ontologyIRI.toString() + "XX");
+    		return IRI.create(ontologyIRI.toString());
     	else 
     		return null;
     }

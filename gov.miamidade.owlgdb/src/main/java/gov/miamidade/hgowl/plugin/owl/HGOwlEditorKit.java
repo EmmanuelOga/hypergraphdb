@@ -10,11 +10,14 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Properties;
+
+import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
+import org.hypergraphdb.app.owl.HGDBOntology;
 import org.hypergraphdb.app.owl.HGDBOntologyFormat;
 import org.hypergraphdb.app.owl.HGDBOntologyManager;
+import org.hypergraphdb.app.owl.HGDBOntologyRepository;
 import org.protege.editor.core.editorkit.EditorKit;
 import org.protege.editor.core.editorkit.EditorKitDescriptor;
 import org.protege.editor.core.ui.wizard.Wizard;
@@ -22,7 +25,6 @@ import org.protege.editor.owl.OWLEditorKit;
 import org.protege.editor.owl.OWLEditorKitFactory;
 import org.protege.editor.owl.ProtegeOWL;
 import org.protege.editor.owl.model.SaveErrorHandler;
-import org.protege.editor.owl.ui.OntologyFormatPanel;
 import org.protege.editor.owl.ui.SaveConfirmationPanel;
 import org.protege.editor.owl.ui.UIHelper;
 import org.protege.editor.owl.ui.error.OntologyLoadErrorHandlerUI;
@@ -32,7 +34,6 @@ import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyFormat;
 import org.semanticweb.owlapi.model.OWLOntologyID;
-import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.semanticweb.owlapi.util.VersionInfo;
 import org.semanticweb.owlapi.vocab.PrefixOWLOntologyFormat;
@@ -196,8 +197,10 @@ public class HGOwlEditorKit extends OWLEditorKit {
      * @throws Exception
      */
     private boolean handleSaveAs(OWLOntology ont) throws Exception {
-        OWLOntologyManager man = getModelManager().getOWLOntologyManager();
+        HGDBOntologyManager man = (HGDBOntologyManager)getModelManager().getOWLOntologyManager();
         OWLOntologyFormat oldFormat = man.getOntologyFormat(ont);
+        IRI oldDocumentIRI = man.getOntologyDocumentIRI(ont);
+        HGDBOntologyRepository repo = man.getOntologyRepository();
         OWLOntologyFormat format = HGOntologyFormatPanel.showDialog(this,
                                                                   oldFormat,
                                                                   "Choose a format to use when saving the " + getModelManager().getRendering(ont) + " ontology");
@@ -212,22 +215,82 @@ public class HGOwlEditorKit extends OWLEditorKit {
         	}
         }
         if (format instanceof HGDBOntologyFormat) {
-        	System.out.println("IMPORTING INTO HYPERGRAPH " + ont.getOntologyID());
-    		man.setOntologyFormat(ont, format);
-    		IRI documentIri = IRI.create("hgdb://" + "TESTONTOLOGY-" + (int)(Math.random() * 10000)); 
-    				//+ ont.getOntologyID().getOntologyIRI().getFragment()); 
+        	//Case A1) OntololgyHGDB -> Repository Same Name: Already in repository
+        	//Case A2) OntololgyHGDB -> Repository: Copy Ontology in Repository NOT CURRENTLY SUPPORTED DIALOLG 
+        	if (ont instanceof HGDBOntology) {
+              String message = "This ontology is database backed and does not need to be saved to the database again.\n" 
+        	+ "All changes to it are instantly persisted in the Hypergraph Ontology Repository.\n" 
+            + "A copy operation to a different name in the repository is currently not supported." ;
+              logger.warn(message);
+              JOptionPane.showMessageDialog(getWorkspace(),
+                                            message,
+                                            "Hypergraph Database Backed Ontology",
+                                            JOptionPane.ERROR_MESSAGE);
+
+        		return false;
+        	} else {
+        		// IN MEMORY ONTOLOGY
+        		//Case B) OntololgyImpl -> Repository: Import 
+                String message = "This in-memory ontology will be imported into the Hypergraph Ontology Repository.\n" 
+                    	+ "This process is estimated to take one minute per 3000 Axioms. \n"
+                    	+ ont.getOntologyID().toString() +  " has " + ont.getAxiomCount() +  " Axioms. \n"
+                        + "Please be patient. A Success Dialog will pop up when the process is finished." ;
+                logger.info(message);
+                JOptionPane.showMessageDialog(getWorkspace(),
+                                                        message,
+                                                        "Hypergraph Database Import",
+                                                        JOptionPane.INFORMATION_MESSAGE);
+        		logger.info("IMPORTING INTO HYPERGRAPH " + ont.getOntologyID());
+        		long startTime = System.currentTimeMillis();
+        		man.setOntologyFormat(ont, format);
+        		//TODO	OPEN A DIALOG FOR SELECTING A documentIRI
+        		IRI documentIri; 
+        		if (ont.getOntologyID().isAnonymous()) {
+        			int i = 0;
+        			do {
+        				documentIri = IRI.create("hgdb://" + "anonymous-" + i);
+        				i ++;
+        			} while(repo.existsOntologyByDocumentIRI(documentIri));
+        			
+        		} else {
+        			IRI defaultIri = ont.getOntologyID().getDefaultDocumentIRI();
+        			String defaultIriStr = defaultIri.toString();
+        			int schemaLength = defaultIri.getScheme().length();
+        			String hgdbIRIStr = "hgdb" + defaultIriStr.toString().substring(schemaLength);
+        			documentIri = IRI.create(hgdbIRIStr);
+        		}
+        		logger.info("Saving with documentIRI: " + documentIri);
+   				//+ ont.getOntologyID().getOntologyIRI().getFragment()); 
     		
-    		man.setOntologyDocumentIRI(ont, documentIri);
-    		getModelManager().save(ont);
-    		addRecent(documentIri.toURI());
-    		return true;        	
+        		man.setOntologyDocumentIRI(ont, documentIri);
+        		getModelManager().save(ont);
+        		int durationSecs = (int)(System.currentTimeMillis() - startTime) / 1000;
+                message = "Hypergraph Database Import Success.\n" 
+                    	+ "Saving took " + durationSecs + " seconds for " + ont.getAxiomCount() + " Axioms. \n"                    	
+                        + "You are still working with the in-memory ontology. \n Close it and load the ontology from the recent list to start using the database backed ontology." ;
+                JOptionPane.showMessageDialog(getWorkspace(),
+                                               message,
+                                               "Hypergraph Database Import Success",
+                                               JOptionPane.INFORMATION_MESSAGE);
+        		addRecent(documentIri.toURI());
+        		return true;   
+        	}
         } else {
+        	//FILE BASED FORMAT
         	File file = getSaveAsOWLFile(ont);
         	if (file != null){
+        		//Do the following only if not database backed.
         		man.setOntologyFormat(ont, format);
         		man.setOntologyDocumentIRI(ont, IRI.create(file));
-        		getModelManager().save(ont);
-        		addRecent(file.toURI());
+        		try {
+        			getModelManager().save(ont);
+        			addRecent(file.toURI());
+        		} finally {
+        			if (ont instanceof HGDBOntology) {
+        				man.setOntologyFormat(ont, oldFormat);
+        				man.setOntologyDocumentIRI(ont, oldDocumentIRI);        			
+        			}
+        		}
         		return true;
         	}
         	else{

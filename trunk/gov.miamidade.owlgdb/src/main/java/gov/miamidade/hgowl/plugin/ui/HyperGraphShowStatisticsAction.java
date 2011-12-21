@@ -10,11 +10,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextPane;
 
 import org.hypergraphdb.app.owl.HGDBOntologyManager;
+import org.hypergraphdb.app.owl.core.OWLDataFactoryInternalsHGDB;
 import org.protege.editor.core.ui.util.JOptionPaneEx;
 import org.protege.editor.owl.ui.action.ProtegeOWLAction;
 
 /**
- * HyperGraphShowStatisticsAcion.
+ * HyperGraphShowStatisticsAction.
  * @author Thomas Hilpold (CIAO/Miami-Dade County)
  * @created Dec 9, 2011
  */
@@ -48,6 +49,15 @@ public class HyperGraphShowStatisticsAction extends ProtegeOWLAction {
 		StringWriter stringWriter = new StringWriter(400);
 		PrintWriter s = new PrintWriter(stringWriter);
 		om.getOntologyRepository().printStatistics(s);
+		s.println();
+		s.println("----------------------------");
+		s.println("- BUILTIN ENTITY CACHE STATS -");
+		s.println("- Cache Put : " + OWLDataFactoryInternalsHGDB.CACHE_PUT);
+		s.println("- Cache Hit : " + OWLDataFactoryInternalsHGDB.CACHE_HIT);
+		s.println("- Cache Miss: " + OWLDataFactoryInternalsHGDB.CACHE_MISS);
+		int hitPromille = (int) (OWLDataFactoryInternalsHGDB.CACHE_HIT * 1000.0f / (OWLDataFactoryInternalsHGDB.CACHE_HIT + OWLDataFactoryInternalsHGDB.CACHE_MISS));
+		s.println("- Cache Hit%: " + hitPromille / 10.0f  );
+		s.println("----------------------------");
 		s.flush();
 		String message = stringWriter.toString();
 		JTextPane textPane = new JTextPane();

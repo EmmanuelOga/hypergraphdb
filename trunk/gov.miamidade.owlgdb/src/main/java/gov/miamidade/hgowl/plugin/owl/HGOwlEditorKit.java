@@ -1,12 +1,13 @@
 package gov.miamidade.hgowl.plugin.owl;
 
-import gov.miamidade.hgowl.plugin.owl.model.HGDBIRIMapper;
 import gov.miamidade.hgowl.plugin.owl.model.HGOwlModelManagerImpl;
 import gov.miamidade.hgowl.plugin.ui.CreateHGOntologyWizard;
 import gov.miamidade.hgowl.plugin.ui.HGOntologyFormatPanel;
+import gov.miamidade.hgowl.plugin.ui.repository.RepositoryViewPanel;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -19,6 +20,9 @@ import org.hypergraphdb.app.owl.HGDBOntologyFormat;
 import org.hypergraphdb.app.owl.HGDBOntologyImpl;
 import org.hypergraphdb.app.owl.HGDBOntologyManager;
 import org.hypergraphdb.app.owl.HGDBOntologyRepository;
+import org.protege.editor.core.OntologyRepository;
+import org.protege.editor.core.OntologyRepositoryEntry;
+import org.protege.editor.core.OntologyRepositoryManager;
 import org.protege.editor.core.editorkit.EditorKit;
 import org.protege.editor.core.editorkit.EditorKitDescriptor;
 import org.protege.editor.core.ui.wizard.Wizard;
@@ -78,7 +82,7 @@ public class HGOwlEditorKit extends OWLEditorKit {
         //TODO
         //registration = ProtegeOWL.getBundleContext().registerService(EditorKit.class.getCanonicalName(), this, new Properties());
         registration = ProtegeOWL.getBundleContext().registerService(EditorKit.class.getCanonicalName(), this, new Hashtable<String, Object>());
-        modelManager.getOWLOntologyManager().addIRIMapper(new HGDBIRIMapper());
+        //2011.12.20 hilpold moved to HGOwlModelManager: modelManager.getOWLOntologyManager().addIRIMapper(new HGDBIRIMapper(modelManager));
     }
 
     protected void initialiseCompleted() {
@@ -125,23 +129,149 @@ public class HGOwlEditorKit extends OWLEditorKit {
 
     public boolean handleLoadRequest() throws Exception {
     	System.out.println("HG HandleLoadRequest");
+    	boolean success;
         HGDBOntologyManager m = (HGDBOntologyManager) this.modelManager.getOWLOntologyManager();
         m.getOntologyRepository().printStatistics();
-        boolean retValue = super.handleLoadRequest();
+        Object[] possibleValues = { "Open From Hypergraph Repository", "Open From File"};
+        Object selectedValue = JOptionPane.showInputDialog(getWorkspace(),
+        		"Choose open method", "Open Method Selection",
+        		JOptionPane.INFORMATION_MESSAGE, null,
+        		possibleValues, possibleValues[0]);
+        if (selectedValue == possibleValues[0]) {
+        	success = handleLoadFromRepositoryRequest();
+        } else if (selectedValue == possibleValues[1]){
+        	success = super.handleLoadRequest();
+        } else { // null
+        	success = false;
+        }
         m.getOntologyRepository().printStatistics();
-        return retValue;
-//    	if(DatabaseDialogPanel.showDialog(this)){
-//    		Properties prop = getDBProperty();
-//    		boolean success =  handleLoadFrom(prop);
-//    		if(success == true)
-//    			addToRecent(URI.create(prop.getProperty("hibernate.connection.url")));
-//    		return success;
-//    	}
-//    	else
-//    		return false;
+        return success;
+    }
+    
+    public boolean handleLoadFromRepositoryRequest() throws Exception {
+    	System.out.println("HG HandleLoadFromRepositoryRequest");
+    	boolean success;
+        HGDBOntologyManager m = (HGDBOntologyManager) this.modelManager.getOWLOntologyManager();
+        m.getOntologyRepository().printStatistics();
+        // Find Repository
+        Collection<OntologyRepository> repositories = OntologyRepositoryManager.getManager().getOntologyRepositories();
+        OntologyRepository repository = null;
+        for (OntologyRepository  cur: repositories) {
+        	if (cur instanceof HGOwlOntologyRepository) {
+        		//current implementation uses first one found
+        		repository = cur;
+        		break;
+        	}
+        }
+        if (repository == null) throw new IllegalStateException("Cannot handle load from repository. No HGOwlOntologyRepository registered with Protege."); 
+        // Open Repository open Dlg
+        OntologyRepositoryEntry ontologyEntry = RepositoryViewPanel.showOpenDialog(repository);
+        if (ontologyEntry != null) {
+        	success = handleLoadFrom(ontologyEntry.getPhysicalURI());
+        } else {
+        	success = false;
+        }
+        // 
+        m.getOntologyRepository().printStatistics();
+        return success;
     }
 
-    public boolean handleLoadFrom(URI uri) throws Exception {    	
+    public boolean handleDeleteFromRepositoryRequest() throws Exception {
+    	System.out.println("HG HandleDeleteFromRepositoryRequest");
+    	boolean success;
+        HGDBOntologyManager m = (HGDBOntologyManager) this.modelManager.getOWLOntologyManager();
+        m.getOntologyRepository().printStatistics();
+        // Find our Repository 
+        Collection<OntologyRepository> repositories = OntologyRepositoryManager.getManager().getOntologyRepositories();
+        OntologyRepository repository = null;
+        for (OntologyRepository  cur: repositories) {
+        	if (cur instanceof HGOwlOntologyRepository) {
+        		//current implementation uses first one found
+        		repository = cur;
+        		break;
+        	}
+        }
+        if (repository == null) throw new IllegalStateException("Cannot handle delete from repository. No HGOwlOntologyRepository registered with Protege.");
+        // Open Repository delete dialog 
+        OntologyRepositoryEntry ontologyEntry = RepositoryViewPanel.showDeleteDialog(repository);
+        if (ontologyEntry != null) {        	
+        	success = handleDeleteFrom(ontologyEntry);
+        } else {
+        	success = false;
+        }
+        // 
+        m.getOntologyRepository().printStatistics();
+        return success;
+    }
+        
+    /**
+     * Deletes an ontology from Hypergraph Repository.
+	 * @param physicalURI
+	 * @return
+	 */
+	private boolean handleDeleteFrom(OntologyRepositoryEntry ontologyEntry) {
+		// A) Check, if the ontology is already loaded and/or managed and whether it can be found in
+		//    the repository.
+		OWLOntologyID oID = ((HGOwlOntologyRepository.HGDBRepositoryEntry)ontologyEntry).getOntologyID();
+		if (oID == null) throw new IllegalStateException();		
+		HGOwlModelManagerImpl hmm  = (HGOwlModelManagerImpl) getOWLModelManager();
+		HGDBOntologyManager  hom = (HGDBOntologyManager)hmm.getOWLOntologyManager(); 
+		OWLOntology loadedOntoToDelete = hom.getOntology(oID);
+		// will be null if not loaded.
+		//getOntologyCatalogManager().Ontologies()
+		// B) Provide a confirmation Dialog with as much information as possible.
+		boolean userConfirmsDelete = showDeleteConfirmation(oID, ontologyEntry.getPhysicalURI(), loadedOntoToDelete);
+		if (userConfirmsDelete) {
+			// C) Actual Removal: 
+			// C-A) if ontology managed, remove from OwlModelManager, Owlontologymanager
+			if (loadedOntoToDelete != null) {
+				hmm.removeOntology(loadedOntoToDelete);
+			}			
+			// C-B) delete in repository
+			boolean repoDeleteOk = hom.getOntologyRepository().deleteOntology(oID);
+			showDeleteSuccessOrFailure(repoDeleteOk, oID, ontologyEntry.getPhysicalURI());
+			return repoDeleteOk;
+		} else {
+	        JOptionPane.showMessageDialog(getWorkspace(),
+                    "Delete cancelled by user.                                ",
+                    "Delete Hypergraph Database Backed Ontology - Cancelled",
+                    JOptionPane.WARNING_MESSAGE);
+			return false;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param oId
+	 * @param physicalURI
+	 * @param loadedOntology or null, if not loaded.
+	 * @return
+	 */
+	public boolean showDeleteConfirmation(OWLOntologyID oID, URI physicalURI, OWLOntology loadedOntology ) {
+        String message = "Do you really want to delete the following ontology: \n" 
+          	+ "    OntologyIRI: " + oID.getOntologyIRI() + "\n"
+          	+ "    VersionIRI : " + oID.getVersionIRI() + "\n"
+          	+ "    PhysicalURI: " + physicalURI + "\n \n"; 
+        int userInput = JOptionPane.showConfirmDialog(getWorkspace(),
+                                      message,
+                                      "Delete Hypergraph Database Backed Ontology - Confirm Deletion",
+                                      JOptionPane.YES_NO_OPTION);
+        return (userInput == JOptionPane.YES_OPTION);
+	}
+
+	public void showDeleteSuccessOrFailure(boolean success, OWLOntologyID oID, URI physicalURI) { 
+        String message = "The following ontology : \n" 
+          	+ "    OntologyIRI: " + oID.getOntologyIRI() + "\n"
+          	+ "    VersionIRI : " + oID.getVersionIRI() + "\n"
+          	+ "    PhysicalURI: " + physicalURI + "\n \n" + 
+          	(success? " was sucessfully deleted from the repository." : " COULD NOT BE DELETED !");
+        JOptionPane.showMessageDialog(getWorkspace(),
+                                      message,
+                                      "Delete Hypergraph Database Backed Ontology - " + (success? "Result" : " FAILED"),
+                                      success? JOptionPane.WARNING_MESSAGE : JOptionPane.ERROR_MESSAGE);
+	}
+
+	public boolean handleLoadFrom(URI uri) throws Exception {    	
         HGDBOntologyManager m = (HGDBOntologyManager) this.modelManager.getOWLOntologyManager();
         m.getOntologyRepository().printStatistics();
         boolean success = ((HGOwlModelManagerImpl) getModelManager()).loadOntologyFromPhysicalURI(uri);

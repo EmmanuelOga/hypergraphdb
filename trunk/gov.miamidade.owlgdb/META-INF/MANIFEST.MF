@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Miami-Dade County OWL Hypergraph Database Backend
 Bundle-SymbolicName: gov.miamidade.owlgdb;singleton:=true
-Bundle-Version: 0.9.0
+Bundle-Version: 0.9.5.dev
 Bundle-Vendor: Miami Dade GIC/eSolutions
-Bundle-Classpath: .
+Bundle-Classpath: ., build/classes
 Import-Package: javax.swing,
  javax.swing.border;resolution:=optional,
  javax.swing.colorchooser;resolution:=optional,

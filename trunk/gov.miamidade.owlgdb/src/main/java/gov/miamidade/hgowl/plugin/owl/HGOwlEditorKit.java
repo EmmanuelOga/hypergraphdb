@@ -251,7 +251,8 @@ public class HGOwlEditorKit extends OWLEditorKit {
         String message = "Do you really want to delete the following ontology: \n" 
           	+ "    OntologyIRI: " + oID.getOntologyIRI() + "\n"
           	+ "    VersionIRI : " + oID.getVersionIRI() + "\n"
-          	+ "    PhysicalURI: " + physicalURI + "\n \n"; 
+          	+ "    PhysicalURI: " + physicalURI + "\n \n" 
+          	+ "    This action cannot be undone! Make sure you have a current backup of the ontology. \n"; 
         int userInput = JOptionPane.showConfirmDialog(getWorkspace(),
                                       message,
                                       "Delete Hypergraph Database Backed Ontology - Confirm Deletion",

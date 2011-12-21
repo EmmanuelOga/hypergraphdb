@@ -13,6 +13,7 @@ import org.protege.editor.core.OntologyRepository;
 import org.protege.editor.core.OntologyRepositoryEntry;
 import org.protege.editor.core.editorkit.EditorKit;
 import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLOntologyID;
 import org.semanticweb.owlapi.model.OWLOntologyIRIMapper;
 import org.semanticweb.owlapi.util.OntologyIRIShortFormProvider;
 
@@ -24,26 +25,28 @@ import org.semanticweb.owlapi.util.OntologyIRIShortFormProvider;
  */
 public class HGOwlOntologyRepository implements OntologyRepository {
 
-	public static final String PHYSICAL_URI = "Physical URI";
+	public static final String VERSION_URI = "Version URI";
 	
+	public static final String PHYSICAL_URI = "Physical URI";
+
 	public static final String AXIOM_COUNT = "Nr Axioms";
 	
 	public static final String ATOM_COUNT = "Nr HGDB Atoms";
 	
-	public static final List<Object> METADATA_KEYS = Arrays.asList(new Object[]{PHYSICAL_URI, AXIOM_COUNT, ATOM_COUNT});
+	public static final List<Object> METADATA_KEYS = Arrays.asList(new Object[]{VERSION_URI, PHYSICAL_URI, AXIOM_COUNT, ATOM_COUNT});
 	
     private String repositoryName;
 
     private HGDBOntologyRepository dbRepository;
 
-    private List<RepositoryEntry> entries;
+    private List<HGDBRepositoryEntry> entries;
 
     private OWLOntologyIRIMapper iriMapper;
 
     public HGOwlOntologyRepository(String repositoryName, HGDBOntologyRepository dbRepository) {
         this.repositoryName = repositoryName;
         this.dbRepository = dbRepository;
-        entries = new ArrayList<RepositoryEntry>();
+        entries = new ArrayList<HGDBRepositoryEntry>();
         iriMapper = new RepositoryIRIMapper();
     }
 
@@ -84,30 +87,39 @@ public class HGOwlOntologyRepository implements OntologyRepository {
         entries.clear();
         List<HGDBOntology>  l = dbRepository.getOntologies();
         for(HGDBOntology o : l) {
-            entries.add(new RepositoryEntry(o));
+            entries.add(new HGDBRepositoryEntry(o));
         }
     }
 
-    private class RepositoryEntry implements OntologyRepositoryEntry {
+    public class HGDBRepositoryEntry implements OntologyRepositoryEntry {
 
         private String shortName;
 
         private URI ontologyURI;
 
+        private URI ontologyVersionURI = null;
+
         private URI physicalURI;
+
+        private OWLOntologyID ontologyID;
 
         private int nrOfAxioms;
 
 		private int nrOfAtoms;
 
-        public RepositoryEntry(HGDBOntology o) {
-        	this.shortName = o.getOntologyID().getOntologyIRI().getFragment();
-            this.ontologyURI = URI.create(o.getOntologyID().getOntologyIRI().toString());
+        public HGDBRepositoryEntry(HGDBOntology o) {
+        	ontologyID = o.getOntologyID();
+            this.shortName = ontologyID.getOntologyIRI().getFragment();
+            this.ontologyURI = URI.create(ontologyID.getOntologyIRI().toString());
+            if (ontologyID.getVersionIRI() != null) {
+            	this.ontologyVersionURI = URI.create(o.getOntologyID().getVersionIRI().toString());
+            }
             OntologyIRIShortFormProvider sfp = new OntologyIRIShortFormProvider();
             shortName = sfp.getShortForm(o);
             physicalURI = URI.create(o.getDocumentIRI().toString());
             nrOfAxioms = o.getAxiomCount();
             nrOfAtoms = (int)o.count(hg.all());
+            
         }
 
         public String getOntologyShortName() {
@@ -118,8 +130,19 @@ public class HGOwlOntologyRepository implements OntologyRepository {
             return ontologyURI;
         }
 
-        public URI getPhysicalURI() {
+        /**
+		 * @return the ontologyVersionURI or null if none.
+		 */
+		public URI getOntologyVersionURI() {
+			return ontologyVersionURI;
+		}
+
+		public URI getPhysicalURI() {
             return physicalURI;
+        }
+
+        public OWLOntologyID getOntologyID() {
+            return ontologyID;
         }
 
 		public int getNrOfAxioms() {
@@ -138,7 +161,9 @@ public class HGOwlOntologyRepository implements OntologyRepository {
         }
 
         public String getMetaData(Object key) {
-        	if (key.equals(PHYSICAL_URI)) {
+        	if (key.equals(VERSION_URI)) {
+        		return "" + getOntologyVersionURI();
+        	} else if (key.equals(PHYSICAL_URI)) {
         		return "" + getPhysicalURI();
         	} else if (key.equals(AXIOM_COUNT)) {
         		return "" + getNrOfAxioms();
@@ -162,7 +187,7 @@ public class HGOwlOntologyRepository implements OntologyRepository {
     private class RepositoryIRIMapper implements OWLOntologyIRIMapper {
 
         public IRI getDocumentIRI(IRI iri) {
-            for(RepositoryEntry entry : entries) {
+            for(HGDBRepositoryEntry entry : entries) {
                 if(entry.getOntologyURI().equals(iri.toURI())) {
                     return IRI.create(entry.getPhysicalURI());
                 }

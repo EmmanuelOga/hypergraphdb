@@ -17,6 +17,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.coode.xml.XMLWriterPreferences;
 import org.hypergraphdb.app.owl.HGDBOntology;
+import org.hypergraphdb.app.owl.HGDBOntologyManager;
 import org.hypergraphdb.app.owl.HGDBOntologyRepository;
 import org.protege.editor.core.AbstractModelManager;
 import org.protege.editor.core.ProtegeApplication;
@@ -67,7 +68,6 @@ import org.protege.editor.owl.ui.renderer.OWLObjectRenderer;
 import org.protege.editor.owl.ui.renderer.OWLObjectRendererImpl;
 import org.protege.editor.owl.ui.renderer.OWLRendererPreferences;
 import org.protege.editor.owl.ui.renderer.plugin.RendererPlugin;
-import org.protege.owlapi.model.ProtegeOWLOntologyManager;
 import org.protege.xmlcatalog.XMLCatalog;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLClass;
@@ -139,7 +139,7 @@ public class HGOwlModelManagerImpl extends AbstractModelManager
      * The <code>OWLConnection</code> that we use to manage
      * ontologies.
      */
-    private ProtegeOWLOntologyManager manager;
+    private HGDBOntologyManager manager;
 
     private OntologyCatalogManager ontologyLibraryManager;
     
@@ -221,10 +221,12 @@ public class HGOwlModelManagerImpl extends AbstractModelManager
         autoMappedRepositoryIRIMapper = new AutoMappedRepositoryIRIMapper(this);
         userResolvedIRIMapper = new UserResolvedIRIMapper(new MissingImportHandlerImpl());
         manager.clearIRIMappers();
+        HGDBOntologyRepository repository = manager.getOntologyRepository();
         manager.addIRIMapper(userResolvedIRIMapper);
         manager.addIRIMapper(new WebConnectionIRIMapper());
         manager.addIRIMapper(autoMappedRepositoryIRIMapper);
-
+        // HGDBIRIMapper will be the first to resolve
+        manager.addIRIMapper(new HGDBIRIMapper(repository));
 
         dirtyOntologies = new HashSet<OWLOntology>();
         ontSelectionStrategies = new HashSet<OntologySelectionStrategy>();

@@ -116,6 +116,14 @@
         <editorKitId value="HGOwlEditorKit"/>
     </extension>
 
+    <extension id="ui.view.menu.hypergraphDelete"
+               point="org.protege.editor.core.application.EditorKitMenuAction">
+        <name value="Delete from Hypergraph Repository"/>
+        <toolTip value="Delete from Hypergraph Repository."/>
+        <path value="gov.miamidade.owlgdb.ui.view.menu2/SlotAA-C"/>
+        <class value="gov.miamidade.hgowl.plugin.ui.DeleteOntologyFromRepositoryAction"/>
+        <editorKitId value="HGOwlEditorKit"/>
+    </extension>
 
 
 

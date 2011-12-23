@@ -98,12 +98,21 @@
 	    <editorKitId value="HGOwlEditorKit"/>
     </extension>
 
-    <extension id="ui.view.menu.hypergraphCleanup"
+    <extension id="ui.view.menu.hypergraphGarbageAnalysis"
                point="org.protege.editor.core.application.EditorKitMenuAction">
-        <name value="Clean up unused OWL entities"/>
-        <toolTip value="Clean up unused entities"/>
+        <name value="Run Garbage Analysis"/>
+        <toolTip value="Analyse unused atoms"/>
         <path value="gov.miamidade.owlgdb.ui.view.menu2/SlotAA-A"/>
-        <class value="gov.miamidade.hgowl.plugin.ui.HypergraphCleanupOWLEntitiesAction"/>
+        <class value="gov.miamidade.hgowl.plugin.ui.HGRunGCAnalyzeAction"/>
+        <editorKitId value="HGOwlEditorKit"/>
+    </extension>
+
+    <extension id="ui.view.menu.hypergraphGarbageCollect"
+               point="org.protege.editor.core.application.EditorKitMenuAction">
+        <name value="Run Garbage Collection"/>
+        <toolTip value="Clean up unused atoms"/>
+        <path value="gov.miamidade.owlgdb.ui.view.menu2/SlotAA-B"/>
+        <class value="gov.miamidade.hgowl.plugin.ui.HGRunGCAction"/>
         <editorKitId value="HGOwlEditorKit"/>
     </extension>
 
@@ -111,16 +120,16 @@
                point="org.protege.editor.core.application.EditorKitMenuAction">
         <name value="Show Database Statistics"/>
         <toolTip value="Show statistics of whole graph."/>
-        <path value="gov.miamidade.owlgdb.ui.view.menu2/SlotAA-B"/>
+        <path value="gov.miamidade.owlgdb.ui.view.menu2/SlotAA-C"/>
         <class value="gov.miamidade.hgowl.plugin.ui.HyperGraphShowStatisticsAction"/>
         <editorKitId value="HGOwlEditorKit"/>
     </extension>
 
-    <extension id="ui.view.menu.hypergraphDelete"
+    <extension id="ui.view.menu.hypergraphDeleteOntology"
                point="org.protege.editor.core.application.EditorKitMenuAction">
-        <name value="Delete from Hypergraph Repository"/>
-        <toolTip value="Delete from Hypergraph Repository."/>
-        <path value="gov.miamidade.owlgdb.ui.view.menu2/SlotAA-C"/>
+        <name value="Delete Ontology from Hypergraph Repository"/>
+        <toolTip value="Delete Ontology from Hypergraph Repository"/>
+        <path value="gov.miamidade.owlgdb.ui.view.menu2/SlotAA-D"/>
         <class value="gov.miamidade.hgowl.plugin.ui.DeleteOntologyFromRepositoryAction"/>
         <editorKitId value="HGOwlEditorKit"/>
     </extension>

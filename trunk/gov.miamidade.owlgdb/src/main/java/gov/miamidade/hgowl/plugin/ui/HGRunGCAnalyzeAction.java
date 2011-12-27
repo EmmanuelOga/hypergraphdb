@@ -87,6 +87,7 @@ public class HGRunGCAnalyzeAction extends ProtegeOWLAction {
 		s.println("- Ontologies    : " + stats.getOntologies());
 		s.println("- Axioms        : " + stats.getAxioms());
 		s.println("- Entities      : " + stats.getEntities());
+		s.println("- IRIs          : " + stats.getIris());
 		s.println("- Other Objects : " + stats.getOtherObjects());
 		s.println("- Total Atoms   : " + stats.getTotalAtoms());
 		s.println("----------------------------");

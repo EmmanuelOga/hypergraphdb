@@ -58,6 +58,7 @@ public class HyperGraphShowStatisticsAction extends ProtegeOWLAction {
 		int hitPromille = (int) (OWLDataFactoryInternalsHGDB.CACHE_HIT * 1000.0f / (OWLDataFactoryInternalsHGDB.CACHE_HIT + OWLDataFactoryInternalsHGDB.CACHE_MISS));
 		s.println("- Cache Hit%: " + hitPromille / 10.0f  );
 		s.println("----------------------------");
+		om.getOntologyRepository().printPerformanceStatistics(s);
 		s.flush();
 		String message = stringWriter.toString();
 		JTextPane textPane = new JTextPane();

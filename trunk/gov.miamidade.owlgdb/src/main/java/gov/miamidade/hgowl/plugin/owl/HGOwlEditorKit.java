@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 
 import javax.swing.JOptionPane;
 
@@ -20,6 +21,7 @@ import org.hypergraphdb.app.owl.HGDBOntologyFormat;
 import org.hypergraphdb.app.owl.HGDBOntologyImpl;
 import org.hypergraphdb.app.owl.HGDBOntologyManager;
 import org.hypergraphdb.app.owl.HGDBOntologyRepository;
+import org.hypergraphdb.app.owl.exception.HGDBOntologyAlreadyExistsByDocumentIRIException;
 import org.protege.editor.core.OntologyRepository;
 import org.protege.editor.core.OntologyRepositoryEntry;
 import org.protege.editor.core.OntologyRepositoryManager;
@@ -37,6 +39,8 @@ import org.protege.editor.owl.ui.explanation.ExplanationManager;
 import org.protege.editor.owl.ui.ontology.imports.missing.MissingImportHandlerUI;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyAlreadyExistsException;
+import org.semanticweb.owlapi.model.OWLOntologyDocumentAlreadyExistsException;
 import org.semanticweb.owlapi.model.OWLOntologyFormat;
 import org.semanticweb.owlapi.model.OWLOntologyID;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
@@ -108,15 +112,69 @@ public class HGOwlEditorKit extends OWLEditorKit {
             OWLOntologyID oid = w.getOntologyID();
             if (oid != null) {
             	HGOwlModelManagerImpl mm = (HGOwlModelManagerImpl)getOWLModelManager();
-            	mm.createNewOntology(oid, w.getLocationURI());
-            	//addToRecent(URI.create(prop.getProperty("hibernate.connection.url")));
-            	addRecent(w.getLocationURI());
-        		handleNewSuccess = true;
+            	// check if already exists
+            	// we are catching specific exceptions here instead of checking the cases before the 
+            	// call to mm.createNewOntology. 
+            	try {
+            		mm.createNewOntology(oid, w.getLocationURI());
+            		//addToRecent(URI.create(prop.getProperty("hibernate.connection.url")));
+            		addRecent(w.getLocationURI());
+            		handleNewSuccess = true;
+            	} catch (OWLOntologyAlreadyExistsException e ) {
+            		showNewExistsOntologyIDMessage(oid, e.getDocumentIRI());
+            	} catch (OWLOntologyDocumentAlreadyExistsException e) {
+            		showNewExistsDocumentLoadedMessage(oid, e.getOntologyDocumentIRI());
+            	} catch (HGDBOntologyAlreadyExistsByDocumentIRIException e) {
+            		showNewExistsDocumentRepoMessage(oid, e.getOntologyDocumentIRI());
+            	}
             }
         }
         return handleNewSuccess;
     }
+    
+    /**
+     * 
+     * @param ontoId
+     * @param documentIri docIRI or null
+     * @param ontologyIRI ontolog
+     */
+    protected void showNewExistsDocumentLoadedMessage(OWLOntologyID ontoId, IRI existingDocumentIRI) {
+        String message = "Cannot create an ontology, because another ontology is currently loaded with the same document IRI. \n" 
+          	+ "    The ontology ID was: Ontology IRI " + ontoId.getOntologyIRI() + "\n " 
+          	+ "                         Version  IRI " + ontoId.getVersionIRI() + "\n " 
+          	+ "    Reason: Existing Document URI: " + existingDocumentIRI + "\n \n" 
+          	+ " You should check File/loaded ontology sources...";
+        JOptionPane.showMessageDialog(getWorkspace(),
+                                      message,
+                                      "Create Hypergraph DB Ontology - " + "Already exists in loaded ontologies.",
+                                      JOptionPane.ERROR_MESSAGE);		
+    }
+    
+    protected void showNewExistsOntologyIDMessage(OWLOntologyID ontoId, IRI existingOntologyIRI) {
+        String message = "Cannot create an ontology, because another ontology is currently loaded with the same ontology IRI. \n" 
+          	+ "    The ontology ID was: Ontology IRI " + ontoId.getOntologyIRI() + "\n " 
+          	+ "                         Version  IRI " + ontoId.getVersionIRI() + "\n " 
+          	+ "    Reason: Existing Ontology IRI: " + existingOntologyIRI + "\n \n" 
+          	+ " You should check File/loaded ontology sources...";
+        JOptionPane.showMessageDialog(getWorkspace(),
+                                      message,
+                                      "Create Hypergraph DB Ontology - " + "Already exists in loaded ontologies.",
+                                      JOptionPane.ERROR_MESSAGE);		
+    }
 
+    protected void showNewExistsDocumentRepoMessage(OWLOntologyID ontoId, IRI repoDocumentIRI) {
+        String message = "Cannot create an ontology, because another ontology is currently loaded with the same ontology IRI. \n" 
+          	+ "    The ontology ID was: Ontology IRI " + ontoId.getOntologyIRI() + "\n " 
+          	+ "                         Version  IRI " + ontoId.getVersionIRI() + "\n " 
+          	+ "    Reason: Existing Repository Document IRI: " + repoDocumentIRI + "\n \n" 
+          	+ " You should check File/open to see all ontologies in the repository.";
+        JOptionPane.showMessageDialog(getWorkspace(),
+                                      message,
+                                      "Create Hypergraph DB Ontology - " + "Already exists in loaded ontologies.",
+                                      JOptionPane.ERROR_MESSAGE);		
+    }
+
+    
     public boolean handleLoadRecentRequest(EditorKitDescriptor descriptor) throws Exception {
     	System.out.println("HG handleLoadRecentRequest");
         HGDBOntologyManager m = (HGDBOntologyManager) this.modelManager.getOWLOntologyManager();
@@ -124,7 +182,6 @@ public class HGOwlEditorKit extends OWLEditorKit {
         boolean retValue = super.handleLoadRecentRequest(descriptor );
         m.getOntologyRepository().printStatistics();
         return retValue;
-
     }
 
     public boolean handleLoadRequest() throws Exception {
@@ -167,7 +224,12 @@ public class HGOwlEditorKit extends OWLEditorKit {
         // Open Repository open Dlg
         OntologyRepositoryEntry ontologyEntry = RepositoryViewPanel.showOpenDialog(repository);
         if (ontologyEntry != null) {
-        	success = handleLoadFrom(ontologyEntry.getPhysicalURI());
+        	if (isLoadedOntologyFromLocation(ontologyEntry.getPhysicalURI())) {
+        		// Dialog: database backed ontology already loaded, no reload necessary.
+        		success = false;
+        	} else {
+        		success = handleLoadFrom(ontologyEntry.getPhysicalURI());
+        	}
         } else {
         	success = false;
         }
@@ -193,9 +255,17 @@ public class HGOwlEditorKit extends OWLEditorKit {
         }
         if (repository == null) throw new IllegalStateException("Cannot handle delete from repository. No HGOwlOntologyRepository registered with Protege.");
         // Open Repository delete dialog 
-        OntologyRepositoryEntry ontologyEntry = RepositoryViewPanel.showDeleteDialog(repository);
-        if (ontologyEntry != null) {        	
-        	success = handleDeleteFrom(ontologyEntry);
+        OntologyRepositoryEntry ontologyEntry = RepositoryViewPanel.showDeleteDialog(repository);        
+        if (ontologyEntry != null) {
+        	// User wants to delete ontology.
+            // Do not allow deletion of any active ontology:
+        	if (isLoadedOntologyFromLocation(ontologyEntry.getPhysicalURI())) {
+        		//Dialog, cannot delete active ontology. Remove from sources first.
+        		showDeleteCannotDeleteLoaded(ontologyEntry.getPhysicalURI());
+        		success = false;
+        	} else {
+        		success = handleDeleteFrom(ontologyEntry);
+        	}
         } else {
         	success = false;
         }
@@ -205,11 +275,26 @@ public class HGOwlEditorKit extends OWLEditorKit {
     }
         
     /**
+	 * @param physicalURI
+	 * @return
+	 */
+	protected boolean isLoadedOntologyFromLocation(URI physicalURI) {
+		Set<OWLOntology> loadedOntos = getOWLModelManager().getOntologies();//getOWLOntologyManager().getOntologies();
+		for (OWLOntology onto: loadedOntos) {
+			URI curURI = getOWLModelManager().getOntologyPhysicalURI(onto);
+			if (curURI != null && curURI.equals(physicalURI)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
      * Deletes an ontology from Hypergraph Repository.
 	 * @param physicalURI
 	 * @return
 	 */
-	private boolean handleDeleteFrom(OntologyRepositoryEntry ontologyEntry) {
+	protected boolean handleDeleteFrom(OntologyRepositoryEntry ontologyEntry) {
 		// A) Check, if the ontology is already loaded and/or managed and whether it can be found in
 		//    the repository.
 		OWLOntologyID oID = ((HGOwlOntologyRepository.HGDBRepositoryEntry)ontologyEntry).getOntologyID();
@@ -259,7 +344,19 @@ public class HGOwlEditorKit extends OWLEditorKit {
                                       JOptionPane.YES_NO_OPTION);
         return (userInput == JOptionPane.YES_OPTION);
 	}
+	
+	public void showDeleteCannotDeleteLoaded(URI physicalURI) {
+        String message = "Cannot delete currently loaded ontology from location : \n" 
+          	+ "    PhysicalURI: " + physicalURI + "\n \n" + 
+          	("Please remove the ontology from loaded sources first.");
+        JOptionPane.showMessageDialog(getWorkspace(),
+                                      message,
+                                      "Delete Hypergraph Database Backed Ontology - " + "Cannot delete loaded.",
+                                      JOptionPane.ERROR_MESSAGE);		
+		
+	}
 
+		
 	public void showDeleteSuccessOrFailure(boolean success, OWLOntologyID oID, URI physicalURI) { 
         String message = "The following ontology : \n" 
           	+ "    OntologyIRI: " + oID.getOntologyIRI() + "\n"
@@ -339,7 +436,7 @@ public class HGOwlEditorKit extends OWLEditorKit {
      * @param ont the ontology to save
      * @throws Exception
      */
-    private boolean handleSaveAs(OWLOntology ont) throws Exception {
+    protected boolean handleSaveAs(OWLOntology ont) throws Exception {
         HGDBOntologyManager man = (HGDBOntologyManager)getModelManager().getOWLOntologyManager();
         OWLOntologyFormat oldFormat = man.getOntologyFormat(ont);
         IRI oldDocumentIRI = man.getOntologyDocumentIRI(ont);

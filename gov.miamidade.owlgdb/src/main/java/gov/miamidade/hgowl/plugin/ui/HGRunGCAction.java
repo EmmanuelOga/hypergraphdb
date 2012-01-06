@@ -52,19 +52,48 @@ public class HGRunGCAction extends ProtegeOWLAction {
 	public void actionPerformed(ActionEvent arg0) {
 		HGOwlModelManagerImpl mm = (HGOwlModelManagerImpl) this.getOWLModelManager();
 		HGDBOntologyManager om =  (HGDBOntologyManager) mm.getOWLOntologyManager();
-		if (showRunGCConfirmation()) {
-			mm.getHistoryManager().clear();
-			int mode = HGRunGCModeSelectionPanel.showDialog(getOWLEditorKit(), "Run Garbage Collector Mode");
-			//	this can take long:
-			if (mode >= 0) {
-				GarbageCollector gc = om.getOntologyRepository().getGC();
-				GarbageCollectorStatistics stats = gc.runGC(mode);
-				System.out.println("Total GCd atoms: " + stats.getTotalAtoms());
-				showResult(stats);
-			} else {
-				System.out.println("GC aborted by user.");
+		if (mayRun()) {
+			if (showRunGCConfirmation()) {
+				mm.getHistoryManager().clear();
+				int mode = HGRunGCModeSelectionPanel.showDialog(getOWLEditorKit(), "Run Garbage Collector Mode");
+				//	this can take long:
+				if (mode >= 0) {
+					GarbageCollector gc = om.getOntologyRepository().getGC();
+					GarbageCollectorStatistics stats = gc.runGC(mode);
+					System.out.println("Total GCd atoms: " + stats.getTotalAtoms());
+					showResult(stats);
+				} else {
+					System.out.println("GC aborted by user.");
+				}
 			}
+		} else {
+			showRunGCNotAllowed();
 		}
+	}
+	
+	/**
+	 * Determines, if GC may run based on the ontologies currently loaded in Protege.
+	 * We might allow Deleted_Ontology mode in the future.
+	 * @return
+	 */
+	public boolean mayRun() {
+		HGOwlModelManagerImpl mm = (HGOwlModelManagerImpl) this.getOWLModelManager();
+		HGDBOntologyManager om =  (HGDBOntologyManager) mm.getOWLOntologyManager();
+		return !om.hasInMemoryOntology();
+	}
+
+	/**
+	 * Shows a  
+	 */
+	public void showRunGCNotAllowed() {
+        String message = "You have in memory Ontologies loaded: \n" 
+          	+ "    Running Garbage Collection is currently only allowed, if all loaded ontologies are database backed (red Symbol). \n"
+          	+ "    Please remove all In-Memory Ontologies using File/Loaded Ontology Sources... and try again.  \n";
+        JOptionPane.showMessageDialog(getWorkspace(),
+                                      message,
+                                      "Garbage Collection - Not Allowed",
+                                      JOptionPane.WARNING_MESSAGE);
+		
 	}
 	
 	public boolean showRunGCConfirmation() {

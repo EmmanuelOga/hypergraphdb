@@ -42,6 +42,7 @@ public class HGOwlOntologyRepositoryFactory extends OntologyRepositoryFactory {
 	@Override
 	public OntologyRepository createRepository() {
 		if (dbRepository == null) throw new IllegalStateException("Cannot create HGOwlOntologyRepository. dbRepository was null.");
-		return new HGOwlOntologyRepository("Hypergraph (" + dbRepository.getHyperGraph().getLocation() + ")" , dbRepository);
+		HGOwlOntologyRepository r = new HGOwlOntologyRepository("Hypergraph" , dbRepository);
+		return r; 
 	}
 }

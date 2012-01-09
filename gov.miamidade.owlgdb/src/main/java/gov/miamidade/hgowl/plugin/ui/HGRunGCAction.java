@@ -23,10 +23,6 @@ import org.protege.editor.owl.ui.action.ProtegeOWLAction;
  */
 public class HGRunGCAction extends ProtegeOWLAction {
 
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -2085444668481360102L;
 
 	/* (non-Javadoc)
@@ -58,8 +54,8 @@ public class HGRunGCAction extends ProtegeOWLAction {
 				int mode = HGRunGCModeSelectionPanel.showDialog(getOWLEditorKit(), "Run Garbage Collector Mode");
 				//	this can take long:
 				if (mode >= 0) {
-					GarbageCollector gc = om.getOntologyRepository().getGC();
-					GarbageCollectorStatistics stats = gc.runGC(mode);
+					GarbageCollector gc = om.getOntologyRepository().getGarbageCollector();
+					GarbageCollectorStatistics stats = gc.runGarbageCollection(mode);
 					System.out.println("Total GCd atoms: " + stats.getTotalAtoms());
 					showResult(stats);
 				} else {

@@ -472,7 +472,7 @@ public class HGOwlEditorKit extends OWLEditorKit {
         		// IN MEMORY ONTOLOGY
         		//Case B) OntololgyImpl -> Repository: Import 
                 String message = "This in-memory ontology will be imported into the Hypergraph Ontology Repository.\n" 
-                    	+ "This process is estimated to take one minute per 3000 Axioms. \n"
+                    	+ "This process is estimated to take one minute per 35000 Axioms. \n"
                     	+ ont.getOntologyID().toString() +  " has " + ont.getAxiomCount() +  " Axioms. \n"
                         + "Please be patient. A Success Dialog will pop up when the process is finished." ;
                 logger.info(message);

@@ -17,16 +17,12 @@ import org.protege.editor.core.ui.util.JOptionPaneEx;
 import org.protege.editor.owl.ui.action.ProtegeOWLAction;
 
 /**
- * HGRunGCAction.
+ * HGRunGCAnalyzeAction.
  * @author Thomas Hilpold (CIAO/Miami-Dade County)
  * @created Oct 11, 2011
  */
 public class HGRunGCAnalyzeAction extends ProtegeOWLAction {
 
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -2085444668481360102L;
 
 	/* (non-Javadoc)
@@ -58,8 +54,8 @@ public class HGRunGCAnalyzeAction extends ProtegeOWLAction {
 				int mode = HGRunGCModeSelectionPanel.showDialog(getOWLEditorKit(), "Run Garbage Analysis Mode");
 				//	this can take long:
 				if (mode >= 0) {
-					GarbageCollector gc = om.getOntologyRepository().getGC();
-					GarbageCollectorStatistics stats = gc.analyze(mode);
+					GarbageCollector gc = om.getOntologyRepository().getGarbageCollector();
+					GarbageCollectorStatistics stats = gc.runGarbageAnalysis(mode);
 					System.out.println("Total GCd atoms: " + stats.getTotalAtoms());
 					showResult(stats);
 				} else {

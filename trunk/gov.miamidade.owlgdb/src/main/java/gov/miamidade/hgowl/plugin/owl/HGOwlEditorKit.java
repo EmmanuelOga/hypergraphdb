@@ -151,7 +151,7 @@ public class HGOwlEditorKit extends OWLEditorKit {
     }
     
     protected void showNewExistsOntologyIDMessage(OWLOntologyID ontoId, IRI existingOntologyIRI) {
-        String message = "Cannot create an ontology, because another ontology is currently loaded with the same ontology IRI. \n" 
+        String message = "Cannot create an ontology, because another ontology is currently loaded with the same ontology ID. \n" 
           	+ "    The ontology ID was: Ontology IRI " + ontoId.getOntologyIRI() + "\n " 
           	+ "                         Version  IRI " + ontoId.getVersionIRI() + "\n " 
           	+ "    Reason: Existing Ontology IRI: " + existingOntologyIRI + "\n \n" 
@@ -163,14 +163,14 @@ public class HGOwlEditorKit extends OWLEditorKit {
     }
 
     protected void showNewExistsDocumentRepoMessage(OWLOntologyID ontoId, IRI repoDocumentIRI) {
-        String message = "Cannot create an ontology, because another ontology is currently loaded with the same ontology IRI. \n" 
+        String message = "Cannot create an ontology, because another ontology with the same document IRI exists in the repository. \n" 
           	+ "    The ontology ID was: Ontology IRI " + ontoId.getOntologyIRI() + "\n " 
           	+ "                         Version  IRI " + ontoId.getVersionIRI() + "\n " 
           	+ "    Reason: Existing Repository Document IRI: " + repoDocumentIRI + "\n \n" 
-          	+ " You should check File/open to see all ontologies in the repository.";
+          	+ " You should check the repository and maybe consider using Version IRI, in case you want another version of the same ontology.";
         JOptionPane.showMessageDialog(getWorkspace(),
                                       message,
-                                      "Create Hypergraph DB Ontology - " + "Already exists in loaded ontologies.",
+                                      "Create Hypergraph DB Ontology - " + "Already exists in repository.",
                                       JOptionPane.ERROR_MESSAGE);		
     }
 

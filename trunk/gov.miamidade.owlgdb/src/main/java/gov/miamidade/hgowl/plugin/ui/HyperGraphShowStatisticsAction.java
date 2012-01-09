@@ -10,7 +10,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextPane;
 
 import org.hypergraphdb.app.owl.HGDBOntologyManager;
-import org.hypergraphdb.app.owl.core.OWLDataFactoryInternalsHGDB;
 import org.protege.editor.core.ui.util.JOptionPaneEx;
 import org.protege.editor.owl.ui.action.ProtegeOWLAction;
 

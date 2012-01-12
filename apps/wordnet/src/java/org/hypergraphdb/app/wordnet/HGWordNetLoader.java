@@ -31,7 +31,7 @@ import org.hypergraphdb.HGTypeSystem;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.app.wordnet.data.*;
 import org.hypergraphdb.indexing.ByPartIndexer;
-import org.hypergraphdb.storage.BDBConfig;
+import org.hypergraphdb.storage.bdb.BDBConfig;
 
 /**
  * 

@@ -17,7 +17,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.coode.xml.XMLWriterPreferences;
 import org.hypergraphdb.app.owl.HGDBOntology;
-import org.hypergraphdb.app.owl.HGDBOntologyManager;
+import org.hypergraphdb.app.owl.PHGDBOntologyManagerImpl;
 import org.hypergraphdb.app.owl.HGDBOntologyRepository;
 import org.protege.editor.core.AbstractModelManager;
 import org.protege.editor.core.ProtegeApplication;
@@ -139,7 +139,7 @@ public class HGOwlModelManagerImpl extends AbstractModelManager
      * The <code>OWLConnection</code> that we use to manage
      * ontologies.
      */
-    private HGDBOntologyManager manager;
+    private PHGDBOntologyManagerImpl manager;
 
     private OntologyCatalogManager ontologyLibraryManager;
     

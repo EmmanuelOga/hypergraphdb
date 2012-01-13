@@ -20,6 +20,7 @@ import org.hypergraphdb.app.owl.HGDBOntology;
 import org.hypergraphdb.app.owl.HGDBOntologyFormat;
 import org.hypergraphdb.app.owl.HGDBOntologyImpl;
 import org.hypergraphdb.app.owl.HGDBOntologyManager;
+import org.hypergraphdb.app.owl.PHGDBOntologyManagerImpl;
 import org.hypergraphdb.app.owl.HGDBOntologyRepository;
 import org.hypergraphdb.app.owl.exception.HGDBOntologyAlreadyExistsByDocumentIRIException;
 import org.protege.editor.core.OntologyRepository;
@@ -300,7 +301,7 @@ public class HGOwlEditorKit extends OWLEditorKit {
 		OWLOntologyID oID = ((HGOwlOntologyRepository.HGDBRepositoryEntry)ontologyEntry).getOntologyID();
 		if (oID == null) throw new IllegalStateException();		
 		HGOwlModelManagerImpl hmm  = (HGOwlModelManagerImpl) getOWLModelManager();
-		HGDBOntologyManager  hom = (HGDBOntologyManager)hmm.getOWLOntologyManager(); 
+		PHGDBOntologyManagerImpl  hom = (PHGDBOntologyManagerImpl)hmm.getOWLOntologyManager(); 
 		OWLOntology loadedOntoToDelete = hom.getOntology(oID);
 		// will be null if not loaded.
 		//getOntologyCatalogManager().Ontologies()
@@ -437,7 +438,7 @@ public class HGOwlEditorKit extends OWLEditorKit {
      * @throws Exception
      */
     protected boolean handleSaveAs(OWLOntology ont) throws Exception {
-        HGDBOntologyManager man = (HGDBOntologyManager)getModelManager().getOWLOntologyManager();
+        PHGDBOntologyManagerImpl man = (PHGDBOntologyManagerImpl)getModelManager().getOWLOntologyManager();
         OWLOntologyFormat oldFormat = man.getOntologyFormat(ont);
         IRI oldDocumentIRI = man.getOntologyDocumentIRI(ont);
         HGDBOntologyRepository repo = man.getOntologyRepository();

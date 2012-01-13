@@ -113,6 +113,7 @@ public class HGRunGCAction extends ProtegeOWLAction {
 		s.println("- Axioms        : " + stats.getAxioms());
 		s.println("- Entities      : " + stats.getEntities());
 		s.println("- IRIs          : " + stats.getIris());
+		s.println("- Annotations   : " + stats.getAnnotations());
 		s.println("- Other Objects : " + stats.getOtherObjects());
 		s.println("- Total Atoms   : " + stats.getTotalAtoms());
 		s.println("----------------------------");

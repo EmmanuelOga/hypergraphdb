@@ -28,8 +28,6 @@ import org.openrdf.query.impl.EmptyBindingSet;
 import org.openrdf.sail.SailException;
 import org.openrdf.sail.helpers.SailConnectionBase;
 
-import com.sleepycat.db.DeadlockException;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -411,9 +409,8 @@ public class HyperGraphConnection extends SailConnectionBase
             {
                 rollback();                
                 boolean retry = false;
-                for (Throwable cause = t; cause != null; cause = cause.getCause())                   
-                    if (cause instanceof DeadlockException || 
-                        cause instanceof TransactionConflictException)
+                for (Throwable cause = t; cause != null; cause = cause.getCause())
+                		if (!hyperStore.getGraph().getStore().getTransactionFactory().canRetryAfter(t))
                     {
                         retry = true;
                         break;

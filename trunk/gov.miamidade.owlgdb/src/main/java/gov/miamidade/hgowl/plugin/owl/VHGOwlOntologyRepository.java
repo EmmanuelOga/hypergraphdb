@@ -35,6 +35,8 @@ public class VHGOwlOntologyRepository implements OntologyRepository {
 
 	public static final String LAST_COMMIT = "Last Commit";
 
+	public static final String UNCOMMITTED_CHANGES = "Uncommitted Changes";
+
 	public static final List<Object> METADATA_KEYS = Arrays.asList(new Object[]{VERSION_URI, PHYSICAL_URI, HEAD_REVISION, LAST_COMMIT});
 	
     private String repositoryName;
@@ -99,7 +101,7 @@ public class VHGOwlOntologyRepository implements OntologyRepository {
 
         private URI ontologyURI;
 
-        private URI ontologyVersionURI = null;
+        private String ontologyVersionURI;
 
         private URI physicalURI;
 
@@ -109,12 +111,16 @@ public class VHGOwlOntologyRepository implements OntologyRepository {
 
 		private String lastCommitTime;
 
+		private String uncommittedChanges;
+
         public HGDBRepositoryEntry(HGDBOntology o) {
         	ontologyID = o.getOntologyID();
-            this.shortName = ontologyID.getOntologyIRI().getFragment();
-            this.ontologyURI = URI.create(ontologyID.getOntologyIRI().toString());
+            shortName = ontologyID.getOntologyIRI().getFragment();
+            ontologyURI = URI.create(ontologyID.getOntologyIRI().toString());
             if (ontologyID.getVersionIRI() != null) {
-            	this.ontologyVersionURI = URI.create(o.getOntologyID().getVersionIRI().toString());
+            	ontologyVersionURI = o.getOntologyID().getVersionIRI().toString();
+            } else {
+            	ontologyVersionURI = "";
             }
             OntologyIRIShortFormProvider sfp = new OntologyIRIShortFormProvider();
             shortName = sfp.getShortForm(o);
@@ -123,14 +129,12 @@ public class VHGOwlOntologyRepository implements OntologyRepository {
             	VersionedOntology vo = dbRepository.getVersionControlledOntology(o);
             	headRevision = "" + vo.getHeadRevision().getRevision();
             	lastCommitTime = DateFormat.getDateTimeInstance().format(vo.getHeadChangeSet().getCreatedDate());
+            	uncommittedChanges = "" + vo.getHeadChangeSet().size(); 
             } else {
             	headRevision = "Not Versioned";
-            	lastCommitTime = "N/A";
+            	lastCommitTime = "";
+            	uncommittedChanges = "";
             }
-            
-            //nrOfAxioms = o.getAxiomCount();
-            //nrOfAtoms = (int)o.count(hg.all());
-            
         }
 
         public String getOntologyShortName() {
@@ -144,7 +148,7 @@ public class VHGOwlOntologyRepository implements OntologyRepository {
         /**
 		 * @return the ontologyVersionURI or null if none.
 		 */
-		public URI getOntologyVersionURI() {
+		public String getOntologyVersionURI() {
 			return ontologyVersionURI;
 		}
 
@@ -164,27 +168,20 @@ public class VHGOwlOntologyRepository implements OntologyRepository {
 		}
 
 		/**
-		 * @param headRevision the headRevision to set
-		 */
-		public void setHeadRevision(String headRevision) {
-			this.headRevision = headRevision;
-		}
-
-		/**
 		 * @return the lastCommitTime
 		 */
 		public String getLastCommitTime() {
 			return lastCommitTime;
 		}
 
-		/**
-		 * @param lastCommitTime the lastCommitTime to set
+        /**
+		 * @return the uncommittedChanges
 		 */
-		public void setLastCommitTime(String lastCommitTime) {
-			this.lastCommitTime = lastCommitTime;
+		public String getUncommittedChanges() {
+			return uncommittedChanges;
 		}
 
-        public String getEditorKitId() {
+		public String getEditorKitId() {
             return HGOwlEditorKitFactory.ID;
         }
 
@@ -197,6 +194,8 @@ public class VHGOwlOntologyRepository implements OntologyRepository {
         		return getLastCommitTime();
         	} else if (key.equals(HEAD_REVISION)) {
         		return getHeadRevision();
+        	} else if (key.equals(UNCOMMITTED_CHANGES)) {
+        		return getUncommittedChanges();
         	} else {
         		throw new IllegalArgumentException("Key unknown.");
         	}

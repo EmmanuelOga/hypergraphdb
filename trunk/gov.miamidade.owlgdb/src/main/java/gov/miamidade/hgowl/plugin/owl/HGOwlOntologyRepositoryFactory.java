@@ -4,7 +4,9 @@ import java.io.File;
 
 import gov.miamidade.hgowl.plugin.HGOwlProperties;
 
+import org.hypergraphdb.app.owl.HGDBApplication;
 import org.hypergraphdb.app.owl.HGDBOntologyRepository;
+import org.hypergraphdb.app.owl.versioning.VHGDBOntologyRepository;
 import org.protege.editor.core.OntologyRepository;
 import org.protege.editor.core.OntologyRepositoryFactory;
 
@@ -30,7 +32,11 @@ public class HGOwlOntologyRepositoryFactory extends OntologyRepositoryFactory {
 			System.err.println("EXCEPTION setting preferred Hypergraph location:" + e);
 			System.err.println("Default will be used:" + HGDBOntologyRepository.getHypergraphDBLocation());
 		}
-		dbRepository = HGDBOntologyRepository.getInstance();
+		if (HGDBApplication.VERSIONING) {
+			dbRepository = VHGDBOntologyRepository.getInstance();
+		} else {
+			dbRepository = HGDBOntologyRepository.getInstance();
+		}
 	}
 
 	@Override
@@ -41,8 +47,13 @@ public class HGOwlOntologyRepositoryFactory extends OntologyRepositoryFactory {
 
 	@Override
 	public OntologyRepository createRepository() {
+		OntologyRepository r;
 		if (dbRepository == null) throw new IllegalStateException("Cannot create HGOwlOntologyRepository. dbRepository was null.");
-		HGOwlOntologyRepository r = new HGOwlOntologyRepository("Hypergraph" , dbRepository);
+		if (dbRepository instanceof VHGDBOntologyRepository) {
+			r = new VHGOwlOntologyRepository("Hypergraph with Versioning" , (VHGDBOntologyRepository)dbRepository);
+		} else {
+			r = new HGOwlOntologyRepository("Hypergraph" , dbRepository);
+		}
 		return r; 
 	}
 }

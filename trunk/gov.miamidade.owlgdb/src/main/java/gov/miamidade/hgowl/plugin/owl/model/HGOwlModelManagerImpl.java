@@ -16,6 +16,7 @@ import java.util.Set;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.coode.xml.XMLWriterPreferences;
+import org.hypergraphdb.app.owl.HGDBOWLManager;
 import org.hypergraphdb.app.owl.HGDBOntology;
 import org.hypergraphdb.app.owl.PHGDBOntologyManagerImpl;
 import org.hypergraphdb.app.owl.HGDBOntologyRepository;
@@ -209,7 +210,7 @@ public class HGOwlModelManagerImpl extends AbstractModelManager
         //implementation of the OWL API.
         //
         //manager = ProtegeOWLManager.createOWLOntologyManager();
-        manager = HGDBOntologyRepository.createOWLOntologyManager();
+        manager = HGDBOWLManager.createOWLOntologyManager();
         manager.setUseWriteSafety(true);
         manager.setUseSwingThread(true);
         manager.setSilentMissingImportsHandling(true);

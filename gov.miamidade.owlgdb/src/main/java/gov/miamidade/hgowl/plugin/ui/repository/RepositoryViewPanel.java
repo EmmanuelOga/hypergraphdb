@@ -42,7 +42,7 @@ public class RepositoryViewPanel extends JPanel {
 
     private RepositoryTable table;
 
-    public RepositoryViewPanel(OntologyRepository repository) {
+	public RepositoryViewPanel(OntologyRepository repository) {
         this.repository = repository;
         createUI();
     }
@@ -58,7 +58,13 @@ public class RepositoryViewPanel extends JPanel {
         return new Dimension(1000, 400);
     }
 
-
+    /**
+	 * @return the table
+	 */
+	protected RepositoryTable getTable() {
+		return table;
+	}
+	
     public static OntologyRepositoryEntry showOpenDialog(OntologyRepository repository) {
         repository.refresh();
         RepositoryViewPanel panel = new RepositoryViewPanel(repository);

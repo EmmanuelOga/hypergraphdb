@@ -37,7 +37,7 @@ public class VHGOwlOntologyRepository implements OntologyRepository {
 
 	public static final String UNCOMMITTED_CHANGES = "Uncommitted Changes";
 
-	public static final List<Object> METADATA_KEYS = Arrays.asList(new Object[]{VERSION_URI, PHYSICAL_URI, HEAD_REVISION, LAST_COMMIT});
+	public static final List<Object> METADATA_KEYS = Arrays.asList(new Object[]{VERSION_URI, PHYSICAL_URI, HEAD_REVISION, LAST_COMMIT, UNCOMMITTED_CHANGES});
 	
     private String repositoryName;
 

@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
+import org.hypergraphdb.app.owl.HGDBApplication;
 import org.protege.editor.core.editorkit.EditorKit;
 import org.protege.editor.core.editorkit.EditorKitDescriptor;
 import org.protege.editor.owl.OWLEditorKit;
@@ -24,8 +25,13 @@ public class HGOwlEditorKitFactory extends OWLEditorKitFactory  {
 
 
 	public EditorKit createEditorKit() throws Exception {
-		System.out.println("HG createEditorKit");
-        return new HGOwlEditorKit(this);
+		if (HGDBApplication.VERSIONING) {
+			System.out.println("VHG createEditorKit");
+			return new VHGOwlEditorKit(this);
+		} else {
+			System.out.println("HG createEditorKit");
+			return new HGOwlEditorKit(this);
+		}
     }
     
     /**

@@ -59,7 +59,7 @@ prolog.getEngineManager()
   .getClauseStoreManager().getFactories().add(new JavaMapStoreFactory());
 }}}
 
-The above install factories to work with Java collections and maps. You can implemented and plug your own factories in a similar way. For instance, you could implement a factories that queries a SQL database server or some other form of persistent storage. Here's an example of using Java collections and maps as predicates:
+The above installs factories to work with Java collections and maps. You can implement and plug your own factories in a similar way. For instance, you could implement a factory that queries a SQL database server or some other form of persistent storage. Here's an example of using Java collections and maps as predicates:
 
 {{{
 collection_item(C, Item),

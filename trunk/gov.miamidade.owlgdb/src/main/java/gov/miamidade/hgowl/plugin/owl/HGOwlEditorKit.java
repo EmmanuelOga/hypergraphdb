@@ -245,15 +245,7 @@ public class HGOwlEditorKit extends OWLEditorKit {
         HGDBOntologyManager m = (HGDBOntologyManager) this.modelManager.getOWLOntologyManager();
         m.getOntologyRepository().printStatistics();
         // Find our Repository 
-        Collection<OntologyRepository> repositories = OntologyRepositoryManager.getManager().getOntologyRepositories();
-        OntologyRepository repository = null;
-        for (OntologyRepository  cur: repositories) {
-        	if (cur instanceof HGOwlOntologyRepository) {
-        		//current implementation uses first one found
-        		repository = cur;
-        		break;
-        	}
-        }
+        OntologyRepository repository = getProtegeRepository();
         if (repository == null) throw new IllegalStateException("Cannot handle delete from repository. No HGOwlOntologyRepository registered with Protege.");
         // Open Repository delete dialog 
         OntologyRepositoryEntry ontologyEntry = RepositoryViewPanel.showDeleteDialog(repository);        
@@ -273,6 +265,22 @@ public class HGOwlEditorKit extends OWLEditorKit {
         // 
         m.getOntologyRepository().printStatistics();
         return success;
+    }
+    
+    /**
+     * Returns the OntologyRepository implementation of our plugin (Protege Interface).
+     * 
+     * @return
+     */
+    public OntologyRepository getProtegeRepository() {
+        Collection<OntologyRepository> repositories = OntologyRepositoryManager.getManager().getOntologyRepositories();
+        for (OntologyRepository  cur: repositories) {
+        	if (cur instanceof HGOwlOntologyRepository) {
+        		//current implementation uses first one found
+        		return cur;
+        	}
+        }
+        return null;
     }
         
     /**

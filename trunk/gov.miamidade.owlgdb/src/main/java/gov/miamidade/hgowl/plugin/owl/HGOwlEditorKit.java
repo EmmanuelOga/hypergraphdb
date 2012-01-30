@@ -212,15 +212,16 @@ public class HGOwlEditorKit extends OWLEditorKit {
         HGDBOntologyManager m = (HGDBOntologyManager) this.modelManager.getOWLOntologyManager();
         m.getOntologyRepository().printStatistics();
         // Find Repository
-        Collection<OntologyRepository> repositories = OntologyRepositoryManager.getManager().getOntologyRepositories();
-        OntologyRepository repository = null;
-        for (OntologyRepository  cur: repositories) {
-        	if (cur instanceof HGOwlOntologyRepository) {
-        		//current implementation uses first one found
-        		repository = cur;
-        		break;
-        	}
-        }
+//2012.01.30 hilpold Bugfix versioned repo needs to be accomodated.       
+//        Collection<OntologyRepository> repositories = OntologyRepositoryManager.getManager().getOntologyRepositories();
+        OntologyRepository repository = getProtegeRepository();
+//        for (OntologyRepository  cur: repositories) {
+//        	if (cur instanceof HGOwlOntologyRepository) {
+//        		//current implementation uses first one found
+//        		repository = cur;
+//        		break;
+//        	}
+//        }
         if (repository == null) throw new IllegalStateException("Cannot handle load from repository. No HGOwlOntologyRepository registered with Protege."); 
         // Open Repository open Dlg
         OntologyRepositoryEntry ontologyEntry = RepositoryViewPanel.showOpenDialog(repository);

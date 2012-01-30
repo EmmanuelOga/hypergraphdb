@@ -19,6 +19,7 @@ import org.protege.editor.core.ui.util.JOptionPaneEx;
  */
 public class VOntologyViewPanel extends JPanel {
     
+	private static final long serialVersionUID = 159528341514944079L;
 
 	private VersionedOntology versionedOntology;
 

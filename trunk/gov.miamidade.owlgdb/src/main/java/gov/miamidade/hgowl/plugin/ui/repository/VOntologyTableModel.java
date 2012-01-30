@@ -21,10 +21,11 @@ public class VOntologyTableModel extends AbstractTableModel {
 	List<ChangeSet> changesets;
 	List<Revision> revisions;
 	
+	
 	public VOntologyTableModel(VersionedOntology vo) {
 		this.versionedOntology = vo;
 		refresh();
-		//Revision / Timestamp / user / #ofTotalChanges
+		//Master / Revision / Timestamp / user / #ofTotalChanges
 	}
 	
 	public void refresh() {
@@ -39,6 +40,31 @@ public class VOntologyTableModel extends AbstractTableModel {
 	public int getColumnCount() {
 		return 5;
 	}
+	
+    public String getColumnName(int column) {
+    	String returnValue;
+    	switch (column) {
+    	case 0: {
+    		returnValue = "Master";
+    	}; break;
+    	case 1: {
+    		returnValue = "Revision";
+    	}; break;
+    	case 2: {
+    		returnValue = "Time Stamp";
+    	}; break;
+    	case 3: {
+    		returnValue = "User";
+    	}; break;
+    	case 4: {
+    		returnValue = "#Changes";
+    	}; break;
+    	default: {
+    		returnValue = "UNKNOWN COL: " + column;
+    	}; break;
+    	}
+    	return returnValue;
+    }
 
 	/* (non-Javadoc)
 	 * @see javax.swing.table.TableModel#getRowCount()
@@ -58,6 +84,16 @@ public class VOntologyTableModel extends AbstractTableModel {
 		Revision rev = revisions.get(revisions.size() - rowIndex - 1);
 		ChangeSet cs = changesets.get(changesets.size() - rowIndex - 1);
 		switch (columnIndex) {
+			case 0: {
+				//	Repo Branch info				
+				if (rowIndex == 0) {
+					returnObject = "HEAD";
+				} else if (rowIndex == revisions.size() - 1) {
+					returnObject = "BASE";
+				} else {
+					returnObject = "";
+				}
+			}; break;
 			case 1: {
 				//Revision
 				returnObject = rev.getRevision();
@@ -80,4 +116,6 @@ public class VOntologyTableModel extends AbstractTableModel {
 			}
 		return returnObject;
 	}
+	
+	
 }

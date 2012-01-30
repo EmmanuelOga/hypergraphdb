@@ -9,25 +9,24 @@ import javax.swing.ImageIcon;
 
 import org.hypergraphdb.app.owl.HGDBOntologyImpl;
 import org.protege.editor.owl.model.OWLModelManager;
-import org.protege.editor.owl.ui.OWLIcons;
 import org.protege.editor.owl.ui.renderer.OWLIconProviderImpl;
 import org.semanticweb.owlapi.model.OWLObject;
 import org.semanticweb.owlapi.model.OWLOntology;
 
 /**
- * VHGOwlIconProviderImpl.
+ * VHGOwlIconProviderImpl provies an Icon for versioned ontologies.
+ * Delegates to superclass as much as possible. 
+ * 
  * @author Thomas Hilpold (CIAO/Miami-Dade County)
  * @created Jan 30, 2012
  */
 public class VHGOwlIconProviderImpl extends OWLIconProviderImpl {
 
-	protected static final String ICON_DBV_FILENAME = "./gov/miamidade/hgowl/plugin/ui/render/ontologyDBV.png";
+	public static final String ICON_DBV_FILENAME = "./gov/miamidade/hgowl/plugin/ui/render/ontologyDBV.png";
 	
-	boolean superClassIconMode = true;
-	
+	private boolean superClassIconMode = true;
 	private Icon icon; 
-	VHGOwlEditorKit vhgEditorKit;
-	
+	private VHGOwlEditorKit vhgEditorKit;
 	private Icon ontologyDBV; 
 	
 	/**
@@ -38,6 +37,13 @@ public class VHGOwlIconProviderImpl extends OWLIconProviderImpl {
 		this.vhgEditorKit = vhgEditorKit;
 		initIcon();
 	}
+	
+	protected void initIcon() {
+        ClassLoader loader = this.getClass().getClassLoader();
+        URL url = loader.getResource(ICON_DBV_FILENAME);
+        if (url == null) System.err.println("NOT FOUND" + ICON_DBV_FILENAME + " Loader: " + loader);
+        ontologyDBV = new ImageIcon(url);
+	}
 
     public Icon getIcon() {
     	if (superClassIconMode) {
@@ -47,6 +53,9 @@ public class VHGOwlIconProviderImpl extends OWLIconProviderImpl {
     	}
     }
 
+    /**
+     * uses superclass, except on ontology. 
+     */
     public Icon getIcon(OWLObject owlObject) {
     	superClassIconMode = !(owlObject instanceof OWLOntology);
     	if (superClassIconMode) {
@@ -79,12 +88,5 @@ public class VHGOwlIconProviderImpl extends OWLIconProviderImpl {
 			super.visit(owlOntology);
 			icon = super.getIcon();
 		}
-	}
-	
-	protected void initIcon() {
-        ClassLoader loader = this.getClass().getClassLoader();
-        URL url = loader.getResource(ICON_DBV_FILENAME);
-        if (url == null) System.err.println("NOT FOUND" + ICON_DBV_FILENAME + " Loader: " + loader);
-        ontologyDBV = new ImageIcon(url);
 	}
 }

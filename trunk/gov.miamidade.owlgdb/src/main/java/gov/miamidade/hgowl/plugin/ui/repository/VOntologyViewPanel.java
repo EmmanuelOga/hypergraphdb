@@ -9,7 +9,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import org.hypergraphdb.app.owl.versioning.VersionedOntology;
-import org.protege.editor.core.OntologyRepository;
 import org.protege.editor.core.OntologyRepositoryEntry;
 import org.protege.editor.core.ui.util.JOptionPaneEx;
 
@@ -20,6 +19,7 @@ import org.protege.editor.core.ui.util.JOptionPaneEx;
  */
 public class VOntologyViewPanel extends JPanel {
     
+
 	private VersionedOntology versionedOntology;
 
     private JTable table;

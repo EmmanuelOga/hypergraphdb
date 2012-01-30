@@ -1,6 +1,7 @@
 package gov.miamidade.hgowl.plugin.owl;
 
 import gov.miamidade.hgowl.plugin.owl.model.HGOwlModelManagerImpl;
+import gov.miamidade.hgowl.plugin.ui.render.VHGOwlIconProviderImpl;
 import gov.miamidade.hgowl.plugin.ui.repository.VRepositoryViewPanel;
 
 import java.text.DateFormat;
@@ -32,6 +33,12 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
 	public VHGOwlEditorKit(OWLEditorKitFactory editorKitFactory) {
 		super(editorKitFactory);
 	}
+	
+	protected void initialise(){
+		super.initialise();
+		getWorkspace().setOWLIconProvider(new VHGOwlIconProviderImpl(modelManager, this));
+	}
+
     public boolean handleAddVersionControlRequest() throws Exception {
     	System.out.println("VHG HandleAddVersionControlRequest");
     	boolean success;
@@ -74,7 +81,7 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
     
     public boolean handleCommitActiveRequest() throws Exception {
 		HGOwlModelManagerImpl hmm  = (HGOwlModelManagerImpl) getOWLModelManager();
-		PHGDBOntologyManagerImpl  hom = (PHGDBOntologyManagerImpl)hmm.getOWLOntologyManager(); 
+		//PHGDBOntologyManagerImpl  hom = (PHGDBOntologyManagerImpl)hmm.getOWLOntologyManager(); 
 		OWLOntology activeOnto = hmm.getActiveOntology();
 		VHGDBOntologyRepository vor = getVersionedRepository();
 		if (vor.isVersionControlled(activeOnto)) {

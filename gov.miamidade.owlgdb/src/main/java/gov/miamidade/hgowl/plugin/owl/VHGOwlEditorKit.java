@@ -2,6 +2,7 @@ package gov.miamidade.hgowl.plugin.owl;
 
 import gov.miamidade.hgowl.plugin.owl.model.HGOwlModelManagerImpl;
 import gov.miamidade.hgowl.plugin.ui.render.VHGOwlIconProviderImpl;
+import gov.miamidade.hgowl.plugin.ui.repository.VOntologyViewPanel;
 import gov.miamidade.hgowl.plugin.ui.repository.VRepositoryViewPanel;
 
 import java.text.DateFormat;
@@ -49,7 +50,9 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         OntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showAddToVersionControlDialog(repository);        
         if (ontologyEntry != null) {
         	// User wants to add ontology to version control.
-        	success = (getVersionedRepository().addVersionControl(getOntologyBy(ontologyEntry), "Anonymous") != null);
+        	String user = getUserName();
+        	success = (getVersionedRepository().addVersionControl(getOntologyBy(ontologyEntry), user) != null);
+        	causeViewUpdate();
         } else {
         	success = false;
         }
@@ -69,6 +72,7 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         	VersionedOntology vo = getVersionControlledOntologyBy(ontologyEntry);
         	if (vo != null) {
         		getVersionedRepository().removeVersionControl(vo);
+        		causeViewUpdate();
         		success = true;
         	} else {
         		success = false;
@@ -98,8 +102,7 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
 				// 	COMMIT WHAT WHO INCREMENT OK CANCEL
 				if (showUserCommitDialog(vo, activeOnto)) {
 					//DO IT 
-					String user = System.getProperty("user.name");
-					vo.commit(user, Revision.REVISION_INCREMENT);
+					vo.commit(getUserName(), Revision.REVISION_INCREMENT);
 					// NEW REVISION OK
 				}
 			}
@@ -148,7 +151,7 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         	// User wants to add ontology to version control.
         	VersionedOntology vo = getVersionControlledOntologyBy(ontologyEntry);
         	if (vo != null) {
-        		vo.commit();
+        		vo.commit(getUserName());
         		success = true;
         	} else {
         		success = false;
@@ -173,10 +176,7 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         	if (vo != null) {
         		vo.rollback();
         		//Update Protege
-        		HGOwlModelManagerImpl hmm  = (HGOwlModelManagerImpl) getOWLModelManager();
-        		//if (hmm.geta)
-        		hmm.fireEvent(EventType.ONTOLOGY_RELOADED);
-        		this.workspace.refreshComponents();
+        		causeViewUpdate();
         		success = true;
         	} else {
         		success = false;
@@ -200,9 +200,8 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         	VersionedOntology vo = getVersionControlledOntologyBy(ontologyEntry);
         	if (vo != null) {
         		//Update Protege
-        		HGOwlModelManagerImpl hmm  = (HGOwlModelManagerImpl) getOWLModelManager();
         		vo.revertHeadOneRevision();
-        		hmm.fireEvent(EventType.ONTOLOGY_RELOADED);
+        		causeViewUpdate();
         		success = true;
         	} else {
         		success = false;
@@ -247,6 +246,34 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
     public VersionedOntology getVersionControlledOntologyBy(OntologyRepositoryEntry ontologyEntry) {
     	return getVersionedRepository().getVersionControlledOntology(getOntologyBy(ontologyEntry));
     }
+    
+    void causeViewUpdate() {
+		HGOwlModelManagerImpl hmm  = (HGOwlModelManagerImpl) getOWLModelManager();
+		hmm.fireEvent(EventType.ONTOLOGY_RELOADED);
+		//this.workspace.refreshComponents();
+    }
+    
+    String getUserName() {
+    	return System.getProperty("user.name");
+    }
 
-
+	/**
+	 * 
+	 */
+	public void handleShowHistoryActiveRequest() {
+		HGOwlModelManagerImpl hmm  = (HGOwlModelManagerImpl) getOWLModelManager();
+		//PHGDBOntologyManagerImpl  hom = (PHGDBOntologyManagerImpl)hmm.getOWLOntologyManager(); 
+		OWLOntology activeOnto = hmm.getActiveOntology();
+		VHGDBOntologyRepository vor = getVersionedRepository();
+		if (vor.isVersionControlled(activeOnto)) {
+			VersionedOntology vo = vor.getVersionControlledOntology(activeOnto);
+			VOntologyViewPanel.showRevisionDialog(vo);
+		} else {
+            JOptionPane.showMessageDialog(getWorkspace(),
+                    "No History: Active ontology not version controlled",
+                    "Hypergraph Versioning - Active not versioned",
+                    JOptionPane.INFORMATION_MESSAGE);
+		}
+	} 
 }
+

@@ -38,7 +38,7 @@ public class VOntologyTableModel extends AbstractTableModel {
 	 */
 	@Override
 	public int getColumnCount() {
-		return 5;
+		return 6;
 	}
 	
     public String getColumnName(int column) {
@@ -57,6 +57,9 @@ public class VOntologyTableModel extends AbstractTableModel {
     		returnValue = "User";
     	}; break;
     	case 4: {
+    		returnValue = "Comment";
+    	}; break;
+    	case 5: {
     		returnValue = "#Changes";
     	}; break;
     	default: {
@@ -108,6 +111,11 @@ public class VOntologyTableModel extends AbstractTableModel {
 			}; break;
 			case 4: {
 				//#AddAxiom
+				returnObject = rev.getRevisionComment();
+				if (returnObject == null) returnObject = "";
+			}; break;
+			case 5: {
+				//#AddAxiom
 				returnObject = cs.size();
 			}; break;
 			default: {
@@ -116,6 +124,4 @@ public class VOntologyTableModel extends AbstractTableModel {
 			}
 		return returnObject;
 	}
-	
-	
 }

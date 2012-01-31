@@ -1,5 +1,7 @@
 package gov.miamidade.hgowl.plugin.ui.repository;
 
+import gov.miamidade.hgowl.plugin.owl.model.HGOntologyRepositoryEntry;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
@@ -10,7 +12,6 @@ import javax.swing.JTable;
 
 import org.hypergraphdb.app.owl.versioning.VersionedOntology;
 import org.protege.editor.core.OntologyRepositoryEntry;
-import org.protege.editor.core.ui.util.JOptionPaneEx;
 
 /**
  * VOntologyViewPanel.
@@ -43,12 +44,12 @@ public class VOntologyViewPanel extends JPanel {
         return new Dimension(650, 400);
     }
 
-    public static OntologyRepositoryEntry showRevisionDialog(VersionedOntology vo) {
+    public static HGOntologyRepositoryEntry showRevisionDialog(VersionedOntology vo) {
         VOntologyViewPanel panel = new VOntologyViewPanel(vo);
-        int ret = JOptionPaneEx.showConfirmDialog(null, "Versioned Ontology History" + vo.getHeadRevisionData().getOntologyID().getOntologyIRI(), panel, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION, panel.table);
-        if(ret == JOptionPane.OK_OPTION) {
-        	//DO NOTHING FOR NOW
-        }
+        JOptionPane.showMessageDialog(null, panel, "Versioned Ontology History " + vo.getHeadRevisionData().getOntologyID().getOntologyIRI(), JOptionPane.PLAIN_MESSAGE);
+//        if(ret == JOptionPane.OK_OPTION) {
+//        	//DO NOTHING FOR NOW
+//        }
         return null;
     }
 

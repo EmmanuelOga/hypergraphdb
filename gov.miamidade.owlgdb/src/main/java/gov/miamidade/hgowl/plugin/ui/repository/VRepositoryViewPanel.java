@@ -27,7 +27,14 @@ public class VRepositoryViewPanel extends RepositoryViewPanel {
         RepositoryViewPanel panel = new RepositoryViewPanel(repository);
         int ret = JOptionPaneEx.showConfirmDialog(null, "Add Ontology to Version control (" + repository.getName() + ")", panel, JOptionPane.WARNING_MESSAGE, JOptionPane.OK_CANCEL_OPTION, panel.getTable());
         if(ret == JOptionPane.OK_OPTION) {
-            return panel.getTable().getSelectedEntry();
+        	OntologyRepositoryEntry ore = panel.getTable().getSelectedEntry(); 
+        	if (ore == null) {
+        		JOptionPane.showMessageDialog(null,
+        	        "You did not select an ontology.",
+                    "Hypergraph Versioning - None selected",
+                    JOptionPane.INFORMATION_MESSAGE);
+        	}
+            return ore; 
         }
         return null;
     }
@@ -37,7 +44,14 @@ public class VRepositoryViewPanel extends RepositoryViewPanel {
         RepositoryViewPanel panel = new RepositoryViewPanel(repository);
         int ret = JOptionPaneEx.showConfirmDialog(null, "Remove Ontology from Version control (" + repository.getName() + ")", panel, JOptionPane.WARNING_MESSAGE, JOptionPane.OK_CANCEL_OPTION, panel.getTable());
         if(ret == JOptionPane.OK_OPTION) {
-            return panel.getTable().getSelectedEntry();
+        	OntologyRepositoryEntry ore = panel.getTable().getSelectedEntry(); 
+        	if (ore == null) {
+        		JOptionPane.showMessageDialog(null,
+        	        "You did not select an ontology.",
+                    "Hypergraph Versioning - None selected",
+                    JOptionPane.INFORMATION_MESSAGE);
+        	}
+            return ore; 
         }
         return null;
     }
@@ -47,7 +61,14 @@ public class VRepositoryViewPanel extends RepositoryViewPanel {
         RepositoryViewPanel panel = new RepositoryViewPanel(repository);
         int ret = JOptionPaneEx.showConfirmDialog(null, "Commit Ontology - Version control (" + repository.getName() + ")", panel, JOptionPane.WARNING_MESSAGE, JOptionPane.OK_CANCEL_OPTION, panel.getTable());
         if(ret == JOptionPane.OK_OPTION) {
-            return panel.getTable().getSelectedEntry();
+        	OntologyRepositoryEntry ore = panel.getTable().getSelectedEntry(); 
+        	if (ore == null) {
+        		JOptionPane.showMessageDialog(null,
+        	        "You did not select an ontology.",
+                    "Hypergraph Versioning - None selected",
+                    JOptionPane.INFORMATION_MESSAGE);
+        	}
+            return ore; 
         }
         return null;
     }
@@ -57,7 +78,14 @@ public class VRepositoryViewPanel extends RepositoryViewPanel {
         RepositoryViewPanel panel = new RepositoryViewPanel(repository);
         int ret = JOptionPaneEx.showConfirmDialog(null, "Rollback Ontology - Version control (" + repository.getName() + ")", panel, JOptionPane.WARNING_MESSAGE, JOptionPane.OK_CANCEL_OPTION, panel.getTable());
         if(ret == JOptionPane.OK_OPTION) {
-            return panel.getTable().getSelectedEntry();
+        	OntologyRepositoryEntry ore = panel.getTable().getSelectedEntry(); 
+        	if (ore == null) {
+        		JOptionPane.showMessageDialog(null,
+        	        "You did not select an ontology.",
+                    "Hypergraph Versioning - None selected",
+                    JOptionPane.INFORMATION_MESSAGE);
+        	}
+            return ore; 
         }
         return null;
     }
@@ -67,7 +95,14 @@ public class VRepositoryViewPanel extends RepositoryViewPanel {
         RepositoryViewPanel panel = new RepositoryViewPanel(repository);
         int ret = JOptionPaneEx.showConfirmDialog(null, "Revert Ontology by one revision - Version control (" + repository.getName() + ")", panel, JOptionPane.WARNING_MESSAGE, JOptionPane.OK_CANCEL_OPTION, panel.getTable());
         if(ret == JOptionPane.OK_OPTION) {
-            return panel.getTable().getSelectedEntry();
+        	OntologyRepositoryEntry ore = panel.getTable().getSelectedEntry(); 
+        	if (ore == null) {
+        		JOptionPane.showMessageDialog(null,
+        	        "You did not select an ontology.",
+                    "Hypergraph Versioning - None selected",
+                    JOptionPane.INFORMATION_MESSAGE);
+        	}
+            return ore; 
         }
         return null;
     }

@@ -34,9 +34,17 @@ public class VOntologyViewPanel extends JPanel {
     private void createUI() {
         setLayout(new BorderLayout());
         table = new JTable(new VOntologyTableModel(versionedOntology));
-        table.getColumnModel().getColumn(0).setMaxWidth(100);
-        table.getColumnModel().getColumn(1).setMaxWidth(100);
-        table.getColumnModel().getColumn(4).setMaxWidth(100);
+        table.getColumnModel().getColumn(0).setMinWidth(20);
+        table.getColumnModel().getColumn(1).setMinWidth(30);
+        table.getColumnModel().getColumn(2).setMinWidth(140);
+        //table.getColumnModel().getColumn(2).setWidth(130);
+        table.getColumnModel().getColumn(0).setPreferredWidth(60);
+        table.getColumnModel().getColumn(1).setPreferredWidth(30);
+        table.getColumnModel().getColumn(2).setPreferredWidth(140);
+        //table.getColumnModel().getColumn(2).setWidth(130);
+        table.getColumnModel().getColumn(3).setPreferredWidth(100);
+        //table.getColumnModel().getColumn(4).setMaxWidth(110);
+        table.getColumnModel().getColumn(5).setPreferredWidth(60);
         add(new JScrollPane(table));
     }
 

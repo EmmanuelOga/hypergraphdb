@@ -3,6 +3,8 @@ package gov.miamidade.hgowl.plugin.ui.repository;
 import org.protege.editor.core.OntologyRepository;
 import org.protege.editor.core.OntologyRepositoryEntry;
 
+import gov.miamidade.hgowl.plugin.owl.model.HGOntologyRepositoryEntry;
+
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 import java.util.ArrayList;
@@ -45,13 +47,16 @@ public class RepositoryTableModel extends AbstractTableModel {
 
     private OntologyRepository repository;
 
-    private List<OntologyRepositoryEntry> entries;
+    private List<HGOntologyRepositoryEntry> entries;
 
     public static final int ONTOLOGY_URI_COL = 1;
 
     public RepositoryTableModel(OntologyRepository repository) {
         this.repository = repository;
-        entries = new ArrayList<OntologyRepositoryEntry>(repository.getEntries());
+        entries = new ArrayList<HGOntologyRepositoryEntry>(repository.getEntries().size());
+        for (OntologyRepositoryEntry ore : repository.getEntries()) {
+        	entries.add((HGOntologyRepositoryEntry) ore);
+        }
         Collections.sort(entries, new EntryShortNameURIComparator());
     }
 
@@ -119,7 +124,7 @@ public class RepositoryTableModel extends AbstractTableModel {
     }
 
 
-    public OntologyRepositoryEntry getEntryAt(int selectedRow) {
+    public HGOntologyRepositoryEntry getEntryAt(int selectedRow) {
         if(selectedRow == -1) {
             return null;
         }

@@ -55,11 +55,12 @@ public class VHGCommitDialog extends JDialog implements ActionListener {
 	      	+ "    By               : " + headRevision.getUser() + "\n" 
 			+ "    Total Revisions  : " + nrOfRevisions + "\n" 
 			+ "    Ontology ID : " + headRevision.getOntologyID() + "\n \n"; 
-		JPanel centerPanel = new JPanel();
-		centerPanel.add(new JLabel(message), BorderLayout.CENTER);
+		JPanel centerPanel = new JPanel(new BorderLayout(5, 5));
+		message = "<html><pre><b>" + message + "</b></pre></html>";
+		centerPanel.add(new JLabel(message), BorderLayout.NORTH);
 		JPanel enterPanel = new JPanel();
 		enterPanel.add(new JLabel("Enter Commit Comment: "), BorderLayout.WEST);
-		tfUserComment = new JTextField();
+		tfUserComment = new JTextField(30);
 		enterPanel.add(tfUserComment, BorderLayout.EAST);
 		centerPanel.add(enterPanel, BorderLayout.SOUTH);
 		btOK = new JButton("Commit");
@@ -67,13 +68,13 @@ public class VHGCommitDialog extends JDialog implements ActionListener {
 		btCancel = new JButton("Cancel");	
 		btCancel.addActionListener(this);
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		buttonPanel.add(btCancel);
 		buttonPanel.add(btOK);
+		buttonPanel.add(btCancel);
 		//
-		this.add(centerPanel, BorderLayout.CENTER);
 		this.add(buttonPanel, BorderLayout.SOUTH);
+		this.add(centerPanel, BorderLayout.CENTER);
 		this.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-		setSize(400,300);
+		setSize(400,200);
 //		int userInput = JOptionPane.showConfirmDialog(getWorkspace()				,
 //	                                  message,
 //	                                  ,

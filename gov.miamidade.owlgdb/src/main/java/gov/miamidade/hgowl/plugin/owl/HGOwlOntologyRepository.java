@@ -1,5 +1,7 @@
 package gov.miamidade.hgowl.plugin.owl;
 
+import gov.miamidade.hgowl.plugin.owl.model.HGOntologyRepositoryEntry;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -91,7 +93,7 @@ public class HGOwlOntologyRepository implements OntologyRepository {
         }
     }
 
-    public class HGDBRepositoryEntry implements OntologyRepositoryEntry {
+    public class HGDBRepositoryEntry implements HGOntologyRepositoryEntry {
 
         private String shortName;
 
@@ -106,6 +108,8 @@ public class HGOwlOntologyRepository implements OntologyRepository {
         private int nrOfAxioms;
 
 		private int nrOfAtoms;
+		
+		private HGDBOntology ontology;
 
         public HGDBRepositoryEntry(HGDBOntology o) {
         	ontologyID = o.getOntologyID();
@@ -119,6 +123,7 @@ public class HGOwlOntologyRepository implements OntologyRepository {
             physicalURI = URI.create(o.getDocumentIRI().toString());
             nrOfAxioms = o.getAxiomCount();
             nrOfAtoms = (int)o.count(hg.all());
+            ontology = o;
             
         }
 
@@ -182,6 +187,14 @@ public class HGOwlOntologyRepository implements OntologyRepository {
             ((HGOwlEditorKit) editorKit).getOWLModelManager().getOWLOntologyManager().removeIRIMapper(iriMapper);
 
         }
+
+		/* (non-Javadoc)
+		 * @see gov.miamidade.hgowl.plugin.owl.model.HGOntologyRepositoryEntry#getOntology()
+		 */
+		@Override
+		public HGDBOntology getOntology() {
+			return ontology;
+		}
     }
 
     private class RepositoryIRIMapper implements OWLOntologyIRIMapper {

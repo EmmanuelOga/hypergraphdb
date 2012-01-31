@@ -1,9 +1,11 @@
 package gov.miamidade.hgowl.plugin.owl;
 
+import gov.miamidade.hgowl.plugin.owl.model.HGOntologyRepositoryEntry;
 import gov.miamidade.hgowl.plugin.owl.model.HGOwlModelManagerImpl;
 import gov.miamidade.hgowl.plugin.ui.render.VHGOwlIconProviderImpl;
 import gov.miamidade.hgowl.plugin.ui.repository.VOntologyViewPanel;
 import gov.miamidade.hgowl.plugin.ui.repository.VRepositoryViewPanel;
+import gov.miamidade.hgowl.plugin.ui.versioning.VHGCommitDialog;
 
 import java.text.DateFormat;
 import java.util.Collection;
@@ -47,12 +49,23 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         OntologyRepository repository = getProtegeRepository();
         if (repository == null) throw new IllegalStateException("No HGOwlOntologyRepository registered with Protege.");
         // Open Repository delete dialog 
-        OntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showAddToVersionControlDialog(repository);        
+        HGOntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showAddToVersionControlDialog(repository);        
         if (ontologyEntry != null) {
         	// User wants to add ontology to version control.
-        	String user = getUserName();
-        	success = (getVersionedRepository().addVersionControl(getOntologyBy(ontologyEntry), user) != null);
-        	causeViewUpdate();
+        	// ?Ontology not versioned
+        	// ?Ontolgy in repository
+        	OWLOntology onto = ontologyEntry.getOntology();
+        	if (this.getVersionedRepository().isVersionControlled(onto)) {
+        		success = false;
+                JOptionPane.showMessageDialog(getWorkspace(),
+                        "The selected ontology is already under version control.",
+                        "Hypergraph Versioning - Add Ontology ",
+                        JOptionPane.INFORMATION_MESSAGE);
+        	} else {
+        		String user = getUserName();
+        		success = (getVersionedRepository().addVersionControl(onto, user) != null);
+        		causeViewUpdate();
+        	}
         } else {
         	success = false;
         }
@@ -64,17 +77,21 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
     	boolean success;
         // Find our Repository 
         OntologyRepository repository = getProtegeRepository();
-        if (repository == null) throw new IllegalStateException("Cannot handle delete from repository. No HGOwlOntologyRepository registered with Protege.");
+        if (repository == null) throw new IllegalStateException("Cannot handle remove version control from repository. No HGOwlOntologyRepository registered with Protege.");
         // Open Repository delete dialog 
-        OntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showRemoveFromVersionControlDialog(repository);        
+        HGOntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showRemoveFromVersionControlDialog(repository);        
         if (ontologyEntry != null) {
-        	// User wants to add ontology to version control.
-        	VersionedOntology vo = getVersionControlledOntologyBy(ontologyEntry);
+        	// User wants to remove ontology from version control.
+        	VersionedOntology vo = getVersionControlledOntologyBy(ontologyEntry);        	
         	if (vo != null) {
         		getVersionedRepository().removeVersionControl(vo);
         		causeViewUpdate();
         		success = true;
         	} else {
+                JOptionPane.showMessageDialog(getWorkspace(),
+                        "The selected ontology is not under version control.",
+                        "Hypergraph Versioning - Remove ",
+                        JOptionPane.INFORMATION_MESSAGE);
         		success = false;
         	}
         } else {
@@ -100,16 +117,17 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
                         JOptionPane.INFORMATION_MESSAGE);
 			} else {
 				// 	COMMIT WHAT WHO INCREMENT OK CANCEL
-				if (showUserCommitDialog(vo, activeOnto)) {
+				VHGCommitDialog dlg = VHGCommitDialog.showDialog(getWorkspace(), vo, activeOnto);
+				if (dlg.isCommitOK()) {
 					//DO IT 
-					vo.commit(getUserName(), Revision.REVISION_INCREMENT);
+					vo.commit(getUserName(), Revision.REVISION_INCREMENT, dlg.getCommitComment());
 					// NEW REVISION OK
 				}
 			}
 		} else {
 			System.out.println("Active ontology not version controlled.");
             JOptionPane.showMessageDialog(getWorkspace(),
-                    "Cannot commit: Active ontology not version controlled",
+                    "Cannot commit: Active ontology not version controlled: \r\n" + activeOnto.getOntologyID(),
                     "Hypergraph Versioning - Active not versioned",
                     JOptionPane.INFORMATION_MESSAGE);
 		}
@@ -117,22 +135,25 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
     	
     }
     
-    public boolean showUserCommitDialog(VersionedOntology vo, OWLOntology onto) {
-		int nrOfRevisions = vo.getNrOfRevisions();
-		Revision headRevision = vo.getHeadRevision();
-		int pendingChanges = vo.getHeadChangeSet().size();
-    	String message = "Do you want to commit " + pendingChanges + " change" 
-    		+ ((pendingChanges > 1)? "s" : "") + ":\n" 
-          	+ "    Last Revision    : " + headRevision.getRevision() + "\n"
-          	+ "    Created          : " + DateFormat.getDateTimeInstance().format(headRevision.getTimeStamp()) + "\n"
-          	+ "    By               : " + headRevision.getUser() + "\n" 
-    		+ "    Total Revisions  : " + nrOfRevisions + "\n" 
-    		+ "    Ontology ID : " + headRevision.getOntologyID() + "\n \n"; 
-        int userInput = JOptionPane.showConfirmDialog(getWorkspace(),
-                                      message,
-                                      "Commit Versioned HGDB Ontology - Confirm Commit",
-                                      JOptionPane.YES_NO_OPTION);
-        return (userInput == JOptionPane.YES_OPTION);
+    public VHGCommitDialog showUserCommitDialog(VersionedOntology vo, OWLOntology onto) {
+//		int nrOfRevisions = vo.getNrOfRevisions();
+//		Revision headRevision = vo.getHeadRevision();
+//		int pendingChanges = vo.getHeadChangeSet().size();
+//    	String message = "Do you want to commit " + pendingChanges + " change" 
+//    		+ ((pendingChanges > 1)? "s" : "") + ":\n" 
+//          	+ "    Last Revision    : " + headRevision.getRevision() + "\n"
+//          	+ "    Created          : " + DateFormat.getDateTimeInstance().format(headRevision.getTimeStamp()) + "\n"
+//          	+ "    By               : " + headRevision.getUser() + "\n" 
+//    		+ "    Total Revisions  : " + nrOfRevisions + "\n" 
+//    		+ "    Ontology ID : " + headRevision.getOntologyID() + "\n \n"; 
+//        int userInput = JOptionPane.showConfirmDialog(getWorkspace(),
+//                                      message,
+//                                      "Commit Versioned HGDB Ontology - Confirm Commit",
+//                                      JOptionPane.YES_NO_OPTION);
+//        
+//        return (userInput == JOptionPane.YES_OPTION);
+    	return VHGCommitDialog.showDialog(getWorkspace(), vo, onto);
+    	//return vhgc.getUserOK();
     }
 
     public boolean handleRollbackActiveRequest() throws Exception {
@@ -146,13 +167,18 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         OntologyRepository repository = getProtegeRepository();
         if (repository == null) throw new IllegalStateException("Cannot handle delete from repository. No HGOwlOntologyRepository registered with Protege.");
         // Open Repository delete dialog 
-        OntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showCommitDialog(repository);        
+        HGOntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showCommitDialog(repository);        
         if (ontologyEntry != null) {
         	// User wants to add ontology to version control.
         	VersionedOntology vo = getVersionControlledOntologyBy(ontologyEntry);
         	if (vo != null) {
-        		vo.commit(getUserName());
-        		success = true;
+        		VHGCommitDialog dlg = showUserCommitDialog(vo, vo.getHeadRevisionData());
+        		if (dlg.isCommitOK()) {
+        			vo.commit(getUserName(), dlg.getCommitComment());
+        			success = true;
+        		} else {
+        			success = false;
+        		}
         	} else {
         		success = false;
         	}
@@ -169,16 +195,21 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         OntologyRepository repository = getProtegeRepository();
         if (repository == null) throw new IllegalStateException("Cannot handle delete from repository. No HGOwlOntologyRepository registered with Protege.");
         // Open Repository delete dialog 
-        OntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showRollbackDialog(repository);        
+        HGOntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showRollbackDialog(repository);        
         if (ontologyEntry != null) {
         	// User wants to add ontology to version control.
         	VersionedOntology vo = getVersionControlledOntologyBy(ontologyEntry);
         	if (vo != null) {
+        		//? Head Changes.size() == 0, nothing to do
         		vo.rollback();
         		//Update Protege
         		causeViewUpdate();
         		success = true;
         	} else {
+                JOptionPane.showMessageDialog(getWorkspace(),
+                        "The selected ontology is not under version control: \r\n" + ontologyEntry.getOntologyURI(),
+                        "Hypergraph Versioning - Rollback ",
+                        JOptionPane.INFORMATION_MESSAGE);
         		success = false;
         	}
         } else {
@@ -192,18 +223,22 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
     	boolean success;
         // Find our Repository 
         OntologyRepository repository = getProtegeRepository();
-        if (repository == null) throw new IllegalStateException("Cannot handle delete from repository. No HGOwlOntologyRepository registered with Protege.");
+        if (repository == null) throw new IllegalStateException("Cannot handle revert one from repository. No HGOwlOntologyRepository registered with Protege.");
         // Open Repository delete dialog 
-        OntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showRevertOneDialog(repository);        
+        HGOntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showRevertOneDialog(repository);        
         if (ontologyEntry != null) {
         	// User wants to add ontology to version control.
         	VersionedOntology vo = getVersionControlledOntologyBy(ontologyEntry);
         	if (vo != null) {
-        		//Update Protege
+        		// ?Head == Base?, cannot do it
         		vo.revertHeadOneRevision();
         		causeViewUpdate();
         		success = true;
         	} else {
+                JOptionPane.showMessageDialog(getWorkspace(),
+                        "The selected ontology is not under version control: \r\n" + ontologyEntry.getOntologyURI(),
+                        "Hypergraph Versioning - Rollback ",
+                        JOptionPane.INFORMATION_MESSAGE);
         		success = false;
         	}
         } else {
@@ -235,7 +270,7 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
 		return (VHGDBOntologyRepository)hom.getOntologyRepository();
     }
     
-    public OWLOntology getOntologyBy(OntologyRepositoryEntry ontologyEntry) {
+    public OWLOntology getLoadedOntologyBy(OntologyRepositoryEntry ontologyEntry) {
 		OWLOntologyID oID = ((VHGOwlOntologyRepository.HGDBRepositoryEntry)ontologyEntry).getOntologyID();
 		if (oID == null) throw new IllegalStateException();		
 		HGOwlModelManagerImpl hmm  = (HGOwlModelManagerImpl) getOWLModelManager();
@@ -243,8 +278,8 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
 		return hom.getOntology(oID);
     }
     
-    public VersionedOntology getVersionControlledOntologyBy(OntologyRepositoryEntry ontologyEntry) {
-    	return getVersionedRepository().getVersionControlledOntology(getOntologyBy(ontologyEntry));
+    public VersionedOntology getVersionControlledOntologyBy(HGOntologyRepositoryEntry ontologyEntry) {
+    	return getVersionedRepository().getVersionControlledOntology(ontologyEntry.getOntology());
     }
     
     void causeViewUpdate() {
@@ -276,4 +311,3 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
 		}
 	} 
 }
-

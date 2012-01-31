@@ -1,5 +1,7 @@
 package gov.miamidade.hgowl.plugin.owl;
 
+import gov.miamidade.hgowl.plugin.owl.model.HGOntologyRepositoryEntry;
+
 import java.net.URI;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -95,7 +97,7 @@ public class VHGOwlOntologyRepository implements OntologyRepository {
         }
     }
 
-    public class HGDBRepositoryEntry implements OntologyRepositoryEntry {
+    public class HGDBRepositoryEntry implements HGOntologyRepositoryEntry {
 
         private String shortName;
 
@@ -112,6 +114,8 @@ public class VHGOwlOntologyRepository implements OntologyRepository {
 		private String lastCommitTime;
 
 		private String uncommittedChanges;
+		
+		private HGDBOntology ontology;
 
         public HGDBRepositoryEntry(HGDBOntology o) {
         	ontologyID = o.getOntologyID();
@@ -135,6 +139,7 @@ public class VHGOwlOntologyRepository implements OntologyRepository {
             	lastCommitTime = "";
             	uncommittedChanges = "";
             }
+            ontology = o;
         }
 
         public String getOntologyShortName() {
@@ -209,6 +214,14 @@ public class VHGOwlOntologyRepository implements OntologyRepository {
             ((HGOwlEditorKit) editorKit).getOWLModelManager().getOWLOntologyManager().removeIRIMapper(iriMapper);
 
         }
+
+		/* (non-Javadoc)
+		 * @see gov.miamidade.hgowl.plugin.owl.model.HGOntologyRepositoryEntry#getOntology()
+		 */
+		@Override
+		public HGDBOntology getOntology() {
+			return ontology;
+		}
     }
 
     private class RepositoryIRIMapper implements OWLOntologyIRIMapper {

@@ -1,5 +1,7 @@
 package gov.miamidade.hgowl.plugin.ui.repository;
 
+import gov.miamidade.hgowl.plugin.owl.model.HGOntologyRepositoryEntry;
+
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -50,7 +52,7 @@ public class RepositoryTable extends JTable {
     }
 
 
-    public OntologyRepositoryEntry getSelectedEntry() {
+    public HGOntologyRepositoryEntry getSelectedEntry() {
         return ((RepositoryTableModel) getModel()).getEntryAt(getSelectedRow());
     }
 }

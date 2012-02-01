@@ -1,5 +1,6 @@
 package gov.miamidade.hgowl.plugin.owl;
 
+import gov.miamidade.hgowl.plugin.owl.model.HGOntologyRepositoryEntry;
 import gov.miamidade.hgowl.plugin.owl.model.HGOwlModelManagerImpl;
 import gov.miamidade.hgowl.plugin.ui.CreateHGOntologyWizard;
 import gov.miamidade.hgowl.plugin.ui.HGOntologyFormatPanel;
@@ -307,7 +308,7 @@ public class HGOwlEditorKit extends OWLEditorKit {
 	protected boolean handleDeleteFrom(OntologyRepositoryEntry ontologyEntry) {
 		// A) Check, if the ontology is already loaded and/or managed and whether it can be found in
 		//    the repository.
-		OWLOntologyID oID = ((HGOwlOntologyRepository.HGDBRepositoryEntry)ontologyEntry).getOntologyID();
+		OWLOntologyID oID = ((HGOntologyRepositoryEntry)ontologyEntry).getOntologyID();
 		if (oID == null) throw new IllegalStateException();		
 		HGOwlModelManagerImpl hmm  = (HGOwlModelManagerImpl) getOWLModelManager();
 		PHGDBOntologyManagerImpl  hom = (PHGDBOntologyManagerImpl)hmm.getOWLOntologyManager(); 

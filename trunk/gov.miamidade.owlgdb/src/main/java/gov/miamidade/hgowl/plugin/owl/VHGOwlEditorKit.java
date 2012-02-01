@@ -168,7 +168,7 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         // Open Repository delete dialog 
         HGOntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showCommitDialog(getWorkspace(), repository);        
         if (ontologyEntry != null) {
-        	// User wants to add ontology to version control.
+        	// User wants to commit ontology.
         	VersionedOntology vo = getVersionControlledOntologyBy(ontologyEntry);
         	if (vo != null) {
         		VHGCommitDialog dlg = showUserCommitDialog(vo, vo.getHeadRevisionData());
@@ -179,9 +179,11 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         			success = false;
         		}
         	} else {
+        		//a given ontology entry was not a versioned ontology or 
         		success = false;
         	}
         } else {
+        	//none selected
         	success = false;
         }
         return success;
@@ -200,10 +202,21 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         	VersionedOntology vo = getVersionControlledOntologyBy(ontologyEntry);
         	if (vo != null) {
         		//? Head Changes.size() == 0, nothing to do
-        		vo.rollback();
-        		//Update Protege
-        		causeViewUpdate();
-        		success = true;
+        		if (vo.getHeadChangeSet().size() > 0) { 
+        			vo.rollback();
+        			//Update Protege
+        			causeViewUpdate();
+        			//Clear undo/redo history on revert
+        			getModelManager().getHistoryManager().clear();
+        			success = true;
+        		} else {
+        			//nothing to do
+                    JOptionPane.showMessageDialog(getWorkspace(),
+                            "The selected ontology does not have any pending changes to roll back: \r\n" + ontologyEntry.getOntologyURI(),
+                            "Hypergraph Versioning - Rollback ",
+                            JOptionPane.INFORMATION_MESSAGE);
+            		success = false;
+        		}
         	} else {
                 JOptionPane.showMessageDialog(getWorkspace(),
                         "The selected ontology is not under version control: \r\n" + ontologyEntry.getOntologyURI(),
@@ -230,9 +243,23 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         	VersionedOntology vo = getVersionControlledOntologyBy(ontologyEntry);
         	if (vo != null) {
         		// ?Head == Base?, cannot do it
-        		vo.revertHeadOneRevision();
-        		causeViewUpdate();
-        		success = true;
+        		//not on pending changes!
+        		if (vo.getHeadChangeSet().size() == 0) {
+        			vo.revertHeadOneRevision();
+        			causeViewUpdate();
+        			//Clear undo/redo history on revert
+        			getModelManager().getHistoryManager().clear();
+        			success = true;
+        		} else {
+                    JOptionPane.showMessageDialog(getWorkspace(),
+                            "This ontology cannot be reverted, because " 
+                    		+ vo.getHeadChangeSet().size() + " pending changes exist: \r\n" 
+                    		+ ontologyEntry.getOntologyURI() + " \r\n"
+                    		+ " Rollback or Commit those changes first.",
+                            "Hypergraph Versioning - Revert One Revision",
+                            JOptionPane.WARNING_MESSAGE);
+        			success = false;
+        		}
         	} else {
                 JOptionPane.showMessageDialog(getWorkspace(),
                         "The selected ontology is not under version control: \r\n" + ontologyEntry.getOntologyURI(),

@@ -34,6 +34,8 @@ public class VOntologyViewPanel extends JPanel {
     }
 
     private void createUI() {
+    	setLayout(new BorderLayout());
+        table = new JTable(new VOntologyTableModel(versionedOntology));
     	//0.Master 1.Revision 2.TimeStamp 3.User 4.Comment 5.#Changes (after revision)
     	DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
     	rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
@@ -41,16 +43,13 @@ public class VOntologyViewPanel extends JPanel {
         table.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
         table.getColumnModel().getColumn(5).setCellRenderer(rightRenderer);
 
-    	setLayout(new BorderLayout());
-        table = new JTable(new VOntologyTableModel(versionedOntology));
         table.getColumnModel().getColumn(0).setMinWidth(20);
         table.getColumnModel().getColumn(1).setMinWidth(30);
         table.getColumnModel().getColumn(2).setMinWidth(140);
-        //table.getColumnModel().getColumn(2).setWidth(130);
+        
         table.getColumnModel().getColumn(0).setPreferredWidth(60);
         table.getColumnModel().getColumn(1).setPreferredWidth(30);
         table.getColumnModel().getColumn(2).setPreferredWidth(140);
-        //table.getColumnModel().getColumn(2).setWidth(130);
         table.getColumnModel().getColumn(3).setPreferredWidth(100);
         table.getColumnModel().getColumn(4).setPreferredWidth(300);
         table.getColumnModel().getColumn(5).setPreferredWidth(60);

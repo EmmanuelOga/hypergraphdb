@@ -7,7 +7,6 @@ import gov.miamidade.hgowl.plugin.ui.repository.VOntologyViewPanel;
 import gov.miamidade.hgowl.plugin.ui.repository.VRepositoryViewPanel;
 import gov.miamidade.hgowl.plugin.ui.versioning.VHGCommitDialog;
 
-import java.text.DateFormat;
 import java.util.Collection;
 
 import javax.swing.JOptionPane;
@@ -49,7 +48,7 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         OntologyRepository repository = getProtegeRepository();
         if (repository == null) throw new IllegalStateException("No HGOwlOntologyRepository registered with Protege.");
         // Open Repository delete dialog 
-        HGOntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showAddToVersionControlDialog(repository);        
+        HGOntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showAddToVersionControlDialog(getWorkspace(), repository);        
         if (ontologyEntry != null) {
         	// User wants to add ontology to version control.
         	// ?Ontology not versioned
@@ -79,7 +78,7 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         OntologyRepository repository = getProtegeRepository();
         if (repository == null) throw new IllegalStateException("Cannot handle remove version control from repository. No HGOwlOntologyRepository registered with Protege.");
         // Open Repository delete dialog 
-        HGOntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showRemoveFromVersionControlDialog(repository);        
+        HGOntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showRemoveFromVersionControlDialog(getWorkspace(), repository);        
         if (ontologyEntry != null) {
         	// User wants to remove ontology from version control.
         	VersionedOntology vo = getVersionControlledOntologyBy(ontologyEntry);        	
@@ -167,7 +166,7 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         OntologyRepository repository = getProtegeRepository();
         if (repository == null) throw new IllegalStateException("Cannot handle delete from repository. No HGOwlOntologyRepository registered with Protege.");
         // Open Repository delete dialog 
-        HGOntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showCommitDialog(repository);        
+        HGOntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showCommitDialog(getWorkspace(), repository);        
         if (ontologyEntry != null) {
         	// User wants to add ontology to version control.
         	VersionedOntology vo = getVersionControlledOntologyBy(ontologyEntry);
@@ -195,7 +194,7 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         OntologyRepository repository = getProtegeRepository();
         if (repository == null) throw new IllegalStateException("Cannot handle delete from repository. No HGOwlOntologyRepository registered with Protege.");
         // Open Repository delete dialog 
-        HGOntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showRollbackDialog(repository);        
+        HGOntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showRollbackDialog(getWorkspace(), repository);        
         if (ontologyEntry != null) {
         	// User wants to add ontology to version control.
         	VersionedOntology vo = getVersionControlledOntologyBy(ontologyEntry);
@@ -225,7 +224,7 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         OntologyRepository repository = getProtegeRepository();
         if (repository == null) throw new IllegalStateException("Cannot handle revert one from repository. No HGOwlOntologyRepository registered with Protege.");
         // Open Repository delete dialog 
-        HGOntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showRevertOneDialog(repository);        
+        HGOntologyRepositoryEntry ontologyEntry = VRepositoryViewPanel.showRevertOneDialog(getWorkspace(), repository);        
         if (ontologyEntry != null) {
         	// User wants to add ontology to version control.
         	VersionedOntology vo = getVersionControlledOntologyBy(ontologyEntry);
@@ -302,7 +301,7 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
 		VHGDBOntologyRepository vor = getVersionedRepository();
 		if (vor.isVersionControlled(activeOnto)) {
 			VersionedOntology vo = vor.getVersionControlledOntology(activeOnto);
-			VOntologyViewPanel.showRevisionDialog(vo);
+			VOntologyViewPanel.showRevisionDialog(getWorkspace(), vo);
 		} else {
             JOptionPane.showMessageDialog(getWorkspace(),
                     "No History: Active ontology not version controlled",

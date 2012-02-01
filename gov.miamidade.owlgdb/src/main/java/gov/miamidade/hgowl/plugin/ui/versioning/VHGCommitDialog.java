@@ -3,6 +3,7 @@ package gov.miamidade.hgowl.plugin.ui.versioning;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DateFormat;
@@ -10,9 +11,9 @@ import java.text.DateFormat;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import org.hypergraphdb.app.owl.versioning.Revision;
 import org.hypergraphdb.app.owl.versioning.VersionedOntology;
@@ -34,14 +35,16 @@ public class VHGCommitDialog extends JDialog implements ActionListener {
 	private String userCommitComment;
 	
 	public static VHGCommitDialog showDialog(Component parent, VersionedOntology vo, OWLOntology onto) {
-		VHGCommitDialog dlg = new VHGCommitDialog(parent, vo, onto);
+		VHGCommitDialog dlg = new VHGCommitDialog(SwingUtilities.windowForComponent(parent), vo, onto);
 		dlg.setModalityType(ModalityType.APPLICATION_MODAL);
 		dlg.setVisible(true);
+		dlg.setResizable(true);
 		return dlg;
 	}
 	
 	
-	public VHGCommitDialog(Component c, VersionedOntology vo, OWLOntology onto) {
+	public VHGCommitDialog(Window w, VersionedOntology vo, OWLOntology onto) {
+		super(w);
 		setTitle("Commit Versioned HGDB Ontology - Confirm Commit");
 
 		//Create Message:

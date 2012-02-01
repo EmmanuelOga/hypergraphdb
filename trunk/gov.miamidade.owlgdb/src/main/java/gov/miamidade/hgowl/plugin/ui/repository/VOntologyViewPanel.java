@@ -5,10 +5,12 @@ import gov.miamidade.hgowl.plugin.owl.model.HGOntologyRepositoryEntry;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import org.hypergraphdb.app.owl.versioning.VersionedOntology;
 import org.protege.editor.core.OntologyRepositoryEntry;
@@ -32,7 +34,14 @@ public class VOntologyViewPanel extends JPanel {
     }
 
     private void createUI() {
-        setLayout(new BorderLayout());
+    	//0.Master 1.Revision 2.TimeStamp 3.User 4.Comment 5.#Changes (after revision)
+    	DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
+    	rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
+        table.getColumnModel().getColumn(1).setCellRenderer(rightRenderer);
+        table.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
+        table.getColumnModel().getColumn(5).setCellRenderer(rightRenderer);
+
+    	setLayout(new BorderLayout());
         table = new JTable(new VOntologyTableModel(versionedOntology));
         table.getColumnModel().getColumn(0).setMinWidth(20);
         table.getColumnModel().getColumn(1).setMinWidth(30);
@@ -43,13 +52,14 @@ public class VOntologyViewPanel extends JPanel {
         table.getColumnModel().getColumn(2).setPreferredWidth(140);
         //table.getColumnModel().getColumn(2).setWidth(130);
         table.getColumnModel().getColumn(3).setPreferredWidth(100);
-        //table.getColumnModel().getColumn(4).setMaxWidth(110);
+        table.getColumnModel().getColumn(4).setPreferredWidth(300);
         table.getColumnModel().getColumn(5).setPreferredWidth(60);
+        table.getColumnModel().getColumn(5).setMaxWidth(60);
         add(new JScrollPane(table));
     }
 
     public Dimension getPreferredSize() {
-        return new Dimension(650, 400);
+        return new Dimension(850, 400);
     }
 
     public static HGOntologyRepositoryEntry showRevisionDialog(VersionedOntology vo) {

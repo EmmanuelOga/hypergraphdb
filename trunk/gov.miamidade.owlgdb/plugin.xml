@@ -153,26 +153,35 @@
         <editorKitId value="HGOwlEditorKit"/>
     </extension>
 
+
+    <extension id="ui.view.menu.hypergraphHistoryActiveVersionControl"
+               point="org.protege.editor.core.application.EditorKitMenuAction">
+        <name value="History of Active"/>
+        <path value="gov.miamidade.owlgdb.ui.view.menu3/SlotAA-B"/>
+        <class value="gov.miamidade.hgowl.plugin.ui.versioning.VHGHistoryActiveAction"/>
+        <editorKitId value="HGOwlEditorKit"/>
+    </extension>
+
     <extension id="ui.view.menu.hypergraphCommitVersionControl"
                point="org.protege.editor.core.application.EditorKitMenuAction">
-        <name value="Commit Ontology Changes (Version Control)"/>
-        <path value="gov.miamidade.owlgdb.ui.view.menu3/SlotAA-B"/>
+        <name value="Commit Ontology Changes"/>
+        <path value="gov.miamidade.owlgdb.ui.view.menu3/SlotAA-C"/>
         <class value="gov.miamidade.hgowl.plugin.ui.versioning.VHGCommitAction"/>
         <editorKitId value="HGOwlEditorKit"/>
     </extension>
 
     <extension id="ui.view.menu.hypergraphRollbackVersionControl"
                point="org.protege.editor.core.application.EditorKitMenuAction">
-        <name value="Rollback Ontology Changes (Version Control)"/>
-        <path value="gov.miamidade.owlgdb.ui.view.menu3/SlotAA-C"/>
+        <name value="Rollback Ontology Changes"/>
+        <path value="gov.miamidade.owlgdb.ui.view.menu3/SlotAA-D"/>
         <class value="gov.miamidade.hgowl.plugin.ui.versioning.VHGRollbackAction"/>
         <editorKitId value="HGOwlEditorKit"/>
     </extension>
 
     <extension id="ui.view.menu.hypergraphRevertOneVersionControl"
                point="org.protege.editor.core.application.EditorKitMenuAction">
-        <name value="Revert Ontology one Revision from Head (Version Control)"/>
-        <path value="gov.miamidade.owlgdb.ui.view.menu3/SlotAA-D"/>
+        <name value="Revert Ontology one Revision from Head"/>
+        <path value="gov.miamidade.owlgdb.ui.view.menu3/SlotAA-E"/>
         <class value="gov.miamidade.hgowl.plugin.ui.versioning.VHGRevertOneRevisionAction"/>
         <editorKitId value="HGOwlEditorKit"/>
     </extension>
@@ -180,7 +189,7 @@
     <extension id="ui.view.menu.hypergraphAddVersionControl"
                point="org.protege.editor.core.application.EditorKitMenuAction">
         <name value="Add Ontology to Version Control"/>
-        <path value="gov.miamidade.owlgdb.ui.view.menu3/SlotAA-F"/>
+        <path value="gov.miamidade.owlgdb.ui.view.menu3/SlotAA-G"/>
         <class value="gov.miamidade.hgowl.plugin.ui.versioning.VHGAddVersionControlAction"/>
         <editorKitId value="HGOwlEditorKit"/>
     </extension>
@@ -188,7 +197,7 @@
     <extension id="ui.view.menu.hypergraphRemoveVersionControl"
                point="org.protege.editor.core.application.EditorKitMenuAction">
         <name value="Remove Ontology from Version Control"/>
-        <path value="gov.miamidade.owlgdb.ui.view.menu3/SlotAA-G"/>
+        <path value="gov.miamidade.owlgdb.ui.view.menu3/SlotAA-H"/>
         <class value="gov.miamidade.hgowl.plugin.ui.versioning.VHGRemoveVersionControlAction"/>
         <editorKitId value="HGOwlEditorKit"/>
     </extension>

@@ -3,6 +3,9 @@
  */
 package gov.miamidade.hgowl.plugin.owl.model;
 
+import gov.miamidade.hgowl.plugin.owlapi.apibinding.PHGDBOWLManager;
+import gov.miamidade.hgowl.plugin.owlapi.apibinding.PHGDBOntologyManagerImpl;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.ProtocolException;
@@ -16,9 +19,7 @@ import java.util.Set;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.coode.xml.XMLWriterPreferences;
-import org.hypergraphdb.app.owl.HGDBOWLManager;
 import org.hypergraphdb.app.owl.HGDBOntology;
-import org.hypergraphdb.app.owl.PHGDBOntologyManagerImpl;
 import org.hypergraphdb.app.owl.HGDBOntologyRepository;
 import org.protege.editor.core.AbstractModelManager;
 import org.protege.editor.core.ProtegeApplication;
@@ -210,7 +211,7 @@ public class HGOwlModelManagerImpl extends AbstractModelManager
         //implementation of the OWL API.
         //
         //manager = ProtegeOWLManager.createOWLOntologyManager();
-        manager = HGDBOWLManager.createOWLOntologyManager();
+        manager = PHGDBOWLManager.createOWLOntologyManager();
         manager.setUseWriteSafety(true);
         manager.setUseSwingThread(true);
         manager.setSilentMissingImportsHandling(true);

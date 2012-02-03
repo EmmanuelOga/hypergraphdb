@@ -2,6 +2,7 @@ package gov.miamidade.hgowl.plugin.owl;
 
 import gov.miamidade.hgowl.plugin.owl.model.HGOntologyRepositoryEntry;
 import gov.miamidade.hgowl.plugin.owl.model.HGOwlModelManagerImpl;
+import gov.miamidade.hgowl.plugin.owlapi.apibinding.PHGDBOntologyManagerImpl;
 import gov.miamidade.hgowl.plugin.ui.render.VHGOwlIconProviderImpl;
 import gov.miamidade.hgowl.plugin.ui.repository.VOntologyViewPanel;
 import gov.miamidade.hgowl.plugin.ui.repository.VRepositoryViewPanel;
@@ -11,7 +12,6 @@ import java.util.Collection;
 
 import javax.swing.JOptionPane;
 
-import org.hypergraphdb.app.owl.PHGDBOntologyManagerImpl;
 import org.hypergraphdb.app.owl.versioning.Revision;
 import org.hypergraphdb.app.owl.versioning.VHGDBOntologyRepository;
 import org.hypergraphdb.app.owl.versioning.VersionedOntology;
@@ -62,8 +62,15 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
                         JOptionPane.INFORMATION_MESSAGE);
         	} else {
         		String user = getUserName();
-        		success = (getVersionedRepository().addVersionControl(onto, user) != null);
+        		getVersionedRepository().addVersionControl(onto, user);
         		causeViewUpdate();
+        		success = true;
+                JOptionPane.showMessageDialog(getWorkspace(),
+                        "The selected ontology: " + ontologyEntry.getOntologyURI() 
+                        + "\r\n was sucessfully added to version control."
+                        + "\r\n The icon for version controlled ontologies is a \"V\" inside a red diamond.",
+                        "Hypergraph Versioning - Add Ontology ",
+                        JOptionPane.INFORMATION_MESSAGE);
         	}
         } else {
         	success = false;
@@ -83,9 +90,31 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         	// User wants to remove ontology from version control.
         	VersionedOntology vo = getVersionControlledOntologyBy(ontologyEntry);        	
         	if (vo != null) {
-        		getVersionedRepository().removeVersionControl(vo);
-        		causeViewUpdate();
-        		success = true;
+        		int userConfirm = JOptionPane.showConfirmDialog(getWorkspace(),
+                        "All past revisions and changesets for ontology: " + ontologyEntry.getOntologyURI() 
+                        + "\r\n will be deleted. This cannot be undone. " 
+                        + "\r\n Only the last revision (head) will remain available. "
+                        + "\r\n  Do you wish to continue?",
+                        "Hypergraph Versioning - Remove Confirm",
+                        JOptionPane.YES_NO_OPTION);
+        		if (userConfirm == JOptionPane.YES_OPTION) {
+	        		getVersionedRepository().removeVersionControl(vo);
+	        		causeViewUpdate();
+	        		success = true;
+	                JOptionPane.showMessageDialog(getWorkspace(),
+	                        "The selected ontology: " + ontologyEntry.getOntologyURI() 
+	                        + "\r\n was sucessfully removed from version control.",
+	                        "Hypergraph Versioning - Remove ",
+	                        JOptionPane.INFORMATION_MESSAGE);
+        		} else {
+        			//user abort
+	                JOptionPane.showMessageDialog(getWorkspace(),
+	                        "The selected ontology: " + ontologyEntry.getOntologyURI() 
+	                        + "\r\n was NOT removed from version control.",
+	                        "Hypergraph Versioning - Remove abort",
+	                        JOptionPane.INFORMATION_MESSAGE);
+            		success = false;
+        		}
         	} else {
                 JOptionPane.showMessageDialog(getWorkspace(),
                         "The selected ontology is not under version control.",
@@ -245,11 +274,39 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         		// ?Head == Base?, cannot do it
         		//not on pending changes!
         		if (vo.getHeadChangeSet().size() == 0) {
-        			vo.revertHeadOneRevision();
-        			causeViewUpdate();
-        			//Clear undo/redo history on revert
-        			getModelManager().getHistoryManager().clear();
-        			success = true;
+        			if (vo.getNrOfRevisions() > 1) {
+        				//Confirm
+                		int userConfirm = JOptionPane.showConfirmDialog(getWorkspace(),
+                                "The most recent revision and changeset for ontology: " + ontologyEntry.getOntologyURI() 
+                                + "\r\n will be deleted. This cannot be undone. " 
+                                + "\r\n  Do you wish to continue?",
+                                "Hypergraph Versioning - Revert One Confirm",
+                                JOptionPane.YES_NO_OPTION);
+                		if (userConfirm == JOptionPane.YES_OPTION) {
+	            			vo.revertHeadOneRevision();
+	            			causeViewUpdate();
+	            			//Clear undo/redo history on revert
+	            			getModelManager().getHistoryManager().clear();
+	            			success = true;
+                		} else {
+                			//Abort
+        	                JOptionPane.showMessageDialog(getWorkspace(),
+        	                        "The selected ontology: " + ontologyEntry.getOntologyURI() 
+        	                        + "\r\n was NOT reverted.",
+        	                        "Hypergraph Versioning - Revert One Abort",
+        	                        JOptionPane.INFORMATION_MESSAGE);
+                    		success = false;
+                		}
+        			} else {
+        				//cannot revert beyond base
+                        JOptionPane.showMessageDialog(getWorkspace(),
+                                "This ontology cannot be reverted, because " 
+                        		+ " it only has one revision: \r\n" 
+                        		+ ontologyEntry.getOntologyURI() + " \r\n",
+                                "Hypergraph Versioning - Revert One Revision",
+                                JOptionPane.WARNING_MESSAGE);
+            			success = false;
+        			}
         		} else {
                     JOptionPane.showMessageDialog(getWorkspace(),
                             "This ontology cannot be reverted, because " 

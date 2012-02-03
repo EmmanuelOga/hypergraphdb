@@ -63,7 +63,11 @@ public class VOntologyViewPanel extends JPanel {
 
     public static HGOntologyRepositoryEntry showRevisionDialog(Component parent, VersionedOntology vo) {
         VOntologyViewPanel panel = new VOntologyViewPanel(vo);
-        JOptionPane.showMessageDialog(parent, panel, "Versioned Ontology History " + vo.getHeadRevisionData().getOntologyID().getOntologyIRI(), JOptionPane.PLAIN_MESSAGE);
+        String title;
+        title = "Versioned Ontology History " 
+    		+ vo.getHeadRevisionData().getOntologyID().getOntologyIRI()
+    		+ " ID: " + vo.getHeadRevision().getOntologyID();
+        JOptionPane.showMessageDialog(parent, panel, title, JOptionPane.PLAIN_MESSAGE);
 //        if(ret == JOptionPane.OK_OPTION) {
 //        	//DO NOTHING FOR NOW
 //        }

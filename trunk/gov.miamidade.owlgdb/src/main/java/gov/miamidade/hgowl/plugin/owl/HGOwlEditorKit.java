@@ -2,6 +2,7 @@ package gov.miamidade.hgowl.plugin.owl;
 
 import gov.miamidade.hgowl.plugin.owl.model.HGOntologyRepositoryEntry;
 import gov.miamidade.hgowl.plugin.owl.model.HGOwlModelManagerImpl;
+import gov.miamidade.hgowl.plugin.owlapi.apibinding.PHGDBOntologyManagerImpl;
 import gov.miamidade.hgowl.plugin.ui.CreateHGOntologyWizard;
 import gov.miamidade.hgowl.plugin.ui.HGOntologyFormatPanel;
 import gov.miamidade.hgowl.plugin.ui.repository.RepositoryViewPanel;
@@ -21,7 +22,6 @@ import org.hypergraphdb.app.owl.HGDBOntology;
 import org.hypergraphdb.app.owl.HGDBOntologyFormat;
 import org.hypergraphdb.app.owl.HGDBOntologyImpl;
 import org.hypergraphdb.app.owl.HGDBOntologyManager;
-import org.hypergraphdb.app.owl.PHGDBOntologyManagerImpl;
 import org.hypergraphdb.app.owl.HGDBOntologyRepository;
 import org.hypergraphdb.app.owl.exception.HGDBOntologyAlreadyExistsByDocumentIRIException;
 import org.protege.editor.core.OntologyRepository;

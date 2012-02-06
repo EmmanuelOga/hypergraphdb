@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.hypergraphdb</groupId>
     <artifactId>hgdbapps</artifactId>
-    <version>${version}</version>  
+    <version>1.2</version>  
   </parent>  
   <artifactId>hgdbmanagement</artifactId>
   <name>HyperGraphDB App Management</name>

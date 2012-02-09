@@ -1,13 +1,13 @@
 package gov.miamidade.hgowl.plugin.ui;
 
+import java.awt.Frame;
+import java.net.URI;
+
 import org.hypergraphdb.app.owl.HGDBOntologyFormat;
 import org.protege.editor.core.ui.wizard.Wizard;
 import org.protege.editor.owl.OWLEditorKit;
 import org.semanticweb.owlapi.model.OWLOntologyFormat;
 import org.semanticweb.owlapi.model.OWLOntologyID;
-
-import java.awt.*;
-import java.net.URI;
 
 /**
  * Wizard for Hypergraph ontology specification by a user.

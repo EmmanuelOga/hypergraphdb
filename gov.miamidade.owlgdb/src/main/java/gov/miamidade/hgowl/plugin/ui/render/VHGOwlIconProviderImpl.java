@@ -22,7 +22,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
  */
 public class VHGOwlIconProviderImpl extends OWLIconProviderImpl {
 
-	public static final String ICON_DBV_FILENAME = "./gov/miamidade/hgowl/plugin/ui/render/ontologyDBV.png";
+	public static final String ICON_DBV_FILENAME = "gov/miamidade/hgowl/plugin/ui/render/ontologyDBV.png";
 	
 	private boolean superClassIconMode = true;
 	private Icon icon; 

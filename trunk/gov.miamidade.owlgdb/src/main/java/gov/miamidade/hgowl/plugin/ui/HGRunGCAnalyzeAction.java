@@ -2,13 +2,20 @@ package gov.miamidade.hgowl.plugin.ui;
 
 import gov.miamidade.hgowl.plugin.owl.model.HGOwlModelManagerImpl;
 
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTextPane;
-
+import javax.swing.SwingUtilities;
 
 import org.hypergraphdb.app.owl.HGDBOntologyManager;
 import org.hypergraphdb.app.owl.gc.GarbageCollector;
@@ -25,6 +32,8 @@ public class HGRunGCAnalyzeAction extends ProtegeOWLAction {
 
 	private static final long serialVersionUID = -2085444668481360102L;
 
+	private volatile boolean inProgress = false; 
+	
 	/* (non-Javadoc)
 	 * @see org.protege.editor.core.plugin.ProtegePluginInstance#initialise()
 	 */
@@ -48,6 +57,7 @@ public class HGRunGCAnalyzeAction extends ProtegeOWLAction {
 	public void actionPerformed(ActionEvent arg0) {
 		HGOwlModelManagerImpl mm = (HGOwlModelManagerImpl) this.getOWLModelManager();
 		HGDBOntologyManager om =  (HGDBOntologyManager) mm.getOWLOntologyManager();
+		if (!isInProgress()) {
 		if (mayRun()) {
 			if (showRunGCConfirmation()) {
 				//mm.getHistoryManager().clear();
@@ -55,9 +65,10 @@ public class HGRunGCAnalyzeAction extends ProtegeOWLAction {
 				//	this can take long:
 				if (mode >= 0) {
 					GarbageCollector gc = om.getOntologyRepository().getGarbageCollector();
-					GarbageCollectorStatistics stats = gc.runGarbageAnalysis(mode);
-					System.out.println("Total GCd atoms: " + stats.getTotalAtoms());
-					showResult(stats);
+					//GarbageCollectorStatistics stats = gc.runGarbageAnalysis(mode);
+					runAnalysisThread(gc, mode);
+					//System.out.println("Total GCd atoms: " + stats.getTotalAtoms());
+					//showResult(stats);
 				} else {
 					System.out.println("GC analyze aborted by user.");
 				}
@@ -65,9 +76,23 @@ public class HGRunGCAnalyzeAction extends ProtegeOWLAction {
 		} else {
 			showRunGANotAllowed();
 		}
+		} else {
+			showRunGAInProgress();
+		}
 	}
 	
 	
+	/**
+	 * 
+	 */
+	private void showRunGAInProgress() {
+        String message = "Garbage Analysis is currently in Progress: \n"; 
+        JOptionPane.showMessageDialog(getWorkspace(),
+                                      message,
+                                      "Garbage Analysis - In Progress",
+                                      JOptionPane.WARNING_MESSAGE);
+	}
+
 	/**
 	 * Determines, if GC may run based on the ontologies currently loaded in Protege.
 	 * We might allow Deleted_Ontology mode in the future.
@@ -77,6 +102,10 @@ public class HGRunGCAnalyzeAction extends ProtegeOWLAction {
 		HGOwlModelManagerImpl mm = (HGOwlModelManagerImpl) this.getOWLModelManager();
 		HGDBOntologyManager om =  (HGDBOntologyManager) mm.getOWLOntologyManager();
 		return !om.hasInMemoryOntology();
+	}
+	
+	public boolean isInProgress() {
+		return inProgress;
 	}
 
 	
@@ -129,5 +158,75 @@ public class HGRunGCAnalyzeAction extends ProtegeOWLAction {
 				textPane, JOptionPane.INFORMATION_MESSAGE, 
 				JOptionPane.OK_CANCEL_OPTION, 
 				textPane);
+	}
+	
+	private void runAnalysisThread(final GarbageCollector gc, final int mode) {
+		final ExecutorService executor = Executors.newSingleThreadExecutor();
+		ExecutorService monitor = Executors.newSingleThreadExecutor();
+		// Garbage Collector Callable
+		Callable<GarbageCollectorStatistics> c = new Callable<GarbageCollectorStatistics>() {
+			@Override
+			public GarbageCollectorStatistics call() throws Exception {
+				inProgress = true;
+				GarbageCollectorStatistics results = gc.runGarbageAnalysis(mode);
+				inProgress = false;
+				return results;
+			} 
+			
+		};  
+		final Future<GarbageCollectorStatistics> fStats = executor.submit(c);
+		//
+		// Open Progress Monitor
+		//
+		monitor.execute( new Runnable() {
+			@Override
+			public void run() {
+				gc.resetTask();
+				int lastMax = -1;
+				Window parent = SwingUtilities.getWindowAncestor(getWorkspace());
+				ProgressDialog pd = new ProgressDialog(parent, 
+						"Garbage Analysis Progress",
+						false, 400, 120);
+				pd.setVisible(true);
+				while (!fStats.isDone()) {
+					try {
+						Thread.sleep(100);
+						int curMax = gc.getTaskSize();
+						int curProgress = gc.getTaskProgess();
+						if (lastMax != curMax) {
+							pd.setTaskSize(curMax);
+							lastMax = curMax;
+						}
+						//System.out.print("" + curProgress);
+						pd.setTaskProgress(curProgress);
+						if (pd.isCancelled()) {
+							gc.cancelTask();
+						}
+					} catch (InterruptedException e) {};
+				}
+				pd.setVisible(false);
+				try {
+					final GarbageCollectorStatistics stats = fStats.get();
+					gc.resetTask();
+					System.out.println("Total GCd atoms: " + stats.getTotalAtoms());
+					SwingUtilities.invokeLater(
+							new Runnable() {
+								@Override
+								public void run() {
+									Toolkit.getDefaultToolkit().beep();
+									System.out.println("Total GCd atoms: " + stats.getTotalAtoms());
+									showResult(stats);
+								}
+							});
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+					e.printStackTrace();
+				}
+				
+			}
+		});
+		executor.shutdown();
+		monitor.shutdown();
 	}
 }

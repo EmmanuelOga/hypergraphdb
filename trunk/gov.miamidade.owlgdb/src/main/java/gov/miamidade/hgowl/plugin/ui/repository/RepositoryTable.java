@@ -1,17 +1,12 @@
 package gov.miamidade.hgowl.plugin.ui.repository;
 
 import gov.miamidade.hgowl.plugin.owl.model.HGOntologyRepositoryEntry;
-
+import org.protege.editor.core.OntologyRepository;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.URI;
-
 import javax.swing.JTable;
-
-import org.protege.editor.core.OntologyRepository;
-import org.protege.editor.core.OntologyRepositoryEntry;
-
 
 /**
  * Author: Matthew Horridge<br> The University Of Manchester<br> Information Management Group<br> Date:

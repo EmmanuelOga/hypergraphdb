@@ -1,9 +1,10 @@
 package gov.miamidade.hgowl.plugin.ui;
 
 import gov.miamidade.hgowl.plugin.owl.HGOwlEditorKit;
-import org.protege.editor.owl.ui.action.ProtegeOWLAction;
 
 import java.awt.event.ActionEvent;
+
+import org.protege.editor.owl.ui.action.ProtegeOWLAction;
 
 /**
  * HyperGraphShowStatisticsAction.

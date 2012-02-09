@@ -7,11 +7,6 @@ import gov.miamidade.hgowl.plugin.ui.render.VHGOwlIconProviderImpl;
 import gov.miamidade.hgowl.plugin.ui.repository.VOntologyViewPanel;
 import gov.miamidade.hgowl.plugin.ui.repository.VRepositoryViewPanel;
 import gov.miamidade.hgowl.plugin.ui.versioning.VHGCommitDialog;
-
-import java.util.Collection;
-
-import javax.swing.JOptionPane;
-
 import org.hypergraphdb.app.owl.versioning.Revision;
 import org.hypergraphdb.app.owl.versioning.VHGDBOntologyRepository;
 import org.hypergraphdb.app.owl.versioning.VersionedOntology;
@@ -22,6 +17,8 @@ import org.protege.editor.owl.OWLEditorKitFactory;
 import org.protege.editor.owl.model.event.EventType;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyID;
+import java.util.Collection;
+import javax.swing.JOptionPane;
 
 
 /**
@@ -202,6 +199,8 @@ public class VHGOwlEditorKit extends HGOwlEditorKit {
         	if (vo != null) {
         		VHGCommitDialog dlg = showUserCommitDialog(vo, vo.getHeadRevisionData());
         		if (dlg.isCommitOK()) {
+        			//Clear undo/redo history on revert
+        			getModelManager().getHistoryManager().clear();
         			vo.commit(getUserName(), dlg.getCommitComment());
         			success = true;
         		} else {

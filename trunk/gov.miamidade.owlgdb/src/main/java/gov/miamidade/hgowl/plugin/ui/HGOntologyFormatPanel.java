@@ -10,10 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-//import org.coode.owlapi.latex.LatexOntologyFormat;
 import org.coode.owlapi.manchesterowlsyntax.ManchesterOWLSyntaxOntologyFormat;
-//import org.coode.owlapi.obo.parser.OBOOntologyFormat;
-//import org.coode.owlapi.turtle.TurtleOntologyFormat;
 import org.hypergraphdb.app.owl.HGDBOntologyFormat;
 import org.protege.editor.core.ui.util.JOptionPaneEx;
 import org.protege.editor.owl.OWLEditorKit;

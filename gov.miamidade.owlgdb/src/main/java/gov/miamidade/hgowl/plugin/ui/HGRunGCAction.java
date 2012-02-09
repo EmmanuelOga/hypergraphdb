@@ -2,13 +2,20 @@ package gov.miamidade.hgowl.plugin.ui;
 
 import gov.miamidade.hgowl.plugin.owl.model.HGOwlModelManagerImpl;
 
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTextPane;
-
+import javax.swing.SwingUtilities;
 
 import org.hypergraphdb.app.owl.HGDBOntologyManager;
 import org.hypergraphdb.app.owl.gc.GarbageCollector;
@@ -55,9 +62,8 @@ public class HGRunGCAction extends ProtegeOWLAction {
 				//	this can take long:
 				if (mode >= 0) {
 					GarbageCollector gc = om.getOntologyRepository().getGarbageCollector();
-					GarbageCollectorStatistics stats = gc.runGarbageCollection(mode);
-					System.out.println("Total GCd atoms: " + stats.getTotalAtoms());
-					showResult(stats);
+					//GarbageCollectorStatistics stats = gc.runGarbageCollection(mode);
+					runGCThread(gc, mode);
 				} else {
 					System.out.println("GC aborted by user.");
 				}
@@ -129,5 +135,73 @@ public class HGRunGCAction extends ProtegeOWLAction {
 				textPane, JOptionPane.INFORMATION_MESSAGE, 
 				JOptionPane.OK_CANCEL_OPTION, 
 				textPane);
+	}
+	
+	private void runGCThread(final GarbageCollector gc, final int mode) {
+		final ExecutorService executor = Executors.newSingleThreadExecutor();
+		ExecutorService monitor = Executors.newSingleThreadExecutor();
+		// Garbage Collector Callable
+		Callable<GarbageCollectorStatistics> c = new Callable<GarbageCollectorStatistics>() {
+			@Override
+			public GarbageCollectorStatistics call() throws Exception {
+				GarbageCollectorStatistics results = gc.runGarbageCollection(mode);
+				return results;
+			} 
+			
+		};  
+		final Future<GarbageCollectorStatistics> fStats = executor.submit(c);
+		//
+		// Open Progress Monitor
+		//
+		monitor.execute( new Runnable() {
+			@Override
+			public void run() {
+				gc.resetTask();
+				int lastMax = -1;
+				Window parent = SwingUtilities.getWindowAncestor(getWorkspace());
+				ProgressDialog pd = new ProgressDialog(parent, 
+						"Garbage Collection Progress",
+						true, 400, 120);
+				pd.setVisible(true);
+				while (!fStats.isDone()) {
+					try {
+						Thread.sleep(100);
+						int curMax = gc.getTaskSize();
+						int curProgress = gc.getTaskProgess();
+						if (lastMax != curMax) {
+							pd.setTaskSize(curMax);
+							lastMax = curMax;
+						}
+						//System.out.print("" + curProgress);
+						pd.setTaskProgress(curProgress);
+						if (pd.isCancelled()) {
+							gc.cancelTask();
+						}
+					} catch (InterruptedException e) {};
+				}
+				pd.setVisible(false);
+				try {
+					final GarbageCollectorStatistics stats = fStats.get();
+					gc.resetTask();
+					System.out.println("Total GCd atoms: " + stats.getTotalAtoms());
+					SwingUtilities.invokeLater(
+							new Runnable() {
+								@Override
+								public void run() {
+									Toolkit.getDefaultToolkit().beep();
+									System.out.println("Total GCd atoms: " + stats.getTotalAtoms());
+									showResult(stats);
+								}
+							});
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+					e.printStackTrace();
+				}
+				
+			}
+		});
+		executor.shutdown();
+		monitor.shutdown();
 	}
 }

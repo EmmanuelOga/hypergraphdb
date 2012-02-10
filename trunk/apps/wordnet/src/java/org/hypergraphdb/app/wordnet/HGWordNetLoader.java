@@ -403,6 +403,8 @@ public class HGWordNetLoader
 	private void connectSynsetVerbFrames(HyperGraph graph, HGHandle synHandle, Synset syn)
 	{
 		BitSet bs = syn.getVerbFrameFlags();
+		if (bs == null)
+			return;
 		int[] fr_inds = VerbFrame.getVerbFrameIndicies(bs);
 		for (int i = 0; i < fr_inds.length; i++)
 		{

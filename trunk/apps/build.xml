@@ -24,6 +24,16 @@
 		<pathelement path="${java.class.path}" />
 	</path>
 
+	<path id="owl-classpath">
+	    <fileset dir="owl/.">
+            <include name="**/*.jar"/>
+        </fileset>
+        <fileset dir="../.">
+            <include name="**/*.jar"/>
+        </fileset>
+		<pathelement path="${java.class.path}" />
+	</path>
+
 	<path id="xsd-classpath">
         <fileset dir="../.">
             <include name="**/*.jar"/>
@@ -87,6 +97,7 @@
         <mkdir dir="${build}/management"/>
         <mkdir dir="${build}/wordnet"/>
         <mkdir dir="${build}/tm"/>
+        <mkdir dir="${build}/owl"/>
         <mkdir dir="${build}/xsd"/>
         <mkdir dir="${build}/prolog"/>
         <mkdir dir="${build}/ann"/>
@@ -192,6 +203,14 @@
           </fileset>
         </copy>        
 		<jar basedir="${build}/tm" jarfile="${jars}/tmhgdb.jar"/>
+	</target>
+
+	<target name="owl" depends="init" description="Build HyperGraphDB OWL Jar">
+		<javac source="1.5" classpathref="owl-classpath" debug="${debug}" destdir="${build}/owl" srcdir="owl/src/java"/>
+	    <javadoc sourcepath="owl/src/java" destdir="${build}/javadoc/owl" classpathref="owl-classpath">
+            <link href="http://www.hypergraphdb.org/docs/javadoc"/>
+        </javadoc>        
+		<jar basedir="${build}/owl" jarfile="${jars}/hgdbowl.jar"/>
 	</target>
     
 	<target name="xsd" depends="init" description="Build HyperGraphDB XSD Jar">

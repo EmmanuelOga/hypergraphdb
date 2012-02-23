@@ -13,7 +13,9 @@ Bundle-ClassPath: .,
  lib/jars/smackx.jar,
  lib/native
  
-Bundle-NativeCode: /lib/native/libdb_java52.dll; /lib/native/libdb52.dll; osname=win32; processor=x86
+Bundle-NativeCode: /lib/native/libdb_java52.dll; /lib/native/libdb52.dll; osname=win32; processor=x86;
+ /lib/native/mac/libdb_java-5.2.jnilib; /lib/native/mac/libdb-5.2.dylib; osname=MacOSX; processor=x86; 
+ /lib/native/mac/libdb_java-5.2.jnilib; /lib/native/mac/libdb-5.2.dylib; osname=MacOSX; processor=x86-64
  
 Export-Package: 
  org.hypergraphdb,

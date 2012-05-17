@@ -22,3 +22,5 @@
   * Generalized Class->HGDB type mapping to URI->HGDB type with the new HGTypeSchema interface.
   * Converted HGQuery.hg API methods getAll, getOne, findAll, findOne to use read-only transactions. This will generated less conflicts, improve memory footprint in large queries and concurrent applications. Some care must be taken for query conditions not to have side-effects that modify the database.
   * Fixed several deadlock bugs
+  * Fixed a bug not allowing replacement of Java bean-based types with their updated versions.
+  * Fixed a bug not allowing refreshing a predefined, evicted from the cache, from the database.

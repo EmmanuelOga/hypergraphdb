@@ -26,3 +26,4 @@
   * Fixed a bug not allowing refreshing a predefined, evicted from the cache, from the database.
   * New PositionedIncidentCondition (see hg.incidentAt, hg.incidentNotAt) to search for incident links pointing to a target at a specific range of positions.
   * Pre-compiled queries with variables can boost performance in many cases by a factor of 2. See http://kobrix.blogspot.com/2012/05/variables-in-hypergraphdb-queries.html
+  * Fixed a bug with nested transactions not updating cached incidence sets.

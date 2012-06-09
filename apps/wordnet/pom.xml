@@ -10,30 +10,34 @@
   </parent>  
   <artifactId>hgdbwordnet</artifactId>
   <name>HyperGraphDB WordNet Persistence</name>
-
- <repositories>
+  
+  <repositories>
     <repository>
       <id>hypergraphdb</id>
       <url>http://hypergraphdb.org/maven</url>
     </repository>
- </repositories>
- 
+  </repositories>
+  
   <dependencies>
     <dependency>
       <groupId>net.sf.jwordnet</groupId>
       <artifactId>jwnl</artifactId>
       <version>1.4_rc3</version>
     </dependency>
-	<dependency>
-	  <groupId>org.hypergraphdb</groupId>
-	  <artifactId>hgdb</artifactId>
-	  <version>1.2</version>
-	</dependency>	
-	<dependency>
+    <dependency>
       <groupId>org.hypergraphdb</groupId>
-      <artifactId>hgbdbnative</artifactId>
-      <version>1.2</version>  
+      <artifactId>hgdb</artifactId>
+      <version>${version}</version>
+    </dependency>	
+    <dependency>
+      <groupId>org.hypergraphdb</groupId>
+      <artifactId>hgdbmanagement</artifactId>
+      <version>${version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hypergraphdb</groupId>
+      <artifactId>hgbdbje</artifactId>
+      <version>${version}</version>  
     </dependency>
   </dependencies>
-  
 </project>

@@ -1,6 +1,7 @@
 package org.hypergraphdb.app.wordnet;
 
 import java.io.ByteArrayInputStream;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
@@ -29,9 +30,10 @@ import org.hypergraphdb.HGIndex;
 import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HGTypeSystem;
 import org.hypergraphdb.HyperGraph;
+import org.hypergraphdb.HGQuery.hg;
 import org.hypergraphdb.app.wordnet.data.*;
 import org.hypergraphdb.indexing.ByPartIndexer;
-import org.hypergraphdb.storage.bdb.BDBConfig;
+//import org.hypergraphdb.storage.bdb.BDBConfig;
 
 /**
  * 
@@ -223,7 +225,7 @@ public class HGWordNetLoader
 			String lemma = cleanupLemma(word.getLemma());
 			if (wordIndex.findFirst(lemma) == null)
 				addWord(graph, lemma);
-			System.out.println("Added " + (++i) + "th word " + lemma);
+			//System.out.println("Added " + (++i) + "th word " + lemma);
 		}
 	}
 	
@@ -429,14 +431,18 @@ public class HGWordNetLoader
 		try
 		{
 		    HGConfiguration config = new HGConfiguration();
-		    BDBConfig bdbConfig = (BDBConfig)config.getStoreImplementation().getConfiguration();
+//		    BDBConfig bdbConfig = (BDBConfig)config.getStoreImplementation().getConfiguration();
 		    // Change the storage cache from the 20MB default to 500MB
-		    bdbConfig.getEnvironmentConfig().setCacheSize(1000*1024*1024);
+//		    bdbConfig.getEnvironmentConfig().setCacheSize(1000*1024*1024);
 		    config.setTransactional(false);
 			HyperGraph graph = HGEnvironment.get(args[1]);
 			System.out.println("Loading WordNet to " + args[1] + " from dictionary " + args[0]);
+			System.out.println("Atom count before : " + hg.count(graph, hg.all()));
+			long startTime = System.currentTimeMillis();			
 			loader.loadWordNet(graph);
-			System.out.println("WordNet sucessfully loaded.");
+			long endTime = System.currentTimeMillis();
+			System.out.println("WordNet sucessfully loaded - " + (endTime - startTime)/1000/60 + " minutes.");
+			System.out.println("Atom count after : " + hg.count(graph, hg.all()));
 		}
 		catch (Throwable t)
 		{

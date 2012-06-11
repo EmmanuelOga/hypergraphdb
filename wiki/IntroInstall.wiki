@@ -31,32 +31,29 @@ The unzipped archive contains the following (where ${version} stands for the cur
 
 = Deploying Applications =
 
-In total, the HyperGraphDB library consists of its own JAR files, Berkeley DB's `db.jar` file, third-party JAR files for peer-to-peer communication, and the Berkeley DB JNI library. The specific JARS required by your application depend on the deployment scenario. The following table shows the possible deployment scenarios and the JARS required for each:
-
-|| *HyperGraphDB Features* || *Files Required* ||
-|| Core HyperGraphDB (embedded database only, no networking) || `hypergraphdb.jar` and `jars/db.jar` ||
-|| HyperGraphDB with Jabber networking || `hgdbfull.jar`, `jars/db.jar`, `jars/smack.jar`, and `jars/smackx.jar` ||
-
-When deploying your application, you must:
-
-  * Include the relevant `.jar` files in the application's CLASSPATH.
-  * Tell the Java Virtual Machine where to find the Berkeley DB JNI library.
+In total, the HyperGraphDB library consists of its own JAR files, Berkeley DB's `db-${dbversion}.jar` file or `je-${jeversion}`, optionally the third-party JAR files for peer-to-peer communication, and the Berkeley DB JNI library if you're using the native version. The specific JARS required by your application depend on the deployment scenario. 
 
 You tell the Java Virtual Machine where to find native libraries in one of two ways:
 
   * Specify the location using the `java` command line option `-Djava.library.path`. For example:<br>
 {{{
-java -Djava.library.path=$HGDB_ROOT/native
+java -Djava.library.path=$HGDB_ROOT/lib/native/$PLATFORM
 }}}
-Here, the environment variable `HGDB_ROOT` has previously been set with the root directory of the HyperGraphDB installation.
+Here, $HGDB_ROOT refers to your HyperGraphDB installation directory and $PLATFORM refers to your operating system (linux, macos or windows, or their 64bit versions).
 
   * Add the location to the `PATH` environment variable (on Windows) or the `LD_LIBRARY_PATH` environment variable (on Linux/Unix).
 
 *NOTE for Windows users*:<br>
-The Windows native libraries may require the installatioin of the Visual C++ runtime libraries. If you get a runtime error pertaining to DLL loading, try installing the MSVC 9 redistribution package from the [http://www.microsoft.com/downloads/details.aspx?familyid=A5C84275-3B97-4AB7-A40D-3802B2AF5FC2&displaylang=en Microsoft download site].
+The Windows native libraries may require the installatioin of the Visual C++ runtime libraries. If you get a runtime error pertaining to DLL loading, try installing the MSVC++ redistribution package. As the location changes often, we're not providing a link, but you can easily search for it.
 
 == Configuration == 
 
 As an embedded database, HyperGraphDB does not require any configuration outside of a few parameters that you can set at runtime. In fact, only a directory location where data will be stored is required. However, when deploying a node within a distributed environment, you will need to extra configuration depending on your particular deployment scenario. For more information, consult the DistributedHyperGraph Creating Distributed Databases] topic.
 
+You configure HyperGraphDB by setting parameters to a <a href="http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/HGConfiguration.html">HGConfiguration</a> instance before opening a database. One important parameter there is the storage implementation (see `setStoreImplementation` method). By default, BerkeleyDB JE is used. You can also specify a different implementation class as a command line parameter:
+
+-Dorg.hypergraphdb.storage.HGStoreImplementation=org.hypergraphdb.storage.bdb.BDBStorageImplementation
+
+The above will force HyperGraphDB to use the BerkeleyDB native implementation. 
+ 
 [IntroDBCreate Next - Creating a Database >>]

@@ -9,12 +9,27 @@ HyperGraphDB provides an embedded database library that you can use to create an
 As of version 1.2 all HyperGraphDB and dependencies are managed in a Maven repository locate at http://www.hypergraphdb.org/maven. To links HyperGraphDB to your project through Maven:
 
 # Add the HyperGraphDB repository to your pom: 
+{{{
  <repositories>
     <repository>
       <id>hypergraphdb</id>
       <url>http://hypergraphdb.org/maven</url>
     </repository>
   </repositories>
+}}}
+# Add the relevant dependencies (minimal set of components with BerkeleyDB JE storage):
+{{{
+    <dependency>
+    	<groupId>org.hypergraphdb</groupId>
+    	<artifactId>hgdb</artifactId>
+    	<version>1.2</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.hypergraphdb</groupId>
+    	<artifactId>hgbdbje</artifactId>
+    	<version>1.2</version>
+    </dependency>
+}}}
 
 = Downloading and Installing HyperGraphDB =
 

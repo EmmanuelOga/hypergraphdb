@@ -56,4 +56,5 @@ You configure HyperGraphDB by setting parameters to a <a href="http://www.hyperg
 
 The above will force HyperGraphDB to use the BerkeleyDB native implementation. 
  
+
 [IntroDBCreate Next - Creating a Database >>]

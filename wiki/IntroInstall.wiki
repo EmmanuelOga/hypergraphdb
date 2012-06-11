@@ -12,17 +12,21 @@ HyperGraphDB releases are distributed in compressed archive files  (`.tar.gz` fo
 
 == Distribution Archive Content ==
 
-The unzipped archive contains the following:
+The unzipped archive contains the following (where ${version} stands for the current version of this distribution):
 
 || `readme.html`          || General information about the HyperGraphDB disribution. ||
 || `LicensingInformation` || The HyperGraphDB license conditions. ||
-|| `hypergraphdb.jar`     || Core functionality only, with no P2P communication. ||
-|| `hgpeer.jar`           || Additional peer-to-peer functionality. ||
-|| `hgdbfull.jar`         || Core functionality and P2P functionality (i.e `hypergraphdb.jar` plus `hgpeer.jar`). ||
-|| `jars/`                || Third-party Java library dependencies. Note that not all libraries in this directory are needed in every situation. Only the Berkeley DB JAR file `db.jar` is absolutely needed. ||  
-|| `native/`              || Native libraries needed to run this version of HyperGraphDB. While most Unix environments already have Berkeley DB installed in a standard location, you are strongly advised to use the version provided in the distribution. ||  
-|| `javadoc/` || API documentation in HTML format.||  
-|| `src/`     || The source code used to create the release package. ||
+|| `lib/hgdb-${version}.jar`     || Core HyperGraphDB library. You need a storage implementation in your classpath in addition to this jar. ||
+|| `hgdbp2p-${version}.jar`           || Additional peer-to-peer functionality. ||
+|| `hgbdbje-${version}.jar`         || Storage implementation based on BerkeleyDB Java Edition. You need the je-${jeversion}.jar in your classpath as well. ||
+|| `hgbdbnative-${version}.jar`         || Storage implementation based on BerkeleyDB native C library. You need the db-${dbversion}.jar in your classpath as well. At runtime, you need to add the relevant native libraries, depending on your platform, to the java system library path. ||
+|| `db-${dbversion}.jar`         || The Java bindings for BerkeleyDB native. ||
+|| `je-${jeversion}.jar`         || The BerkeleyDB Java Edition. ||
+|| `smack-3.1.0.jar`         || P2P XMPP library needed for the HyperGraphDB peer-to-peer framework. ||
+|| `smackx-3.1.0.jar`         || P2P XMPP library extensions needed for the HyperGraphDB peer-to-peer framework. ||
+|| `lib/native/`              || Native libraries needed to run this version of HyperGraphDB. While most Unix environments already have Berkeley DB installed in a standard location, you are strongly advised to use the version provided in the distribution. ||  
+|| `apidocs/` || API documentation in HTML format - each component has its own folder, hgdb for the core library (you'd mostly need to consult this), p2p for the peer-to-peer framework etc.||  
+|| `src/`     || The source code used to create the release package. Again each component is in its own subfolder. ||
 || `ThirdPartyLicensing/` || Licensing information for HyperGraphDB dependencies, notably Oracle's Berkeley DB Standard Edition. ||
 
 = Deploying Applications =

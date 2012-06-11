@@ -27,3 +27,5 @@
   * New PositionedIncidentCondition (see hg.incidentAt, hg.incidentNotAt) to search for incident links pointing to a target at a specific range of positions.
   * Pre-compiled queries with variables can boost performance in many cases by a factor of 2. See http://kobrix.blogspot.com/2012/05/variables-in-hypergraphdb-queries.html
   * Fixed a bug with nested transactions not updating cached incidence sets.
+  * Implementation of storage based on the BerkeleyDB Java Edition. This storage is now made the default in order to make it easy for newcomers to start with HyperGraphDB. Test so far show the JE performs much better for data sets up to about 2-3 million atoms. Above that, the native version seems better.
+  * Integration with the Maven build system. HyperGraphDB artifacts are available from http://www.hypergraphdb.org/maven.

@@ -1,0 +1,27 @@
+#summary JSON Storage as Hypergraph Structures.
+
+= Introduction =
+
+<a target="_blank" href="http://json.org">JSON</a> became popular as an XML alternative for human readable structured communication between software components. However, lately it has been touted as a convenient storage data structure by various database systems labeled as "document-oriented" where a document is a JSON object stored as a blog and possibly indexed by various properties for quicker retrieval.
+
+The *HGDB mJson* component takes a different approach in storing JSON structures and records them as graphs where each JSON primitive value is stored as a HyperGraphDB node and each object and array as HyperGraphDB link. 
+
+= Get It = 
+
+Maven dependency:
+
+{{{
+    <dependency>
+      <groupId>org.hypergraphdb</groupId>
+      <artifactId>hgdbmjson</artifactId>
+      <version>1.2</version>
+    </dependency>
+}}}
+
+= Representation =
+
+Coming up...
+
+= Implementation = 
+
+Coming up...

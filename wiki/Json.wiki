@@ -2,9 +2,13 @@
 
 = Introduction =
 
-[http://json.org JSON] became popular as an XML alternative for human readable structured communication between software components. However, lately it has been touted as a convenient storage data structure by various database systems labeled as "document-oriented" where a document is a JSON object stored as a blog and possibly indexed by various properties for quicker retrieval.
+[http://json.org JSON] became popular as an XML alternative for human readable structured communication between software components. However, lately it has been touted as a convenient storage data structure by various database systems labeled as "document-oriented databases" where a document is a JSON object stored as a blob and possibly indexed by various properties for quicker retrieval.
 
 The *HGDB mJson* component takes a different approach in storing JSON structures and records them as graphs where each JSON primitive value is stored as a HyperGraphDB node and each object and array as HyperGraphDB link. 
+
+The representation is based on a very small (1 source file) and concise Json library, called mJson developed in the context of the [http://sharegov.org Sharegov] project and described in the following blog entries:
+
+# 
 
 = Get It = 
 

@@ -77,7 +77,7 @@ The Windows native libraries may require the installatioin of the Visual C++ run
 
 As an embedded database, HyperGraphDB does not require any configuration outside of a few parameters that you can set at runtime. In fact, only a directory location where data will be stored is required. However, when deploying a node within a distributed environment, you will need to extra configuration depending on your particular deployment scenario. For more information, consult the DistributedHyperGraph Creating Distributed Databases] topic.
 
-You configure HyperGraphDB by setting parameters to a <a href="http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/HGConfiguration.html">HGConfiguration</a> instance before opening a database. One important parameter there is the storage implementation (see `setStoreImplementation` method). By default, BerkeleyDB JE is used. You can also specify a different implementation class as a command line parameter:
+You configure HyperGraphDB by setting parameters to a [http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/HGConfiguration.html HGConfiguration] instance before opening a database. One important parameter there is the storage implementation (see `setStoreImplementation` method). By default, BerkeleyDB JE is used. You can also specify a different implementation class as a command line parameter:
 
 -Dorg.hypergraphdb.storage.HGStoreImplementation=org.hypergraphdb.storage.bdb.BDBStorageImplementation
 

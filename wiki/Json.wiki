@@ -29,9 +29,19 @@ If you're not using Maven, here are direct links to get mJson and the HGDB stora
   # [http://search.maven.org/remotecontent?filepath=org/sharegov/mjson/1.1/mjson-1.1.jar mjson-1.1.jar]
   # [http://www.hypergraphdb.org/maven/org/hypergraphdb/hgdbmjson/1.2/hgdbmjson-1.2.jar hgdbmjson-1.2.jar]
 
-= Representation =
+= Use It =
 
-Coming up...
+To use HyperGraphDB as a Json database, include the two jars above in your project (or the Maven dependency), create a `HyperGraph` instance as you would usually, then create an instance of a [HyperNodeJson http://www.hypergraphdb.org/docs/apps/mjson/mjson/hgdb/HyperNodeJson.html] passing in the `HyperGraph` object and use that `HyperNodeJson` object to talk to the database. Here's an example:
+
+{{{
+import static mjson.Json.*;
+import mjson.hgdb.HyperNodeJson;
+import org.hypergraphdb.*;
+
+HyperNodeJson jsonNode = new HyperNodeJson(HGEnvironment.get("/tmp/hgdbjson"));
+jsonNode.add(object("name", "Pedro", age, 28));
+}}}
+
 
 = Implementation = 
 

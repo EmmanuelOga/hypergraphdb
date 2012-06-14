@@ -6,9 +6,11 @@
 
 The *HGDB mJson* component takes a different approach in storing JSON structures and records them as graphs where each JSON primitive value is stored as a HyperGraphDB node and each object and array as HyperGraphDB link. 
 
-The representation is based on a very small (1 source file) and concise Json library, called mJson developed in the context of the [http://sharegov.org Sharegov] project and described in the following blog entries:
+The representation is based on a very small (1 source file) and concise Json library, called mJson developed in the context of the [http://sharegov.org Sharegov]http://sharegov.blogspot.com/2011/06/json-library.html#comments project and described in the following blog entries:
 
-# 
+  # [http://sharegov.blogspot.com/2011/06/json-library.html Sharegov JSON Library]
+  # [http://sharegov.blogspot.com/2011/11/mjson-11-released.html mJson 1.1 Release]
+
 
 = Get It = 
 

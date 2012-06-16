@@ -39,10 +39,15 @@ import mjson.hgdb.HyperNodeJson;
 import org.hypergraphdb.*;
 
 HyperNodeJson jsonNode = new HyperNodeJson(HGEnvironment.get("/tmp/hgdbjson"));
+// Add a JSON object with two properties to the database
 jsonNode.add(object("name", "Pedro", age, 28));
+// ... later, do a lookup for all objects with name="Pedro"
+// the results are returned as a Json array:
+Json A = jsonNode.findAll(object("name", "Pedro"));
+// delete the object with name="Pedro" and age=28:
+jsonNode.remove(jsonNode.exactly(object("name", "Pedro", age, 28)));
 }}}
 
+As hinted by its name, the `HyperNodeJson` class implements the [HyperNode] interface so it is an interface to the underlying graph as well. This means you can use to interact for other types of atoms. Nevertheless, `HyperNodeJson` is a view of the database as a graph of JSON structures. The _Implementation_ section below gives some implementation details of this wrapper and why it is necessary to have it. In addition to all the standard `HyperNode` interface, it provides several additional methods related to the representation and covering common use cases. 
 
 = Implementation = 
-
-Coming up...

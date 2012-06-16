@@ -69,6 +69,22 @@ Json x = array(1, 2, 3);
 // the passed in Json and adds it to the database only when
 // no data with the exact same value has been found.
 HGHandle handleX = jsonNode.assertAtom(x);
+// A second call of assertAtom with the same value
+// will return the handle of the existing atom:
+assert handleX.equals(jsonNode.assertAtom(x.dup()));
 }}}
+
+Another way to view a database is as a collection of data where each entity is unique simply by virtue of being stored independently. Every newly added HyperGraphDB atom gets its own unique `HGHandle` regardless of its value so that's easily achieved by simply using the standard `HyperNode.add` method:
+
+{{{
+Json x = object("entity", "movie", "title", "Underground");
+HGHandle handleX = jsonNode.add(x);
+// A second call with the same value will return a the handle
+// of a newly created atom
+assert !handleX.equals(jsonNode.add(x));
+}}}
+
+So what would be the right strategy for the "average" application? 
+Because Json primitives are immutable, it always makes sense to call `assertAtom` when storing primitives. Note that this would be approach the HyperGraphDB's own primitive type implementations take: it's a time-space tradeoff where one sacrifices insert speed for more compact storage.
 
 = Implementation = 

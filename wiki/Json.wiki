@@ -40,17 +40,21 @@ import static mjson.Json.*;
 import mjson.hgdb.HyperNodeJson;
 import org.hypergraphdb.*;
 
-HyperNodeJson jsonNode = new HyperNodeJson(HGEnvironment.get("/tmp/hgdbjson"));
+HyperNodeJson jsonNode = 
+     new HyperNodeJson(HGEnvironment.get("/tmp/hgdbjson"));
 
 // Add a JSON object with two properties to the database
-jsonNode.add(object("name", "Pedro", age, 28));
+jsonNode.add(object("name", "Pedro", 
+                     age, 28));
 
-// ... later, do a lookup for all objects with name="Pedro"
-// the results are returned as a Json array:
+// ... later, do a lookup for all objects 
+// with name="Pedro" the results are returned 
+// as a Json array:
 Json A = jsonNode.findAll(object("name", "Pedro"));
 
 // delete the object with name="Pedro" and age=28:
-jsonNode.remove(jsonNode.exactly(object("name", "Pedro", age, 28)));
+jsonNode.remove(jsonNode.exactly(
+    object("name", "Pedro", age, 28)));
 }}}
 
 As hinted by its name, the `HyperNodeJson` class implements the [http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/HyperNode.html HyperNode] interface so it is an interface to the underlying graph as well. This means you can use it to interact with other types of atoms. Nevertheless, `HyperNodeJson` is a view of the database as a graph of JSON structures. The _Implementation_ section below gives some implementation details of this wrapper and why it is necessary to have it. In addition to all the standard `HyperNode` interface, it provides several additional methods related to the representation and covering common use cases. The methods for finding Json elements:
@@ -107,7 +111,8 @@ assert !handleX.equals(jsonNode.add(x));
 Now, the main advantage of storing JSON structures as a graph is that this creates an implicit index of all objects and arrays by their elements. That is, given any JSON property, you can easily find all the objects that have that property simply in virtue of the fact that the property is a node in the graph and all objects with that property are links pointing to it. And given any JSON value, primitive or not, you can quickly find all arrays that contain it. You can do such a query by pattern matching as shown above, or by first looking up the `JsonProperty` in question and then examining its incidence set. For example:
 
 {{{
-HGHandle propHandle = jsonNode.findProperty("person", object("firstName", "Pedro", "lastName", "Pena");
+HGHandle propHandle = jsonNode.findProperty("person", 
+    object("firstName", "Pedro", "lastName", "Pena");
 List<Json> L = jsonNode.getAll(hg.incident(propHandle));
 }}}
 
@@ -116,24 +121,28 @@ Clearly, that strategy works only when Json values are unique in the database. W
 So what would be the right view for the "average" application - a knowledge base or a collection of data, allowing duplicates? The answer is a mix of both. Conceptually, the question of whether a given datum should be duplicated bears on whether the data is representing distinct entities from the application domain. Distinct entities may very well yield the same representation at a certain point in a time, and be equivalent in that sense, yet without being identical. For example imagine you are storing information about job positions where a job position has a title, a salary and a boolean flag indicating whether it is vacant. You may well have two positions with identical information, yet they are distinct entities each subject to change on its own. So at a more practical level, the question of repeated data is related to the question of immutability - if a datum can change independently of other, equivalent data, then it should be stored separately. In an application, one frequently thinks in terms of _business entities_ or _business objects_ that are usually (but not always!) subject to change. And this is a sensible criteria to decide whether something should be stored as its own "record": when it is representing a real-world entity with mutable properties. Everything else is a "mere" value regardless of how complex it is as a data structure. Commonly, business objects are top-level entities in whatever nested representation one has defined as the model of the application domain. As top-level entities, they are mutable, but their components are generally immutable values. And this is the motivation behind the third way of inserting `Json` atoms into HyperGraphDB, the `HyperNodeJson.addTopLevel` method which will create a new atom for the passed in object, but recursively perform an `assertAtom` operation for each of its compnents. For example:
 
 {{{
-// Job benefits as a composite, but immutable value, asserted in the db
+// Job benefits as a composite, 
+// but immutable value, asserted in the db
 Json benefits = object("vacationWeeks", 2, 
                        "healthInsurance", "Aetna");
 HGHandle benefitsHandle = jsonNode.assertAtom(benefits);
 
 // Job position as a top-level entity with the same benefits,
 // value-wise as defined above
-Json jobPosition = object("title", "Dishwasher", 
-                          "salary", 12000, 
-                          "vacant", true,
-                          "benefits", object("vacationWeeks", 2, 
-                                              "healthInsurance", "Aetna"));
+Json jobPosition = 
+    object("title", "Dishwasher", 
+           "salary", 12000, 
+           "vacant", true,
+           "benefits", object("vacationWeeks", 2, 
+                              "healthInsurance", "Aetna"));
 HGHandle accountHandle = jsonNode.addTopLevel(account);
 
-// The same benefits value we added at the beginning is reused in the 
-// job position object
-HGHandle benefitsProperty = jsonNode.findProperty("benefits", benefitsHandle);
-assert jsonNode.getIncidenceSet(benefitsProperty).contains(jobPosition);
+// The same benefits value we added at the beginning 
+// is reused in the job position object
+HGHandle benefitsProperty = 
+   jsonNode.findProperty("benefits", benefitsHandle);
+assert jsonNode.getIncidenceSet(benefitsProperty)
+         .contains(jobPosition);
 }}}
 
 Because `Json` primitives are immutable anyway, it always makes sense to call `assertAtom` when storing primitives. Note that this is the approach that HyperGraphDB's own primitive type implementations take: it's a time-space tradeoff where one sacrifices insert speed for more compact storage. You are probably not going to be adding `Json` primitives directly to the database, but in case you do it is strongly recommended that you use `assertAtom` as the `add` and `addTopLevel` will always create new atoms.

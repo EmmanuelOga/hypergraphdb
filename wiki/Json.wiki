@@ -31,6 +31,8 @@ If you're not using Maven, here are direct links to get mJson and the HGDB stora
 
 = Usage =
 
+Before reading this manual, please go over the documentation of the <code>mJson</code> library to get at least some familiarity with API. 
+
 To use HyperGraphDB as a Json database, include the two jars above in your project (or the Maven dependency), create a `HyperGraph` instance as you would usually, then create an instance of a [http://www.hypergraphdb.org/docs/apps/mjson/mjson/hgdb/HyperNodeJson.html HyperNodeJson] passing in the `HyperGraph` object and use that `HyperNodeJson` object to talk to the database. Here's an example:
 
 {{{
@@ -122,6 +124,16 @@ HGHandle benefitsProperty = jsonNode.findProperty("benefits", benefitsHandle);
 assert jsonNode.getIncidenceSet(benefitsProperty).contains(jobPosition);
 }}}
 
-Because Json primitives are immutable, it always makes sense to call `assertAtom` when storing primitives. Note that this would be approach the HyperGraphDB's own primitive type implementations take: it's a time-space tradeoff where one sacrifices insert speed for more compact storage.
+Because `Json` primitives are immutable anyway, it always makes sense to call `assertAtom` when storing primitives. Note that this is the approach that HyperGraphDB's own primitive type implementations take: it's a time-space tradeoff where one sacrifices insert speed for more compact storage. You are probably not going to be adding `Json` primitives directly to the database, but in case you do it is strongly recommended that you use `assertAtom` as the `add` and `addTopLevel` will always create new atoms.
 
 = Implementation = 
+
+The implementation is fairly straightforward. `Json` entities are each managed by its own type:
+
+  * Primitives are stored using HyperGraphDB's own predefined primitive Java type management where each value is stored only once and is being reference counted for removeal.
+  * Arrays are stored as HyperGraphDB links and they contains no additional payload value. Therefore the cost of retrieving an array is the cost of retrieving a simple link plus the cost of retrieving each of its elements where caching plays an important role.
+  * Objects are also stored as link, again with no additional access cost besides link retrieval and the object's properties which are potentially cached.
+
+The sharing of immutable properties plays an important performance role here because recurring values and properties are atoms shared between the various `Json` entities and usually cached. The cost of the additional lookup during insertion is paid of by the ability to cache duplicate values more aggressively.
+
+To accommodate the mJson API which is not coupled with the HyperGraphDB API, the `HyperNodeJson` implementation has to maintain its own atom cache in order to maintain the caching semantics expected from HyperGraphDB atoms. Here's how that comes about. To avoid implementing the standard `HGLink` interface, arrays and objects are stored as `HGValueLink` instances, even though there's no actual value. This way, HyperGraphDB recognizes them as links. However, we still want to associate a `Json` Java runtime object with the atom `HGHandle` in the cache instead of the `HGValueLink` Java object so that a call to `getHandle(Json)` will return the atom handle. While the `HyperNodeJson` correctly does the wrapping/unwrapping of `HGValueLink`s that represent `Json` objects and arrays, the HyperGraphDB main cache doesn't do that (maybe it should..., but currently it doesn't) so a separate transactional cache is maintained in the `HyperNodeJson` implementation.

@@ -102,8 +102,26 @@ Clearly, that strategy works only when Json values are unique in the database. W
 So what would be the right view for the "average" application - a knowledge base or a collection of data, allowing duplicates? The answer is a mix of both. Conceptually, the question of whether a given datum should be duplicated bears on whether the data is representing distinct entities from the application domain. Distinct entities may very well yield the same representation at a certain point in a time, and be equivalent in that sense, yet without being identical. For example imagine you are storing information about job positions where a job position has a title, a salary and a boolean flag indicating whether it is vacant. You may well have two positions with identical information, yet they are distinct entities each subject to change on its own. So at a more practical level, the question of repeated data is related to the question of immutability - if a datum can change independently of other, equivalent data, then it should be stored separately. In an application, one frequently thinks in terms of _business entities_ or _business objects_ that are usually (but not always!) subject to change. And this is a sensible criteria to decide whether something should be stored as its own "record": when it is representing a real-world entity with mutable properties. Everything else is a "mere" value regardless of how complex it is as a data structure. Commonly, business objects are top-level entities in whatever nested representation one has defined as the model of the application domain. As top-level entities, they are mutable, but their components are generally immutable values. And this is the motivation behind the third way of inserting `Json` atoms into HyperGraphDB, the `HyperNodeJson.addTopLevel` method which will create a new atom for the passed in object, but recursively perform an `assertAtom` operation for each of its compnents. For example:
 
 {{{
+// Job benefits as a composite, but immutable value, asserted in the db
+Json benefits = object("vacationWeeks", 2, 
+                       "healthInsurance", "Aetna");
+HGHandle benefitsHandle = jsonNode.assertAtom(benefits);
+
+// Job position as a top-level entity with the same benefits,
+// value-wise as defined above
+Json jobPosition = object("title", "Dishwasher", 
+                          "salary", 12000, 
+                          "vacant", true,
+                          "benefits", object("vacationWeeks", 2, 
+                                              "healthInsurance", "Aetna"));
+HGHandle accountHandle = jsonNode.addTopLevel(account);
+
+// The same benefits value we added at the beginning is reused in the 
+// job position object
+HGHandle benefitsProperty = jsonNode.findProperty("benefits", benefitsHandle);
+assert jsonNode.getIncidenceSet(benefitsProperty).contains(jobPosition);
 }}}
 
-  Because Json primitives are immutable, it always makes sense to call `assertAtom` when storing primitives. Note that this would be approach the HyperGraphDB's own primitive type implementations take: it's a time-space tradeoff where one sacrifices insert speed for more compact storage.
+Because Json primitives are immutable, it always makes sense to call `assertAtom` when storing primitives. Note that this would be approach the HyperGraphDB's own primitive type implementations take: it's a time-space tradeoff where one sacrifices insert speed for more compact storage.
 
 = Implementation = 

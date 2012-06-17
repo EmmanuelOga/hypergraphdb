@@ -31,7 +31,7 @@ If you're not using Maven, here are direct links to get mJson and the HGDB stora
 
 = Usage =
 
-Before reading this manual, please go over the documentation of the <code>mJson</code> library to get at least some familiarity with API. 
+Before reading this manual, please go over the documentation of the `mJson` library to get at least some familiarity with the API. 
 
 To use HyperGraphDB as a Json database, include the two jars above in your project (or the Maven dependency), create a `HyperGraph` instance as you would usually, then create an instance of a [http://www.hypergraphdb.org/docs/apps/mjson/mjson/hgdb/HyperNodeJson.html HyperNodeJson] passing in the `HyperGraph` object and use that `HyperNodeJson` object to talk to the database. Here's an example:
 
@@ -57,13 +57,13 @@ jsonNode.remove(jsonNode.exactly(
     object("name", "Pedro", age, 28)));
 }}}
 
-As hinted by its name, the `HyperNodeJson` class implements the [http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/HyperNode.html HyperNode] interface so it is an interface to the underlying graph as well. This means you can use it to interact with other types of atoms. Nevertheless, `HyperNodeJson` is a view of the database as a graph of JSON structures. The _Implementation_ section below gives some implementation details of this wrapper and why it is necessary to have it. In addition to all the standard `HyperNode` interface, it provides several additional methods related to the representation and covering common use cases. The methods for finding Json elements:
+As hinted by its name, the `HyperNodeJson` class implements the [http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/HyperNode.html HyperNode] interface so it is an interface to the underlying graph as well. This means you can use it to interact with other types of atoms. Nevertheless, `HyperNodeJson` is a view of the database as a graph of JSON structures. The _Implementation_ section below gives some implementation details of this wrapper and why it is necessary to have it. In addition to all the standard `HyperNode` interface methods, it provides several additional methods related to the representation and covering common use cases. The methods for finding Json elements:
 
 <table>
 <tr><td nowrap>match(Json j, boolean exact)</td>
-<td>Performs a pattern matching lookup return the first entity in the databases that matches _j_. The _exact_ parameter specifies whether object should be matched in full (true), or whether only the properties in the pattern should be matched.</td></tr>
+<td>Performs a pattern matching lookup returning the first entity in the databases that matches _j_. The _exact_ parameter specifies whether objects should be matched in full (true), or whether only the properties in the pattern should be matched.</td></tr>
 <tr><td nowrap>exactly(Json j)</td>
-<td>A shorthand for _match(j, true)</td></tr>
+<td>A shorthand for _match(j, true)_</td></tr>
 <tr><td nowrap>unique(Json j)</td>
 <td>A shorthand for _match(j, false)_. This is intended for lookup of objects that are identified uniquely by a set of properties.</td></tr>
 <tr><td nowrap>find(Json j, 
@@ -77,7 +77,7 @@ As hinted by its name, the `HyperNodeJson` class implements the [http://www.hype
 <td>Same as _findAll(Json pattern)_ but return a `List` of `Json` entities.</td></tr>
 </table>
 
-And there's a family of methods to lookup for JSON properties, represented as name/value pairs by the class [http://www.hypergraphdb.org/docs/apps/mjson/mjson/hgdb/JsonProperty.html JsonProperty]:
+And there's a family of methods to search for JSON properties, represented as name/value pairs by the class [http://www.hypergraphdb.org/docs/apps/mjson/mjson/hgdb/JsonProperty.html JsonProperty]:
 
 <table>
 <tr><td nowrap>findProperty(HGHandle name, HGHandle value)</td><td>Find the property atom with the given name (a String atom) and value (a Json atom).</td></tr>
@@ -157,7 +157,7 @@ The implementation is fairly straightforward. `Json` entities are each managed b
 
 The sharing of immutable properties plays an important performance role here because recurring values and properties are atoms shared between the various `Json` entities and usually cached. The cost of the additional lookup during insertion is paid of by the ability to cache duplicate values more aggressively.
 
-To accommodate the mJson API which is not coupled with the HyperGraphDB API, the `HyperNodeJson` implementation has to maintain its own atom cache in order to maintain the caching semantics expected from HyperGraphDB atoms. Here's how that comes about. To avoid implementing the standard `HGLink` interface, arrays and objects are stored as `HGValueLink` instances, even though there's no actual value. This way, HyperGraphDB recognizes them as links. However, we still want to associate a `Json` Java runtime object with the atom `HGHandle` in the cache instead of the `HGValueLink` Java object so that a call to `getHandle(Json)` will return the atom handle. While the `HyperNodeJson` correctly does the wrapping/unwrapping of `HGValueLink`s that represent `Json` objects and arrays, the HyperGraphDB main cache doesn't do that (maybe it should..., but currently it doesn't) so a separate transactional cache is maintained in the `HyperNodeJson` implementation. The existence of this private extra cache is the main reason that it is not advisable to instantiated multiple `HyperNodeJson` instances against the same underlying `HyperGraph` instance.
+To accommodate the mJson API which is not coupled with the HyperGraphDB API, the `HyperNodeJson` implementation has to maintain its own atom cache in order to maintain the caching semantics expected from HyperGraphDB atoms. Here's how that comes about. To avoid implementing the standard `HGLink` interface, arrays and objects are stored as `HGValueLink` instances, even though there's no actual value. This way, HyperGraphDB recognizes them as links. However, we still want to associate a `Json` Java runtime object with the atom `HGHandle` in the cache instead of the `HGValueLink` Java object so that a call to `getHandle(Json)` will return the atom handle. While the `HyperNodeJson` correctly does the wrapping/unwrapping of `HGValueLink`s that represent `Json` objects and arrays, the HyperGraphDB main cache doesn't do that (maybe it should..., but currently it doesn't) so a separate transactional cache is maintained in the `HyperNodeJson` implementation. The need to transparently manage those non-`HGLink` objects as links is one of the main reasons of creating a special purpose database view of the JSON storage. And the existence of the private extra cache is the main reason that it is not advisable to instantiated multiple `HyperNodeJson` instances against the same underlying `HyperGraph` instance.
 
 If you care to look, you may notice some extra classes in the codebase, such as JsonTypeSchema, JsonAtomFactory etc. Those are currently not used and can be considered work in progress for future extensions of the library.
 

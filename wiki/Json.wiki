@@ -56,7 +56,7 @@ jsonNode.remove(jsonNode.exactly(object("name", "Pedro", age, 28)));
 As hinted by its name, the `HyperNodeJson` class implements the [http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/HyperNode.html HyperNode] interface so it is an interface to the underlying graph as well. This means you can use it to interact with other types of atoms. Nevertheless, `HyperNodeJson` is a view of the database as a graph of JSON structures. The _Implementation_ section below gives some implementation details of this wrapper and why it is necessary to have it. In addition to all the standard `HyperNode` interface, it provides several additional methods related to the representation and covering common use cases. The methods for finding Json elements:
 
 <table>
-<tr valign="top"><td nowrap>match(Json j, boolean exact)</td>
+<tr><td nowrap>match(Json j, boolean exact)</td>
 <td>Performs a pattern matching lookup return the first entity in the databases that matches _j_. The _exact_ parameter specifies whether object should be matched in full (true), or whether only the properties in the pattern should be matched.</td></tr>
 <tr><td nowrap>exactly(Json j)</td>
 <td>A shorthand for _match(j, true)</td></tr>
@@ -75,9 +75,11 @@ As hinted by its name, the `HyperNodeJson` class implements the [http://www.hype
 
 And there's a family of methods to lookup for JSON properties, represented as name/value pairs by the class [http://www.hypergraphdb.org/docs/apps/mjson/mjson/hgdb/JsonProperty.html JsonProperty]:
 
-||*findProperty(HGHandle name, HGHandle value)*||Find the property atom with the given name (a String atom) and value (a Json atom).||
-||*findProperty(T1 name, T2 value)* || A bunch of overloaded _findProperty_ methods that take different types of arguments (a String and a Json) and will do essentially what you would expect them.||
-||*findPropertyValues(HGHandle name)*||Retrieve all Json values that appear in properties with the given name atom.||
+<table>
+<tr><td nowrap>findProperty(HGHandle name, HGHandle value)</td><td>Find the property atom with the given name (a String atom) and value (a Json atom).</td></tr>
+<tr><td nowrap>findProperty(T1 name, T2 value)</td><td>A bunch of overloaded _findProperty_ methods that take different types of arguments (a String and a Json) and will do essentially what you would expect them.</td></tr>
+<tr><td nowrap>findPropertyValues(HGHandle name)</td><td>Retrieve all Json values that appear in properties with the given name atom.</td></tr>
+</table>
 
 All above methods have to do with searching the database and pattern matching on JSON structures. Adding entities also has several variants. And they have to do with how you decide to deal with repeated data (i.e. duplicates). One way to view a database, especially one build on HyperGraphDB, is as a knowledge base where each atom represents a unique and immutable piece of knowledge. In that view, you would not allow for duplicate data and every JSON structure (or pimitive value) that you store will have exactly one copy. You ensure unique by calling `HyperNodeJson.assertAtom` method:
 

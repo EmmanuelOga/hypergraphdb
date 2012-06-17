@@ -55,13 +55,15 @@ jsonNode.remove(jsonNode.exactly(object("name", "Pedro", age, 28)));
 
 As hinted by its name, the `HyperNodeJson` class implements the [http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/HyperNode.html HyperNode] interface so it is an interface to the underlying graph as well. This means you can use it to interact with other types of atoms. Nevertheless, `HyperNodeJson` is a view of the database as a graph of JSON structures. The _Implementation_ section below gives some implementation details of this wrapper and why it is necessary to have it. In addition to all the standard `HyperNode` interface, it provides several additional methods related to the representation and covering common use cases. The methods for finding Json elements:
 
-||*match(Json j, boolean exact)*|| Performs a pattern matching lookup return the first entity in the databases that matches _j_. The _exact_ parameter specifies whether object should be matched in full (true), or whether only the properties in the pattern should be matched. ||
-||*exactly(Json j)*|| A shorthand for _match(j, true)_||
-||*unique(Json j)*|| A shorthand for _match(j, false)_. This is intended for lookup of objects that are identified uniquely by a set of properties.||
-||*find(Json j, boolean exact)*||Same logic as _match_ except a full HyperGraphDB [http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/HGSearchResult.html HGSearchResult] is returned rather than the first match.||
-||*find(Json j)*|| Shorthand for _find(j, false)_.||
-||*findAll(Json j)*|| Do a _find(j, false)_ and return all results in a `List` of [http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/HGHandle.html HGHandle]s.||
-||*getAll(Json pattern)*||Same as _findAll(Json pattern)_ but return a `List` of `Json` entities.||
+||*`match(Json j, 
+         boolean exact)`*|| Performs a pattern matching lookup return the first entity in the databases that matches _j_. The _exact_ parameter specifies whether object should be matched in full (true), or whether only the properties in the pattern should be matched. ||
+||*`exactly(Json j)`*|| A shorthand for _match(j, true)_||
+||*`unique(Json j)`*|| A shorthand for _match(j, false)_. This is intended for lookup of objects that are identified uniquely by a set of properties.||
+||*`find(Json j, 
+    boolean exact)`*||Same logic as _match_ except a full HyperGraphDB [http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/HGSearchResult.html HGSearchResult] is returned rather than the first match.||
+||*`find(Json j)`*|| Shorthand for _find(j, false)_.||
+||*`findAll(Json j)`*|| Do a _find(j, false)_ and return all results in a `List` of [http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/HGHandle.html HGHandle]s.||
+||*`getAll(Json pattern)`*||Same as _findAll(Json pattern)_ but return a `List` of `Json` entities.||
 
 And there's a family of methods to lookup for JSON properties, represented as name/value pairs by the class [http://www.hypergraphdb.org/docs/apps/mjson/mjson/hgdb/JsonProperty.html JsonProperty]:
 

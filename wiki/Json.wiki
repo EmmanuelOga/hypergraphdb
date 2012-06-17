@@ -56,7 +56,7 @@ jsonNode.remove(jsonNode.exactly(object("name", "Pedro", age, 28)));
 As hinted by its name, the `HyperNodeJson` class implements the [http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/HyperNode.html HyperNode] interface so it is an interface to the underlying graph as well. This means you can use it to interact with other types of atoms. Nevertheless, `HyperNodeJson` is a view of the database as a graph of JSON structures. The _Implementation_ section below gives some implementation details of this wrapper and why it is necessary to have it. In addition to all the standard `HyperNode` interface, it provides several additional methods related to the representation and covering common use cases. The methods for finding Json elements:
 
 <table>
-<tr><td nowrap>match(Json j, boolean exact)</td>
+<tr valign="top"><td nowrap>match(Json j, boolean exact)</td>
 <td>Performs a pattern matching lookup return the first entity in the databases that matches _j_. The _exact_ parameter specifies whether object should be matched in full (true), or whether only the properties in the pattern should be matched.</td></tr>
 <tr><td nowrap>exactly(Json j)</td>
 <td>A shorthand for _match(j, true)</td></tr>

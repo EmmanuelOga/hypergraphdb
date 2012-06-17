@@ -66,8 +66,8 @@ As hinted by its name, the `HyperNodeJson` class implements the [http://www.hype
 And there's a family of methods to lookup for JSON properties, represented as name/value pairs by the class [http://www.hypergraphdb.org/docs/apps/mjson/mjson/hgdb/JsonProperty.html JsonProperty]:
 
 ||*findProperty(HGHandle name, HGHandle value)*||Find the property atom with the given name (a String atom) and value (a Json atom).||
-||findProperty(T1 name, T2 value) || A bunch of overloaded _findProperty_ methods that take different types of arguments (a String and a Json) and will do essentially what you would expect them.||
-||findPropertyValues(HGHandle name)||Retrieve all Json values that appear in properties with the given name atom.||
+||*findProperty(T1 name, T2 value)* || A bunch of overloaded _findProperty_ methods that take different types of arguments (a String and a Json) and will do essentially what you would expect them.||
+||*findPropertyValues(HGHandle name)*||Retrieve all Json values that appear in properties with the given name atom.||
 
 All above methods have to do with searching the database and pattern matching on JSON structures. Adding entities also has several variants. And they have to do with how you decide to deal with repeated data (i.e. duplicates). One way to view a database, especially one build on HyperGraphDB, is as a knowledge base where each atom represents a unique and immutable piece of knowledge. In that view, you would not allow for duplicate data and every JSON structure (or pimitive value) that you store will have exactly one copy. You ensure unique by calling `HyperNodeJson.assertAtom` method:
 

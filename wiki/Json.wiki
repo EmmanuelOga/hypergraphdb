@@ -81,15 +81,15 @@ And there's a family of methods to search for JSON properties, represented as na
 
 <table>
 <tr><td nowrap>findProperty(HGHandle name, HGHandle value)</td><td>Find the property atom with the given name (a String atom) and value (a Json atom).</td></tr>
-<tr><td nowrap>findProperty(T1 name, T2 value)</td><td>A bunch of overloaded _findProperty_ methods that take different types of arguments (a String and a Json) and will do essentially what you would expect them.</td></tr>
+<tr><td nowrap>findProperty(T1 name, T2 value)</td><td>A bunch of overloaded _findProperty_ methods that take different types of arguments (e.g. a String and a Json) and will do essentially what you would expect them.</td></tr>
 <tr><td nowrap>findPropertyValues(HGHandle name)</td><td>Retrieve all Json values that appear in properties with the given name atom.</td></tr>
 </table>
 
-All above methods have to do with searching the database and pattern matching on JSON structures. Adding entities also has several variants. And they have to do with how you decide to deal with repeated data (i.e. duplicates). One way to view a database, especially one build on HyperGraphDB, is as a knowledge base where each atom represents a unique and immutable piece of knowledge. In that view, you would not allow for duplicate data and every JSON structure (or pimitive value) that you store will have exactly one copy. You ensure unique by calling `HyperNodeJson.assertAtom` method:
+All above methods have to do with searching the database and pattern matching on JSON structures. Adding entities also has several variants. And they have to do with how you decide to deal with repeated data (i.e. duplicates). One way to view a database, especially one build on HyperGraphDB, is as a knowledge base where each atom represents a unique and immutable piece of knowledge. In that view, you would not allow for duplicate data and every JSON structure (or pimitive value) that you store will have exactly one copy. You ensure uniqueness by calling `HyperNodeJson.assertAtom` method:
 
 {{{
 Json x = array(1, 2, 3);
-// The assert effectively perform an exact match lookup of
+// The assert effectively performs an exact match lookup of
 // the passed in Json and adds it to the database only when
 // no data with the exact same value has been found.
 HGHandle handleX = jsonNode.assertAtom(x);
@@ -108,7 +108,7 @@ HGHandle handleX = jsonNode.add(x);
 assert !handleX.equals(jsonNode.add(x));
 }}}
 
-Now, the main advantage of storing JSON structures as a graph is that this creates an implicit index of all objects and arrays by their elements. That is, given any JSON property, you can easily find all the objects that have that property simply in virtue of the fact that the property is a node in the graph and all objects with that property are links pointing to it. And given any JSON value, primitive or not, you can quickly find all arrays that contain it. You can do such a query by pattern matching as shown above, or by first looking up the `JsonProperty` in question and then examining its incidence set. For example:
+Now, the main advantage of storing JSON structures as a graph is that this creates an implicit index of all objects and arrays by their elements. That is, given any JSON property, you can easily find all the objects that have that property simply because the property is a node in the graph and all objects with that property are links pointing to it. And given any JSON value, primitive or not, you can quickly find all arrays that contain it. You can do such a query by pattern matching as shown above, or by first looking up the `JsonProperty` in question and then examining its incidence set. For example:
 
 {{{
 HGHandle propHandle = jsonNode.findProperty("person", 
@@ -118,7 +118,7 @@ List<Json> L = jsonNode.getAll(hg.incident(propHandle));
 
 Clearly, that strategy works only when Json values are unique in the database. Whenever there are duplicates, results from each duplicate have to be aggregated together in order to properly answer a query. 
 
-So what would be the right view for the "average" application - a knowledge base or a collection of data, allowing duplicates? The answer is a mix of both. Conceptually, the question of whether a given datum should be duplicated bears on whether the data is representing distinct entities from the application domain. Distinct entities may very well yield the same representation at a certain point in a time, and be equivalent in that sense, yet without being identical. For example imagine you are storing information about job positions where a job position has a title, a salary and a boolean flag indicating whether it is vacant. You may well have two positions with identical information, yet they are distinct entities each subject to change on its own. So at a more practical level, the question of repeated data is related to the question of immutability - if a datum can change independently of other, equivalent data, then it should be stored separately. In an application, one frequently thinks in terms of _business entities_ or _business objects_ that are usually (but not always!) subject to change. And this is a sensible criteria to decide whether something should be stored as its own "record": when it is representing a real-world entity with mutable properties. Everything else is a "mere" value regardless of how complex it is as a data structure. Commonly, business objects are top-level entities in whatever nested representation one has defined as the model of the application domain. As top-level entities, they are mutable, but their components are generally immutable values. And this is the motivation behind the third way of inserting `Json` atoms into HyperGraphDB, the `HyperNodeJson.addTopLevel` method which will create a new atom for the passed in object, but recursively perform an `assertAtom` operation for each of its compnents. For example:
+So what would be the right view for the "average" application - a knowledge base or a collection of data allowing duplicates? The answer is a mix of both. Conceptually, the question of whether a given datum should be duplicated bears on whether the data is representing distinct entities from the application domain. Distinct entities may very well yield the same representation at a certain point in a time, and be equivalent in that sense, yet without being identical. For example imagine you are storing information about job positions where a job position has a title, a salary and a boolean flag indicating whether it is vacant. You may well have two positions with identical information, yet they are distinct entities each subject to change on its own. So at a more practical level, the question of repeated data is related to the question of immutability - if a datum can change independently of other, equivalent data, then it should be stored separately. In an application, one frequently thinks in terms of _business entities_ or _business objects_ that are usually (but not always!) subject to change. And this is a sensible criteria to decide whether something should be stored as its own "record": when it is representing a real-world entity with mutable properties. Everything else is a "mere" value regardless of how complex it is as a data structure. Commonly, business objects are top-level entities in whatever nested representation one has defined as the model of the application domain. As top-level entities, they are mutable, but their components are generally immutable values. And this is the motivation behind the third way of inserting `Json` atoms into HyperGraphDB, the `HyperNodeJson.addTopLevel` method which will create a new atom for the passed in object, but recursively perform an `assertAtom` operation for each of its compnents. For example:
 
 {{{
 // Job benefits as a composite, 
@@ -145,21 +145,21 @@ assert jsonNode.getIncidenceSet(benefitsProperty)
          .contains(jobPosition);
 }}}
 
-Because `Json` primitives are immutable anyway, it always makes sense to call `assertAtom` when storing primitives. Note that this is the approach that HyperGraphDB's own primitive type implementations take: it's a time-space tradeoff where one sacrifices insert speed for more compact storage. You are probably not going to be adding `Json` primitives directly to the database, but in case you do it is strongly recommended that you use `assertAtom` as the `add` and `addTopLevel` will always create new atoms.
+Finally, note that because `Json` primitives are immutable anyway, it always makes sense to call `assertAtom` when storing primitives. This is the approach that HyperGraphDB's own primitive type implementations take: it's a time-space tradeoff where one sacrifices insert speed for more compact storage. You are probably not going to be adding `Json` primitives directly to the database, but in case you do it is strongly recommended that you use `assertAtom`.
 
 = Implementation = 
 
 The implementation is fairly straightforward. `Json` entities are each managed by its own type:
 
-  * Primitives are stored using HyperGraphDB's own predefined primitive Java type management where each value is stored only once and is being reference counted for removeal.
+  * Primitives are stored be delegating to HyperGraphDB's own predefined primitive Java type management where each value is stored only once and is being reference counted for removal.
   * Arrays are stored as HyperGraphDB links and they contains no additional payload value. Therefore the cost of retrieving an array is the cost of retrieving a simple link plus the cost of retrieving each of its elements where caching plays an important role.
-  * Objects are also stored as link, again with no additional access cost besides link retrieval and the object's properties which are potentially cached.
+  * Objects are also stored as links, again with no additional access cost besides link retrieval and the object's properties which are potentially cached.
 
-The sharing of immutable properties plays an important performance role here because recurring values and properties are atoms shared between the various `Json` entities and usually cached. The cost of the additional lookup during insertion is paid of by the ability to cache duplicate values more aggressively.
+The sharing of immutable properties plays an important performance role here because recurring values and properties are atoms shared between the various `Json` entities and usually cached. The cost of the additional lookup during insertion is paid of by the ability to cache duplicate values more aggressively. This is the motivation behind the choice to represent Json properties with the `JsonProperty` class - it allows them to be independently cached by the atom cache and it allows JSON objects to be represented as plain links.
 
 To accommodate the mJson API which is not coupled with the HyperGraphDB API, the `HyperNodeJson` implementation has to maintain its own atom cache in order to maintain the caching semantics expected from HyperGraphDB atoms. Here's how that comes about. To avoid implementing the standard `HGLink` interface, arrays and objects are stored as `HGValueLink` instances, even though there's no actual value. This way, HyperGraphDB recognizes them as links. However, we still want to associate a `Json` Java runtime object with the atom `HGHandle` in the cache instead of the `HGValueLink` Java object so that a call to `getHandle(Json)` will return the atom handle. While the `HyperNodeJson` correctly does the wrapping/unwrapping of `HGValueLink`s that represent `Json` objects and arrays, the HyperGraphDB main cache doesn't do that (maybe it should..., but currently it doesn't) so a separate transactional cache is maintained in the `HyperNodeJson` implementation. The need to transparently manage those non-`HGLink` objects as links is one of the main reasons of creating a special purpose database view of the JSON storage. And the existence of the private extra cache is the main reason that it is not advisable to instantiated multiple `HyperNodeJson` instances against the same underlying `HyperGraph` instance.
 
-If you care to look, you may notice some extra classes in the codebase, such as JsonTypeSchema, JsonAtomFactory etc. Those are currently not used and can be considered work in progress for future extensions of the library.
+If you care to look, you may notice some extra classes in the codebase, such as !JsonTypeSchema, !JsonAtomFactory etc. Those are currently not used and can be considered work in progress for future extensions of the library.
 
 = Future Work = 
 

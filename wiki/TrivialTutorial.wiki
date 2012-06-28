@@ -144,7 +144,7 @@ So let's register the index for querying the "value" property of HGValueLink:
         graph.runMaintenance();  // this explicitely starts the indexing process. Otherwise happens at next start.
 
         List<HGHandle> dupsList3 = hg.findAll(graph, hg.and(hg.link(handle1, handle2), hg.eq("value", "duplicates!")));
-        System.out.println("can we query for HGValueLinks with value diplicates out of the box? :" + (dupsList3.size() >0 && dupsList3.contains(duplicateLink)));     
+        System.out.println("can we query for HGValueLinks with value duplicates after registering an index? : " + (dupsList3.size() >0 && dupsList3.contains(duplicateLink)));     
 }}}
 => 
-can we query for HGValueLinks with value diplicates out of the box? : true
+can we query for HGValueLinks with value duplicates after registering an index? : true

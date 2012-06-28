@@ -1,7 +1,7 @@
 #summary Minimalistic Getting-Started
 
-=Is it difficult understand, setup and use HypergraphDB?=
-While hypergraphDB has fancy name and can do fancy things, the concepts behind are actually very consistent and not difficult to grasp. It isn't that difficult to use either (that to prove, is the intention of this tutorial).
+=Is it difficult to understand, setup and use HypergraphDB?=
+While with hypergraphDB you can do fancy things, the concepts behind are actually very consistent and not difficult to grasp. It can be a very useful tool for normal, non-fancy things. It isn't that difficult to use either (that to prove, is the intention of this tutorial).
 And no, it no longer is difficult to setup, since there no longer is the need for native library. If you are a developer, it now integrates with Maven and has excellent JSON support (among many other things).
 
 =How to instantiate HyperGraphDB?=
@@ -94,4 +94,3 @@ System.out.println("Are those two handles duplicates, i.e. two distinct handles?
 
 => 
 "Are those two handles duplicates, i.e. two distinct handles? : false"
-

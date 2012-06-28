@@ -1,8 +1,9 @@
 #summary Minimalistic Getting-Started
 
 =Is it difficult to understand, setup and use HypergraphDB?=
-While with hypergraphDB you can do fancy things, the concepts behind are actually very consistent and not difficult to grasp. It can be a very useful tool for normal, non-fancy things. It isn't that difficult to use either (that to prove, is the intention of this tutorial).
-And no, it no longer is difficult to setup, since there no longer is the need for native library. If you are a developer, it now integrates with Maven and has excellent JSON support (among many other things).
+While with hypergraphDB you can do fancy things, the concepts behind are actually not difficult. It follows a very consistent logic. And it can be a very useful tool for normal, non-fancy things too. 
+The intention of this tutorial is to prove that it is not difficult to use either.
+And no, since version 1.2, it no longer is difficult to setup, since there no longer is the need for native library. If you are a developer, it now integrates with Maven and has excellent JSON support (among many other things).
 
 =How to instantiate HyperGraphDB?=
 {{{
@@ -14,9 +15,15 @@ HyperGraph graph = new HyperGraph("/home/schopenhauer/hgdbData/");
 String someObject = "Lorem ipsum";
 HGHandle handle1 = graph.add(someObject);
 System.out.println(graph.get(handleToSomeObject));
+System.out.println(((String) graph.get(handle1)).toUpperCase());
 }}}
+=>
+Lorem ipsum
+LOREM IPSUM
 
-This is the trivial way, but is not the usual way hypergraphdb is typically used:
+The second printout proves that we get a fully functional java object (it has a working toUpperCase method). This shows that hypergraphDB is not only a graph-database, but also a object-oriented database.
+
+Ok. This is the trivial way, but is not the usual way hypergraphdb is typically used because:
   # graph.get() requires you to know the handle. This is often not the case, especially when you want data that you did not store just moments ago (hence most of the time! :-) ). Therefore most accesses typically happen by querying. 
   # If graph.add(someObject) is called more than once (for example by accident, each time you run a given program), you would end up with duplicates that can be disturbing when querying.
 
@@ -35,7 +42,7 @@ System.out.println(hg.getOne(graph, hg.type(String.class)));
 => "Lorem ipsum";
 
 
-hg.getOne returns you any one matching result as a ready-to-use object. But often we have several items that match a certain criteria. We get can get those packed in a List, with hg.getAll:
+hg.getOne returns you any one matching result as a ready-to-use object, just as did graph.get. But often we have several items that match a certain criteria. We get can get those packed in a List, with hg.getAll:
 In order to have two atoms, we just add the same object as above:
 {{{
 HGHandle handle2 = graph.add(someObject);
@@ -51,7 +58,7 @@ and then query for all Strings:
 dolor sit amet
 dolor sit amet
 
-We get two results here, that happen to be distinct duplicate copies of the same data.
+We get two results here, that happen to be distinct duplicate copies of the same data (we prove that later).
 
 As you see, querying is generally used in one of this ways:
 {{{
@@ -63,7 +70,7 @@ where "QueryCondition" in our example is hg.type(String.class), but of course th
 
 
 =How to query for handles?=
-Sometimes you need handles. It's easy. It's the same as with getOne/getAll, but instead of h.getOne you use hg.findOne. Instead of hg.getAll, use hg.findAll. 
+Sometimes you need handles. To query for them is easy. It's the same as with getOne/getAll, but instead of h.getOne you use hg.findOne. Instead of hg.getAll, use hg.findAll. 
 
 We use this to confirm that we created actual duplicate atoms in the "dolor sit amet" example above. We printout the handles, and check for equality with the handles obtained before: 
 

@@ -1,0 +1,97 @@
+#summary Minimalistic Getting-Started
+
+=Is it difficult understand, setup and use HypergraphDB?=
+While hypergraphDB has fancy name and can do fancy things, the concepts behind are actually very consistent and not difficult to grasp. It isn't that difficult to use either (that to prove, is the intention of this tutorial).
+And no, it no longer is difficult to setup, since there no longer is the need for native library. If you are a developer, it now integrates with Maven and has excellent JSON support (among many other things).
+
+=How to instantiate HyperGraphDB?=
+{{{
+HyperGraph graph = new HyperGraph("/home/schopenhauer/hgdbData/");
+}}}
+
+=How to store and retrieve data? - the trivial way=
+{{{
+String someObject = "Lorem ipsum";
+HGHandle handle1 = graph.add(someObject);
+System.out.println(graph.get(handleToSomeObject));
+}}}
+
+This is the trivial way, but is not the usual way hypergraphdb is typically used:
+  # graph.get() requires you to know the handle. This is often not the case, especially when you want data that you did not store just moments ago (hence most of the time! :-) ). Therefore most accesses typically happen by querying. 
+  # If graph.add(someObject) is called more than once (for example by accident, each time you run a given program), you would end up with duplicates that can be disturbing when querying.
+
+
+=How to store and retrieve data without knowning the handle? - querying basics=
+This is done by querying, by using  "hg":
+{{{
+import org.hypergraphdb.HGQuery.hg;
+}}}
+
+
+We stored only one element in our database, so we would immediately find "Lorem ipsum" simply by querying for type String:
+{{{
+System.out.println(hg.getOne(graph, hg.type(String.class)));
+}}}
+=> "Lorem ipsum";
+
+
+hg.getOne returns you any one matching result as a ready-to-use object. But often we have several items that match a certain criteria. We get can get those packed in a List, with hg.getAll:
+In order to have two atoms, we just add the same object as above:
+{{{
+HGHandle handle2 = graph.add(someObject);
+}}}
+
+and then query for all Strings:
+{{{
+        for (Object s : hg.getAll(graph, hg.type(String.class)))
+            System.out.println(s);
+}}}
+
+=>  
+dolor sit amet
+dolor sit amet
+
+We get two results here, that happen to be distinct duplicate copies of the same data.
+
+As you see, querying is generally used in one of this ways:
+{{{
+hg.getOne (graphInstance, QueryCondition); // ->  any one matching object.
+hg.getAll (graphInstance, QueryCondition); // ->  all matching objects as a List.
+}}}
+
+where "QueryCondition" in our example is hg.type(String.class), but of course there is more.
+
+
+=How to query for handles?=
+Sometimes you need handles. It's easy. It's the same as with getOne/getAll, but instead of h.getOne you use hg.findOne. Instead of hg.getAll, use hg.findAll. 
+
+We use this to confirm that we created actual duplicate atoms in the "dolor sit amet" example above. We printout the handles, and check for equality with the handles obtained before: 
+
+{{{
+         for (Object s : hg.findAll(graph, hg.type(String.class)))
+        {
+            System.out.println(s);
+            System.out.println((s.equals(handle1) || s.equals(handle2)));
+        }
+}}}
+
+=> 
+259b3dbd-4e4f-4566-b850-1029f99e6d1b
+true
+dceadb0c-318b-4249-917a-559d2f077fcc
+true
+
+
+=How to store data uniquely?=
+Now, how to make sure that a given data is stored only once, even when -by accident or not- the data is stored twice?
+
+{{{
+String object2 = "dolor sit amet";
+HGHandle noDup1 = hg.assertAtom(graph, object2);
+HGHandle noDup2 = hg.assertAtom(graph, object2);  //trying hard to duplicate
+System.out.println("Are those two handles duplicates, i.e. two distinct handles? : " + (!noDup1.equals(noDup2)));
+}}}
+
+=> 
+"Are those two handles duplicates, i.e. two distinct handles? : false"
+

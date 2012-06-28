@@ -8,7 +8,10 @@ And no, since version 1.2, it no longer is difficult to setup, since there no lo
 =How to instantiate HyperGraphDB?=
 {{{
 HyperGraph graph = new HyperGraph("/home/schopenhauer/hgdbData/");
+// do things. Then close it:
+graph.close()
 }}}
+In production systems, you are recommended to ensure graph.close by wrapping code in try / finally blocks.
 
 =How to store and retrieve data? - the trivial way=
 {{{
@@ -101,3 +104,45 @@ System.out.println("Are those two handles duplicates, i.e. two distinct handles?
 
 => 
 "Are those two handles duplicates, i.e. two distinct handles? : false"
+
+=Creating Links and querying for Links=
+
+Till now there was nothing graph, only object-oriented database functionality. We also did not do particularly interesting queries.
+
+Let's make a link and query for it:
+{{{
+        HGHandle duplicateLink = graph.add(new HGValueLink("duplicates!", handle1, handle2));
+        List<HGHandle> dupsList = hg.findAll(graph, hg.link(handle1, handle2));
+        System.out.println("querying for link returned that duplicate Link? :" + dupsList.contains(duplicateLink));
+}}}
+=>
+querying for link returned that duplicate Link? :true
+
+{{{
+        List<HGHandle> dupsList2 = hg.findAll(graph, hg.and(hg.link(handle1, handle2), hg.eq("value", "duplicates!")));
+        System.out.println("can we query for HGValueLinks with the value \"duplicates\" out of the box? :" + (dupsList2.size() >0 ));
+}}}
+can we query for HGValueLinks with value diplicates out of the box? :false
+
+Well, in order to query for properties (such as value is a property of HGValueLink class), there are some- admitted- mildly complicated things:
+
+  1) In order to be indexable and queriable, the class in question has to follow the Java Bean Convention. This roughly means:
+  * for each field fieldName, there must be a getFieldName() method.
+  * for each mutable field mutableField, there must be a setMutableField() method.
+  * there has to be a default constructor, i.e. one that doesn't has any arguments.
+  2) There is an indexing mechanism that you must first tell what it has to index. It looks complicated, but afterall you don't have to invent it, just use it :-)
+
+HGValueLink is following the java bean convention, as you can confirm [http://code.google.com/p/hypergraphdb/source/browse/trunk/core/src/java/org/hypergraphdb/HGValueLink.java here]. 
+
+So let's register the index for querying the "value" property of HGValueLink:
+
+{{{
+        HGHandle valueLinkTypeHandle = graph.getTypeSystem().getTypeHandle(HGValueLink.class);
+        graph.getIndexManager().register(new ByPartIndexer(valueLinkTypeHandle, "value"));
+        graph.runMaintenance();  // this explicitely starts the indexing process. Otherwise happens at next start.
+
+        List<HGHandle> dupsList3 = hg.findAll(graph, hg.and(hg.link(handle1, handle2), hg.eq("value", "duplicates!")));
+        System.out.println("can we query for HGValueLinks with value diplicates out of the box? :" + (dupsList3.size() >0 && dupsList3.contains(duplicateLink)));     
+}}}
+=> 
+can we query for HGValueLinks with value diplicates out of the box? : true

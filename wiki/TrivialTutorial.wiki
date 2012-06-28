@@ -20,7 +20,7 @@ HGHandle handle1 = graph.add(someObject);
 System.out.println(graph.get(handleToSomeObject));
 System.out.println(((String) graph.get(handle1)).toUpperCase());
 }}}
-=>
+->
 Lorem ipsum
 LOREM IPSUM
 
@@ -42,7 +42,7 @@ We stored only one element in our database, so we would immediately find "Lorem 
 {{{
 System.out.println(hg.getOne(graph, hg.type(String.class)));
 }}}
-=> "Lorem ipsum";
+-> "Lorem ipsum";
 
 
 hg.getOne returns you any one matching result as a ready-to-use object, just as did graph.get. But often we have several items that match a certain criteria. We get can get those packed in a List, with hg.getAll:
@@ -57,7 +57,7 @@ and then query for all Strings:
             System.out.println(s);
 }}}
 
-=>  
+->
 dolor sit amet
 dolor sit amet
 
@@ -85,7 +85,7 @@ We use this to confirm that we created actual duplicate atoms in the "dolor sit 
         }
 }}}
 
-=> 
+-> 
 259b3dbd-4e4f-4566-b850-1029f99e6d1b
 true
 dceadb0c-318b-4249-917a-559d2f077fcc
@@ -102,8 +102,10 @@ HGHandle noDup2 = hg.assertAtom(graph, object2);  //trying hard to duplicate
 System.out.println("Are those two handles duplicates, i.e. two distinct handles? : " + (!noDup1.equals(noDup2)));
 }}}
 
-=> 
+-> 
 "Are those two handles duplicates, i.e. two distinct handles? : false"
+
+Note that - logically - there is a cost associated with due to checking. If you don't need unique atoms, graph.add is faster.
 
 =Creating Links and querying for Links=
 

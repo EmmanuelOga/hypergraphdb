@@ -1,8 +1,8 @@
 #summary Minimalistic Getting-Started
 
 =Is it difficult to understand, setup and use HypergraphDB?=
-While with hypergraphDB you can do fancy things, the concepts behind are actually not difficult. It follows a very consistent logic. And it can be a very useful tool for normal, non-fancy things too. 
-The intention of this tutorial is to prove that it is not difficult to use either.
+While with hypergraphDB you can do fancy things, and while there are some things that are not directly obvious, the concepts behind HypergraphDB are actually not difficult. It follows a very consistent logic. And it can be a very useful tool for normal, non-fancy things too. 
+The intention of this tutorial is to prove that generally, it is not difficult to use either, and to improve documentation on those edges where things are non-obvious.
 And no, since version 1.2, it no longer is difficult to setup, since there no longer is the need for native library. If you are a developer, it now integrates with Maven and has excellent JSON support (among many other things).
 
 =How to instantiate HyperGraphDB?=
@@ -113,30 +113,32 @@ Till now there was nothing graph, only object-oriented database functionality. W
 
 Let's make a link and query for it:
 {{{
-        HGHandle duplicateLink = graph.add(new HGValueLink("duplicates!", handle1, handle2));
+        HGHandle duplicateLink = graph.add(new HGRelType("duplicates!", handle1, handle2));
         List<HGHandle> dupsList = hg.findAll(graph, hg.link(handle1, handle2));
         System.out.println("querying for link returned that duplicate Link? :" + dupsList.contains(duplicateLink));
 }}}
 =>
 querying for link returned that duplicate Link? :true
 
-{{{
-        List<HGHandle> dupsList2 = hg.findAll(graph, hg.and(hg.link(handle1, handle2), hg.eq("value", "duplicates!")));
-        System.out.println("can we query for HGValueLinks with the value \"duplicates\" out of the box? :" + (dupsList2.size() >0 ));
-}}}
-can we query for HGValueLinks with value diplicates out of the box? :false
+=Querying for properties=
+Querying for properties of an object is a bit less directly accessible, than what was previously shown.
+In order to store a java object, HypergraphDB first creates a corresponding HypergraphDB type from the java class of that object.
 
-Well, in order to query for properties (such as value is a property of HGValueLink class), there are some- admitted- mildly complicated things:
+In order to be able to an java type that can be transformed into a hypergraphdb type whose properties are to be indexable and queryable, there are some requirements:
 
-  1) In order to be indexable and queriable, the class in question has to follow the Java Bean Convention. This roughly means:
-  * for each field fieldName, there must be a getFieldName() method.
-  * for each mutable field mutableField, there must be a setMutableField() method.
-  * there has to be a default constructor, i.e. one that doesn't has any arguments.
-  2) There is an indexing mechanism that you must first tell what it has to index. It looks complicated, but afterall you don't have to invent it, just use it :-)
+  # the java class has to follow the Java Bean Convention. 
+  # the java type itself or a type constructor that produces the class, must be a "HGCompositeType".
+  # an Indexer for that type must be registered.
 
-HGValueLink is following the java bean convention, as you can confirm [http://code.google.com/p/hypergraphdb/source/browse/trunk/core/src/java/org/hypergraphdb/HGValueLink.java here]. 
+Explanations:
+  1) In order to follow the Java Bean Convention:
+  * for each field fieldName, there must be a getFieldName() method
+  * for each mutable field mutableField, there must be a setMutableField() method, and 
+  * there has to be a default constructor, i.e. a null-argument constructor.
 
-So let's register the index for querying the "value" property of HGValueLink:
+  2) HGCompositeType. STOPPED WRITING HERE
+
+So let's register the index for querying the "name" property of HGValueLink:
 
 {{{
         HGHandle valueLinkTypeHandle = graph.getTypeSystem().getTypeHandle(HGValueLink.class);

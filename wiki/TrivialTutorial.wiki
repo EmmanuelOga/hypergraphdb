@@ -1,11 +1,11 @@
 #summary Minimalistic Getting-Started
 
-DISCLAIMER: this page is written by a User, it is not an "official" hypergraphDB document. It is as of yet, not finished.
+DISCLAIMER: this page is written by a User. It is not an "official" hypergraphDB document. It is as of yet, incomplete.
 
 =Is it difficult to understand, setup and use HypergraphDB?=
 While with hypergraphDB you can do fancy things, and while there are some things that are not directly obvious, the concepts behind HypergraphDB are actually not difficult. It follows a very consistent logic. And it can be a very useful tool for normal, non-fancy things too. 
 The intention of this tutorial is to prove that generally, it is not difficult to use either, and to improve documentation on those edges where things are non-obvious.
-And no, since version 1.2, it no longer is difficult to setup, since there no longer is the need for native library. If you are a developer, it now integrates with Maven and has excellent JSON support (among many other things).
+Since version 1.2, it no longer is difficult to setup, since there no longer is the need for a native library. It now integrates with Maven and has excellent JSON support (among many other things).
 
 =How to instantiate HyperGraphDB?=
 {{{
@@ -13,7 +13,7 @@ HyperGraph graph = new HyperGraph("/home/schopenhauer/hgdbData/");
 // do things. Then close it:
 graph.close()
 }}}
-In production systems, you are recommended to ensure graph.close by wrapping code in try / finally blocks.
+In production systems, you are recommended to ensure graph.close by wrapping code in try / finally blocks. If you manage several hypergraph instances, use HGEnvironment.get(location).
 
 =How to store and retrieve data? - the trivial way=
 {{{
@@ -26,17 +26,19 @@ System.out.println(((String) graph.get(handle1)).toUpperCase());
 Lorem ipsum
 LOREM IPSUM
 
-The second printout proves that we get a fully functional java object (it has a working toUpperCase method). This shows that hypergraphDB is not only a graph-database, but also a object-oriented database.
-
-Ok. This is the trivial way, but is not the usual way hypergraphdb is typically used because:
+Notes:
+   * graph.add(...) returnes a "handle" with which you can access the datum directly (as seen in graph.get a line below). A handle generally is an auto-generated database ID. 
+  *  using add/get to store and retrieve data is not necessarily the typical way hypergraphdb is used because:
   # graph.get() requires you to know the handle. This is often not the case, especially when you want data that you did not store just moments ago (hence most of the time! :-) ). Therefore most accesses typically happen by querying. 
   # If graph.add(someObject) is called more than once (for example by accident, each time you run a given program), you would end up with duplicates that can be disturbing when querying.
+  * the second println demonstrate that we get a fully functional java object, in that case, it has a working toUpperCase method. This shows that hypergraphDB is not only a graph-database, but also a full object-oriented database.
+
 
 
 =How to store and retrieve data without knowning the handle? - querying basics=
-This is done by querying, by using  "hg":
+Querying is done conveniently by using the static helper class "hg":
 {{{
-import org.hypergraphdb.HGQuery.hg;
+import org.hypergraphdb.HGQuery.hg.*;
 }}}
 
 
@@ -47,7 +49,7 @@ System.out.println(hg.getOne(graph, hg.type(String.class)));
 -> "Lorem ipsum";
 
 
-hg.getOne returns you any one matching result as a ready-to-use object, just as did graph.get. But often we have several items that match a certain criteria. We get can get those packed in a List, with hg.getAll:
+hg.getOne returns you any one (of possibly many) matching result as a ready-to-use object, just as did graph.get. But often we have several items that match a certain criteria. We get can get those packed in a List, with hg.getAll:
 In order to have two atoms, we just add the same object as above:
 {{{
 HGHandle handle2 = graph.add(someObject);
@@ -121,34 +123,3 @@ Let's make a link and query for it:
 }}}
 =>
 querying for link returned that duplicate Link? :true
-
-=Querying for properties=
-Querying for properties of an object is a bit less directly accessible, than what was previously shown.
-In order to store a java object, HypergraphDB first creates a corresponding HypergraphDB type from the java class of that object.
-
-In order to be able to an java type that can be transformed into a hypergraphdb type whose properties are to be indexable and queryable, there are some requirements:
-
-  # the java class has to follow the Java Bean Convention. 
-  # the java type itself or a type constructor that produces the class, must be a "HGCompositeType".
-  # an Indexer for that type must be registered.
-
-Explanations:
-  1) In order to follow the Java Bean Convention:
-  * for each field fieldName, there must be a getFieldName() method
-  * for each mutable field mutableField, there must be a setMutableField() method, and 
-  * there has to be a default constructor, i.e. a null-argument constructor.
-
-  2) HGCompositeType. STOPPED WRITING HERE
-
-So let's register the index for querying the "name" property of HGValueLink:
-
-{{{
-        HGHandle valueLinkTypeHandle = graph.getTypeSystem().getTypeHandle(HGValueLink.class);
-        graph.getIndexManager().register(new ByPartIndexer(valueLinkTypeHandle, "value"));
-        graph.runMaintenance();  // this explicitely starts the indexing process. Otherwise happens at next start.
-
-        List<HGHandle> dupsList3 = hg.findAll(graph, hg.and(hg.link(handle1, handle2), hg.eq("value", "duplicates!")));
-        System.out.println("can we query for HGValueLinks with value duplicates after registering an index? : " + (dupsList3.size() >0 && dupsList3.contains(duplicateLink)));     
-}}}
-=> 
-can we query for HGValueLinks with value duplicates after registering an index? : true

@@ -111,7 +111,7 @@ System.out.println("Are those two handles duplicates, i.e. two distinct handles?
 
 Note that - logically - there is a cost associated with due to checking. If you don't need unique atoms, graph.add is faster.
 
-=Creating Links and querying for Links=
+=How to create Links and query for Links?=
 
 Till now there was nothing graph, only object-oriented database functionality. We also did not do particularly interesting queries.
 
@@ -123,3 +123,60 @@ Let's make a link and query for it:
 }}}
 =>
 querying for link returned that duplicate Link? :true
+
+
+=How to query for properties?=
+Consider you have a Bean like this:
+
+{{{
+public class Name {
+    private String surname;
+    public String getSurname() { return surname; }
+    public void setSurname(String surname) { this.surname = surname; }
+
+    private String firstName;
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName;  }
+
+    public Name(){};
+}
+}}}
+
+and you stored some names:
+{{{
+          Name b = new Name();
+            b.setSurname("Hugo");
+            b.setFirstName("Victor");
+            graph.add(b);
+
+            Name c = new Name();
+            c.setSurname("Chavez");
+            c.setFirstName("Hugo");
+            graph.add(c);
+
+            Name d = new Name();
+            d.setSurname("Camus");
+            d.setFirstName("Albert");
+            graph.add(d);
+}}}
+
+then in order to query, you first have to define indices:
+{{{
+    HGHandle bTypeH = graph.getTypeSystem().getTypeHandle(Name.class);
+        graph.getIndexManager().register(new ByPartIndexer(bTypeH, "surname"));
+        graph.getIndexManager().register(new ByPartIndexer(bTypeH, "firstName"));
+        graph.runMaintenance();
+}}}
+
+Querying example:
+{{{
+        List<Name> hugos = hg.getAll(graph, hg.and(hg.type(Name.class), hg.or(hg.eq("surname", "Hugo"), hg.eq("firstName", "Hugo"))));
+        List<Name> noHugos = hg.getAll(graph, hg.and(hg.type(Name.class), hg.not(hg.or(hg.eq("surname", "Hugo"), hg.eq("firstName", "Hugo")))));
+
+        for(Name n : hugos)
+                System.out.println("hugo: surname:" + n.getSurname() + " . first name: " + n.getFirstName());
+
+        for(Name n : noHugos)
+            System.out.println("No Hugo: surname:" + n.getSurname() + " . first name: " + n.getFirstName());
+
+}}}

@@ -160,15 +160,7 @@ and you stored some names:
             graph.add(d);
 }}}
 
-then in order to query, you first have to define indices:
-{{{
-    HGHandle bTypeH = graph.getTypeSystem().getTypeHandle(Name.class);
-        graph.getIndexManager().register(new ByPartIndexer(bTypeH, "surname"));
-        graph.getIndexManager().register(new ByPartIndexer(bTypeH, "firstName"));
-        graph.runMaintenance();
-}}}
-
-Querying example:
+then a query example would be:
 {{{
         List<Name> hugos = hg.getAll(graph, hg.and(hg.type(Name.class), hg.or(hg.eq("surname", "Hugo"), hg.eq("firstName", "Hugo"))));
         List<Name> noHugos = hg.getAll(graph, hg.and(hg.type(Name.class), hg.not(hg.or(hg.eq("surname", "Hugo"), hg.eq("firstName", "Hugo")))));
@@ -179,4 +171,19 @@ Querying example:
         for(Name n : noHugos)
             System.out.println("No Hugo: surname:" + n.getSurname() + " . first name: " + n.getFirstName());
 
+}}}
+
+output:
+hugo: surname:Hugo . first name: Victor
+hugo: surname:Chavez . first name: Hugo
+No Hugo: surname:Camus . first name: Albert
+
+
+=how to and why index?=
+Indexing is not required for querying, but done for performance reasons. For the above example, you would define an index like this before running the query:
+{{{
+    HGHandle bTypeH = graph.getTypeSystem().getTypeHandle(Name.class);
+        graph.getIndexManager().register(new ByPartIndexer(bTypeH, "surname"));
+        graph.getIndexManager().register(new ByPartIndexer(bTypeH, "firstName"));
+        graph.runMaintenance();
 }}}

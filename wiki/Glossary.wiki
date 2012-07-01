@@ -1,0 +1,25 @@
+#summary Glossary of HypergraphDB-Terminology and definitions for central classes
+
+DISCLAIMER: this page is written by a User. It is not an "official" hypergraphDB document. It is as of yet, incomplete. 
+
+=Atom=
+
+=arity=
+arity: The number of atoms a link points to. Nodes have an arity of zero.
+=Dimension=
+=incidence set
+The set of all links pointing to a given atom.
+
+=HGAtomType=
+=HGCompositeType=
+=Link=
+=Projection=
+=Record= 
+=RecordType= 
+=RecordTypeConstructor=
+=Slot=
+=target set=
+The set of atoms a given link points to. 
+
+=Type= 
+=Type Constructor=

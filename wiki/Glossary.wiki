@@ -6,12 +6,23 @@ DISCLAIMER: this page is written by a User. It is not an "official" hypergraphDB
 
 =arity=
 arity: The number of atoms a link points to. Nodes have an arity of zero.
+=Compound Type=
 =Dimension=
 =incidence set=
 The set of all links pointing to a given atom.
 
 =HGAtomType=
+Java classes implementing the HGAtomType interface are HypergraphDB types. 
+A HGAtomType must provide:
+- make(...): create instances of that type, i.e. deserializes from store into a runtime object. It's therefore an object factory.
+- store(..): store
+- release (... ): remove from store
+- subsumes(A1, A2): define subsumption relationship, aka inheritance
+
 =HGCompositeType=
+The java interface to be implemented for record-style structures.
+
+
 =Link=
 =Projection=
 =Record= 
@@ -21,5 +32,15 @@ The set of all links pointing to a given atom.
 =target set=
 The set of atoms a given link points to. 
 
-=Type= 
+=Type -general= 
+“...plugging instructions. A term of a given type T is both something that can be plugged somewhere as well as a plug with free, typed variable" (Jean-Yves Girard)
+
+=Type - HypergraphDB-specific= 
+  1) A type is an atom capable of storing, constructing and removing runtime
+representations of its instances to and from the primitive storage layer.  
+  2) A type is capable, given two of its instances, to tell whether one of them can
+be substituted for the other (subsumption relation). [http://www.hypergraphdb.org/docs/hypergraphdb.pdf ref]
+
+The java class defining an hypergraphDB type must implement the HGAtomType interface.
+
 =Type Constructor=

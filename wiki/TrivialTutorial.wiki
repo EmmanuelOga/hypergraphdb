@@ -124,6 +124,22 @@ Let's make a link and query for it:
 =>
 querying for link returned that duplicate Link? :true
 
+=How to make relationships?=
+In the example above, we are created a link, but the information that the contained atoms are duplicates is silent. 
+In order to create a meaningful relationsship, there is -among other ready-made links- HGRel. Since HGRel is part of a more powerful mechanism, you first define a HGRelType (which is comparable to a SQL table definition). In there you define the (~table) name, and the types of the atoms participating in the relationship. Since being duplicate or not is general, we use the Top-Type here.
+
+{{{
+        HGTypeSystem hts = graph.getTypeSystem();
+        hts.getTop();
+        HGHandle duplicateRelType = graph.add(new HGRelType("duplicates!", hts.getTop(), hts.getTop()));
+        HGHandle hgrelDuplicateLink =graph.add(new HGRel(handle1, handle2), duplicateRelType);
+  System.out.println("does handle2 have a duplicate? : " +
+                hg.findAll(graph, hg.and(hg.link(handle2), hg.type(duplicateRelType))).contains(hgrelDuplicateLink));
+
+}}}
+=> does handle2 have a duplicate? : true
+
+
 
 =How to query for properties?=
 Consider you have a Bean like this:

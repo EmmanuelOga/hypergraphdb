@@ -6,7 +6,9 @@ DISCLAIMER: this page is written by a User. It is not an "official" hypergraphDB
 
 =arity=
 arity: The number of atoms a link points to. Nodes have an arity of zero.
-=Compound Type=
+=Composite Type=
+A type that has properties, for example a Bean. A String or an Integer are not composite types.
+
 =Dimension=
 =incidence set=
 The set of all links pointing to a given atom.

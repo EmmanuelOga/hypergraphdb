@@ -176,7 +176,7 @@ and you stored some names:
             graph.add(d);
 }}}
 
-then a query example would be:
+then in this query we ask for people that 1) do have and 2) that don't have "Hugo" either as a surname or as a first name:
 {{{
         List<Name> hugos = hg.getAll(graph, hg.and(hg.type(Name.class), hg.or(hg.eq("surname", "Hugo"), hg.eq("firstName", "Hugo"))));
         List<Name> noHugos = hg.getAll(graph, hg.and(hg.type(Name.class), hg.not(hg.or(hg.eq("surname", "Hugo"), hg.eq("firstName", "Hugo")))));
@@ -185,14 +185,14 @@ then a query example would be:
                 System.out.println("hugo: surname:" + n.getSurname() + " . first name: " + n.getFirstName());
 
         for(Name n : noHugos)
-            System.out.println("No Hugo: surname:" + n.getSurname() + " . first name: " + n.getFirstName());
+            System.out.println("Not a Hugo: surname:" + n.getSurname() + " . first name: " + n.getFirstName());
 
 }}}
 
 output:
 hugo: surname:Hugo . first name: Victor
 hugo: surname:Chavez . first name: Hugo
-No Hugo: surname:Camus . first name: Albert
+Not a Hugo: surname:Camus . first name: Albert
 
 
 =how to and why index?=
@@ -203,3 +203,5 @@ Indexing is not required for querying, but done for performance reasons. For the
         graph.getIndexManager().register(new ByPartIndexer(bTypeH, "firstName"));
         graph.runMaintenance();
 }}}
+
+=How to traverse HypergraphDB?=

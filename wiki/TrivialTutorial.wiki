@@ -204,4 +204,24 @@ Indexing is not required for querying, but done for performance reasons. For the
         graph.runMaintenance();
 }}}
 
-=How to traverse HypergraphDB?=
+=How to traverse a graph in HypergraphDB?=
+{{{
+         String[] strings = "Look here, this is a String, that is gonna be split into words and linked together".toLowerCase().replaceAll(",", "").split("\\s+");
+        HGHandle[] stringsHandles = new HGHandle[strings.length];
+        for (int i = 0; i<strings.length; i++){
+            stringsHandles[i] = graph.add(strings[i]);
+        }
+        for (int i = 0; i<strings.length; i++){
+
+                if (i< strings.length-2){
+                HGPlainLink link = new HGPlainLink(stringsHandles[i], stringsHandles[i+1], stringsHandles[i+2]);
+                graph.add(link);
+            }
+        }
+        HGALGenerator alGen = new DefaultALGenerator(graph, hg.type(HGPlainLink.class), hg.type(String.class),false, true, false);
+        HGTraversal trav= new HGBreadthFirstTraversal(stringsHandles[0], alGen);
+        while(trav.hasNext()){
+            Pair<HGHandle, HGHandle> pair = trav.next();
+            System.out.println("\nTraversing. Current word: " + graph.get(pair.getSecond()));
+        }
+}}}

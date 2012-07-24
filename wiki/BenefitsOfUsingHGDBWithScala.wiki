@@ -1,0 +1,115 @@
+#summary Benefits of using HyperGraphDB with Scala
+
+_Disclaimer: this is user-created content and not an official HyperGraphDB document._
+
+=Intro=
+HyperGraphDB being written in Java is also directly usable by other JVM-languages such as Scala. Scala is a statically-typed, advanced but mature OO-functional-hybrid language. It allows writing very concise and elegant code, and is fully compatible with Java, but offers numerable possibilities absent in Java, such as functions as first-class objects. Using a mechanism called implicit conversions, scala can extend existing code on-demand, i.e. add methods to classes and interconvert types, without requiring any change to the extended classes. Scala is interesting not only as a everyday JVM-frontend that dramatically reduces java boilerplate, but also represents a powerful but low-risk tool to use and adapt hypergraphDB in new ways.
+
+This Document will be organized as follows:
+1) a simple example of how scala can improve usability of hypergraphDB, by treating HGHandle objects as fully typed java object references.
+2) features that make scala particularly interesting for hypergraphDB.
+
+=1) TypedHandle mimicking their dereferenced java objects=
+A HGHandle is similar to a Java object reference: it is a pointer to some data stored in memory / on disk. Althought HypergraphDB atoms are strictly typed, hghandles themselves are not typed in the java world. Furthermore, since hypergraphDB does some sophisticated form serialization, objects obtained by graph.get(somehandle) have to be cast to their respective type. 
+The following hack aims to reduce the gap between hypergraphDB and java, by treating handles as java objects (and vice versa if required).
+This is achieved by introducing a class _TypedHandle_ which is simply parametrized by the type of the object that it references. Using three equally simple implicit conversions:
+a) the HyperGraph class is extended to provide two methods which create/accept TypedHandle instances. 
+b) TypedHandle instances are converted to the objects they references.
+c) Any object can be converted to HGHandle instances, which are accepted by hypergraphDB methods requiring handles.
+
+{{{
+class TypedHandle[T](@BeanProperty val handle:HGHandle) extends HGPersistentHandle {
+  def toByteArray = handle.getPersistent.toByteArray
+  def toStringValue = handle.getPersistent.toStringValue
+  def compareTo(p1: HGPersistentHandle) = handle.getPersistent.compareTo(p1)
+  def getPersistent = handle.getPersistent
+}
+
+// following Test object contains the required implicit conversions, which must be in scope:
+
+object Test extends App{
+  implicit val graph = // get your HyperGraph instance here.
+
+//
+// IMPLICIT CONVERSIONS
+//
+
+// extending HyperGraph with two methods for RichHandles:
+  implicit def hypergraph2richhypergraph(graph: HyperGraph) = new {
+    def put[T](someObject: T): TypedHandle[T] = new TypedHandle[T](graph.add(someObject))
+    def gety[T](richHandle:TypedHandle[T]):T = graph.get(richHandle).asInstanceOf[T] //richHandle.d(graph)
+  }
+
+// conversion of TypedHandle[T] to T:
+  implicit def handle2T[T](handle:TypedHandle[T])(implicit graph:HyperGraph):T = graph.get(handle).asInstanceOf[T]
+
+// conversion of T to HGHandle
+implicit def any2handle[T](any:Any)(implicit graph:HyperGraph):HGHandle = graph.getHandle(any)
+
+
+//
+// USAGE
+//
+  val typeHandleTest = graph.put("hallo Welt")
+  println("graph.get still accepts typedhandle" + graph.get(typeHandleTest))
+// -> "hallo Welt"
+
+  val typedHTT = typeHandleTest.replaceAll("hallo", "hello").replaceAll("Welt", "World")  // this is it.
+  println("called String methods on object of TypedHandle[String]: " + typedHTT)
+// -> "hello World"
+
+// Testing conversion of Object to HGHandle:
+  val inc1 =  hg.findAll(graph, hg.incident(graph.getHandle("asdf")))
+  val inc2 =  hg.findAll(graph, hg.incident("asdf"))
+// -> inc1 und inc2 are equal
+
+
+graph.close
+}
+}}}
+
+
+=2) Interesting features about scala=
+==Functions as first-class objects==
+In scala functions are first-class objects, they can be passed in as argument and returned as result of a method or another function. Methods can be converted to function objects on demand.
+Most of the time, scala function literals in the form of very useful higher-order-functions of the collection liberary. map, filter, foreach, forall, groupBy etc are incredible useful and can be used on Java Collections, Iterators or Iterables, hence they can be used everywhere with HyperGraphDB, with just one import ("import collection.JavaConversions._"). 
+Using closures, control structures and operators can be implemented
+in a few minutes, such as automatic resource managment i.e. "with
+(resource) do (function)". Since in scala there are no operators, just methods, you could also write "µ someStream | function"
+
+
+==Haskell-style pattern matching==
+Scala allows pattern matching as found in functional languages, during which variables are bound to parts of deconstructed objects. For example:
+{{{
+List(1,2,3,4) match { case List(_,a,_,b) if a < b  => println("hello "
++ a); case _ => println("not found");}
+//=> "hello 2"
+}}}
+By providing compagnion objects with extractor methods, existing code can participate in such deep matches, again without touching the extended code.
+
+==for comprehensions==
+{{{
+val result =  for( e <- employees;
+                        if e.age > 25;
+                        salary = e.age * 100;
+
+                  c <- companies;
+                        if c.region == "DA";
+                        if c.name == e.companyName;
+                        if c.avgSalary < salary
+                )
+            yield ( e.name, c.name, salary - c.avgSalary )
+// result is now a List of Tuple(Employe, Compagnie, SalaryExtra)
+}}}
+
+
+- the upcoming release 2.10 introduces macros for code generation, and
+a new reflection system that provides "mirrors", ie provides access to
+the exact same thing that the compiler sees.
+
+- Scala's typesystem has [http://stackoverflow.com/questions/6246719/what-is-a-higher-kinded-type-in-scala higher-kinded types], i.e. it can accomodate HGDBs type constructors of type constructors of type constructors...
+
+- more advanced things supposed to be more profoundly useful:
+ad-hoc-polymorphism /typeclasses, monads, functors, applicatives
+
+- it's stable but still under active development. It's been choosen in several academic research groups due to the expressive power of it's sophisticated type system.

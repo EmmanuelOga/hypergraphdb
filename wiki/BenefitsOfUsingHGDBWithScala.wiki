@@ -9,7 +9,7 @@ This Document will be organized as follows:
 1) a simple example of how scala can improve usability of hypergraphDB, by treating HGHandle objects as fully typed java object references.
 2) features that make scala particularly interesting for hypergraphDB.
 
-=1) TypedHandle mimicking their dereferenced java objects=
+=1. TypedHandle mimicking their dereferenced java objects=
 A HGHandle is similar to a Java object reference: it is a pointer to some data stored in memory / on disk. Althought HypergraphDB atoms are strictly typed, hghandles themselves are not typed in the java world. Furthermore, since hypergraphDB does some sophisticated form serialization, objects obtained by graph.get(somehandle) have to be cast to their respective type. 
 The following hack aims to reduce the gap between hypergraphDB and java, by treating handles as java objects (and vice versa if required).
 This is achieved by introducing a class _TypedHandle_ which is simply parametrized by the type of the object that it references. Using three equally simple implicit conversions:
@@ -69,10 +69,10 @@ graph.close
 }}}
 
 
-=2) Interesting features about scala=
+=2. Interesting scala features=
 ==Functions as first-class objects==
 In scala functions are first-class objects, they can be passed in as argument and returned as result of a method or another function. Methods can be converted to function objects on demand.
-Most of the time, scala function literals in the form of very useful higher-order-functions of the collection liberary. map, filter, foreach, forall, groupBy etc are incredible useful and can be used on Java Collections, Iterators or Iterables, hence they can be used everywhere with HyperGraphDB, with just one import ("import collection.JavaConversions._"). 
+Scala's standard collection liberary provides map, flatmap, filter, foreach, forall, groupBy  among many other. These are prominent examples of higher-order-functions and a well-known example of an extremely useful feature that is missing in java. They can be used on Java Collections, Iterators or Iterables, hence they can be used everywhere with HyperGraphDB, given just one import ("import collection.JavaConversions._"). 
 Using closures, control structures and operators can be implemented
 in a few minutes, such as automatic resource managment i.e. "with
 (resource) do (function)". Since in scala there are no operators, just methods, you could also write "µ someStream | function"
@@ -88,6 +88,7 @@ List(1,2,3,4) match { case List(_,a,_,b) if a < b  => println("hello "
 By providing compagnion objects with extractor methods, existing code can participate in such deep matches, again without touching the extended code.
 
 ==for comprehensions==
+for comprehensions are more than syntactic sugar for higher-order-functions, they also allow for very comfortable usage of advanced constructs such as monads, functors and applicatives functors. They can be used with (java) collection directly.
 {{{
 val result =  for( e <- employees;
                         if e.age > 25;
@@ -103,7 +104,7 @@ val result =  for( e <- employees;
 }}}
 
 
-- the upcoming release 2.10 introduces macros for code generation, and
+- the upcoming scala release 2.10 introduces macros for code generation, and
 a new reflection system that provides "mirrors", ie provides access to
 the exact same thing that the compiler sees.
 

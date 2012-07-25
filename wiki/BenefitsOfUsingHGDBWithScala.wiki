@@ -152,6 +152,10 @@ the exact same thing that the compiler sees.
 ==higher-kinded types==
 Scala's typesystem has [http://stackoverflow.com/questions/6246719/what-is-a-higher-kinded-type-in-scala higher-kinded types], i.e. it can accomodate HGDBs type constructors of type constructors of type constructors...
 
+==traits / mixin composition==
+Traits are interfaces with implementations, including mechanisms to refer to the object they are mixed into. Mixin may occur at class definition but also at instanciation. It may be possible for example to mixin a HGPlainLinkTrait into objects of a class that you do not have control over.
+
 ==advanced concepts of functional programming==
-Using traits (interfaces with implementations) and implicit conversions, scala allows for ad-hoc-polymorphism aka typeclasses as found in haskell ([http://www.youtube.com/watch?v=sVMES4RZF-8 good intro video for humans] ).
-Scala further makes it much easier to use monads, functors, applicative functors ( [http://www.youtube.com/watch?v=Mw_Jnn_Y5iA good intro video for humans] ).
+Scala has mechanisms that make it possible or make it more practical to use advanced techniques of functional programming.
+Using traits and implicit conversions, scala allows for ad-hoc-polymorphism aka typeclasses as found in haskell ([http://www.youtube.com/watch?v=sVMES4RZF-8 good intro video for humans] ). Typeclasses allow to further decoupling of components.
+Scala also makes it much easier to use monads, functors, applicative functors. As mentioned before, for comprehension provide a language - level feature that can be directly used with any monad. This is powerful not only using collections, but also any sort of container or computations. For example, Option[T] reflects as type information that a value may be null, it avoids NPE by allowing to "flatmap over" options ( [http://www.youtube.com/watch?v=Mw_Jnn_Y5iA good intro video for humans] ).

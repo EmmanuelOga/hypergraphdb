@@ -18,7 +18,13 @@ println(a.replaceAll("hallo", "hello").replaceAll("Welt", "World"))
                                  // hence calling String methods directly on that typedhandle
                                  // as if it was the dereferenced java object itself
 
+  val inc2 =  hg.findAll(graph, hg.incident("asdf"))
+                                 // use objects where HGHandle are required
+
+
+//
 // the following is currently being tested
+//
 
 val otherWorld = a.traverse.find(pair => pair.getFirst.d[String].contains("World"))                          
                                  // starting a traversal from a,
@@ -44,9 +50,9 @@ a.update
 HyperGraphDB being written in Java is also directly usable by other JVM-languages such as Scala. Scala is a statically-typed, advanced but mature OO-functional-hybrid language. It allows writing very concise and elegant code, and is fully compatible with Java, but offers numerable possibilities absent in Java, such as functions as first-class objects. Using a mechanism called implicit conversions, scala can extend existing code on-demand, i.e. add methods to classes and interconvert types, without requiring any change to the extended classes. Scala is interesting not only as a everyday JVM-frontend that dramatically reduces java boilerplate, but also represents a powerful but low-risk tool to use and adapt hypergraphDB in new ways.
 
 
-=3. TypedHandle mimicking their dereferenced java objects=
-A HGHandle is similar to a Java object reference: it is a pointer to some data stored in memory / on disk. Althought HypergraphDB atoms are strictly typed, hghandles themselves are not typed in the java world. Furthermore, since hypergraphDB does some sophisticated form serialization, objects obtained by graph.get(somehandle) have to be cast to their respective type. 
-The following hack aims to reduce the gap between hypergraphDB and java, by treating handles as java objects (and vice versa if required).
+=3. Explanations and commented scala implementation
+A HGHandle is similar to a Java object reference: it is a pointer to some data stored in memory or on disk. Although HypergraphDB atoms are strictly typed, hghandles themselves are not typed in the java world. Furthermore, since hypergraphDB does some sophisticated form of serialization, objects obtained by graph.get(somehandle) have to be cast to their respective type. 
+The following hacks aim to add intuitive usage patterns, for example by treating handles as java objects (and vice versa if required).
 This is achieved by introducing a class _TypedHandle_ which is simply parametrized by the type of the object that it references. Using three equally simple implicit conversions:
 a) the HyperGraph class is extended to provide two methods which create/accept TypedHandle instances. 
 b) TypedHandle instances are converted to the objects they references.
@@ -78,25 +84,25 @@ object Test extends App{
 // conversion of TypedHandle[T] to T:
   implicit def handle2T[T](handle:TypedHandle[T])(implicit graph:HyperGraph):T = graph.get(handle).asInstanceOf[T]
 
+//hacks on HGHandle
+ implicit def richHandle[T](handle:HGHandle)(implicit graph :HyperGraph, ev:Manifest[HGHandle]) = new {
+    def sameType:java.util.List[HGHandle] = hg.findAll[HGHandle](graph, new AtomTypeCondition(ev.erasure))
+    def sameTypeAnd(queryCondition: HGQueryCondition):java.util.List[HGHandle] = hg.findAll[HGHandle](graph, hg.and(new AtomTypeCondition(ev.erasure), queryCondition))
+    def traverse (linkConstraint:HGQueryCondition = new AtomTypeCondition(classOf[HGLink]), atomConstraint:HGQueryCondition= new AtomTypeCondition(classOf[String]), returnPreceeding: Boolean = false, returnSucceeding: Boolean = true, reverseOrder: Boolean = false, dfs: Boolean = true):HGTraversal = {
+      val alGen: HGALGenerator = new DefaultALGenerator()//new DefaultALGenerator(graph, linkConstraint, atomConstraint,returnPreceeding, returnSucceeding, reverseOrder)
+      val trav: HGTraversal = if (dfs) new HGDepthFirstTraversal(handle, alGen) else new HGBreadthFirstTraversal(handle, alGen)
+      trav
+    }
+    def incidentLinks:java.util.List[HGHandle] = hg.findAll[HGHandle](graph, hg.incident(handle))
+    def targets:java.util.List[HGHandle]= hg.findAll[HGHandle](graph, hg.target(handle))
+    def isOfType[T]:Boolean = graph.getTypeSystem.getAtomType(handle).getClass.equals(classOf[T])
+    //def lowerThanThis(path:String):java.util.List[HGHandle]=  
+    def d[T]:T = graph.get(handle).asInstanceOf[T]
+  }
+
 // conversion of T to HGHandle
-implicit def any2handle[T](any:Any)(implicit graph:HyperGraph):HGHandle = graph.getHandle(any)
+implicit def any2handle[T](any:Any)(unique: Boolean = false)(implicit graph:HyperGraph):HGHandle = try {graph.getHandle(any) }  catch {case _ => if (!unique) graph.add(any) else hg.assertAtom(graph, any)}
 
-
-//
-// USAGE
-//
-  val typeHandleTest = graph.put("hallo Welt")
-  println("graph.get still accepts typedhandle" + graph.get(typeHandleTest))
-// -> "hallo Welt"
-
-  val typedHTT = typeHandleTest.replaceAll("hallo", "hello").replaceAll("Welt", "World")  // this is it.
-  println("called String methods on object of TypedHandle[String]: " + typedHTT)
-// -> "hello World"
-
-// Testing conversion of Object to HGHandle:
-  val inc1 =  hg.findAll(graph, hg.incident(graph.getHandle("asdf")))
-  val inc2 =  hg.findAll(graph, hg.incident("asdf"))
-// -> inc1 und inc2 are equal
 
 
 graph.close

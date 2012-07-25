@@ -114,17 +114,17 @@ graph.close
 ==Functions as first-class objects==
 In scala functions are first-class objects, they can be passed in as argument and returned as result of a method or another function. Methods can be converted to function objects on demand.
 Scala's standard collection liberary provides map, flatmap, filter, foreach, forall, groupBy  among many other. These are prominent examples of higher-order-functions and a well-known example of an extremely useful feature that is missing in java. They can be used on Java Collections, Iterators or Iterables, hence they can be used everywhere with HyperGraphDB, given just one import ("import collection.JavaConversions._"). 
-Using closures, control structures and operators can be implemented
-in a few minutes, such as automatic resource managment i.e. "with
-(resource) do (function)". Since in scala there are no operators, just methods, you could also write "µ someStream | function"
+Using closures, partially applied functions / currying and liberal use of curly braces, control structures and operators can be implemented in a way indistinguishable from regular ones. Automatic resource managment could be implemented "with (resource) do {function}". Since in scala there are no operators only methods, and you are free to use fancy symbols, one could also write "µ someResource | function"
 
 
 ==Haskell-style pattern matching==
 Scala allows pattern matching as found in functional languages, during which variables are bound to parts of deconstructed objects. For example:
 {{{
-List(1,2,3,4) match { case List(_,a,_,b) if a < b  => println("hello "
-+ a); case _ => println("not found");}
-//=> "hello 2"
+List(1,2,3,4) match { 
+   case List(_,a,_,b) if a < b  => println("hello "+ a)
+   case _ => println("not found");
+}
+//prints "hello 2"
 }}}
 By providing compagnion objects with extractor methods, existing code can participate in such deep matches, again without touching the extended code.
 
@@ -144,14 +144,14 @@ val result =  for( e <- employees;
 // result is now a List of Tuple(Employe, Compagnie, SalaryExtra)
 }}}
 
-
+==macros & reflection==
 - the upcoming scala release 2.10 introduces macros for code generation, and
 a new reflection system that provides "mirrors", ie provides access to
 the exact same thing that the compiler sees.
 
-- Scala's typesystem has [http://stackoverflow.com/questions/6246719/what-is-a-higher-kinded-type-in-scala higher-kinded types], i.e. it can accomodate HGDBs type constructors of type constructors of type constructors...
+==higher-kinded types==
+Scala's typesystem has [http://stackoverflow.com/questions/6246719/what-is-a-higher-kinded-type-in-scala higher-kinded types], i.e. it can accomodate HGDBs type constructors of type constructors of type constructors...
 
-- more advanced things supposed to be more profoundly useful:
-ad-hoc-polymorphism /typeclasses, monads, functors, applicatives
-
-- it's stable but still under active development. It's been choosen in several academic research groups due to the expressive power of it's sophisticated type system.
+==advanced concepts of functional programming==
+Using traits (interfaces with implementations) and implicit conversions, scala allows for ad-hoc-polymorphism aka typeclasses as found in haskell ([http://www.youtube.com/watch?v=sVMES4RZF-8 good intro video for humans] ).
+Scala further makes it much easier to use monads, functors, applicative functors ( [http://www.youtube.com/watch?v=Mw_Jnn_Y5iA good intro video for humans] ).

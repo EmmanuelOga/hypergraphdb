@@ -6,9 +6,9 @@ This Document is be organized as follows:
   * 1) ShortDemo
   * 2) Intro to scala
   * 3) Commented scala code implementing Short Demo.
-  * 4) List of features that make scala particularly interesting for hypergraphDB.
+  * 4) Interesting scala features
 
-=1.ShortDemo=
+=1.ShortDemo =
 {{{
 val a = graph.put("hallo Welt")  
                                  // like graph.add but returning TypedHandle parametrized to String
@@ -50,7 +50,7 @@ a.update
 HyperGraphDB being written in Java is also directly usable by other JVM-languages such as Scala. Scala is a statically-typed, advanced but mature OO-functional-hybrid language. It allows writing very concise and elegant code, and is fully compatible with Java, but offers numerable possibilities absent in Java, such as functions as first-class objects. Using a mechanism called implicit conversions, scala can extend existing code on-demand, i.e. add methods to classes and interconvert types, without requiring any change to the extended classes. Scala is interesting not only as a everyday JVM-frontend that dramatically reduces java boilerplate, but also represents a powerful but low-risk tool to use and adapt hypergraphDB in new ways.
 
 
-=3. Explanations and commented scala implementation
+=3. Explanations and commented scala implementation=
 A HGHandle is similar to a Java object reference: it is a pointer to some data stored in memory or on disk. Although HypergraphDB atoms are strictly typed, hghandles themselves are not typed in the java world. Furthermore, since hypergraphDB does some sophisticated form of serialization, objects obtained by graph.get(somehandle) have to be cast to their respective type. 
 The following hacks aim to add intuitive usage patterns, for example by treating handles as java objects (and vice versa if required).
 This is achieved by introducing a class _TypedHandle_ which is simply parametrized by the type of the object that it references. Using three equally simple implicit conversions:

@@ -12,12 +12,12 @@ Index
 HyperGraphDB is directly usable by other JVM-languages such as Scala. Scala is interesting not only as an everyday JVM-frontend that dramatically reduces java boilerplate, but also provides a versatile, powerful but no-risk toolset to use and easily adapt hypergraphDB in completely new ways, beyond mere syntactic sugar. 
 
 This post describes some simple hacks that allow:
-  * using HGHandles just like the java object they reference, calling methods on them etc
+  * using HGHandles just like the java object they reference, i.e. calling their methods on them directly
   * using java objects in places where their handles are required.
-  * starting traversals easily as a method method call on any HGHandle, using that handle as starting atom, simplified by (overridable) default parameters. 
+  * starting traversals as a method call on any HGHandle, using that handle as starting atom, further simplified by (overridable) default parameters. 
   * examples of how standard traversals can directly benefit of scala's collection higer-order functions such as map/filter/intersect 
 
-In the lower section, there is a list of scala features which could be used in future projects to adapt hypergraphDB in more interesting ways, i.e. designing a hypergraphDB - DSL, with manageable effort.
+Furthermore, in the lower section, there is a list of scala features which could be used in future projects to adapt hypergraphDB in more interesting ways without the need to change the existing codebase, i.e. designing a hypergraphDB - DSL, with manageable effort.
 
 
 =2.ShortDemo =
@@ -33,27 +33,49 @@ println(a.replaceAll("hallo", "hello").replaceAll("Welt", "World"))
   val inc2 =  hg.findAll(graph, hg.incident("asdf"))
                                  // use objects where HGHandle are required
 
-
 //
-// the following is currently being tested
+// traverse demo
 //
 
-val otherWorld = a.traverse.find(pair => pair.getFirst.d[String].contains("World"))                          
+def ++(any: Any)= graph.add(any)
+val a = ++("hello")
+++(new HGPlainLink(++("pink World"), a))
+++(new HGPlainLink(++("screwed up World"), ++("Optimism is a lack of information.") ,"pink World".handle))
+                                 // adding test data & links with ++ as shorthand for graph.add
+                                 // a is a regular HGHandle that is going to be the starting atom.
+
+
+a.traverse()
                                  // starting a traversal from a,
                                  // using defaults parameters (HGlink, same type etc),
-                                 // find first occurence of "World".
-                                 // Since traversal returns Pair of regular HGHandles,
-                                 // d[T] explicitely dereferences and casts it to T
 
-val otherWorldtoUpper = a.traverse(linkConstraint = new AtomTypeCondition(myRelationTypeHandle)).map(p => p.getFirst.d[String].toUpperCase)
+a.traverse(linkConstraint = new AtomTypeCondition(classOf[HGPlainLink]))
 
-                                 // overriding any of named default params
-                                 // mapping a traversal result 
+                                 // overriding any of named default params, here specifying the Link constraint
 
-val intersects = a.traverse(dfs = true).toSet.intersect(a.traverse(dfs=false).toSet)
-                                 // intersecting two traversals.
-a.update 
-                                 // updating changes of a into HyperGraph
+a.traverse().map(p => p.getSecond.d[String]).map(_.toUpperCase).foreach(println)                      
+                                 // mapping Pairs(linkhandle, atomhandle) to java objects
+                                 // where d[T] explicitely dereferences and casts it to T
+
+//prints:
+//PINK WORLD
+//OPTIMISM IS A LACK OF INFORMATION.
+//SCREWED UP WORLD
+
+    val containsWorld = a.traverse().filter(p => p.getSecond.d[String].contains("World"))
+                                 // storing a traversal filtered to words contained "World"  
+
+    def tib(dfs:Boolean) = a.traverse(linkConstraint = new AtomTypeCondition(classOf[HGPlainLink]), dfs = dfs).toSet
+                                 // just a shorthand for an unfiltered traversal, which includes "Optimism is a lack of information."
+
+tib(true).intersect(containsWorld.toSet).map(pair => pair.getSecond.d[String]).foreach(s => println("intersect: " + s))
+                                 // intersecting the filtered and the unfiltered traversals using shorthand
+
+//prints:
+//intersect: pink World
+//intersect: screwed up World
+
+//but does not print: "Optimism is a lack of information."
 
 }}}
 

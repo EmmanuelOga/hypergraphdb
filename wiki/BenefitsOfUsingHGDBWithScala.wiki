@@ -2,13 +2,25 @@
 
 _Disclaimer: this is user-created content and not an official HyperGraphDB document._ *Under construction*
 
-This Document is be organized as follows:
-  * 1) ShortDemo
-  * 2) Intro to scala
+Index
+  * 1) Intro 
+  * 2) ShortDemo
   * 3) Commented scala code implementing Short Demo.
-  * 4) Interesting scala features
+  * 4) Scala features and their potential uses with hypergraphDB
 
-=1.ShortDemo =
+=1. Intro=
+HyperGraphDB is directly usable by other JVM-languages such as Scala. Scala is interesting not only as an everyday JVM-frontend that dramatically reduces java boilerplate, but also provides a versatile, powerful but no-risk toolset to use and easily adapt hypergraphDB in completely new ways, beyond mere syntactic sugar. 
+
+This post describes some simple hacks that allow:
+  * using HGHandles just like the java object they reference, calling methods on them etc
+  * using java objects in places where their handles are required.
+  * starting traversals easily as a method method call on any HGHandle, using that handle as starting atom, simplified by (overridable) default parameters. 
+  * examples of how standard traversals can directly benefit of scala's collection higer-order functions such as map/filter/intersect 
+
+In the lower section, there is a list of scala features which could be used in future projects to adapt hypergraphDB in more interesting ways, i.e. designing a hypergraphDB - DSL, with manageable effort.
+
+
+=2.ShortDemo =
 {{{
 val a = graph.put("hallo Welt")  
                                  // like graph.add but returning TypedHandle parametrized to String
@@ -44,10 +56,6 @@ a.update
                                  // updating changes of a into HyperGraph
 
 }}}
-
-
-=2. Intro to Scala=
-HyperGraphDB being written in Java is also directly usable by other JVM-languages such as Scala. Scala is a statically-typed, advanced but mature OO-functional-hybrid language. It allows writing very concise and elegant code, and is fully compatible with Java, but offers numerable possibilities absent in Java, such as functions as first-class objects. Using a mechanism called implicit conversions, scala can extend existing code on-demand, i.e. add methods to classes and interconvert types, without requiring any change to the extended classes. Scala is interesting not only as a everyday JVM-frontend that dramatically reduces java boilerplate, but also represents a powerful but low-risk tool to use and adapt hypergraphDB in new ways.
 
 
 =3. Explanations and commented scala implementation=
@@ -111,6 +119,9 @@ graph.close
 
 
 =4. Interesting scala features=
+==General==
+ Scala is a statically-typed, advanced but mature OO-functional-hybrid language. It allows writing very concise and elegant code, and is fully compatible with Java, but offers numerable possibilities absent in Java, such as functions as first-class objects. Using a mechanism called implicit conversions, scala can extend existing code on-demand, i.e. add methods to classes and interconvert types, without requiring any change to the extended classes. 
+
 ==Functions as first-class objects==
 In scala functions are first-class objects, they can be passed in as argument and returned as result of a method or another function. Methods can be converted to function objects on demand.
 Scala's standard collection liberary provides map, flatmap, filter, foreach, forall, groupBy  among many other. These are prominent examples of higher-order-functions and a well-known example of an extremely useful feature that is missing in java. They can be used on Java Collections, Iterators or Iterables, hence they can be used everywhere with HyperGraphDB, given just one import ("import collection.JavaConversions._"). 

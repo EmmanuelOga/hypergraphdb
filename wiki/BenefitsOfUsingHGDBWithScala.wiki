@@ -93,6 +93,8 @@ a) the HyperGraph class is extended to provide two methods which create/accept T
 b) TypedHandle instances are converted to the objects they references.
 c) Any object can be converted to HGHandle instances, which are accepted by hypergraphDB methods requiring handles.
 
+
+===TypedHandle & auto-dereferencing===
 {{{
 class TypedHandle[T](@BeanProperty val handle:HGHandle) extends HGPersistentHandle {
   def toByteArray = handle.getPersistent.toByteArray
@@ -101,45 +103,107 @@ class TypedHandle[T](@BeanProperty val handle:HGHandle) extends HGPersistentHand
   def getPersistent = handle.getPersistent
 }
 
-// following Test object contains the required implicit conversions, which must be in scope:
-
-object Test extends App{
-  implicit val graph = // get your HyperGraph instance here.
-
-//
-// IMPLICIT CONVERSIONS
-//
-
-// extending HyperGraph with two methods for RichHandles:
   implicit def hypergraph2richhypergraph(graph: HyperGraph) = new {
     def put[T](someObject: T): TypedHandle[T] = new TypedHandle[T](graph.add(someObject))
-    def gety[T](richHandle:TypedHandle[T]):T = graph.get(richHandle).asInstanceOf[T] //richHandle.d(graph)
+    def gety[T](richHandle:TypedHandle[T]):T  = graph.get(richHandle).asInstanceOf[T]   //richHandle.d(graph)
   }
+    // this adds two simple methods to HyperGraph which return /accept TypedHandle
 
-// conversion of TypedHandle[T] to T:
-  implicit def handle2T[T](handle:TypedHandle[T])(implicit graph:HyperGraph):T = graph.get(handle).asInstanceOf[T]
+    implicit def richHandle2T[T](handle:TypedHandle[T])(implicit graph :HyperGraph):T = graph.get(handle).asInstanceOf[T]
+    // treat typedhandle of T as a T 
 
-//hacks on HGHandle
- implicit def richHandle[T](handle:HGHandle)(implicit graph :HyperGraph, ev:Manifest[HGHandle]) = new {
-    def sameType:java.util.List[HGHandle] = hg.findAll[HGHandle](graph, new AtomTypeCondition(ev.erasure))
-    def sameTypeAnd(queryCondition: HGQueryCondition):java.util.List[HGHandle] = hg.findAll[HGHandle](graph, hg.and(new AtomTypeCondition(ev.erasure), queryCondition))
-    def traverse (linkConstraint:HGQueryCondition = new AtomTypeCondition(classOf[HGLink]), atomConstraint:HGQueryCondition= new AtomTypeCondition(classOf[String]), returnPreceeding: Boolean = false, returnSucceeding: Boolean = true, reverseOrder: Boolean = false, dfs: Boolean = true):HGTraversal = {
-      val alGen: HGALGenerator = new DefaultALGenerator()//new DefaultALGenerator(graph, linkConstraint, atomConstraint,returnPreceeding, returnSucceeding, reverseOrder)
+
+}}}
+
+===Hacks on HGHandle===
+{{{
+   implicit def richHandle(handle:HGHandle)(implicit graph :HyperGraph) = new {
+
+    def d[T](implicit graph:HyperGraph):T = graph.get(handle).asInstanceOf[T]
+        // dereference and type cast - may fail
+
+    def ds[T](implicit graph:HyperGraph):Option[T] = try {Option(graph.get(handle).asInstanceOf[T])} catch {case _ => None}
+        // save alternative of d[] using Option to flatMap / pattern match on
+
+    def <->(handle2:HGHandle*)(implicit graph:HyperGraph):HGHandle = graph.add(new HGPlainLink(handle :: handle2.toList :_*))
+        // new HGPlainLink with vararg handle2.
+        // <-> as pseudo-Operator
+
+    def newRel(relation: String, handle2:HGHandle*)(implicit graph:HyperGraph):HGHandle = graph.add(new HGRel(relation, handle :: handle2.toList :_*))
+        // new HGRel
+
+    def getType(implicit graph:HyperGraph):Class[_] = graph.getTypeSystem.getClassForType(graph.getType(handle))  // what is Class<?> / Class[_] ? that's a type constructor no?
+        // get Class file of atom
+
+    def typeAlikes(implicit graph:HyperGraph):java.util.List[HGHandle] = hg.findAll[HGHandle](graph, sameTypeQC)   //(ev.erasure))
+        // return all atoms of same type
+
+    def sameTypeQC:HGQueryCondition = new AtomTypeCondition(getType)
+       // shorthand query condition of same type
+
+    def queryOnSameType(queryCondition: HGQueryCondition)(implicit graph:HyperGraph):java.util.List[HGHandle] = hg.findAll[HGHandle](graph, hg.and(sameTypeQC, queryCondition))
+        // query only on atoms of same type
+
+    def traverse (onLink:HGAtomPredicate  = null,
+                  sibling:HGAtomPredicate = null,
+                  prec: Boolean = true,   suc: Boolean = true,
+                  rev:  Boolean = false,  dfs: Boolean = true
+                 )(implicit graph:HyperGraph):HGTraversal = {
+      val alGen: HGALGenerator = new DefaultALGenerator(graph, onLink, sibling,prec, suc, rev)
       val trav: HGTraversal = if (dfs) new HGDepthFirstTraversal(handle, alGen) else new HGBreadthFirstTraversal(handle, alGen)
       trav
     }
+        // start traversal departing from handle, optionally override named default params
+
+    def typeTraverse[L <: HGLink, A] ( prec: Boolean = true,  suc: Boolean = true, rev: Boolean = false,  dfs: Boolean = true )(implicit graph:HyperGraph, evL:Manifest[L],evA:Manifest[A]):HGTraversal =
+          traverse(onLink = new AtomTypeCondition(evL.erasure), sibling=new AtomTypeCondition(evA.erasure), prec =prec, suc = suc, rev=rev, dfs = dfs)(graph)
+        // parametrized traversal, traverses on Links of Type L and on siblings of Type A
+
     def incidentLinks:java.util.List[HGHandle] = hg.findAll[HGHandle](graph, hg.incident(handle))
-    def targets:java.util.List[HGHandle]= hg.findAll[HGHandle](graph, hg.target(handle))
-    def isOfType[T]:Boolean = graph.getTypeSystem.getAtomType(handle).getClass.equals(classOf[T])
-    //def lowerThanThis(path:String):java.util.List[HGHandle]=  
-    def d[T]:T = graph.get(handle).asInstanceOf[T]
+        // returns handles to all links pointing to this handle
+
+    def neighbours = incidentLinks.map(linkHandle => hg.findAll[HGHandle](graph, hg.target(linkHandle)).filter(h => !h.equals(handle)))
+        // returns siblings of each Link pointing to this handle
+
+    def neighbourSet = incidentLinks.view.map(linkHandle => hg.findAll[HGHandle](graph, hg.target(linkHandle)).filter(h => !h.equals(handle))).flatten.toSet
+        // returns siblings flattend into a set
+
+    def neighbourBrothers = neighbourSet.intersect(typeAlikes.toSet)
+        // intersection of type brothers in the neighbourhood
+
+    def getLink:Option[HGLink] = try {Option(graph.get(handle).asInstanceOf[HGLink])} catch { case _ => None }
+        // return an Option of HGLink referenced (or not) by handle.
   }
 
-// conversion of T to HGHandle
-implicit def any2handle[T](any:Any)(unique: Boolean = false)(implicit graph:HyperGraph):HGHandle = try {graph.getHandle(any) }  catch {case _ => if (!unique) graph.add(any) else hg.assertAtom(graph, any)}
+}}}
 
 
+===Hacks on HGLink and any Object===
+{{{
+  //
+  // HGLink hacks
+  //
+  implicit def link2traversable(link:HGLink)(implicit graph :HyperGraph, ev:Manifest[HGHandle]) = new IndexedSeq[HGHandle]{
+    def length = link.getArity
+    def apply(idx: Int) = link.getTargetAt(idx)
+  }
+    // implicit conversion that implements a collection trait which allows treating HGLink as a collection
 
-graph.close
-}
+  implicit def richLink(link:HGLink)(implicit graph :HyperGraph, ev:Manifest[HGHandle]) = new {
+    def getPreceeding(handle:HGHandle):IndexedSeq[HGHandle]  = link.take(link.indexOf(handle))  // off-by one here?
+    def getSucceeding(handle:HGHandle):IndexedSeq[HGHandle]   = link.drop(link.indexOf(handle)+1)
+  }
+    // two examples usages of scala collection functions on HGLink
+
+  //
+  // Hacks on any Object
+  //
+  implicit def pimpAny(any:Any) = new {
+      def update = graph.update(any)
+  // update changes to object in graph
+      def h:HGHandle = graph.getHandle(any)
+      def hh:HGHandle = hg.assertAtom(graph, any)
+      def hhh:HGHandle = graph.add(any)
+  }
+
 }}}

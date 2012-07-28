@@ -4,12 +4,12 @@ _Disclaimer: this is user-created content and not an official HyperGraphDB docum
 
 Index
   * 1) Intro 
-  * 2) ShortDemo
-  * 3) Commented scala code implementing ShortDemo.
+  * 2) Demo
+  * 3) Commented scala implementation
 
 
 =1. Intro=
-HyperGraphDB is directly usable by other JVM-languages such as Scala. Scala is interesting not only as an everyday JVM-frontend that dramatically reduces java boilerplate i.e. by implicit parameters, but also provides a versatile, powerful but no-risk toolset to use and easily adapt hypergraphDB in completely new ways, beyond mere syntactic sugar. 
+HyperGraphDB is directly usable by other JVM-languages such as Scala. Scala is interesting not only as an everyday JVM-frontend that dramatically reduces java boilerplate, but also provides a versatile, powerful but no-risk toolset to use and easily adapt hypergraphDB in completely new ways, beyond mere syntactic sugar. 
 For a more detailed introduction into scala and interesting features, checkout [http://scalahypergraph.blogspot.de/2012/07/interesting-scala-features.html this blogpost] written with hypergraphDB in mind.
 
 Please note that the features listed below work only within scala, but not in java.
@@ -27,65 +27,81 @@ This post describes some simple hacks that allow to:
 
 =2.ShortDemo (currently outdated)=
 {{{
-val a = graph.put("hallo Welt")  
-                                 // like graph.add but returning TypedHandle parametrized to String
+    //
+    // TypedHandle & Autodereference
+    //
 
-println(a.replaceAll("hallo", "hello").replaceAll("Welt", "World")) 
-                                 // prints "hello World" 
-                                 // hence calling String methods directly on that typedhandle
-                                 // as if it was the dereferenced java object itself
+    val tht = graph.put("hallo Welt")
+    val thtr = tht.replaceAll("hallo", "hello").replaceAll("Welt", "World")
+    print(thtr)
+    // "hello World"
 
-  val inc2 =  hg.findAll(graph, hg.incident("asdf"))
-                                 // use objects where HGHandle are required
+    //
+    // Traversing on Handle
+    //
 
-//
-// traverse demo
-//
+    //def ++ = graph.add(_ : Any)  //def <-> (handles: HGHandle*):HGHandle = ++(new HGPlainLink(handles:_*))
+    val a = "hello".hh
+    val b = "pink World".hh
 
-def ++(any: Any)= graph.add(any)
-val a = ++("hello")
-++(new HGPlainLink(++("pink World"), a))
-++(new HGPlainLink(++("screwed up World"), ++("Optimism is a lack of information.") ,"pink World".handle))
-                                 // adding test data & links with ++ as shorthand for graph.add
-                                 // a is a regular HGHandle that is going to be the starting atom.
+    val l1 = a <-> b
+    val l2 = "screwed up World".hh   <->   ( "Optimism is a lack of information.".hh ,b)
+    val l3 = 13.hh                   <->   ( false.hh, b,  (-14).hh)
+    val ll1 = l1 <-> (l2, a, l3, b)
+
+    print("\ntesting traverse default. Filtering to Strings then toUpperCase ")
+    b.traverse().filter(p => p.getSecond.getType.equals(classOf[String])).map(p => p.getSecond.d[String]).map(_.toUpperCase).foreach(print)
+//    HELLO
+//    OPTIMISM IS A LACK OF INFORMATION.
+//    SCREWED UP WORLD
+
+    print("\ntesting typeTraverse. reverse")
+    b.typeTraverse[HGPlainLink, String]().map(p => p.getSecond.d[String]).map(_.reverse).foreach(print)
+//    dlroW knip
+//    .noitamrofni fo kcal a si msimitpO
+//      dlroW pu dewercs
+
+    print("\ntesting traverse. Other strings containing World ")
+    val containsWorld = b.traverse(sibling = new AtomTypeCondition(classOf[String])).filter(p => p.getSecond.d[String].contains("World"))
+    containsWorld.foreach(p => print(p.getSecond.d[String]))
+//   screwed up World
 
 
-a.traverse()
-                                 // starting a traversal from a,
-                                 // using defaults parameters (HGlink, same type etc),
+    print("\ntesting traverse. intersect all vs containing world")
+    val ii =  b.traverse().toSet
+    val i = ii.intersect(containsWorld.toSet)
+    i.map(pair => pair.getSecond.d[String]).foreach(s => print("intersect: " + s))
 
-a.traverse(linkConstraint = new AtomTypeCondition(classOf[HGPlainLink]))
 
-                                 // overriding any of named default params, here specifying the Link constraint
+    print("\nTesting neighbours")
+    b.neighbours.foreach(link => link.foreach(h=> print(h.d[String])))
+//    screwed up World, Optimism is a lack of information.
 
-a.traverse().map(p => p.getSecond.d[String]).map(_.toUpperCase).foreach(println)                      
-                                 // mapping Pairs(linkhandle, atomhandle) to java objects
-                                 // where d[T] explicitely dereferences and casts it to T
+    print("\n Testing typeBrothers")
+    b.typeAlikes.foreach(handle => print(handle.d[String]))
+//    Weltscrewed up Worldhallo Weltpink WorldhelloOptimism is a lack of information.    
 
-//prints:
-//PINK WORLD
-//OPTIMISM IS A LACK OF INFORMATION.
-//SCREWED UP WORLD
+    print("\n Testing neighbourBrothers")
+    b.neighbourBrothers.foreach(handle => print(handle.d[String]))
+//  Brothersscrewed up WorldhelloOptimism is a lack of information.
 
-    val containsWorld = a.traverse().filter(p => p.getSecond.d[String].contains("World"))
-                                 // storing a traversal filtered to words contained "World"  
+    print("\n Testing indexOf handle b in c:")
+    print(l2.getLink.get.indexOf(b))
+//  2
+    
+    print("\n Flatmaping for links on link c:")
+    ll1.getLink.get.flatMap(h => h.getLink).foreach(link => link.foreach(h => print("printing " + h.d[String] + "\t\t on Link" + link)))
+//  printing hello		 on LinkPlainLink([2],weakHandle(a02........) printing pink World on Link....................
 
-    def tib(dfs:Boolean) = a.traverse(linkConstraint = new AtomTypeCondition(classOf[HGPlainLink]), dfs = dfs).toSet
-                                 // just a shorthand for an unfiltered traversal, which includes "Optimism is a lack of information."
-
-tib(true).intersect(containsWorld.toSet).map(pair => pair.getSecond.d[String]).foreach(s => println("intersect: " + s))
-                                 // intersecting the filtered and the unfiltered traversals using shorthand
-
-//prints:
-//intersect: pink World
-//intersect: screwed up World
-
-//but does not print: "Optimism is a lack of information."
+    print("\n Handle.getLink, testing link getPreceeding/succeeding:")
+    l2.getLink.get.getPreceeding(b).foreach(print)
+    print("succceeding should be none")
+// (none)
 
 }}}
 
 
-=3. Explanations and commented scala implementation  (currently outdated)=
+=3. Commented scala implementation=
 A HGHandle is similar to a Java object reference: it is a pointer to some data stored in memory or on disk. Although HypergraphDB atoms are strictly typed, hghandles themselves are not typed in the java world. Furthermore, since hypergraphDB does some sophisticated form of serialization, objects obtained by graph.get(somehandle) have to be cast to their respective type. 
 The following hacks aim to add intuitive usage patterns, for example by treating handles as java objects (and vice versa if required).
 This is achieved by introducing a class _TypedHandle_ which is simply parametrized by the type of the object that it references. Using three equally simple implicit conversions:

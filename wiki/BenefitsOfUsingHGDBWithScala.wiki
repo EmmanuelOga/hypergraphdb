@@ -42,13 +42,13 @@ This post describes some simple hacks that allow to:
     //
     // Traversing on Handle
     //
-
-    //def ++ = graph.add(_ : Any)  //def <-> (handles: HGHandle*):HGHandle = ++(new HGPlainLink(handles:_*))
+//creating some atoms
     val a = "hello".hh
     val b = "pink World".hh
 
+//creating some links with a, b and other atoms
     val l1 = a <-> b
-    val l2 = "screwed up World".hh   <->   ( "Optimism is a lack of information.".hh ,b)
+    val l2 = "screwed up World".hh   <->   ( "Optimism is a lack of information".hh ,b)
     val l3 = 13.hh                   <->   ( false.hh, b,  (-14).hh)
     val ll1 = l1 <-> (l2, a, l3, b)
 

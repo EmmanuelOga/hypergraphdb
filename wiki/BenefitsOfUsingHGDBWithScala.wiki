@@ -5,22 +5,27 @@ _Disclaimer: this is user-created content and not an official HyperGraphDB docum
 Index
   * 1) Intro 
   * 2) ShortDemo
-  * 3) Commented scala code implementing Short Demo.
-  * 4) Scala features and their potential uses with hypergraphDB
+  * 3) Commented scala code implementing ShortDemo.
+
 
 =1. Intro=
-HyperGraphDB is directly usable by other JVM-languages such as Scala. Scala is interesting not only as an everyday JVM-frontend that dramatically reduces java boilerplate, but also provides a versatile, powerful but no-risk toolset to use and easily adapt hypergraphDB in completely new ways, beyond mere syntactic sugar. 
+HyperGraphDB is directly usable by other JVM-languages such as Scala. Scala is interesting not only as an everyday JVM-frontend that dramatically reduces java boilerplate i.e. by implicit parameters, but also provides a versatile, powerful but no-risk toolset to use and easily adapt hypergraphDB in completely new ways, beyond mere syntactic sugar. 
+For a more detailed introduction into scala and interesting features, checkout [http://scalahypergraph.blogspot.de/2012/07/interesting-scala-features.html this blogpost] written with hypergraphDB in mind.
 
-This post describes some simple hacks that allow:
-  * using HGHandles just like the java object they reference, i.e. calling their methods on them directly
-  * using java objects in places where their handles are required.
-  * starting traversals as a method call on any HGHandle, using that handle as starting atom, further simplified by (overridable) default parameters. 
-  * examples of how standard traversals can directly benefit of scala's collection higer-order functions such as map/filter/intersect 
+Please note that the features listed below work only within scala, but not in java.
 
-Furthermore, in the lower section, there is a list of scala features which could be used in future projects to adapt hypergraphDB in more interesting ways without the need to change the existing codebase, i.e. designing a hypergraphDB - DSL, with manageable effort.
+This post describes some simple hacks that allow to:
+  * call methods of the referenced java object on a typed version of HGHandles. Alternatively, ultrashort parametrized dereferencing methods on regular HGHandle 
+  * starting traversals as method calls on a HGHandle, using that handle as starting atom, strongly simplified by (overridable) default parameters, or parametrized as a shorthand for traversing specific Links / Siblings. Benefitting of scala's collection functions such as map/filter or intersecting different traversals.
+  * pseudo-operator for quick link creation (`<->`) available after HGHandle
+  * shorthands for querying the atomtypecondition of the type of the given handle, optionally combined with a further condition
+  * typesafe check if handle references a HGLink using Option (can be flatMap-ed over in collection functions)
+  * treat HGLink instances as collections of handles, again allowing use of wealth collections functions
+  * use java objects in places where their handles are required. Alternatively, ultrashort methods on anyObject for obtaining an existing handle, assert or force add to graph.
+  * calling update on a mutated object
 
 
-=2.ShortDemo =
+=2.ShortDemo (currently outdated)=
 {{{
 val a = graph.put("hallo Welt")  
                                  // like graph.add but returning TypedHandle parametrized to String
@@ -80,7 +85,7 @@ tib(true).intersect(containsWorld.toSet).map(pair => pair.getSecond.d[String]).f
 }}}
 
 
-=3. Explanations and commented scala implementation=
+=3. Explanations and commented scala implementation  (currently outdated)=
 A HGHandle is similar to a Java object reference: it is a pointer to some data stored in memory or on disk. Although HypergraphDB atoms are strictly typed, hghandles themselves are not typed in the java world. Furthermore, since hypergraphDB does some sophisticated form of serialization, objects obtained by graph.get(somehandle) have to be cast to their respective type. 
 The following hacks aim to add intuitive usage patterns, for example by treating handles as java objects (and vice versa if required).
 This is achieved by introducing a class _TypedHandle_ which is simply parametrized by the type of the object that it references. Using three equally simple implicit conversions:
@@ -138,57 +143,3 @@ implicit def any2handle[T](any:Any)(unique: Boolean = false)(implicit graph:Hype
 graph.close
 }
 }}}
-
-
-=4. Interesting scala features=
-==General==
- Scala is a statically-typed, advanced but mature OO-functional-hybrid language. It allows writing very concise and elegant code, and is fully compatible with Java, but offers numerable possibilities absent in Java, such as functions as first-class objects. Using a mechanism called implicit conversions, scala can extend existing code on-demand, i.e. add methods to classes and interconvert types, without requiring any change to the extended classes. 
-
-==Functions as first-class objects==
-In scala functions are first-class objects, they can be passed in as argument and returned as result of a method or another function. Methods can be converted to function objects on demand.
-Scala's standard collection liberary provides map, flatmap, filter, foreach, forall, groupBy  among many other. These are prominent examples of higher-order-functions and a well-known example of an extremely useful feature that is missing in java. They can be used on Java Collections, Iterators or Iterables, hence they can be used everywhere with HyperGraphDB, given just one import ("import collection.JavaConversions._"). 
-Using closures, partially applied functions / currying and liberal use of curly braces, control structures and operators can be implemented in a way indistinguishable from regular ones. Automatic resource managment could be implemented "with (resource) do {function}". Since in scala there are no operators only methods, and you are free to use fancy symbols, one could also write "µ someResource | function"
-
-
-==Haskell-style pattern matching==
-Scala allows pattern matching as found in functional languages, during which variables are bound to parts of deconstructed objects. For example:
-{{{
-List(1,2,3,4) match { 
-   case List(_,a,_,b) if a < b  => println("hello "+ a)
-   case _ => println("not found");
-}
-//prints "hello 2"
-}}}
-By providing compagnion objects with extractor methods, existing code can participate in such deep matches, again without touching the extended code.
-
-==for comprehensions==
-for comprehensions are more than syntactic sugar for higher-order-functions, they also allow for very comfortable usage of advanced constructs such as monads, functors and applicatives functors. They can be used with (java) collection directly.
-{{{
-val result =  for( e <- employees;
-                        if e.age > 25;
-                        salary = e.age * 100;
-
-                  c <- companies;
-                        if c.region == "DA";
-                        if c.name == e.companyName;
-                        if c.avgSalary < salary
-                )
-            yield ( e.name, c.name, salary - c.avgSalary )
-// result is now a List of Tuple(Employe, Compagnie, SalaryExtra)
-}}}
-
-==macros & reflection==
-- the upcoming scala release 2.10 introduces macros for code generation, and
-a new reflection system that provides "mirrors", ie provides access to
-the exact same thing that the compiler sees.
-
-==higher-kinded types==
-Scala's typesystem has [http://stackoverflow.com/questions/6246719/what-is-a-higher-kinded-type-in-scala higher-kinded types], i.e. it can accomodate HGDBs type constructors of type constructors of type constructors...
-
-==traits / mixin composition==
-Traits are interfaces with implementations, including mechanisms to refer to the object they are mixed into. Mixin may occur at class definition but also at instanciation. It may be possible for example to mixin a HGPlainLinkTrait into objects of a class that you do not have control over.
-
-==advanced concepts of functional programming==
-Scala has mechanisms that make it possible or make it more practical to use advanced techniques of functional programming.
-Using traits and implicit conversions, scala allows for ad-hoc-polymorphism aka typeclasses as found in haskell ([http://www.youtube.com/watch?v=sVMES4RZF-8 good intro video for humans] ). Typeclasses allow to further decoupling of components.
-Scala also makes it much easier to use monads, functors, applicative functors. As mentioned before, for comprehension provide a language - level feature that can be directly used with any monad. This is powerful not only using collections, but also any sort of container or computations. For example, Option[T] reflects as type information that a value may be null, it avoids NPE by allowing to "flatmap over" options ( [http://www.youtube.com/watch?v=Mw_Jnn_Y5iA good intro video for humans] ).

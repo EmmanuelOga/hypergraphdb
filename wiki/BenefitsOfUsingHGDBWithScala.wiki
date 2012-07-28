@@ -1,6 +1,7 @@
 #summary Benefits of using HyperGraphDB with Scala
+#labels scala
 
-_Disclaimer: this is user-created content and not an official HyperGraphDB document._ *Under construction*
+*Disclaimer*: _this is user-created content and not an official HyperGraphDB document. Theses are experimental hacks and as of yet unsuitable for production._ *This page is under construction.*
 
 Index
   * 1) Intro 
@@ -12,10 +13,11 @@ Index
 HyperGraphDB is directly usable by other JVM-languages such as Scala. Scala is interesting not only as an everyday JVM-frontend that dramatically reduces java boilerplate, but also provides a versatile, powerful but no-risk toolset to use and easily adapt hypergraphDB in completely new ways, beyond mere syntactic sugar. 
 For a more detailed introduction into scala and interesting features, checkout [http://scalahypergraph.blogspot.de/2012/07/interesting-scala-features.html this blogpost] written with hypergraphDB in mind.
 
-Please note that the features listed below work only within scala, but not in java.
+Please note that the features listed below work only within scala.
+
 
 This post describes some simple hacks that allow to:
-  * call methods of the referenced java object on a typed version of HGHandles. Alternatively, ultrashort parametrized dereferencing methods on regular HGHandle 
+  * call methods of the referenced java object on a typed version of HGHandles. Alternatively, short parametrized dereferencing methods on regular HGHandle 
   * starting traversals as method calls on a HGHandle, using that handle as starting atom, strongly simplified by (overridable) default parameters, or parametrized as a shorthand for traversing specific Links / Siblings. Benefitting of scala's collection functions such as map/filter or intersecting different traversals.
   * pseudo-operator for quick link creation (`<->`) available after HGHandle
   * shorthands for querying the atomtypecondition of the type of the given handle, optionally combined with a further condition
@@ -25,7 +27,8 @@ This post describes some simple hacks that allow to:
   * calling update on a mutated object
 
 
-=2.ShortDemo (currently outdated)=
+=2.ShortDemo=
+
 {{{
     //
     // TypedHandle & Autodereference
@@ -100,6 +103,14 @@ This post describes some simple hacks that allow to:
 
 }}}
 
+
+|| *operation* || *HGDB API / java* || *HGDB scala wrapper* ||
+|| get Handle || {{{ graph.getHandle(someObject) }}} ||  {{{ someObject.h }}} or  {{{ someObject }}} ||
+|| assert Atom || {{{ hg.assertAtom(graph, someObject) }}} || {{{ someObject.hh }}} or  {{{ someObject }}} ||
+|| add atom || {{{ graph.add(someObject) }}} ||  {{{ someObject.hhh }}} or  {{{ someObject }}} ||
+|| get atom || {{{ ((T) graph.get(someHandle)) }}} ||  {{{ someHandle.d[T] }}} or  {{{ someHandle }}} ||
+|| create Link of handles a,b,c || {{{ graph.add(new HGPlainLink(a,b,c) }}} ||  {{{ a <-> (b,c) }}} ||
+|| traversal on HGPlainLinks and Strings || {{{  HGALGenerator alGen = new DefaultALGenerator(graph, hg.type(HGPlainLink.class), hg.type(String.class)); HGTraversal trav= new HGDepthFirstTraversal(someHandle, alGen); while(trav.hasNext()){ Pair<HGHandle, HGHandle> pair = trav.next(); SomeType t = ((SomeType) graph.get(pair.getSecond()));}}} ||  {{{ someHandle.typeTraverse[HGPlainLink, String](dfs = true).map(p => p.getSecond.d[String])}}} ||
 
 =3. Commented scala implementation=
 A HGHandle is similar to a Java object reference: it is a pointer to some data stored in memory or on disk. Although HypergraphDB atoms are strictly typed, hghandles themselves are not typed in the java world. Furthermore, since hypergraphDB does some sophisticated form of serialization, objects obtained by graph.get(somehandle) have to be cast to their respective type. 

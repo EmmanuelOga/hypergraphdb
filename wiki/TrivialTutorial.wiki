@@ -62,8 +62,8 @@ and then query for all Strings:
 }}}
 
 ->
-dolor sit amet
-dolor sit amet
+Lorem ipsum
+Lorem ipsum
 
 We get two results here, that happen to be distinct duplicate copies of the same data (we prove that later).
 
@@ -79,7 +79,7 @@ where "QueryCondition" in our example is hg.type(String.class), but of course th
 =How to query for handles?=
 Sometimes you need handles. To query for them is easy. It's the same as with getOne/getAll, but instead of h.getOne you use hg.findOne. Instead of hg.getAll, use hg.findAll. 
 
-We use this to confirm that we created actual duplicate atoms in the "dolor sit amet" example above. We printout the handles, and check for equality with the handles obtained before: 
+We use this to confirm that we created actual duplicate atoms in the "Lorem ipsum" example above. We printout the handles, and check for equality with the handles obtained before: 
 
 {{{
          for (Object s : hg.findAll(graph, hg.type(String.class)))

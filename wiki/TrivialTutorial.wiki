@@ -77,7 +77,7 @@ where "QueryCondition" in our example is hg.type(String.class), but of course th
 
 
 =How to query for handles?=
-Sometimes you need handles. To query for them is easy. It's the same as with getOne/getAll, but instead of h.getOne you use hg.findOne. Instead of hg.getAll, use hg.findAll. 
+Sometimes you need handles and also you do not want to dereference and deserialize all results of a query into memory. To query by returning handles is easy. It's the same as with getOne/getAll, but instead of h.getOne you use hg.findOne. Instead of hg.getAll, use hg.findAll. 
 
 We use this to confirm that we created actual duplicate atoms in the "Lorem ipsum" example above. We printout the handles, and check for equality with the handles obtained before: 
 
@@ -109,7 +109,7 @@ System.out.println("Are those two handles duplicates, i.e. two distinct handles?
 -> 
 "Are those two handles duplicates, i.e. two distinct handles? : false"
 
-Note that - logically - there is a cost associated with due to checking. If you don't need unique atoms, graph.add is faster.
+Note that logically there is a cost associated with checking if a given datum already exists. If you don't need unique atoms, graph.add is faster.
 
 =How to create Links and query for Links?=
 

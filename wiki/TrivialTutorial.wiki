@@ -117,7 +117,7 @@ Till now there was nothing graph, only object-oriented database functionality. W
 
 Let's make a link and query for it:
 {{{
-        HGHandle duplicateLink = graph.add(new HGRelType("duplicates!", handle1, handle2));
+        HGHandle duplicateLink = graph.add(new HGPlainLink(handle1, handle2));
         List<HGHandle> dupsList = hg.findAll(graph, hg.link(handle1, handle2));
         System.out.println("querying for link returned that duplicate Link? :" + dupsList.contains(duplicateLink));
 }}}

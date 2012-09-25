@@ -7,13 +7,18 @@ While with hypergraphDB you can do fancy things, and while there are some things
 The intention of this tutorial is to prove that generally, it is not difficult to use either, and to improve documentation on those edges where things are non-obvious.
 Since version 1.2, it no longer is difficult to setup, since there no longer is the need for a native library. It now integrates with Maven and has excellent JSON support (among many other things).
 
-=How to instantiate HyperGraphDB?=
+=How to instantiate HyperGraphDB? 
 {{{
 HyperGraph graph = new HyperGraph("/home/schopenhauer/hgdbData/");
 // do things. Then close it:
 graph.close()
 }}}
-In production systems, you are recommended to ensure graph.close by wrapping code in try / finally blocks. If you manage several hypergraph instances, use HGEnvironment.get(location).
+ If you manage several hypergraph instances, use HGEnvironment.get(location). 
+
+=When to close, when to leave open?=
+If hypergraphdb is killed before the clean shutdown process has succeeded, there might be data loss. In production systems, you are recommended to ensure graph.close by wrapping code in a try block, graph.close() in a finally block.
+Since in most situations there is no real danger for data loss, and since opening and closing are associated with a cost, you can usually leave the database open until the application finished (see [https://groups.google.com/d/topic/hypergraphdb/GVo4rGGFQfs/discussion here]).
+
 
 =How to store and retrieve data? - the trivial way=
 {{{

@@ -1,7 +1,8 @@
 #summary Benefits of using HyperGraphDB with Scala
 #labels scala
 
-*Disclaimer*: _this is user-created content and not an official HyperGraphDB document. Theses are experimental hacks and as of yet unsuitable for production._ *This page is under construction.*
+*Disclaimer*: _this is user-created content and not an official HyperGraphDB document. Theses are experimental hacks and as of yet unsuitable for production._ *This page requires a revision.* 
+(Majority of hacks here work. However, although TypedHandle instances are valid HGHandle, the type information does not survive serialization & deserialization)
 
 Index
   * 1) Intro 

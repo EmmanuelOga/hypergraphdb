@@ -235,3 +235,7 @@ Indexing is not required for querying, but done for performance reasons. For the
             System.out.println("\nTraversing. Current word: " + graph.get(pair.getSecond()));
         }
 }}}
+
+=How and when to create custom types?=
+Generally you don't have to create a custom HGDB type yourself. If you just add an object of your type to the DB, it will create a corresponding HGDB type for you. If you make that choice to let HGDB create the type, you have to provide a default constructor (that is, a constructor with zero arguments) for your class. 
+If you want to create the type yourself, say because you want to optimize how the objects are stored, then for a property-based query to work you'd have to implement the HGCompositeType and HGAtomType interfaces.

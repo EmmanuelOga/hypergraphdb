@@ -239,3 +239,77 @@ Indexing is not required for querying, but done for performance reasons. For the
 =How and when to create custom types?=
 Generally you don't have to create a custom HGDB type yourself. If you just add an object of your type to the DB, it will create a corresponding HGDB type for you. If you make that choice to let HGDB create the type, you have to provide a default constructor (that is, a constructor with zero arguments) for your class. 
 If you want to create the type yourself, say because you want to optimize how the objects are stored, then for a property-based query to work you'd have to implement the HGCompositeType and HGAtomType interfaces.
+
+=Hello World Example= 
+
+The following code should be treated as a 'Hello World' example. It demonstrate how a hypergraphdb can be created and how objects of type Book will be added to the database. Further it shows how a query is done.
+{{{
+public class Book implements Serializable{
+
+    private String title;
+    private String author;
+   
+    public Book() {
+        super();
+    }
+
+    public Book(String title, String author) {
+        super();
+        this.author = author;
+        this.title = title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+}
+
+public class HGDBCreateSample {
+    public static void main(String[] args) {
+        String databaseLocation = "C://hpgdb/testdb";
+        HyperGraph graph = null;
+        try {
+            graph = new HyperGraph(databaseLocation);
+
+            Book mybook = new Book("Critique of Pure Reason", "me");
+
+            HGHandle bookHandle = graph.add(mybook);
+            
+            HGQueryCondition condition = new And(
+                      new AtomTypeCondition(Book.class),
+                      new AtomPartCondition(new String[]{"author"}, "me", ComparisonOperator.EQ));
+            HGSearchResult<HGHandle> rs = graph.find(condition);    
+            try
+            {
+                while (rs.hasNext())
+                {
+                    HGHandle current = rs.next();
+                    Book book = graph.get(current);
+                    System.out.println(book.getTitle());
+                }
+            }
+            finally
+            {
+                rs.close();
+            }    
+            
+        } catch (Throwable t) {
+            t.printStackTrace();
+        } finally {
+            graph.close();
+        }
+    }
+} }}}

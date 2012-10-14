@@ -1,8 +1,8 @@
 #summary Minimalistic Getting-Started
 
-DISCLAIMER: this page is written by a User. It is not an "official" hypergraphDB document. It is as of yet, incomplete.
+DISCLAIMER: this page is written by a User. It is not an "official" hypergraphDB document. It is continually extended.
 
-This pages gives a short introduction on the most common tasks you will do with the hypergraphdb. These tasks include creating a database, store, query and retrieve objects and links, traverse a graph and create indexes.
+This pages gives a short introduction on the most common tasks you will do with hypergraphdb. These tasks include creating a database, store, query and retrieve objects and links, traverse a graph and create indexes.
 
 =Overview=
 <wiki:toc max_depth="1" />
@@ -18,11 +18,7 @@ HyperGraph graph = new HyperGraph("/home/schopenhauer/hgdbData/");
 // do things. Then close it:
 graph.close()
 }}}
- If you manage several hypergraph instances, use HGEnvironment.get(location). 
-
-=When to close, when to leave open?=
-If hypergraphdb is killed before the clean shutdown process has succeeded, there might be data loss. In production systems, you are recommended to ensure graph.close by wrapping code in a try block, graph.close() in a finally block.
-Since in most situations there is no real danger for data loss, and since opening and closing are associated with a cost, you can usually leave the database open until the application finished (see [https://groups.google.com/d/topic/hypergraphdb/GVo4rGGFQfs/discussion here]).
+If you manage several hypergraph instances, use HGEnvironment.get(location). Do not forget to close after usage, because that might lead to corruption.
 
 
 =How to store and retrieve data? - the trivial way=
@@ -240,9 +236,14 @@ Indexing is not required for querying, but done for performance reasons. For the
 Generally you don't have to create a custom HGDB type yourself. If you just add an object of your type to the DB, it will create a corresponding HGDB type for you. If you make that choice to let HGDB create the type, you have to provide a default constructor (that is, a constructor with zero arguments) for your class. 
 If you want to create the type yourself, say because you want to optimize how the objects are stored, then for a property-based query to work you'd have to implement the HGCompositeType and HGAtomType interfaces.
 
+=When to close, when to leave open?=
+If hypergraphdb is killed before the clean shutdown process has succeeded, there might be data loss. In production systems, you are recommended to wrap your code in a try block, and ensure graph.close() in a finally block.
+Since in most situations there is no real danger of ungraceful shutdown, and since opening and closing are associated with a cost, you can usually leave the database open until the application finished (see [https://groups.google.com/d/topic/hypergraphdb/GVo4rGGFQfs/discussion here]).
+
+
 =Hello World Example= 
 
-The following code should be treated as a 'Hello World' example. It demonstrate how a hypergraphdb can be created and how objects of type Book will be added to the database. Further it shows how a query is done.
+The following code should be treated as a 'Hello World' example, by providing the source to the Book example of the official tutorial. It demonstrates how a hypergraphdb can be created and how objects of type Book will be added to the database. Further it shows how a query is done.
 {{{
 public class Book implements Serializable{
 
@@ -283,15 +284,17 @@ public class HGDBCreateSample {
         HyperGraph graph = null;
         try {
             graph = new HyperGraph(databaseLocation);
-
             Book mybook = new Book("Critique of Pure Reason", "me");
-
             HGHandle bookHandle = graph.add(mybook);
-            
+
             HGQueryCondition condition = new And(
                       new AtomTypeCondition(Book.class),
                       new AtomPartCondition(new String[]{"author"}, "me", ComparisonOperator.EQ));
             HGSearchResult<HGHandle> rs = graph.find(condition);    
+
+// Queries can be defined more concisely, import HGQuery.hg.* then
+hg.findAll(graph, and(type(Book.class), eq("author", "me"))
+
             try
             {
                 while (rs.hasNext())

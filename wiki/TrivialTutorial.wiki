@@ -12,6 +12,13 @@ While with hypergraphDB you can do fancy things, and while there are some things
 The intention of this tutorial is to prove that generally, it is not difficult to use either, and to improve documentation on those edges where things are non-obvious.
 Since version 1.2, it no longer is difficult to setup, since there no longer is the need for a native library. It now integrates with Maven and has excellent JSON support (among many other things).
 
+=Hello World Example=
+The following example is a short 'Hello World' example to show up how easy the use of hypergraphdb is. It opens a database in the given path, 
+{{{
+HyperGraph graph = new HyperGraph("/path/to/hypergraphdb")
+println(graph.get(graph.add("Hello World")))
+graph.close
+}}}
 =How to instantiate HyperGraphDB?= 
 {{{
 HyperGraph graph = new HyperGraph("/home/schopenhauer/hgdbData/");
@@ -241,21 +248,18 @@ If hypergraphdb is killed before the clean shutdown process has succeeded, there
 Since in most situations there is no real danger of ungraceful shutdown, and since opening and closing are associated with a cost, you can usually leave the database open until the application finished (see [https://groups.google.com/d/topic/hypergraphdb/GVo4rGGFQfs/discussion here]).
 
 
-=Hello World Example= 
+=Real World Example= 
 
-The following code should be treated as a 'Hello World' example, by providing the source to the Book example of the official tutorial. It demonstrates how a hypergraphdb can be created and how objects of type Book will be added to the database. Further it shows how a query is done.
+The following code should be treated as a real world example, by providing the source to the Book example of the official tutorial. It demonstrates how a hypergraphdb can be created and how objects of type Book will be added to the database. Further it shows how a query is done.
+
+The code below shows the JavaBean Book:
 {{{
-public class Book implements Serializable{
+public class Book {
 
     private String title;
     private String author;
    
-    public Book() {
-        super();
-    }
-
     public Book(String title, String author) {
-        super();
         this.author = author;
         this.title = title;
     }
@@ -277,37 +281,28 @@ public class Book implements Serializable{
     }
 
 }
+}}}
 
-public class HGDBCreateSample {
+The code below shows the main class:
+{{{
+import java.util.List;
+import org.hypergraphdb.HGHandle;
+import org.hypergraphdb.HGQuery.hg;
+import org.hypergraphdb.HyperGraph;
+
+
+public class HGDBSimpleSample {
     public static void main(String[] args) {
-        String databaseLocation = "C://hpgdb/testdb";
+        String databaseLocation = "/path/to/hypergraphdb";
         HyperGraph graph = null;
         try {
             graph = new HyperGraph(databaseLocation);
             Book mybook = new Book("Critique of Pure Reason", "me");
             HGHandle bookHandle = graph.add(mybook);
 
-            HGQueryCondition condition = new And(
-                      new AtomTypeCondition(Book.class),
-                      new AtomPartCondition(new String[]{"author"}, "me", ComparisonOperator.EQ));
-            HGSearchResult<HGHandle> rs = graph.find(condition);    
-
-// Queries can be defined more concisely, import HGQuery.hg.* then
-hg.findAll(graph, and(type(Book.class), eq("author", "me"))
-
-            try
-            {
-                while (rs.hasNext())
-                {
-                    HGHandle current = rs.next();
-                    Book book = graph.get(current);
-                    System.out.println(book.getTitle());
-                }
-            }
-            finally
-            {
-                rs.close();
-            }    
+            List<HGHandle> handles = hg.findAll(graph, hg.and(hg.type(Book.class), hg.eq("author", "me")));
+            for (HGHandle handle : handles)
+                System.out.println(graph.get(handle));
             
         } catch (Throwable t) {
             t.printStackTrace();

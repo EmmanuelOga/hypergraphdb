@@ -300,10 +300,9 @@ public class HGDBSimpleSample {
             Book mybook = new Book("Critique of Pure Reason", "me");
             HGHandle bookHandle = graph.add(mybook);
 
-            List<HGHandle> handles = hg.findAll(graph, hg.and(hg.type(Book.class), hg.eq("author", "me")));
-            for (HGHandle handle : handles)
-                System.out.println(graph.get(handle));
-            
+            List<Book> books = hg.getAll(graph, hg.and(hg.type(Book.class), hg.eq("author", "me")));
+            for (Book book : books)
+                System.out.println(book.getTitle());
         } catch (Throwable t) {
             t.printStackTrace();
         } finally {

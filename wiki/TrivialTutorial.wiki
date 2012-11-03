@@ -22,10 +22,10 @@ graph.close();
 }}}
 
 Notes:
-* graph.add returns something that graph.get consumes - HGHandle, that's how atoms are referred to.
-* graph.get returns a String object with working toLowerCase method - this shows that hypergraphDB is also an object-oriented database.
-* if you manage several hypergraph instances, use HGEnvironment.get(location). 
-* do not forget to close after usage, because that might lead to corruption. It's recommended to wrap your code in a try block, and ensure graph.close() in a finally block.
+  * graph.add returns something that graph.get consumes - HGHandle, that's how atoms are referred to.
+  * graph.get returns a String object with working toLowerCase method - this shows that hypergraphDB is also an object-oriented database.
+  * if you manage several hypergraph instances, use HGEnvironment.get(location). 
+  * do not forget to close after usage, because that might lead to corruption. It's recommended to wrap your code in a try block, and ensure graph.close() in a finally block.
 
 
 =How to store and retrieve data? - the trivial way=
@@ -40,7 +40,7 @@ Lorem ipsum
 LOREM IPSUM
 
 Notes:
-   * graph.add(...) returnes a "handle" with which you can access the datum directly (as seen in graph.get a line below). A handle generally is an auto-generated database ID. 
+  * graph.add(...) returnes a "handle" with which you can access the datum directly (as seen in graph.get a line below). A handle generally is an auto-generated database ID. 
   *  using add/get to store and retrieve data is not necessarily the typical way hypergraphdb is used because:
   * graph.get() requires you to know the handle. This is often not the case, especially when you want data that you did not store just moments ago (hence most of the time! :-) ). Therefore most accesses typically happen by querying. 
   * If graph.add(someObject) is called more than once (for example by accident, each time you run a given program), you would end up with duplicates that can be disturbing when querying.

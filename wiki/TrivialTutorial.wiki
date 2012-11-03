@@ -255,7 +255,7 @@ is really there as a place holder for common configuration settings.
 Start by building 'core' and then storage/bdb-je. That's all you need
 to get going.
 
-In case people don't want to use Maven. The top-level build.xml is still not going to work. There are working build.xml files with jar dependencies for the following sub-projects which has to be build separately:
+In case people don't want to use Maven, there are working build.xml files with jar dependencies for the following sub-projects which have to be build separately:
 1) core - has to be build first, the others use a relative path to
 include the hgdb-1.2.jar as a dependency
 2) storage/bdb-je

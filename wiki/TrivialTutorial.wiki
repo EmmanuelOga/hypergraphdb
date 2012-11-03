@@ -1,6 +1,6 @@
 #summary Minimalistic Getting-Started
 
-DISCLAIMER: this page is written by a User. It is not an "official" hypergraphDB document. It is continually extended.
+DISCLAIMER: this page is written by Users. It is not an "official" hypergraphDB document. It is continually extended.
 
 This pages gives a short introduction on the most common tasks you will do with hypergraphdb. These tasks include creating a database, store, query and retrieve objects and links, traverse a graph and create indexes.
 
@@ -12,20 +12,20 @@ While with hypergraphDB you can do fancy things, and while there are some things
 The intention of this tutorial is to prove that generally, it is not difficult to use either, and to improve documentation on those edges where things are non-obvious.
 Since version 1.2, it no longer is difficult to setup, since there no longer is the need for a native library. It now integrates with Maven and has excellent JSON support (among many other things).
 
-=Hello World Example=
-The following example is a short 'Hello World' example to show up how easy the use of hypergraphdb is. It opens a database in the given path, 
+=How to instantiate HyperGraphDB? - Hello World= 
+Just a kind of 'Hello World' example to show up how easy it is to instantiate HypergraphDB and .
 {{{
-HyperGraph graph = new HyperGraph("/path/to/hypergraphdb")
-println(graph.get(graph.add("Hello World")))
-graph.close
+HyperGraph graph = new HyperGraph("/path/to/workdir/bje");
+String hello = graph.get(graph.add("Hello World")); 
+System.out.println(hello.toLowerCase());
+graph.close();
 }}}
-=How to instantiate HyperGraphDB?= 
-{{{
-HyperGraph graph = new HyperGraph("/home/schopenhauer/hgdbData/");
-// do things. Then close it:
-graph.close()
-}}}
-If you manage several hypergraph instances, use HGEnvironment.get(location). Do not forget to close after usage, because that might lead to corruption.
+
+Notes:
+- graph.add returns something that graph.get consumes - HGHandle, that's how atoms are referred to.
+- graph.get returns a String object with working toLowerCase method - this shows that hypergraphDB is also an object-oriented database.
+- if you manage several hypergraph instances, use HGEnvironment.get(location). 
+- do not forget to close after usage, because that might lead to corruption. It's recommended to wrap your code in a try block, and ensure graph.close() in a finally block.
 
 
 =How to store and retrieve data? - the trivial way=

@@ -248,6 +248,21 @@ If hypergraphdb is killed before the clean shutdown process has succeeded, there
 Since in most situations there is no real danger of ungraceful shutdown, and since opening and closing are associated with a cost, you can usually leave the database open until the application finished (see [https://groups.google.com/d/topic/hypergraphdb/GVo4rGGFQfs/discussion here]).
 
 
+=How to build?= 
+mvn is now the build tool to use.  But it's not intended to be
+used from the top-level of the source tree. The top-level parent pom
+is really there as a place holder for common configuration settings.
+Start by building 'core' and then storage/bdb-je. That's all you need
+to get going.
+
+In case people don't want to use Maven. The top-level build.xml is still not going to work. There are working build.xml files with jar dependencies for the following sub-projects which has to be build separately:
+1) core - has to be build first, the others use a relative path to
+include the hgdb-1.2.jar as a dependency
+2) storage/bdb-je
+3) storage/bdb-native
+4) p2p
+
+
 =Real World Example= 
 
 The following code should be treated as a real world example, by providing the source to the Book example of the official tutorial. It demonstrates how a hypergraphdb can be created and how objects of type Book will be added to the database. Further it shows how a query is done.

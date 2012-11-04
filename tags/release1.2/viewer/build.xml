@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." name="HyperGraphDB Viewer" default="jar">
+	<description>HyperGraphDB Viewer Build File</description>
+    
+	<!--Location of the HypergraphDB jar-->
+	<property name="hgdb_jar" value="c:/classlib/hgdb1.0/core/hgdbfull.jar"/>
+	
+	<property name="build" value="build"/>
+	<!-- The directory containing distribution jar -->
+	<property name="dist" value="${build}/dist" />
+	<property name="debug" value="on"/>
+	<property name="jar-name" value="hgdbviewer.jar"/>
+	
+	<!-- classpath for compiling-->
+	<path id="viewer-classpath">
+		<fileset dir="jars">
+			<include name="**/*.jar" />
+		</fileset>
+		<pathelement location="${hgdb_jar}"/>
+		<pathelement path="${java.class.path}" />
+	</path>
+
+    <target name="init">
+		<mkdir dir="${build}"/>
+    	<mkdir dir="${build}/hgviewer"/>
+    	<mkdir dir="${dist}"/>
+    	<copy todir="${build}">
+    		<fileset dir="src/java">
+    			<exclude name="META-INF/**" />
+    			<include name="**/*.class" />
+    			<include name="**/*.png" />
+    			<include name="**/*.gif" />
+    			<include name="**/*.jpg" />
+    			<include name="**/*.jpeg" />
+    			<include name="**/*.properties" />
+    			<include name="**/*.xml" />
+    			<include name="**/*.dtd" />
+    			<include name="**/.txt" />
+    		</fileset>
+    	</copy>
+    </target>
+    
+	<target name="compile" depends="init" description="Compile the HyperGraphDB Viewer Sources">
+		<javac source="1.5" classpathref="viewer-classpath" debug="${debug}" destdir="${build}" srcdir="src">
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile" description="Create HyperGraphDB Viewer Jar file.">
+		<jar basedir="${build}" jarfile="${jar-name}">
+			<include name="org/**" />
+		</jar>
+	</target>
+	
+	<target name="doc" depends="init" description="Generate the javadoc for HGViewer.">
+		 <javadoc sourcepath="src/java"
+	               classpathref="viewer-classpath"
+	               destdir="${build}/hgviewer/javadoc"/>
+	</target>
+	
+	<target name="dist-prepare" depends="jar,doc" description="Copy distribution files for zip.">
+			<copy todir="${build}/hgviewer">
+				<fileset dir=".">
+					<include name="${jar-name}"/>
+					<include name="jars/**" />
+					<include name="run.**" />
+					<include name="ViewerInSeco.nb" />
+					<include name="Readme.txt" />
+					<include name="LicensingInformation" />
+				</fileset>
+			</copy>
+		</target>
+
+		<target name="dist-zip" depends="dist-prepare" description="Build Windows distribution">
+			<zip zipfile="${dist}/hgviewer-dist.zip">
+				<fileset dir="${build}">
+					<include name="hgviewer/**" />
+				</fileset>
+			</zip>
+		</target>
+	
+	 <target name="dist-tar.gz" depends="dist-prepare" description="Build Linux distribution">
+	 	 <tar destfile="${dist}/hgviewer-dist.tar.gz" compression="gzip">	
+	 	 	<fileset dir="${build}">
+	 	 		<include name="hgviewer/**" />
+	 	 	</fileset>
+		</tar>
+	 </target>
+
+	<target description="clean up" name="clean">
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}" />
+	</target>
+
+</project>

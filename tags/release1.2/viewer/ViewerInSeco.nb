@@ -1,0 +1,211 @@
+<notebook title="D:\work\hg\viewer\ViewerInSeco.nb">
+    <cell-style bgColor="255,204,102"/>
+    <output-cell-style borderColor="255,255,255" fgColor="0,128,0"/>
+    <cell-group name="CG7">
+        <cell html-preview="true">
+            <data><![CDATA[<h2 style="text-align:center;">Working with HyperGraph and HGViewer in Seco
+</h2>
+<p style="text-align:left;">This is a short step-by-step tutorial describing some uses of HGViewer in Seco. First let's write few import statements that we'll need later on and open an empty HyperGraph.
+</p>
+]]>            </data>
+        </cell>
+
+    </cell-group>
+    <cell-group name="CG8">
+        <cell>
+            <data><![CDATA[import org.hypergraphdb.*;
+import org.hypergraphdb.query.*; 
+import org.hypergraphdb.viewer.*;
+import org.hypergraphdb.atom.*;
+import org.hypergraphdb.type.*;
+import org.hypergraphdb.viewer.painter.*;
+import org.hypergraphdb.viewer.phoebe.*;
+import org.hypergraphdb.atom.*;
+import seco.notebook.storage.*;  
+import org.hypergraphdb.viewer.visual.*;
+import org.hypergraphdb.viewer.actions.*;
+
+type = new HGViewerType();
+type.setHyperGraph(niche);
+niche.getTypeSystem().addPredefinedType(HGViewerType.HGHANDLE, type,  HGViewer.class);
+
+graph = niche;
+]]>            </data>
+        </cell>
+
+    </cell-group>
+    <cell-group name="CG9">
+        <cell html-preview="true">
+            <data><![CDATA[<h3>The HGViewer Swing Component
+</h3>
+]]>            </data>
+        </cell>
+        <cell html-preview="true">
+            <data><![CDATA[<p>Next we'll create the HGViewer component, the depth of displayed HyperGraph elements and the handle to focus around. In this case this will be the Top handle.
+</p>
+]]>            </data>
+        </cell>
+
+    </cell-group>
+    <cell-group name="CG10">
+        <cell>
+            <data><![CDATA[hg = HGQuery.hg;
+h = hg.findOne(graph, hg.type(Top.class));
+comp = new HGViewer(graph, h, 2, null);
+]]>            </data>
+        </cell>
+
+    </cell-group>
+    <cell html-preview="true">
+        <data><![CDATA[
+<p>
+  <span style="font-size:14; color:#000000; font-style:normal; font-family:Dialog;">Here's the viewer. Note the dropdown menues in the bottom right corner. Few useful shortcuts to remember while working with the viewer's zoomable interface:</span>
+</p>
+<ul>
+  <li><span style="font-size:14; color:#000000; font-style:normal; font-family:Dialog;">Right Mouse Button Down + Drag Left </span><span style="font-size:14; color:#000000; font-weight:bold; font-style:normal; font-family:Dialog;">OR</span><span style="font-size:14; color:#000000; font-style:normal; font-family:Dialog;"> Alt + Up = Zoom In</span>  
+  </li>
+  <li><span style="font-size:14; color:#000000; font-style:normal; font-family:Dialog;">Right Mouse Button Down + Drag Right </span><span style="font-size:14; color:#000000; font-weight:bold; font-style:normal; font-family:Dialog;">OR</span><span style="font-size:14; color:#000000; font-style:normal; font-family:Dialog;"> Alt + Down = Zoom Out</span>  
+  </li>
+  <li><span style="font-size:14; color:#000000; font-style:normal; font-family:Dialog;">Ctrl + F = View is scaled to display all presented nodes</span>  
+  </li>
+  <li>Ctrl + L = Switch to a different Layout  
+  </li>
+  <li>Ctrl + H = Hide selected nodes&#160;  
+  </li>
+</ul>
+<p><span style="font-size:14; color:#000000; font-style:normal; font-family:Dialog;">The viewer works by displaying all atoms adjacent to a given </span><span style="font-size:14; color:#000000; font-weight:bold; font-style:normal; font-family:Dialog;">focus</span><span style="font-size:14; color:#000000; font-weight:normal; font-style:normal; font-family:Dialog;"> atom to a certain depth. The component's API allows you to change the focus atom, the depth as well as the meaning of &quot;adjacent&quot;. The code just executed focuses on the </span><span style="font-size:14; color:#000000; font-weight:normal; font-style:italic; font-family:Dialog;">Top</span><span style="font-size:14; color:#000000; font-weight:normal; font-style:italic; font-family:Dialog;"> </span><span style="font-size:14; color:#000000; font-weight:normal; font-family:Dialog;">HyperGraphDB</span><span style="font-size:14; color:#000000; font-weight:normal; font-style:italic; font-family:Dialog;"> </span><span style="font-size:14; color:#000000; font-weight:normal; font-family:Dialog;">type. Within the viewer interface you can select an atom (a node or a link) currently being displayed and focus on it by selecting</span><span style="font-size:14; color:#000000; font-weight:normal; font-style:italic; font-family:Dialog;"> </span><span style="font-size:14; color:#000000; font-weight:normal; font-style:italic; font-family:Dialog;">Focus</span><span style="font-size:14; color:#000000; font-weight:normal; font-family:Dialog;"> from the right-click context menu</span><span style="font-size:14; color:#000000; font-weight:normal; font-style:italic; font-family:Dialog;">.</span><span style="font-size:14; color:#000000; font-weight:normal; font-family:Dialog;"> You can also show more atoms branching out of a given atom with the </span><span style="font-size:14; color:#000000; font-weight:normal; font-style:italic; font-family:Dialog;">Expand</span><span style="font-size:14; color:#000000; font-weight:normal; font-family:Dialog;"> command from the context menu.</span>
+</p>
+<p><span style="font-size:14; color:#000000; font-style:normal; font-family:Dialog;">To inspect the node values, you should select some node and execute the following cell. Next you can use the received value in the previous script to create another view focused around the new value and probably based on a different adjancy lists. This way you can complement the viewer's interface with scripting in the language of your choice. </span>
+</p>]]>        </data>
+    </cell>
+    <cell>
+        <data><![CDATA[node = comp.getView().getSelectedNodeView();
+hh = node.getNode().getHandle();
+o = graph.get(hh);
+]]>        </data>
+    </cell>
+    <cell html-preview="true">
+        <data><![CDATA[<h3>Changing the Look 
+</h3>
+<p>At this point the nodes in the viewer should look pretty ugly. So let's make them look better. The easiest way is by invoking the &quot;Add Painter&quot; command from the popup menu on a selected node. This will automaticaly create a painter for all the nodes of this type and will show a dialog with all the painter's properties.For example, zoom in on the viewer, select one of the subsumes nodes, right click on it, click on 
+  <span style="font-style:italic;">Add Painter-&gt; Node </span>and type in a label property in the dialog box and click ok. Now all subsumes nodes will appear with a shorter label. Note that those &quot;nodes&quot; in the viewer are actually links in the graph. The visualization transforms each hyperedge into a node so that the hypergraph is essentially transformed into a standard directed graph.
+</p>
+<p>It's possible to define a painter programmatically.The relevant classes and interfaces can be found in the <span style="font-style:italic;">org.hypergraphdb.viewer.layout</span> package, which you can browse from the viewer's javadocs. Essentially, you can associate a node or an edge painter with a given atom type. Here is an example that changes the appearance of a subsumes node:
+</p>
+]]>        </data>
+    </cell>
+    <cell>
+        <data><![CDATA[//helper function for adding generic painters  
+public NodePainter makePainter(HyperGraph graph, Class cls, HGViewer view)
+{
+    painter = new DefaultNodePainter();
+    typeH = graph.getTypeSystem().getTypeHandle(cls);
+    comp.getView().getVisualStyle().addNodePainter(typeH, painter);
+    return painter;
+}
+//adding generic and persistent painters 
+painter = makePainter(graph, HGSubsumes.class, comp);
+painter.setColor(Color.LIGHT_GRAY);
+painter.setShape(Shape.ROUND_RECT);
+//this is a very simple predefined painter, which returns the simple class name as a label and full class name as tooltip
+painter1 = new SimpleLabelTooltipNodePainter(); 
+typeH = graph.getPersistentHandle(graph.getTypeSystem().getTypeHandle(Top.class));
+painter1.setColor(Color.RED);
+painter1.setShape(Shape.DIAMOND);
+comp.getView().getVisualStyle().addNodePainter(typeH, painter1);
+comp.getView().redrawGraph();
+]]>        </data>
+    </cell>
+    <cell-group name="CG0">
+        <cell html-preview="true">
+            <data><![CDATA[Here's an example of an edge painter which is defined inline and will not be persisted. Note the use the general paintEdge() method where we change the background color of the label, which is generally not supported by DefaultEdgePainter. If you wish you could add Image or some other fancy stuff there.
+]]>            </data>
+        </cell>
+        <cell>
+            <data><![CDATA[subsumesType = graph.getTypeSystem().getTypeHandle(HGSubsumes.class);
+comp.getView().getVisualStyle().addEdgePainter(subsumesType,
+        new DefaultEdgePainter()
+        {
+            public void paintEdge(PEdgeView v)
+            {
+                super.paintEdge(v);
+                v.getLabel().setPaint(Color.WHITE);
+            }
+            public String getLabel()
+            {
+                return "subsumes";
+            }
+        }
+ );
+comp.getView().redrawGraph();
+]]>            </data>
+        </cell>
+
+    </cell-group>
+    <cell html-preview="true">
+        <data><![CDATA[<h3>Defining What Data to Show
+</h3>
+<p>If the nodes are too many we can reduce the depth and refresh the viewer. Note that this is a fully refresh and it reads all the data from the underlying graph, so this method could be used to synchronise the viewer after some changes on the hypergraph.
+</p>
+]]>        </data>
+    </cell>
+    <cell-group name="CG0">
+        <cell>
+            <data><![CDATA[comp.setDepth(2); 
+comp.refresh();
+]]>            </data>
+        </cell>
+        <cell html-preview="true">
+            <data><![CDATA[To change the currently focused on atom programmatically, just call the component's 
+<span style="font-style:italic;">focus </span>method. For example, Seco's notebooks are represented as nested cell structures in HyperGraphDB and their behavior is governed by various link annotations around those structures. So here's a view of the current notebook. If the viewer cell is already out of sight, just drag it somewhere on the canvas to see the result:]]>            </data>
+        </cell>
+        <cell>
+            <data><![CDATA[comp.focus(notebook.doc.bookHandle)
+]]>            </data>
+        </cell>
+        <cell html-preview="true" readonly="true" collapsed="true">
+            <data><![CDATA[By default, the viewer will examine all edges connected to a given atom. But internally it just uses a adjancy list generator (see <a href="http://www.kobrix.com/javadocs/hgcore/org/hypergraphdb/algorithms/HGALGenerator.html">org.hypergraphdb.algorithms.HGALGenerator</a>), which you can change. For example, given the top-level cell group representing our notebook, we can display only the cell tree by restricting the edge type to be a CellGroup:]]>            </data>
+        </cell>
+
+    </cell-group>
+    <cell-group name="CG8">
+        <cell>
+            <data><![CDATA[comp.setGenerator(new org.hypergraphdb.algorithms.DefaultALGenerator(graph, hg.type(CellGroup.class), null));
+comp.refresh();
+]]>            </data>
+        </cell>
+
+    </cell-group>
+    <cell-group name="CG1">
+        <cell html-preview="true" engine="html">
+            <data><![CDATA[Using the HGViewer Component in Your Own Swing Applications]]>            </data>
+        </cell>
+        <cell html-preview="true">
+            <data><![CDATA[Finally, if you need more space or wish to use HGViewer in a separate Frame, you could execute the following code:
+]]>            </data>
+        </cell>
+
+    </cell-group>
+    <cell-group name="CG0">
+        <cell>
+            <data><![CDATA[JFrame f = new JFrame();
+HGHandle h = graph.getTypeSystem().getTypeHandle(HGStats.class);
+viewer = new HGViewer(graph, h, 1, null);
+f.getContentPane().add(viewer);
+f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+f.addWindowListener(new WindowAdapter()
+{
+        public void windowClosing(WindowEvent e)
+        {
+                f.setVisible(false);
+                //uncomment if you'd use only one instance  
+                //graph.close();
+        }
+} );
+f.setMinimumSize(new Dimension(600, 400));
+f.setVisible(true);
+]]>            </data>
+        </cell>
+
+    </cell-group>
+</notebook>

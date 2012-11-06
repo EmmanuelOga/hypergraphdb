@@ -262,6 +262,16 @@ include the hgdb-1.2.jar as a dependency
 3) storage/bdb-native
 4) p2p
 
+=How to and why use transactions?= 
+All DB operations already ensure that a transaction is in effect so when you're doing single, isolated operations you don't have to wrap the code in a transaction. But if you want multiple operations to be executed atomically, then you should. Generally, transactions should be always used.
+
+{{{
+    graph.getTransactionManager().beginTransaction()
+    graph.add("Hello World.")
+    graph.getTransactionManager().commit()
+}}}
+
+
 
 =Real World Example= 
 

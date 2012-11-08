@@ -29,6 +29,26 @@ If you're not using Maven, here are direct links to get mJson and the HGDB stora
   # [http://search.maven.org/remotecontent?filepath=org/sharegov/mjson/1.1/mjson-1.1.jar mjson-1.1.jar]
   # [http://www.hypergraphdb.org/maven/org/hypergraphdb/hgdbmjson/1.2/hgdbmjson-1.2.jar hgdbmjson-1.2.jar]
 
+And if you don't yet have HyperGraphDB in your project, make sure also you have the following (see IntroInstall):
+
+{{{
+ <repositories>
+    <repository>
+      <id>hypergraphdb</id>
+      <url>http://hypergraphdb.org/maven</url>
+    </repository>
+  </repositories>
+ <dependency>
+    <groupId>org.hypergraphdb</groupId>
+    <artifactId>hgdb</artifactId>
+    <version>1.2</version>
+ </dependency>
+ <dependency>
+    <groupId>org.hypergraphdb</groupId>
+    <artifactId>hgbdbje</artifactId>
+    <version>1.2</version>
+ </dependency>
+}}}
 = Usage =
 
 Before reading this manual, please go over the documentation of the `mJson` library to get at least some familiarity with the API. 

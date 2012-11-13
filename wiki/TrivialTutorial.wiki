@@ -272,6 +272,13 @@ All DB operations already ensure that a transaction is in effect so when you're 
 }}}
 
 
+=How to design my data?= 
+First, you should make sure that all your classes are JavaBeans and recognized as such by the type system, as this is the minimum to expose your "fields" and avoid you having to manually manage projection and custom types, etc.
+
+One pitfall is that non-primitive "fields" that are contained in your class, will be hidden and opaque and will prevent you from querying on them. In order to expose those relations, the easiest solution is to links (alternatively, the HGAtomRef construct may help in some cases).
+
+In summary, save the primitive in your beans, save each component separately and use links (HGLink) to relate the different objects. Then you can really start enjoying HG with all its power.
+
 
 =Real World Example= 
 

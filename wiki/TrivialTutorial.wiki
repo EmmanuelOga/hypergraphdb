@@ -273,11 +273,10 @@ All DB operations already ensure that a transaction is in effect so when you're 
 
 
 =How to design my data?= 
-First, you should make sure that all your classes are JavaBeans and recognized as such by the type system, as this is the minimum to expose your "fields" and avoid you having to manually manage projection and custom types, etc.
-
-One pitfall is that non-primitive "fields" that are contained in your class, will be hidden and opaque and will prevent you from querying on them. In order to expose those relations, the easiest solution is to links (alternatively, the HGAtomRef construct may help in some cases).
-
-In summary, save the primitive in your beans, save each component separately and use links (HGLink) to relate the different objects. Then you can really start enjoying HG with all its power.
+One point of confusion is what role links play in the representation of beans. The answer is: none, links are independent. This means the graph structure is something orthogonal  to, i.e. independent of, the representation of complex objects. If one wants to represent bean structures at the level of the atom graph, one can always write custom types to do it. However the current interfaces don't make it easy to do this in a generic way.
+So, it is recommended, that you make all your classes JavaBeans (and make sure they are recognized as such by the type system). This is the minimum to expose your "fields" and avoid you having to manually manage projection and custom types, etc.
+One pitfall is that non-primitive "fields" that are contained in your class, will be hidden and opaque and will prevent you from querying on them. In order to expose those relations, the easiest solution is to use links (alternatively, the HGAtomRef construct may help in some cases).
+In summary, a good way is save primitive values in your beans, save each component separately and use links (HGLink) to relate the different objects. Then you can really start enjoying HG with all its power. (snippets taken from [https://groups.google.com/d/topic/hypergraphdb/oYb5VZQV5cc/discussion this forum thread], thanks to Alain and Boris).
 
 
 =Real World Example= 

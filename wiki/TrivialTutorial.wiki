@@ -18,6 +18,7 @@ You just need 3 jar files in your classpath:
   * je-version.jar
   * hgdbbje-version.jar 
 (where version currently is 1.2 for hgdb, and 5.034 for je). 
+You can get those jars from the libs directory of the extracted hgdbdist-1.2-final.tar.gz, which can be downloaded [http://code.google.com/p/hypergraphdb/downloads/list here].
 For in-depth info, check 
 [http://www.hypergraphdb.org/learn?page=IntroInstall&project=hypergraphdb here.]
 

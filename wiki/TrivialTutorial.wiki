@@ -3,25 +3,43 @@
 DISCLAIMER: this page is written by Users. It is not an "official" hypergraphDB document. It is continually extended. Corrections and feedback welcome.
 
 =Intro=
-While with hypergraphDB you can do fancy things, and while there are some things that are not directly obvious, the concepts behind HypergraphDB are actually not difficult. It follows a very consistent logic. And it can be a very useful tool for normal, non-fancy things too. Since version 1.2 it has become easier to setup and now integrates with Maven and has excellent JSON support (among many other things).
+
+While with hypergraphDB you can do fancy things, and while there are some things that are not directly obvious, the concepts behind HypergraphDB are actually not difficult and follow a consistent logic. And it can be a very useful tool for normal, non-fancy things too. Since version 1.2 it has become easier to setup and now integrates with Maven and has excellent JSON support (among many other things).
+
 This wiki gives a short introduction on the most common tasks you will do with hypergraphdb. These tasks include creating a database, store, query and retrieve objects and links, traverse a graph and create indexes.
+
 
 =Overview=
 <wiki:toc max_depth="1" />
 
 =How to setup HypergraphDB?=
-Since version 1.2 it has become much easier to setup, since there no longer is the need for a native library. To get going you just need three jar files in your classpath: hgdb-version.jar, je-version.jar and hgdbbje-version.jar (where version currently is 1.2 for hgdb and 5.034 for je). For in depth info, check 
+You just need 3 jar files in your classpath: 
+  * hgdb-version.jar
+  * je-version.jar
+  * hgdbbje-version.jar 
+(where version currently is 1.2 for hgdb, and 5.034 for je). 
+For in-depth info, check 
 [http://www.hypergraphdb.org/learn?page=IntroInstall&project=hypergraphdb here.]
 
 =How to build?= 
-You generally do not need to build for normal usage. If you have to, mvn is now the build tool to use. Note, that it is not intended to be used from the top-level of the source tree. The top-level parent pom is there as a place holder for common configuration settings. Start by building 'core' and then storage/bdb-je.
+*Reminder*: 
+most users skip this section. No need to build for typical usages of hypergraphDB.
 
-In case people don't want to use Maven, there are working build.xml files with jar dependencies for the following sub-projects which have to be build separately:
+==maven== 
+mvn is now the build tool to use. Note, that it is not intended to be used from the top-level of the source tree. The top-level parent pom is there as a place holder for common configuration settings. Start by building 'core' and then storage/bdb-je. 
+
+==ant==
+There are working build.xml files with jar dependencies for the following sub-projects which have to be build separately:
 1) core - has to be build first, the others use a relative path to
 include the hgdb-1.2.jar as a dependency
 2) storage/bdb-je
 3) storage/bdb-native
 4) p2p
+
+Note: if you build all sources, i.e. both bdb-je and bdb-native, you will get some error. If uncertain, use bdb-je.
+For in-depth info, check 
+[http://www.hypergraphdb.org/learn?page=IntroInstall&project=hypergraphdb here.]
+
 
 =How to instantiate HyperGraphDB? - Hello World= 
 Just a kind of 'Hello World' example to show up how easy it is to instantiate HypergraphDB and .

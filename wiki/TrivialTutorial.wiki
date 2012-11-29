@@ -15,12 +15,11 @@ This wiki gives a short introduction on the most common tasks you will do with h
 =How to setup HypergraphDB?=
 You just need 3 jar files in your classpath: 
   * hgdb-version.jar
-  * je-version.jar
   * hgdbbje-version.jar 
-(where version currently is 1.2 for hgdb, and 5.034 for je). 
-You can get those jars from the libs directory of the extracted hgdbdist-1.2-final.tar.gz, which can be downloaded [http://code.google.com/p/hypergraphdb/downloads/list here].
-For in-depth info, check 
-[http://www.hypergraphdb.org/learn?page=IntroInstall&project=hypergraphdb here.]
+  * je-version.jar
+
+To get them, download hgdbdist-1.2-final.tar.gz and 
+bdb50_lin64_libs.tgz from [http://code.google.com/p/hypergraphdb/downloads/list here]. Get the hypergraphDB jars out of the libs directory and the je.jar from the toplevel directory of the bdb50_lin_libs.tgz contents.
 
 =How to build?= 
 *Reminder*: 

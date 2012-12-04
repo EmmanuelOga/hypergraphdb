@@ -2,6 +2,7 @@
 #labels scala
 
 *Disclaimer*: _this is user-created content and not an official HyperGraphDB document. Theses are experimental hacks and as of yet unsuitable for production._ *This page requires a revision.* 
+For up-to-date information, check [http://scalahypergraph.blogspot.de/2012/12/a-shift-of-perspective-hacking.html here] and following blog-posts.
 (Majority of hacks here work. However, although TypedHandle instances are valid HGHandle, the type information does not survive serialization & deserialization)
 
 Index

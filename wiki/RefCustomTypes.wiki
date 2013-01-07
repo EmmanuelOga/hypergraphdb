@@ -49,7 +49,7 @@ The `release` method is responsible for removing a value from storage. For examp
 public MyType implements HGAtomType
 {
     // ...
-    public void store(HGPersistentHandle handle)
+    public void release(HGPersistentHandle handle)
     {
         graph.getStore().removeData(handle);
     }

@@ -4,16 +4,25 @@
 
 The Ontology Web Language (OWL) 2.0 is a semantic web standard based on Description Logics (DL). More information on the [http://www.w3.org/TR/owl2-overview/ W3C OWL 2.0 home page] as well as at the [http://en.wikipedia.org/wiki/Web_Ontology_Language OWL 2 Wikipedia topic].
 
-== Implementation ==
+== The HGDB-OWL App ==
+
+_The code is located under the apps/owl in the codebase._
 
 The HyperGraphDB implementation of OWL 2.0 is based on the [http://owlapi.sourceforge.net/ OWL API 2.0] which is the _de facto_ standard for OWL. The OWLAPI is made up of interfaces representing the constructs defined by the [http://www.w3.org/TR/owl2-syntax/ W3C standard] completely and faithfully. The OWLAPI itself offers a reference implementation of those interfaces where all data is in memory. The HGDB-OWL implementation is a drop-in replacement that has all data automatically and transparently persisted in a HyperGraphDB instance. 
 
-An 
- so that multiple ontologies can be stored in a single HyperGraphDB instance and reasoned over by any of the off-the-shelf OWL reasoners. 
+In the same way that the default OWLAPI handles multiple ontologies at the same time, HGDB-OWL can store multiple ontologies in a single database instance. Each ontology is represented as a [http://www.hypergraphdb.org/docs/javadoc/org/hypergraphdb/atom/HGSubgraph.html HGSubgraph]. 
 
-A future goal would be to implement reasoning and persist inferences within HyperGraphDB. 
+One can use the standard `OWLReasoner` API and any of the available reasoners such Hermit, Fact++ and Pellet. However, it must be noted that reasoners usually load all axioms into their own data structures depending on the reasoning algorithms used and a large ontology may easily blow out the memory. In other words, while HyperGraphDB will handle an unlimited data set, swapping things in out of the cache and allowing you to query arbitrarily large database, a reasoner will need everything in RAM before it can make any inference. To overcome this limitation a reasoner working directly with the database needs to be implemented, but that's a large project on its own. 
 
-This component is localed undera apps/owl in the codebase.
+== Usage - a Quick Guide ==
+
+You can use HGDB-OWL exclusively as an OWLAPI implementation. This approach is recommended if you want to leave the possibility open to easily switching to a different implementation. You can also write code using the HGDB API directly, for instance in order to take advantage of the querying facilities. Either way, first you start by populating with data and for this it's definitely easier to work at the OWL abstraction level.
+
+First you need to create a HGDB-based OWLOntologyManager:
+
+{{{
+import 
+}}}
 
 == Resources ==
 

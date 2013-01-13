@@ -6,7 +6,10 @@ The Ontology Web Language (OWL) 2.0 is a semantic web standard based on Descript
 
 == Implementation ==
 
-The HyperGraphDB implementation is currently under development and it is based on the [http://owlapi.sourceforge.net/ OWL API 2.0]. The aim is to cover the standard completely so that multiple ontologies can be stored in a single HyperGraphDB instance and reasoned over by any of the off-the-shelf OWL reasoners. 
+The HyperGraphDB implementation of OWL 2.0 is based on the [http://owlapi.sourceforge.net/ OWL API 2.0] which is the _de facto_ standard for OWL. The OWLAPI is made up of interfaces representing the constructs defined by the [http://www.w3.org/TR/owl2-syntax/ W3C standard] completely and faithfully. The OWLAPI itself offers a reference implementation of those interfaces where all data is in memory. The HGDB-OWL implementation is a drop-in replacement that has all data automatically and transparently persisted in a HyperGraphDB instance. 
+
+An 
+ so that multiple ontologies can be stored in a single HyperGraphDB instance and reasoned over by any of the off-the-shelf OWL reasoners. 
 
 A future goal would be to implement reasoning and persist inferences within HyperGraphDB. 
 

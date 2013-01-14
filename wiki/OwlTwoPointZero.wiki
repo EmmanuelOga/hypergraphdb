@@ -81,3 +81,28 @@ public class Tutorial
 == Setting Up a Versioned Ontology Repository ==
 
 The HGDB-OWL implementation provides support for version management of ontologies. One can use it to deploy version control of OWL ontologies that work the same way as conventional source control that developers are familiar with. Both a central repository model (ala SVN) and a distributed repository (ala Github) are supported. The versioning is performing using the standard OWLAPI change objects. Committing, rolling back, merging etc. are safely performed just like you would with SVN ot Github. There is a programmtic interface to this functionality and naturally it is all integrated in Protege. 
+
+If you want to run a database server with versioned ontologies, there's a small program in the codebase that does it:
+
+`org.hypergraphdb.app.owl.versioning.distributed.VDHGDBOntologyServer`
+
+The server uses the HGDB-P2P package for communication. That is, it is a server configured as a peer in an XMPP network. You read up on that at the PeerToPeerTutorial page. Then you can run this program by providing a JSON configuration file as with any other HGDB peer. Here is an example of such a configuration file:
+
+{{{
+{
+"interfaceType"	: "org.hypergraphdb.peer.xmpp.XMPPPeerInterface",
+"peerName"	: "HGDBPeer",
+"bootstrap" : [ {"class" : "org.hypergraphdb.peer.bootstrap.AffirmIdentityBootstrap", "config" : {}},
+                {"class" : "org.hypergraphdb.peer.bootstrap.CACTBootstrap", "config" : {}}
+              ],
+"interfaceConfig" :
+{
+    "user" : "hgdbowl",
+    "password" : "password",
+    "serverUrl"	: "http://hgdbowl.mycompany.com",
+    "autoRegister" : true,
+    "ignoreRoster" : false
+},
+"OntologyServer" : "true"
+}
+}}}

@@ -32,7 +32,44 @@ This will create a new HyperGraphDB instance at _/tmp/owldb_. Note that if you d
 
 After that you use the `OWLOntologyManager` as you would with the OWLAPI. So getting familiar with the OWLAPI and going through whatever tutorials you find around the internet is a good idea. Another important implementation class is the OWLDataFactory - you must use the one provided by HGDB-OWL. You can get it with `manager.getOWLDataFactory` or if you don't have a reference to the manager, use `OWLDataFactoryHGDB.getInstance()`.
 
+So here is a full program that creates an ontology, adds one subclass declaration to it and then prints it on stdout in the OWL functional syntax:
+
 {{{
+
+import org.hypergraphdb.app.owl.HGDBOWLManager;
+import org.hypergraphdb.app.owl.HGDBOntologyRepository;
+import org.hypergraphdb.app.owl.core.OWLDataFactoryHGDB;
+import org.semanticweb.owlapi.io.OWLFunctionalSyntaxOntologyFormat;
+import org.semanticweb.owlapi.io.StreamDocumentTarget;
+import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
+
+public class Tutorial
+{
+
+    public static void main(String [] args)
+    {
+        try
+        {
+            HGDBOntologyRepository.setHypergraphDBLocation("/tmp/owldb");
+            OWLOntologyManager manager = HGDBOWLManager.createOWLOntologyManager();
+            OWLDataFactory factory = OWLDataFactoryHGDB.getInstance();
+            OWLOntology O = manager.createOntology();            
+            manager.addAxiom(O, factory.getOWLSubClassOfAxiom(
+                    factory.getOWLClass(OWLRDFVocabulary.OWL_THING.getIRI()), 
+                    factory.getOWLClass(IRI.create("http://example.com#Movie"))));
+            manager.saveOntology(O, new OWLFunctionalSyntaxOntologyFormat(),
+                    new StreamDocumentTarget(System.out));
+        }
+        catch (Throwable t)
+        {
+            t.printStackTrace(System.err);
+        }
+    }
+}
 }}}
 
 == Resources ==

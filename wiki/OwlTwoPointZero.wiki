@@ -21,7 +21,18 @@ You can use HGDB-OWL exclusively as an OWLAPI implementation. This approach is r
 First you need to create a HGDB-based OWLOntologyManager:
 
 {{{
-import 
+import org.hypergraphdb.app.owl.* ;
+import org.semanticweb.owlapi.model.*;
+
+HGDBOntologyRepository.setHypergraphDBLocation("/tmp/owldb");
+OWLOntologyManager manager = HGDBOWLManager.createOWLOntologyManager();
+}}}
+
+This will create a new HyperGraphDB instance at _/tmp/owldb_. Note that if you don't specify a database directory before anything else, with the `HGDBOntologyRepository.setHypergraphDBLocation` method, one will be created at some random hard-coded place that you probably don't want. So don't forget to set the db directory.
+
+After that you use the `OWLOntologyManager` as you would with the OWLAPI. So getting familiar with the OWLAPI and going through whatever tutorials you find around the internet is a good idea. Another important implementation class is the OWLDataFactory - you must use the one provided by HGDB-OWL. You can get it with `manager.getOWLDataFactory` or if you don't have a reference to the manager, use `OWLDataFactoryHGDB.getInstance()`.
+
+{{{
 }}}
 
 == Resources ==

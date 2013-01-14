@@ -72,6 +72,6 @@ public class Tutorial
 }
 }}}
 
-== Resources ==
+== Setting a Versioned Ontology Repository ==
 
-http://www.cse.iitb.ac.in/~comad/2009/proceedings/R3_4.pdf - could be useful in structuring the data for inference.
+The HGDB-OWL implementation provides support for version management of ontologies. One can use it to deploy version control of OWL ontologies that work the same way as conventional source control that developers are familiar with. Both a central repository model (ala SVN) and a distributed repository (ala Github) are supported. The versioning is performing using the standard OWLAPI change objects. Committing, rolling back, merging etc. are safely performed just like you would with SVN ot Github. There is a programmtic interface to this functionality and naturally it is all integrated in Protege. 

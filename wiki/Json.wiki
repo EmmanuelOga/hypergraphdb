@@ -60,6 +60,12 @@ import static mjson.Json.*;
 import mjson.hgdb.HyperNodeJson;
 import org.hypergraphdb.*;
 
+// We need to configure HGDB with the JSON type schema so
+// it knows how to manage JSON entities in storage
+HGConfiguration config = new HGConfiguration();
+config.getTypeConfiguration().addSchema(new JsonTypeSchema());
+HyperGraph graph = HGEnvironment.get(dbLocation.getAbsolutePath(), config);
+
 HyperNodeJson jsonNode = 
      new HyperNodeJson(HGEnvironment.get("/tmp/hgdbjson"));
 

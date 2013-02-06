@@ -31,9 +31,12 @@ import org.hypergraphdb.HGPersistentHandle;
 import org.hypergraphdb.HGTypeSystem;
 import org.hypergraphdb.HyperGraph;
 import org.hypergraphdb.HGQuery.hg;
+import org.hypergraphdb.algorithms.HGDepthFirstTraversal;
+import org.hypergraphdb.algorithms.SimpleALGenerator;
 import org.hypergraphdb.app.wordnet.data.*;
 import org.hypergraphdb.indexing.ByPartIndexer;
 //import org.hypergraphdb.storage.bdb.BDBConfig;
+import org.hypergraphdb.util.Pair;
 
 /**
  * 
@@ -419,13 +422,32 @@ public class HGWordNetLoader
 		}
 	}
 	
+	
+	public static void traverse(HyperGraph graph)
+	{
+	    WNGraph wng = new WNGraph(graph);	
+	    HGHandle word1 = wng.findWord("travel");
+	    HGDepthFirstTraversal traversal = 
+	        new HGDepthFirstTraversal(word1, new SimpleALGenerator(graph));	                 
+        while (traversal.hasNext() ) 
+        {   
+            Pair<HGHandle, HGHandle> current = traversal.next();
+	        org.hypergraphdb.app.wordnet.data.Word atom = graph.get((HGHandle) current.getSecond());
+	        System.out.println("Visiting atom  " + atom +   " pointed to by " + 
+	                graph.get(current.getSecond()));
+        }
+	}
+	
 	public static void main(String [] args)
 	{
 		if (args.length != 2)
 		{
 			System.out.println("Usage: HGWordnetLoader dictionaryLocation hypergraphDBLocation");
 			System.exit(0);
-		}		
+		}
+		traverse(HGEnvironment.get(args[1]));
+		if (1==1)return;
+		
 		HGWordNetLoader loader = new HGWordNetLoader();
 		loader.setDictionaryLocation(args[0]);
 		try

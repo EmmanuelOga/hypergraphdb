@@ -1,3 +1,4 @@
 #summary Changes for HyperGraphDB, Next Release
 
   * Fixed a bug in compiled queries around not-yet-existing types.
+  * Fixed a bug when using HyperGraph.define on HGValueLink

@@ -3,9 +3,6 @@
 DISCLAIMER: this page is written by Users. It is not an "official" hypergraphDB document. It is continually extended. Corrections and feedback welcome.
 
 =Intro=
-
-While with hypergraphDB you can do fancy things, and while there are some things that are not directly obvious, the concepts behind HypergraphDB are actually not difficult and follow a consistent logic. And it can be a very useful tool for normal, non-fancy things too. Since version 1.2 it has become easier to setup and now integrates with Maven and has excellent JSON support (among many other things).
-
 This wiki gives a short introduction on the most common tasks you will do with hypergraphdb. These tasks include creating a database, store, query and retrieve objects and links, traverse a graph and create indexes.
 
 

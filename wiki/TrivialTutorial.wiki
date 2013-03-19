@@ -278,9 +278,24 @@ Since in most situations there is no real danger of ungraceful shutdown, and sin
 All DB operations already ensure that a transaction is in effect so when you're doing single, isolated operations you don't have to wrap the code in a transaction. But if you want multiple operations to be executed atomically, then you should. Generally, transactions should be always used.
 
 {{{
-    graph.getTransactionManager().beginTransaction()
-    graph.add("Hello World.")
-    graph.getTransactionManager().commit()
+   //EITHER:
+  graph.getTransactionManager().ensureTransaction(new Callable<HGHandle>() {
+                public HGHandle call() {
+                    return graph.add("Hello World.");
+                }
+            });
+
+  // OR (especially for void methods
+   graph.getTransactionManager().beginTransaction();
+        try
+        {
+           graph.add("hello World");
+           graph.getTransactionManager().commit();
+        }
+        catch (Throwable t)
+        {
+            graph.getTransactionManager().abort();
+        }
 }}}
 
 
@@ -292,6 +307,7 @@ In summary, a good way is save primitive values in your beans, save each compone
 
 =How to increase performance?=
   # Unless you need strong guarantees, consider disabling transactions (!)
+  # When using transactions, consider wraping coherent chunks of ~100 operations into a transactions. This can reduce transaction overhead significantly. (not shown above)
   # Unless in a distributed environment, consider using SequentialUUIDHandleFactory, which keeps related data close in the Btree used by BerkeleyDB
   # Increase BerkeleyDB-Cache size, default value is a bit low
 
@@ -304,8 +320,6 @@ BJEConfig storeConfig = (BJEConfig) config.getStoreImplementation().getConfigura
 storeConfig.getEnvironmentConfig().setCacheSize(1024 * 1024 * 1000);
 graph = HGEnvironment.get(HGDB_LOCATION, config);
 }}}
-
-Note: when using transactions, wrap coherent chunks of domain code into a transactions. This can reduce transaction overhead significantly.
 
 
 =How to bulk import data?=

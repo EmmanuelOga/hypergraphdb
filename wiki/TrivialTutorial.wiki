@@ -114,6 +114,8 @@ hg.getAll (graphInstance, QueryCondition); // ->  all matching objects as a List
 
 where "QueryCondition" in our example is hg.type(String.class), but of course there is more.
 
+For official query documentation see [https://code.google.com/p/hypergraphdb/wiki/IntroQuerying here]
+
 
 =How to query for handles?=
 Sometimes you need handles and also you do not want to dereference and deserialize all results of a query into memory. To query by returning handles is easy. It's the same as with getOne/getAll, but instead of h.getOne you use hg.findOne. Instead of hg.getAll, use hg.findAll. 
@@ -134,9 +136,12 @@ true
 dceadb0c-318b-4249-917a-559d2f077fcc
 true
 
+For official query documentation see [https://code.google.com/p/hypergraphdb/wiki/IntroQuerying here]
+
+
 
 =How to store data uniquely?=
-Now, how to make sure that a given data is stored only once, even when -by accident or not- the data is stored twice?
+How to make sure that a given data is stored only once, even when -by accident or not- the data is stored twice?
 
 {{{
 String object2 = "dolor sit amet";
@@ -163,6 +168,9 @@ Let's make a link and query for it:
 =>
 querying for link returned that duplicate Link? :true
 
+For official query documentation see [https://code.google.com/p/hypergraphdb/wiki/IntroQuerying here]
+
+
 =How to make relationships?=
 In the example above, we are created a link, but the information that the contained atoms are duplicates is silent. 
 In order to create a meaningful relationsship, there is -among other ready-made links- HGRel. Since HGRel is part of a more powerful mechanism, you first define a HGRelType (which is comparable to a SQL table definition). In there you define the (~table) name, and the types of the atoms participating in the relationship. Since being duplicate or not is general, we use the Top-Type here.
@@ -177,7 +185,6 @@ In order to create a meaningful relationsship, there is -among other ready-made 
 
 }}}
 => does handle2 have a duplicate? : true
-
 
 
 =How to query for properties?=
@@ -232,6 +239,8 @@ output:
 hugo: surname:Hugo . first name: Victor
 hugo: surname:Chavez . first name: Hugo
 Not a Hugo: surname:Camus . first name: Albert
+
+For official query documentation see [https://code.google.com/p/hypergraphdb/wiki/IntroQuerying here]
 
 
 =How to and why index?=
@@ -297,7 +306,7 @@ All DB operations already ensure that a transaction is in effect so when you're 
             graph.getTransactionManager().abort();
         }
 }}}
-
+For details, see [https://code.google.com/p/hypergraphdb/wiki/IntroTransactions here]
 
 =How to design my data?= 
 One point of confusion is what role links play in the representation of beans. The answer is: none, links are independent. This means the graph structure is something orthogonal  to, i.e. independent of, the representation of complex objects. If one wants to represent bean structures at the level of the atom graph, one can always write custom types to do it. However the current interfaces don't make it easy to do this in a generic way.

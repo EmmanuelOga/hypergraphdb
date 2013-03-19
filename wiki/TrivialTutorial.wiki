@@ -307,6 +307,61 @@ graph = HGEnvironment.get(HGDB_LOCATION, config);
 
 Note: when using transactions, wrap coherent chunks of domain code into a transactions. This can reduce transaction overhead significantly.
 
+
+=How to speed up bulk data import?=
+  # avoid assertAtom, instead use a simple Map to avoid duplicates
+  # for addition of lots of objects of the same type, use graph.add(object, typeHandle)
+  # if using transactions, wrap chunks of coherent data into transactions
+  # if import fails, try temporarily disabling maintenance (config.setSkipMaintenance(true)) 
+
+Example bulk import (untested code):
+{{{
+   
+    int transactionChunkSize = 100;
+    HGConfiguration config = new HGConfiguration();
+    config.setSkipMaintenance(true);  //only if import fails otherwise
+    HyperGraph graph = null;
+    graph.setConfig(config);
+
+    List<MyObject> a = ...;
+    bulkImport(a);
+
+    public <T> void bulkImport(final Collection<T> at) {
+        if (at.isEmpty())
+            return;
+
+        final Map<T, HGHandle> handleMap = new HashMap<T, HGHandle>(at.size());
+        final T first = at.iterator().next();
+        HGHandle firstH = graph.add(first);
+        handleMap.put(first, firstH);
+        final HGHandle typeHandle = graph.getType(firstH);
+
+        if (config.isTransactional())
+            graph.getTransactionManager().ensureTransaction(new Callable<Boolean>() {
+                public Boolean call() {
+                    return assertAtomLight(at, typeHandle, handleMap);
+                }
+            });
+        else
+            assertAtomLight(at, typeHandle, handleMap);
+
+        return;
+    }
+
+    public <T> Boolean assertAtomLight(Collection<T> at, HGHandle typeHandle, Map<T, HGHandle> handleMap) {
+        for (T o : at) {
+            HGHandle result = handleMap.get(o);
+            if (result == null) {
+                result = graph.add(o, typeHandle);
+                handleMap.put(o, result);
+            }
+        }
+        return true;
+    }
+
+}}}
+
+
 =Real World Example= 
 
 The following code should be treated as a real world example, by providing the source to the Book example of the official tutorial. It demonstrates how a hypergraphdb can be created and how objects of type Book will be added to the database. Further it shows how a query is done.

@@ -290,6 +290,22 @@ So, it is recommended, that you make all your classes JavaBeans (and make sure t
 One pitfall is that non-primitive "fields" that are contained in your class, will be hidden and opaque and will prevent you from querying on them. In order to expose those relations, the easiest solution is to use links (alternatively, the HGAtomRef construct may help in some cases).
 In summary, a good way is save primitive values in your beans, save each component separately and use links (HGLink) to relate the different objects. Then you can really start enjoying HG with all its power. (snippets taken from [https://groups.google.com/d/topic/hypergraphdb/oYb5VZQV5cc/discussion this forum thread], thanks to Alain and Boris).
 
+=How to increase performance?=
+  # Unless you need strong guarantees, consider disabling transactions (!)
+  # Unless in a distributed environment, consider using SequentialUUIDHandleFactory, which keeps related data close in the Btree used by BerkeleyDB
+  # Increase BerkeleyDB-Cache size, default value is a bit low
+
+{{{
+HGConfiguration config = new HGConfiguration();
+SequentialUUIDHandleFactory handleFactory = new SequentialUUIDHandleFactory(System.currentTimeMillis(), 0);
+config.setHandleFactory(handleFactory);
+config.setTransactional(false);
+BJEConfig storeConfig = (BJEConfig) config.getStoreImplementation().getConfiguration();
+storeConfig.getEnvironmentConfig().setCacheSize(1024 * 1024 * 1000);
+graph = HGEnvironment.get(HGDB_LOCATION, config);
+}}}
+
+Note: when using transactions, wrap coherent chunks of domain code into a transactions. This can reduce transaction overhead significantly.
 
 =Real World Example= 
 

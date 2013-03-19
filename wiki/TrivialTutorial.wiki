@@ -308,13 +308,13 @@ graph = HGEnvironment.get(HGDB_LOCATION, config);
 Note: when using transactions, wrap coherent chunks of domain code into a transactions. This can reduce transaction overhead significantly.
 
 
-=How to speed up bulk data import?=
+=How to bulk import data?=
   # avoid assertAtom, instead use a simple Map to avoid duplicates
   # for addition of lots of objects of the same type, use graph.add(object, typeHandle)
   # if using transactions, wrap chunks of coherent data into transactions
   # if import fails, try temporarily disabling maintenance (config.setSkipMaintenance(true)) 
 
-Example bulk import (untested code):
+Example bulk import demonstrating above points (untested code):
 {{{
    
     int transactionChunkSize = 100;
@@ -360,6 +360,8 @@ Example bulk import (untested code):
     }
 
 }}}
+
+Note: If your collection is very big (say >1000), and you have Transactions enabled, you may consider spliting your collection into chunks such that a single failure does not force the entire import to be rolled back and repeated.
 
 
 =Real World Example= 

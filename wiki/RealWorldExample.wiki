@@ -66,3 +66,20 @@ public class HGDBSimpleSample {
     }
 }
 }}}
+
+
+planned:
+compare
+1) Typical Java approach - entities.
+Person: firstname, lastname, birthday (, birthplace)
+Author: person, books
+Book: title, year, >=1 authors of type Author, references(>=1 other books)
+Section:....
+Library: collection of books
+
+2) Typical "Property graph" approach....
+
+3) Typical HGDB approach - keep entities as minimal as possible, and encode information as much as possible in terms of links
+Person: firstname, lastname, birthday (, birthplace)  
+Book: title
+Links: authorOf(Person,books...)

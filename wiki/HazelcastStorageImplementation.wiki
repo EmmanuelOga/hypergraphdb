@@ -9,8 +9,17 @@ The Hazelcast storage implementation -from now on called *"Hazelstore"*- allows 
 Hazelstore was designed such that number of network hops and amount of data transferred over the network are minimal. Furthermore, in the constrains of the contract, an asynchronous mode allows operations that do not return values to immediately return without waiting for the network (for example index.addEntry/removeEntry).
 
 
-= Setup and Basic Usage =
-Usage of HypergraphDB with Hazelstore is simple. Checkout latest trunk from subversion, add the Hazelcast jar and scala to your classpath, and use it like this:
+= Setup=
+All you need is the four things on the classpath: hypergraphdb-core (at least version 1._3_), hazelcast-client, scala-libraries and hazelstore. You can do that in two ways: either checkout current trunk [http://code.google.com/p/hypergraphdb/source/checkout here], or download three jars: 
+ * [http://hypergraphdb.googlecode.com/files/hgdb-1.3-SNAPSHOT.jar current hypergraphDB-1.3-Snapshot jar]
+ * [http://www.hazelcast.com/downloads.jsp Hazelcast jar]. 
+ * [http://www.scala-lang.org/downloads scala jars]
+ * [http://code.google.com/p/hypergraphdb/source/browse/trunk/storage/hazelstore/jars/hazelstore.jar hazelstore-jar]
+
+Note: Hazelstore is written mostly in scala, but you are _not_ required to use the scala the language or have special support for scala in your IDE unless working with scala source code. If you use the jars, you just need the scala jars to be on your classpath, that's it.
+
+= Basic Usage =
+Usage of HypergraphDB with Hazelstore is simple. Use it like this:
 
 {{{
     val graph = new HyperGraph()

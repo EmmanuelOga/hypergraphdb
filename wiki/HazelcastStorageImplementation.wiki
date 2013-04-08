@@ -1,25 +1,27 @@
 #summary Information on the experimental hazelcast storage implementation
 
-*Disclaimer: experimental code, not production-ready. Be sure to read section Issues/Current Limitations*
+*Disclaimer: work in progress / experimental code / not production-ready. 
+Be sure to read section Issues/Current Limitations*
 
 = Introduction =
-This page provides basic info about an experimental HypergraphDB storage implementation based on the java data/processing grid [http://www.hazelcast.com/ Hazelcast]. Hazelcast offers a plethora of advanced features and a good performance, all while being easy to use. 
-The Hazelcast storage implementation -from now on called *"Hazelstore"*- allows to share a read/write hypergraphDB database by forming a peer-to-peer network with backups and auto-failover, but without central servers and without single points of failure. Since data is both distributed and partitioned, in theory the size of the HypergraphDB database can be much larger than the amount of RAM or even the diskspace available on a single cluster member.
+This page provides basic info about an experimental HypergraphDB storage implementation based on the java data/processing grid [http://www.hazelcast.com/ Hazelcast]. Hazelcast was chosen because it offers a plethora of advanced features, good performance all while being easy to use. 
+The Hazelcast storage implementation -from now on called *"Hazelstore"*- allows to share a read/write hypergraphDB database by forming a peer-to-peer network with backups and auto-failover, but without central servers and without single points of failure. Besides simple sharing of HGDB databases, another advantage is that in theory the size of the HypergraphDB database can be much larger than the amount of RAM or even the diskspace available on a single cluster member (because data is evenly partitioned in the cluster).
 Hazelstore was designed such that number of network hops and amount of data transferred over the network are minimal. Furthermore, in the constrains of the contract, an asynchronous mode allows operations that do not return values to immediately return without waiting for the network (for example index.addEntry/removeEntry).
 
 
 = Setup and Basic Usage =
-Usage of HypergraphDB with Hazelstore is simple. Checkout latest trunk from subversion, add the Hazelcast jar and scala to your classpath, and use use it like this:
+Usage of HypergraphDB with Hazelstore is simple. Checkout latest trunk from subversion, add the Hazelcast jar and scala to your classpath, and use it like this:
 
 {{{
     val graph = new HyperGraph()
     val config = new HGConfiguration
     config.setTransactional(false)
     config.setStoreImplementation(new Hazelstore3)
-   graph.setConfit(config)
+   graph.setConfig(config)
 }}}
+Closing of Resultsets, wrapping code in try/finally or shutdown are not necessary.
 
-Some examples of performance-related options of Hazelcast worth exploring:
+Some examples of configurability showing some performance-relevant options of Hazelcast worth exploring:
 {{{
   val hazelconf = new HazelStoreConfig()
   hazelconf.setTransactional(false)
@@ -41,7 +43,7 @@ Some examples of performance-related options of Hazelcast worth exploring:
   graph.setConfig(config)
   graph.open("anyString")
   graph.add(...)
-  // no closing of resultset, no try/finally, no shutdown necessary
+
 }}}
 
 
@@ -57,3 +59,8 @@ However, here are some detailed descriptions including code necessary for persis
 ||HBase || http://blog.codepoly.com/distribute-with-hazelcast-persist-into-hbase||
 || SimpleDB || http://blog.codepoly.com/integrating-hazelcast-and-simpledb ||
 || Amazon EC2/AWS || http://blog.codepoly.com/distribute-your-data-over-amazon-ec2-by-hazel ||
+
+
+= Hazelstore compared to BerkeleDB / HypergraphDB-P2P-Framework? = 
+Hazelstore is more comparable to BerkeleyDB than to the P2P-Framework. The single node performance will probably never as fast as the java/native BerkeleyDB implementation (currently it is roughly 5 times slower). 
+When it comes to CRUD and querying, Hazelstore performance is likely to be much better than the existing HGDB-Peer-to-Peer framework (HGDB-P2P). However, HGDB-P2P provides many additional abstractions and is not constrained to the contract of HGStorageImplementation etc. Hence, it could be interesting to combine Hazelstore with the HGDB-Peer-to-Peer framework. Furthermore, Hazelcast could be used to reimplement components of HGDB-P2P.

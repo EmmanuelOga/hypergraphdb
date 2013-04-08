@@ -51,3 +51,9 @@ Some examples of performance-related options of Hazelcast worth exploring:
  # Hazelstore allows to instantiate and work with HypergraphDB, and to reopen HypergraphDB opened by another cluster member.
  # Currently there is no support for transactions, since Hazelcast does not provide 2-phase-commit / XA transactions. While XA is planned for next Hazelcast version 3, it cannot be garantueed Hazelstore will ever have transactions. It is likely that there will be some transaction support but with greatly reduced performance.
  # Hazelstore does currently not yet provide persistence to disk, but only "persistence" to the cluster - it is as of yet purely in-memory! 
+However, here are some detailed descriptions including code necessary for persisting your clustered hypergraphDB:
+|| Persistence|| link||
+|| MongoDB||http://blog.codepoly.com/hazelcast-and-mongodb||
+||HBase || http://blog.codepoly.com/distribute-with-hazelcast-persist-into-hbase||
+|| SimpleDB || http://blog.codepoly.com/integrating-hazelcast-and-simpledb ||
+|| Amazon EC2/AWS || http://blog.codepoly.com/distribute-your-data-over-amazon-ec2-by-hazel ||

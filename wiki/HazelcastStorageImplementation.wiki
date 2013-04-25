@@ -3,6 +3,9 @@
 *Disclaimer: work in progress / experimental code / not production-ready. 
 Be sure to read section Issues/Current Limitations*
 
+=Overview=
+<wiki:toc max_depth="1" />
+
 = Introduction =
 This page provides basic info about an experimental HypergraphDB storage implementation based on the java data/processing grid [http://www.hazelcast.com/ Hazelcast]. Hazelcast was chosen because it offers a plethora of advanced features, good performance all while being easy to use. 
 The Hazelcast storage implementation -from now on called *"Hazelstore"*- allows to share a read/write hypergraphDB database by forming a peer-to-peer network with backups and auto-failover, but without central servers and without single points of failure. Besides simple sharing of HGDB databases, another advantage is that in theory the size of the HypergraphDB database can be much larger than the amount of RAM or even the diskspace available on a single cluster member (because data is evenly partitioned in the cluster).

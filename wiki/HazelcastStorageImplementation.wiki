@@ -13,11 +13,11 @@ Hazelstore was designed such that number of network hops and amount of data tran
 
 
 = Setup=
-All you need is the four things on the classpath: hypergraphdb-core (at least version 1._3_), hazelcast-{Version}.jar (not "hazelcast-client"), scala-libraries and hazelstore. You can do that in two ways: either checkout current trunk [http://code.google.com/p/hypergraphdb/source/checkout here], or download three jars: 
+All you need is the four things on the classpath: hypergraphdb-core (at least version 1._3_), hazelcast-{Version}.jar (not "hazelcast-client"), scala-libraries (at least scala.2.10) and hazelstore. You can do that in two ways: either checkout current trunk [http://code.google.com/p/hypergraphdb/source/checkout here], or download three jars: 
  * [http://hypergraphdb.googlecode.com/files/hgdb-1.3-SNAPSHOT.jar current hypergraphDB-1.3-Snapshot jar]
  * [http://www.hazelcast.com/downloads.jsp Hazelcast jar]. 
  * [http://www.scala-lang.org/downloads scala jars]
- * [http://code.google.com/p/hypergraphdb/source/browse/trunk/storage/hazelstore/jars/hazelstore.jar hazelstore-jar]
+ * [http://hypergraphdb.googlecode.com/svn/trunk/storage/hazelstore/jars/hazelstore2813.jar]
 
 Note: Hazelstore is written mostly in scala, but you are _not_ required to use the scala the language or have special support for scala in your IDE unless working with scala source code. If you use the jars, you just need the scala jars to be on your classpath, that's it.
 

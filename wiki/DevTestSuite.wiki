@@ -9,9 +9,19 @@ Because of Maven peculiarities, there are two test sub-projects:
   * `test` which contains common test related utility classes, and data (in the form of Java beans and datasets) to use in other tests.
   * `testcore` which contains the test suite of the core package.
 
-= Details =
+= Running the Core Test Suite =
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+First make sure the version in the POM files are all in synch. You need to build core, the default storage engine (BerkelyDB Java Edition) and the `test` package:
+
+{{{
+cd hypergraphdb/core
+mvn install
+cd ../test
+mvn install
+cd ../storage/bdb-je
+mvn install
+cd ../../testcore
+mvn test
+}}}
+
+If you want to run with another storage engine, e.g. BerkeleyDB native C implementation, do the following:

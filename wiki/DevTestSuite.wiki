@@ -24,4 +24,20 @@ cd ../../testcore
 mvn test
 }}}
 
-If you want to run with another storage engine, e.g. BerkeleyDB native C implementation, do the following:
+If you want to run with another storage engine, e.g. BerkeleyDB native C implementation, replace the last line `mvn test` above by:
+
+{{{
+mvn -Dorg.hypergraphdb.storage.HGStoreImplementation=org.hypergraphdb.storage.bdb.BDBStorageImplementation test
+
+}}}
+
+In general you can pass system properties with the JVM -D flag like this. However, specifying the native library path in the mvn command line doesn't work because...well...it's one of the many issues with mvn. Instead the native path is specified in the top pom.xml so it's available for all sub-projects if needed:
+
+{{{
+    <configuration>
+      <forkMode>always</forkMode>
+      <argLine>-Djava.library.path=${project.build.directory}/lib</argLine>        
+    </configuration>
+}}}
+
+The default location is thus 'target/lib' which means you have to manually copy the native BDB libraries there. You can also change the location in your working copy of the pom.xml.

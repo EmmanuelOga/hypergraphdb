@@ -24,7 +24,26 @@ cd ../../testcore
 mvn test
 }}}
 
-If you want to run with another storage engine, e.g. BerkeleyDB native C implementation, replace the last line `mvn test` above by:
+If you want to run with another storage engine, you have to first modify your local copy of pom.xml to comment the default dependency on `hgbdbje` and declare the other storage engine as a dependency. For BerkeleyDB native C implementation that would be:
+
+{{{
+    <dependency>
+      <groupId>org.hypergraphdb</groupId>
+      <artifactId>hgbdbnative</artifactId>
+      <version>1.3-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hypergraphdb</groupId>
+      <artifactId>hgbdbnative</artifactId>
+      <version>1.3-SNAPSHOT</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+}}}
+
+Also, replace the last line `mvn test` above by:
 
 {{{
 mvn -Dorg.hypergraphdb.storage.HGStoreImplementation=org.hypergraphdb.storage.bdb.BDBStorageImplementation test

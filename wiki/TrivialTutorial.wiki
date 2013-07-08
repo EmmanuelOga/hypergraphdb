@@ -72,9 +72,29 @@ Notes:
   * If graph.add(someObject) is called more than once (for example by accident, each time you run a given program), you would end up with duplicates that can be disturbing when querying.
   * the second println demonstrate that we get a fully functional java object, in that case, it has a working toUpperCase method. This shows that hypergraphDB is not only a graph-database, but also a full object-oriented database.
 
+=How to design your classes... custom types?=
+HypergraphDB has a powerful and highly customizable type system that can represent any Java type (and more). However, the custom type details can be confusing.
+*The good news is that you don't need to fiddle with custom type implementations at all, as long as you define your classes according to the [http://en.wikipedia.org/wiki/JavaBeans#JavaBean_conventions Java Bean standard]*: this simply means that your class must provide a null-argument-constructor and each property must have a getter and setter. 
+For example, the java Bean definition of the class of the book example from [http://www.hypergraphdb.org/learn?page=IntroStoreData&project=hypergraphdb here] would look like this:
+
+{{{
+public class Book {
+    String title;
+    String author;
+    public Book() {}  // nullary-constructor
+
+    public String getTitle() {return title; }
+    public void setTitle(String title) {this.title = title;}
+
+    public String getAuthor() {return author;}
+    public void setAuthor(String author) {this.author = author;}
+}
+}}}
+
+That really is all there is to it!
 
 
-=How to store and retrieve data without knowning the handle? - querying basics=
+=How to store and retrieve data without knowing the handle? - querying basics=
 Querying is done conveniently by using the static helper class "hg":
 {{{
 import org.hypergraphdb.HGQuery.hg.*;

@@ -11,9 +11,11 @@ When you implement a HGIndexer, you are presumably doing it to speed up some que
 {{{
 HGQuery<HGHandle> q = HGQuery
   .make(HGHandle.class, graph).
-  .compile(hg.and(hg.type(someType), new IndexBasedQuery(yourindex)));
+  .compile(hg.and(hg.type(someType), new IndexCondition(yourindex, lookupKey)));
 for (HGHandle h : q.findAll())
 {
+  // etc...
 } 
 }}}
 
+And this is a perfectly valid way to make use of the index. But clearly an index is not the right abstraction to use within a query expression.

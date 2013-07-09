@@ -44,7 +44,7 @@ relationship links. Thus the HGRelType of the example above would be:
 
 {{{
 color(CarType, ColorType)
-]}}
+}}}
 
 Finally, the type of HGRelType is a HGRelTypeConstructor:
 

@@ -2,12 +2,18 @@
 
 = Introduction =
 
-Add your content here.
+This is experimental code so subject to frequent changes.
 
+= Recognizing a custom indexer =
 
-= Details =
+When you implement a HGIndexer, you are presumably doing it to speed up some query processing. However, the query compiler doesn't know about your indexer or how it works. One way is to directly use the index in a query expression:
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+{{{
+HGQuery<HGHandle> q = HGQuery
+  .make(HGHandle.class, graph).
+  .compile(hg.and(hg.type(someType), new IndexBasedQuery(yourindex)));
+for (HGHandle h : q.findAll())
+{
+} 
+}}}
+

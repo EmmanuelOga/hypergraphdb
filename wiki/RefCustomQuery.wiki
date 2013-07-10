@@ -1,4 +1,4 @@
-#summary Explains how the query sub-system can be customized
+++++++++++++++++++++++++++++++++++++#summary Explains how the query sub-system can be customized
 
 = Introduction =
 
@@ -19,3 +19,9 @@ for (HGHandle h : q.findAll())
 }}}
 
 And this is a perfectly valid way to make use of the index. But clearly an index is not the right abstraction to use within a query expression. The `IndexCondition` is kind of a backdoor telling the query system "I want you to use that index right here". It would be more appropriate to use a condition on the form of the data and make use of an index if available.
+
+Since there is no way for the system to know what exactly a custom indexer is doing, you have to instead provide means to recognize when such an indexer can be used. Given the `IndexCondition` class, all that is needed is means to transform some condition expression into an `IndexCondition`. Such a transformer is a `Mapping<HGQueryCondition, HGQueryCondition>`. You can implement a transformer like this and add it to a list that is going to be applied by the query system before it does initiates the query compilation process:
+
+{{{
+  HGConfiguration config = new HGConfiguration();
+}}} 

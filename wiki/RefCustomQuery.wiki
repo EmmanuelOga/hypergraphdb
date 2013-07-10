@@ -18,4 +18,4 @@ for (HGHandle h : q.findAll())
 } 
 }}}
 
-And this is a perfectly valid way to make use of the index. But clearly an index is not the right abstraction to use within a query expression.
+And this is a perfectly valid way to make use of the index. But clearly an index is not the right abstraction to use within a query expression. The `IndexCondition` is kind of a backdoor telling the query system "I want you to use that index right here". It would be more appropriate to use a condition on the form of the data and make use of an index if available.

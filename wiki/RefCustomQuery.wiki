@@ -24,4 +24,5 @@ Since there is no way for the system to know what exactly a custom indexer is do
 
 {{{
   HGConfiguration config = new HGConfiguration();
+  config.getQueryConfiguration().addTransform(new ApplyMyIndex());
 }}} 

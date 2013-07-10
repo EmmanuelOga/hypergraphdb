@@ -26,3 +26,11 @@ Since there is no way for the system to know what exactly a custom indexer is do
   HGConfiguration config = new HGConfiguration();
   config.getQueryConfiguration().addTransform(new ApplyMyIndex());
 }}} 
+
+The `ApplyMyIndex` would implement the algorithm that given a query expression, with logical operators etc. nested at any level, finds if a query sub-expression can be replaced with usage of the custom index. For example:
+
+{{{
+public class ApplyMyIndex implements<HGQueryCondition,HGQueryCondition>
+{
+}
+}}}

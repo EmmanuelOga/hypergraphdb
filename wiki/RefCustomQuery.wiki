@@ -27,10 +27,41 @@ Since there is no way for the system to know what exactly a custom indexer is do
   config.getQueryConfiguration().addTransform(new ApplyMyIndex());
 }}} 
 
-The `ApplyMyIndex` would implement the algorithm that given a query expression, with logical operators etc. nested at any level, finds if a query sub-expression can be replaced with usage of the custom index. For example:
+The `ApplyMyIndex` would implement the algorithm that given a query expression, with logical operators etc. nested at any level, finds if a query sub-expression can be replaced with usage of the custom index. For example here is how a simple transformer for a bean property index could be implemented:
 
 {{{
 public class ApplyMyIndex implements<HGQueryCondition,HGQueryCondition>
 {
+    public HGQueryCondition eval(HGQueryCondition in)
+    {
+       // 
+       if (in instanceof And)
+       {
+           AtomTypeCondition typeCondition = null;
+           AtomPartCondition partCondition = null;
+           And and = (And)in;
+           for (HGQueryCondition cond : and)
+           {
+               if (cond instanceof AtomTypeCondition)
+                   typeCondition = (AtomTypeCondition)cond;
+               else if (cond instanceof  AtomPartCondition)
+                   partCondition = (AtomPartCondition)cond;
+           }
+           And out = new And();
+           if (typeCondition != null && partCondition != null)
+           {
+               HGIndex idx = graph.getIndexManager().getIndex(new ByPartIndexer(typeCondition.getTypeHandle(),
+                                 partCondition.getDimensionPath());
+               if (idx != null)
+               {
+                   out.remove(typeCondition);
+                   out.remove(partCondition);
+                   out.add(new IndexCondition(idx, partCondition.getValue());
+               }
+           }
+           return out;
+       }
+       else return in;  
+    }
 }
 }}}

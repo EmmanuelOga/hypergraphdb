@@ -1,4 +1,4 @@
-++++++++++++++++++++++++++++++++++++#summary Explains how the query sub-system can be customized
+#summary Explains how the query sub-system can be customized
 
 = Introduction =
 

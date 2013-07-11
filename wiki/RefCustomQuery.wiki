@@ -65,3 +65,5 @@ public class ApplyMyIndex implements<HGQueryCondition,HGQueryCondition>
     }
 }
 }}}
+
+The code above hasn't been test or even compiled. The idea is that the query expression is traversed (a real implementation should actually go in recursively), and certain conditions or combinations thereof would be replaced by an index lookup.

@@ -137,7 +137,7 @@ where "QueryCondition" in our example is hg.type(String.class), but of course th
 For official query documentation see [https://code.google.com/p/hypergraphdb/wiki/IntroQuerying here]
 
 
-=How to query for handles?=
+=How to query?=
 Sometimes you need handles and also you do not want to dereference and deserialize all results of a query into memory. To query by returning handles is easy. It's the same as with getOne/getAll, but instead of h.getOne you use hg.findOne. Instead of hg.getAll, use hg.findAll. 
 
 We use this to confirm that we created actual duplicate atoms in the "Lorem ipsum" example above. We printout the handles, and check for equality with the handles obtained before: 
@@ -157,7 +157,6 @@ dceadb0c-318b-4249-917a-559d2f077fcc
 true
 
 For official query documentation see [https://code.google.com/p/hypergraphdb/wiki/IntroQuerying here]
-
 
 
 =How to store data uniquely?=
@@ -190,6 +189,65 @@ querying for link returned that duplicate Link? :true
 
 For official query documentation see [https://code.google.com/p/hypergraphdb/wiki/IntroQuerying here]
 
+=How to make your own link?=
+You might wonder where typical graph / hypergraph edges are in HypergraphDB. 
+Hgdb relies on a more general concept of a graph, which is based on tuples rather than the more common definition of sets of pairs.
+The main difference is that you must define the meaning of the position in the tuple yourself. You do that by implementing the HGLink interface, or simply by extending HGPlainLink. Hgdb itself is "unaware" which element(s) constitute the head / tail respectively. 
+
+As an example, consider the definition of the HGBergeLink class, which implements the more common Hyperarc definition in terms of HGPlainLink:
+{{{
+
+public class HGBergeLink extends HGPlainLink
+{
+	private int tailIndex = 0;
+	
+	public HGBergeLink(HGHandle...targets)
+	{
+	    super(targets);
+	}
+	
+	public HGBergeLink(int tailIndex, HGHandle...targets)
+	{
+		super(targets);
+		this.tailIndex = tailIndex;
+	}
+	
+	public HGBergeLink(HGHandle [] head, HGHandle [] tail)
+	{
+		HGHandle [] targets = new HGHandle[head.length + tail.length];
+		System.arraycopy(head, 0, targets, 0, head.length);
+		System.arraycopy(tail, 0, targets, head.length, tail.length);
+		tailIndex = head.length;
+	}
+
+	public Set<HGHandle> getHead()
+	{
+		HashSet<HGHandle> set = new HashSet<HGHandle>();
+		for (int i = 0; i < tailIndex; i++)
+			set.add(getTargetAt(i));
+		return set;
+	}
+	
+	public Set<HGHandle> getTail()
+	{
+		HashSet<HGHandle> set = new HashSet<HGHandle>();
+		for (int i = tailIndex; i < getArity(); i++)
+			set.add(getTargetAt(i));
+		return set;		
+	}
+	
+	public int getTailIndex()
+	{
+		return tailIndex;
+	}
+
+	public void setTailIndex(int tailIndex)
+	{
+		this.tailIndex = tailIndex;
+	}	
+}
+
+}}}
 
 =How to make relationships?=
 In the example above, we are created a link, but the information that the contained atoms are duplicates is silent. 

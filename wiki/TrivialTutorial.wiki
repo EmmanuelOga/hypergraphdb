@@ -352,6 +352,49 @@ Indexing is not required for querying, but done for performance reasons. For the
         }
 }}}
 
+
+
+=How to find the shortest path?=
+Assuming you have a graph with stored atoms A to Z, and some links that interconnect them in some way, such that A and Z are connected. For finding the shortest path between A and Z:
+
+{{{
+HyperGraph graph = ...;
+HGHandle A,B,C,D,Z,ab,bz,ac,cd,dz;
+
+// adjacency list (AL) generator describes which links and atoms are visited for the search. In many cases you might want to define a custom one
+HGALGenerator adjGen =  new DefaultALGenerator(graph);
+
+// Unless you only care about the length of the shortest path, you have to create a result map beforehand, so you can access the result later.
+Map<HGHandle, HGHandle> predecessorMap = new HashMap<HGHandle, HGHandle>();
+
+double paths = GraphClassics.dijkstra(
+                       A,        // start atom
+                       Z,        // goal atom
+                       adjGen,
+                       null,     // weights of links: null if all links count equal
+                       null,     // distance Matrix: In most cases it's ok to put null here, since you don't need to know the distances between all atoms. The length of the shortest path will be returned by the method
+
+                       predecessorMap  // not null, unless only length of shortest path is required);
+
+
+}}}
+
+However, this doesn't give you directly the shortest path, it has to be extracted from the predecessor map (which also contains other visited atoms that are not part of the shortest path). Here is a (not thoroughly tested) method for extracting it:
+
+{{{
+  public static List<HGHandle> extractShortestPath(Map<HGHandle, HGHandle> predecessorMap, HGHandle start, HGHandle goal){
+        List<HGHandle> shortestPath = new LinkedList<HGHandle>();
+        HGHandle currentPredecessor = goal;
+        while(currentPredecessor != start){
+            currentPredecessor = predecessorMap.get(currentPredecessor);
+            shortestPath.add(currentPredecessor);
+        }
+        return shortestPath;
+    }
+}}}
+
+
+
 =How and when to create custom types?=
 Generally you don't have to create a custom HGDB type yourself. If you just add an object of your type to the DB, it will create a corresponding HGDB type for you. If you make that choice to let HGDB create the type, you have to provide a default constructor (that is, a constructor with zero arguments) for your class. 
 If you want to create the type yourself, say because you want to optimize how the objects are stored, then for a property-based query to work you'd have to implement the HGCompositeType and HGAtomType interfaces.
@@ -386,7 +429,7 @@ All DB operations already ensure that a transaction is in effect so when you're 
 }}}
 For details, see [https://code.google.com/p/hypergraphdb/wiki/IntroTransactions here]
 
-=How to design my data?= 
+=How to represent my data?= 
 One point of confusion is what role links play in the representation of beans. The answer is: none, links are independent. This means the graph structure is something orthogonal  to, i.e. independent of, the representation of complex objects. If one wants to represent bean structures at the level of the atom graph, one can always write custom types to do it. However the current interfaces don't make it easy to do this in a generic way.
 So, it is recommended, that you make all your classes JavaBeans (and make sure they are recognized as such by the type system). This is the minimum to expose your "fields" and avoid you having to manually manage projection and custom types, etc.
 One pitfall is that non-primitive "fields" that are contained in your class, will be hidden and opaque and will prevent you from querying on them. In order to expose those relations, the easiest solution is to use links (alternatively, the HGAtomRef construct may help in some cases).

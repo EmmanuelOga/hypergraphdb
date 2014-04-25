@@ -18,7 +18,7 @@ import org.tmapi.core.TopicInUseException;
 
 public class HGAssociation extends HGScopedObject implements Association, HGLink
 {
-	HGHandle [] targetSet = HyperGraph.EMTPY_HANDLE_SET;
+	HGHandle [] targetSet = HyperGraph.EMPTY_HANDLE_SET;
 	Topic type = null;
 	
 	public HGAssociation()

@@ -11,13 +11,6 @@
   <artifactId>hgdbwordnet</artifactId>
   <name>HyperGraphDB WordNet Persistence</name>
   
-  <repositories>
-    <repository>
-      <id>hypergraphdb</id>
-      <url>http://hypergraphdb.org/maven</url>
-    </repository>
-  </repositories>
-  
   <dependencies>
     <dependency>
       <groupId>net.sf.jwordnet</groupId>
@@ -33,11 +26,6 @@
       <groupId>org.hypergraphdb</groupId>
       <artifactId>hgdbmanagement</artifactId>
       <version>${version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.hypergraphdb</groupId>
-      <artifactId>hgbdbje</artifactId>
-      <version>${version}</version>  
     </dependency>
   </dependencies>
 </project>

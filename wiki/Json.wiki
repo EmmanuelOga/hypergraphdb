@@ -9,7 +9,7 @@ The *HGDB mJson* component takes a different approach in storing JSON structures
 The representation is based on a very small (1 source file) and concise Json library, called mJson developed in the context of the [http://sharegov.org Sharegov] project:
 
 
-[Goto mJson Official Website http://bolerio.github.io/mjson/]
+[http://bolerio.github.io/mjson Goto mJson Official Website]
 
 = Get It = 
 

@@ -6,11 +6,10 @@
 
 The *HGDB mJson* component takes a different approach in storing JSON structures and records them as graphs where each JSON primitive value is stored as a HyperGraphDB node and each object and array as HyperGraphDB link. 
 
-The representation is based on a very small (1 source file) and concise Json library, called mJson developed in the context of the [http://sharegov.org Sharegov] project and described in the following blog entries:
+The representation is based on a very small (1 source file) and concise Json library, called mJson developed in the context of the [http://sharegov.org Sharegov] project:
 
-  # [http://sharegov.blogspot.com/2011/06/json-library.html Sharegov JSON Library]
-  # [http://sharegov.blogspot.com/2011/11/mjson-11-released.html mJson 1.1 Release]
-  # [http://sharegov.org/mjson/ mJson Official Page]
+
+[Goto mJson Official Website http://bolerio.github.io/mjson/]
 
 = Get It = 
 
@@ -26,7 +25,7 @@ Maven dependency:
 
 If you're not using Maven, here are direct links to get mJson and the HGDB storage component:
 
-  # [http://search.maven.org/remotecontent?filepath=org/sharegov/mjson/1.1/mjson-1.1.jar mjson-1.1.jar]
+  # [http://repo1.maven.org/maven2/org/sharegov/mjson/1.2/mjson-1.2.jar mjson-1.2.jar]
   # [http://www.hypergraphdb.org/maven/org/hypergraphdb/hgdbmjson/1.2/hgdbmjson-1.2.jar hgdbmjson-1.2.jar]
 
 And if you don't yet have HyperGraphDB in your project, make sure also you have the following (see IntroInstall):

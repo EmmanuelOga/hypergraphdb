@@ -11,12 +11,12 @@
   <properties>
     <packageit>bundle</packageit>
     <bundle.symbolicName>${groupId}-${artifactId};singleton:=true</bundle.symbolicName>
-    <bundle.namespace>org.hypergraphdb.app.dataflow</bundle.namespace>    
+    <bundle.namespace>org.hypergraphdb.app.ann</bundle.namespace>    
   </properties>
   <packaging>${packageit}</packaging>  
   
-  <artifactId>hgdbdataflow</artifactId>
-  <name>HyperGraphDB Dataflow Framework</name>
+  <artifactId>hgdbann</artifactId>
+  <name>HyperGraphDB Feed Foward Neural Network</name>
 
  <repositories>
     <repository>
@@ -26,35 +26,12 @@
  </repositories>
  
   <dependencies>
-    <dependency>
-	    <groupId>org.codehaus.jackson</groupId>
-	    <artifactId>jackson-core-asl</artifactId>
-	    <version>1.6.9</version>
-    </dependency>
-    
-    <dependency>
-	    <groupId>org.codehaus.jackson</groupId>
-	    <artifactId>jackson-mapper-asl</artifactId>
-	    <version>1.6.9</version>
-    </dependency>
-    
-    <dependency>
-	    <groupId>commons-logging</groupId>
-	    <artifactId>commons-logging</artifactId>
-	    <version>1.1.1</version>
-    </dependency>        
 	<dependency>
 	  <groupId>org.hypergraphdb</groupId>
 	  <artifactId>hgdb</artifactId>
 	  <version>${version}</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.hypergraphdb</groupId>
-	  <artifactId>hgdbp2p</artifactId>
-	  <version>${version}</version>
 	</dependency>	
   </dependencies>
-  
   <build>
    <plugins>
     <plugin>
@@ -68,10 +45,12 @@
             <Bundle-SymbolicName>${groupId}-${artifactId};singleton:=true</Bundle-SymbolicName>
             <Bundle-Name>${project.name}</Bundle-Name>
             <Bundle-Version>${project.version}</Bundle-Version>
-            <Export-Package>org.hypergraphdb.app.dataflow.*</Export-Package>
+            <Export-Package>org.hypergraphdb.app.ann.*</Export-Package>
+            <Import-Package>org.hypergraphdb.*</Import-Package>
+            <Require-Bundle>${groupId}-hgdb</Require-Bundle>
           </instructions>
         </configuration>
     </plugin>     
     </plugins>
-  </build>    
+  </build>   
 </project>

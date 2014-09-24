@@ -226,6 +226,7 @@ public class HGWordNetLoader
 		{
 			IndexWord word = (IndexWord) it.next();
 			String lemma = cleanupLemma(word.getLemma());
+			System.out.println(lemma);
 			if (wordIndex.findFirst(lemma) == null)
 				addWord(graph, lemma);
 			//System.out.println("Added " + (++i) + "th word " + lemma);

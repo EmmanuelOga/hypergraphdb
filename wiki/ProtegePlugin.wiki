@@ -13,7 +13,7 @@ The HGDB Protege Plugin integrates HyperGraphDB backed storage for OWL 2.0 ontol
 
 Protege itself is build on [http://www.osgi.org OSGI] and the plugin comes in the form of several bundles that you install simply by copying over in your Protege home installation directory. The downloads below are zip files that you can directly unzip into your protege home and restart protege:
 
-  * *For Protege 4.3* - Protege HyperGraphDB Plugin version 1.8beta. This simply an upgrade to match recent changes to the OWLAPI (version 3.4.2) and Protege 4.3. No functional changes, just some bug fixes and improvements on the codebase.
+  * *For Protege 4.3* - Protege HyperGraphDB Plugin version 1.8beta. This is simply an upgrade to match recent changes to the OWLAPI (version 3.4.2) and Protege 4.3. No functional changes, just some bug fixes and improvements on the codebase.
 
   [http://hypergraphdb.org/files/ProtegeHGDBPlugin-1.8-beta.zip download http://hypergraphdb.org/files/ProtegeHGDBPlugin-1.8-beta.zip]
 
@@ -24,3 +24,5 @@ Protege itself is build on [http://www.osgi.org OSGI] and the plugin comes in th
 = How to Use the Plugin =
 
 A quick 5 minute screen cast will walk you through the menus and operations available: http://sharegov.org/protegehgdb/HGOWLScreencast3.mp4
+
+More documentation to come...

@@ -18,8 +18,7 @@ One can use the standard `OWLReasoner` API and any of the available reasoners su
 
 While one can find several editors for ontologies, the most popular is by far the [http://protege.stanford.edu/ Protege Editor by Stanford University]. It is based on the OWLAPI standard which made it natural and straightforward to develop a HyperGraphDB plugin for it given the HGDB-OWL implementation. The plugin essentially dispenses you from the need to manage files, the need to save your work etc. Everything you do is automatically persisted. In addition you can have each ontology be versioned controlled in your database. 
 
-The plugin was developed in the context of the Sharegov.org _Citizen Relationship Management Project_. You can get download it from the sharegov website at http://sharegov.org/#!../protegehgdb/owltools.html.
-
+The plugin was developed in the context of the Sharegov.org _Citizen Relationship Management Project_. More about the plugin and download links for the various versions can be found on the ProtegePlugin page.
 == Usage - a Quick Guide ==
 
 You can use HGDB-OWL exclusively as an OWLAPI implementation. This approach is recommended if you want to leave the possibility open to easily switching to a different implementation. You can also write code using the HGDB API directly, for instance in order to take advantage of the querying facilities. Either way, first you start by populating with data and for this it's definitely easier to work at the OWL abstraction level.

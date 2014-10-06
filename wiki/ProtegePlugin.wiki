@@ -1,0 +1,11 @@
+#summary Protege OWL Editor Plugin
+
+= Introduction =
+
+The Protege plugin integrates HyperGraphDB backed storage for OWL 2.0 ontologies with the Protege OWL editor. The support for versioning is exposed as well. 
+
+= Installation and Compatibility =
+
+= How to Use the Plugin =
+
+

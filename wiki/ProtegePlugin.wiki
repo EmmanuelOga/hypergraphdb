@@ -2,7 +2,7 @@
 
 = What Is It? =
 
-The HGDB Protege Plugin integrates HyperGraphDB backed storage for OWL 2.0 ontologies with the popular Protege OWL editor (http://protege.stanford.edu/). The core features supports are:
+The HGDB Protege Plugin integrates HyperGraphDB backed storage for OWL 2.0 ontologies with the popular Protege OWL editor (http://protege.stanford.edu/). The core features supported are:
 
   # Automatic ontology persistence in HyperGraphDB back-end. Import/Export from/to standard OWL textual formats. All modifications in the editor are automatically persisted in a transactional way. 
   # Versioning of ontologies at the axiom level - every axiom change is recorded and tracked and can be inspected and reverted. That is, version management support full history, commits, rollbacks, reverts etc. 
@@ -11,7 +11,10 @@ The HGDB Protege Plugin integrates HyperGraphDB backed storage for OWL 2.0 ontol
 
 = Installation and Compatibility =
 
-Protege itself is build on OSGI and the plugin comes in the forms of several bundles that you install simply by copying over in your Protege home installation directory.
+Protege itself is build on [http://www.osgi.org OSGI] and the plugin comes in the form of several bundles that you install simply by copying over in your Protege home installation directory. The downloads below are zip files that you can directly unzip into your protege home and restart protege:
+
+  # Protege HyperGraphDB Plugin version 1.8beta - for Protege 4.3. This simply an upgrade to match recent changes to the OWLAPI (version 3.4.2) and Protege 4.3. No functional changes, just some bug fixes and improvements on the codebase.
+  # Protege HyperGraphDB Plugin version 1.7 - for Protege 4.1. This is the last official stable release. Note that this version will replace some of the core Protege bundles upon installation. 
 
 = How to Use the Plugin =
 

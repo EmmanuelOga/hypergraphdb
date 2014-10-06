@@ -1,11 +1,18 @@
 #summary Protege OWL Editor Plugin
 
-= Introduction =
+= What Is It? =
 
-The Protege plugin integrates HyperGraphDB backed storage for OWL 2.0 ontologies with the Protege OWL editor. The support for versioning is exposed as well. 
+The HGDB Protege Plugin integrates HyperGraphDB backed storage for OWL 2.0 ontologies with the popular Protege OWL editor (http://protege.stanford.edu/). The core features supports are:
+
+  # Automatic ontology persistence in HyperGraphDB back-end. Import/Export from/to standard OWL textual formats. All modifications in the editor are automatically persisted in a transactional way. 
+  # Versioning of ontologies at the axiom level - every axiom change is recorded and tracked and can be inspected and reverted. That is, version management support full history, commits, rollbacks, reverts etc. 
+  # Team features include sharing ontologies on a common repository and managing versions following the Subversion model with a centralized location. Merging of change sets is supported, but branching is not available yet (planned for next release).
+  # A few extra improvements to Protege itself that help dealing with large-scale ontologies such as search box for long lists of individuals or properties in some dialog boxes.
 
 = Installation and Compatibility =
 
+Protege itself is build on OSGI and the plugin comes in the forms of several bundles that you install simply by copying over in your Protege home installation directory.
+
 = How to Use the Plugin =
 
-
+A quick 5 minute screen cast will walk you through the menus and operations available: http://sharegov.org/protegehgdb/HGOWLScreencast3.mp4

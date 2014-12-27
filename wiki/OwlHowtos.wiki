@@ -35,6 +35,8 @@ HGDBOntology onto = (HGDBOntology)manager.createOntology(IRI.create("http://myon
 versionOnto = repo.addVersionControl(onto, "username");
 }}}
 
+That's all there is to it. The username provided as the 2nd argument to the `addVersionControl` method is just for the initial commit. It is not permanently associated with the ontology and each separate commit can be based on a separate username.
+
 === Modify a Versioned Ontology ===
 
 === Create a Version Branch ===

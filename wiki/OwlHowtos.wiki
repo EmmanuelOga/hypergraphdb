@@ -20,9 +20,20 @@ For example to create a versioned repository, just instantiate with a database l
 VHGDBOntologyRepository repo = new VHGDBOntologyRepository("/var/hypergraphdb/ontologydatabase");
 }}}
 
+Repositories are relatively light objects, so you can instantiate on a need by need basis. They do not open or close the databases. A database will be open on demand and then reused every time a repository is instantiated. As long as you provide the same database location, you don't have to worry.
+
 === Import an Existing Ontology into Database ===
 
 === Make an Ontology Versioned ===
+
+Given an ontology already stored in a database, you can make versioned by first instantiating a versioning repository and then adding it to version control:
+
+{{{
+repo = new VHGDBOntologyRepository("/var/hypergraphdb/ontologydatabase");
+manager = HGDBOWLManager.createOWLOntologyManager(repo);
+HGDBOntology onto = (HGDBOntology)manager.createOntology(IRI.create("http://myonto"));
+versionOnto = repo.addVersionControl(onto, "username");
+}}}
 
 === Modify a Versioned Ontology ===
 

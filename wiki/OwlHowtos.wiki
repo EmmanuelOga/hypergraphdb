@@ -22,9 +22,11 @@ The database location for this manager will be whatever is specified in `System.
 HGDBOntologyManager manager = HGOntologyManagerFactory.getOntologyManager("/var/db/owldata");
 }}}
 
-=== Create an OWL repository ===
+`HGDBOntologyManager` inherits from `OWLOntologyManager`, by the way.
 
-An OWL repository is associated with HyperGraphDB instance. Depending on the type of functionality you want, you can create one of several variants of a repository:
+=== The OWL Repositories ===
+
+The deal with actual database operations and various HGDB implementation extras, there is the notion of a `HGDBOntologyRepository`. An OWL repository is associated with a HyperGraphDB instance. Depending on the type of functionality you want, you can create one of several variants of a repository:
 
   * `HGDBOntologyRepository` for a plain repository that just stores OWL data into a database
   * `VHGDBOntologyRepository` allows you to manage versions of an ontology and keep history with operations like commit, rollback etc.
@@ -36,7 +38,14 @@ For example to create a versioned repository, just instantiate with a database l
 VHGDBOntologyRepository repo = new VHGDBOntologyRepository("/var/hypergraphdb/ontologydatabase");
 }}}
 
-Repositories are relatively light objects, so you can instantiate on a need by need basis. They do not open or close the databases. A database will be open on demand and then reused every time a repository is instantiated. As long as you provide the same database location, you don't have to worry.
+Repositories are light objects, so you can instantiate on a need by need basis. They do not open or close the databases. A database will be open on demand and then reused every time a repository is instantiated. As long as you provide the same database location, you don't have to worry. The `VDHGDBOntologyRepository` is a bit harder to construct because you have to provide connection information for the P2P network:
+
+{{{
+String connectionString = "hgpeer://user:password@hostname.com:5222#room1.chat.conference.hostname.com";
+VHGDBOntologyRepository repo = new VHGDBOntologyRepository("/var/hypergraphdb/ontologydatabase", connectionString);
+}}}
+
+Here _user_ and _password_ are your credentials to the XMPP server (e.g. Openfire) at _hostname.com:5222_ (the port is optional, defaults to 5222) and you would be joining the room _room1.chat.conference.hostname.com_ so you don't have to worry about rosters etc.
 
 === Import an Existing Ontology into Database ===
 

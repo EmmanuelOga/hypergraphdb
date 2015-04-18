@@ -6,6 +6,22 @@ This page contains code snippets answering "how do I?" type of questions regardi
 
 = Getting Started =
 
+=== Getting and OWLOntologyManager ===
+
+The `OWLOntologyManager` is the main entry point to the OWL API. You can have multiple managers, but each is linked to a single database location. To obtain an `OWLOntologyManager` use the `org.hypergraphdb.app.owl.HGOntologyManagerFactory`:
+
+{{{
+import org.hypergraphdb.app.owl.HGOntologyManagerFactory;
+
+OWLOntologyManager manager = new HGOntologyManagerFactory().buildOntologyManager();
+}}}
+
+The database location for this manager will be whatever is specified in `System.getProperty("hgdbowl.defaultdb")` or it will go in your OS temp folder if you haven't specified a system property. To specify the database location as a method argument instead, use the static method:
+
+{{{
+HGDBOntologyManager manager = HGOntologyManagerFactory.getOntologyManager("/var/db/owldata");
+}}}
+
 === Create an OWL repository ===
 
 An OWL repository is associated with HyperGraphDB instance. Depending on the type of functionality you want, you can create one of several variants of a repository:

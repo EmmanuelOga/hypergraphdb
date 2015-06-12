@@ -1,0 +1,1 @@
+  * http://en.wikipedia.org/wiki/Burstsort : fastest string sorting algo on Earth.

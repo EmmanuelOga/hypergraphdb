@@ -1,0 +1,6 @@
+  * [Is there a GUI or a debugging tool for HyperGraphDB?](#GUI_for_HyperGraphDB?.md)
+  * [Can I access HyperGraphDB from multiple threads?](#Can_I_access_HyperGraphDB_from_multiple_threads?.md)
+  * [I already have a Java API, how do I persist it as a graph?](#Creating_a_graph_based_on_existing_API.md)
+  * [Can I make any object into a link?](#Can_I_make_any_object_into_a_link?.md)
+  * [How can I add an object only if it doesn't exist?](#How_can_I_add_an_object_only_if_it_doesn't_exist?.md)
+  * [When should I use transactions?](#When_should_I_use_transactions?.md)

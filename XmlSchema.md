@@ -1,0 +1,3 @@
+The code is under apps/xsd. Started a couple of years ago, it was never finished. The goals are HGDB representation of all standard XSD types so that given an XML Schema, appropriate HGDB types can generated on-the-fly, with bytecode generation for speedier execution later. Primitive types works and complex types work to a point also, AFAIR.
+
+This project is waiting for interested volunteers to pick it up!
